@@ -1,0 +1,36 @@
+<VirtualHost *:80>
+
+    ServerAdmin bjoern.gruening@gmail.com
+    ServerName 127.0.0.1
+    ServerAlias localhost
+
+    <Proxy balancer://galaxyjobs>
+        BalancerMember http://localhost:8079
+    </Proxy>
+
+    <Proxy balancer://galaxy>
+        BalancerMember http://localhost:8080
+        #BalancerMember http://localhost:8081
+        #BalancerMember http://localhost:8082
+        #BalancerMember http://localhost:8083
+        #BalancerMember http://localhost:8111
+        #BalancerMember http://localhost:8112
+        #BalancerMember http://localhost:8113
+    </Proxy>
+
+    RewriteEngine on
+    #RewriteCond %{HTTP_HOST} localhost$
+    RewriteRule ^/static/style/(.*) /galaxy-central/static/june_2007_style/blue/$1 [L]
+    RewriteRule ^/static/scripts/(.*) /galaxy-central/static/scripts/packed/$1 [L]
+    RewriteRule ^/static/(.*) /galaxy-central/static/$1 [L]
+    RewriteRule ^/favicon.ico /galaxy-central/static/favicon.ico [L]
+    RewriteRule ^/robots.txt /galaxy-central/static/robots.txt [L]
+    RewriteRule ^/admin/jobs(.*) balancer://galaxyjobs/admin/jobs$1 [P]
+    RewriteRule ^/(.*) balancer://galaxy/$1 [P]
+
+
+    <Location "/">
+        XSendFile on
+        XSendFilePath /galaxy-central/
+    </Location>
+</VirtualHost>
