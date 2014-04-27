@@ -36,6 +36,9 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y ap
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y libapache2-mod-xsendfile
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y sudo
 
+# samtools is used to handle BAM files inside of Galaxy
+RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y samtools
+
 # Load required Apache Modules
 RUN a2enmod xsendfile
 RUN a2enmod proxy
