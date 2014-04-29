@@ -24,6 +24,8 @@ Let's start: ``docker run`` will run the Image/Container for you. In case you do
 
 ``docker run -i -t -p 8080:80 bgruening/galaxy-stable``
 
+and run the ``` startup ``` script by your own, to start PostgreSQL, Apache and Galaxy.
+
 Docker images are "read-only", all your changes inside one session will be lost after restart. This mode is usefull to present Galaxy to your collegues or to run workshops with it. To install Tool Shed respositories or to save your data you need to export the calculated data to the host computer.
 
 Fortunately, this is as easy as:
