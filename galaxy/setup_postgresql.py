@@ -35,8 +35,10 @@ def create_pg_db(user, password, database, database_path):
     # initialize a new postgres database
     subprocess.call('sudo -u postgres %s --auth=trust --pgdata=%s' % (os.path.join(PG_BIN, 'initdb'), database_path), shell=True)
 
-    os.symlink('/etc/ssl/certs/ssl-cert-snakeoil.pem', os.path.join(database_path, 'server.crt'))
-    os.symlink('/etc/ssl/private/ssl-cert-snakeoil.key', os.path.join(database_path, 'server.key'))
+    shutil.copy('/etc/ssl/certs/ssl-cert-snakeoil.pem', os.path.join(database_path, 'server.crt'))
+    shutil.copy('/etc/ssl/private/ssl-cert-snakeoil.key', os.path.join(database_path, 'server.key'))
+    set_pg_permission( os.path.join(database_path, 'server.crt') )
+    set_pg_permission( os.path.join(database_path, 'server.key') )
 
     # change data_directory in postgresql.conf and start the service with the new location
     pg_ctl( database_path, 'start' )
