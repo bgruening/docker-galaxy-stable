@@ -2,7 +2,7 @@
 #
 # VERSION       0.1.1
 
-FROM debian:wheezy
+FROM ubuntu:14.04
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -31,7 +31,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y pk
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y openjdk-7-jre-headless
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y python-setuptools
 
-# Used to get Galaxy running in Docker with Apache2 and PostgreSQL
+# Setup Postgres
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y postgresql
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y apache2
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y libapache2-mod-xsendfile
@@ -70,7 +70,7 @@ RUN python scripts/fetch_eggs.py
 
 # Define the default postgresql database path
 # If you want to save your data locally you need to set GALAXY_DOCKER_MODE=HOST
-ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.1/main/
+ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
