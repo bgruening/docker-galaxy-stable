@@ -1,7 +1,7 @@
 Galaxy Docker Image
 ===================
 
-The [Galaxy](www.galaxyproject.org) [Docker](www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features.
+The [Galaxy](http://www.galaxyproject.org) [Docker](http://www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features.
 
 One of the main goals is to make the access to entire tool suites as easy as possible. Usually, 
 this includes the setup of a public available webservice that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server. 
