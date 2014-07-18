@@ -108,7 +108,7 @@ VOLUME ["/export/"]
 EXPOSE :80
 
 # Autostart script that is invoked during container start
-CMD ["/usr/bin/startup"]
 RUN rm ./.hg/ -rf
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+CMD ["/usr/bin/startup"]
