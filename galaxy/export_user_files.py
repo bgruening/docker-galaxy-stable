@@ -39,6 +39,7 @@ if __name__ == "__main__":
         change_path('/shed_tools/')
         change_path('/galaxy-central/job_conf.xml')
         change_path('/galaxy-central/shed_tool_conf.xml')
+        change_path('/galaxy-central/integrated_tool_panel.xml')
 
         if not os.path.exists( PG_DATA_DIR_HOST ) or 'PG_VERSION' not in os.listdir( PG_DATA_DIR_HOST ):
             dest_dir = os.path.dirname( PG_DATA_DIR_HOST )
