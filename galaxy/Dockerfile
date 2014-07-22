@@ -64,8 +64,6 @@ RUN sed -i 's|#tool_config_file|tool_config_file|g' ~/galaxy-central/universe_ws
 RUN sed -i 's|#tool_path|tool_path|g' ~/galaxy-central/universe_wsgi.ini
 RUN sed -i 's|#admin_users = None|admin_users = admin@galaxy.org|g' ~/galaxy-central/universe_wsgi.ini
 RUN sed -i 's|#master_api_key=changethis|master_api_key=HSNiugRFvgT574F43jZ7N9F3|g' ~/galaxy-central/universe_wsgi.ini
-# Render SVG images properly
-RUN sed -i 's|#serve_xss_vulnerable_mimetypes.*|serve_xss_vulnerable_mimetypes = True|g' ~/galaxy-central/universe_wsgi.ini
 RUN sed -i 's|#brand = None|brand = Galaxy Docker Build|g' ~/galaxy-central/universe_wsgi.ini
 
 # Fetching all Galaxy python dependencies
