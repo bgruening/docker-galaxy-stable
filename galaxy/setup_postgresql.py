@@ -33,7 +33,7 @@ def create_pg_db(user, password, database, database_path):
     os.makedirs( database_path )
     set_pg_permission( database_path )
     # initialize a new postgres database
-    subprocess.call('sudo -u postgres %s --auth=trust --pgdata=%s' % (os.path.join(PG_BIN, 'initdb'), database_path), shell=True)
+    subprocess.call("su - postgres -c '%s --auth=trust --pgdata=%s'" % (os.path.join(PG_BIN, 'initdb'), database_path), shell=True)
 
     shutil.copy('/etc/ssl/certs/ssl-cert-snakeoil.pem', os.path.join(database_path, 'server.crt'))
     shutil.copy('/etc/ssl/private/ssl-cert-snakeoil.key', os.path.join(database_path, 'server.key'))
@@ -42,10 +42,11 @@ def create_pg_db(user, password, database, database_path):
 
     # change data_directory in postgresql.conf and start the service with the new location
     pg_ctl( database_path, 'start' )
-    password = "'%s'" % ('galaxy')
-    subprocess.call( 'sudo -u postgres psql --command "CREATE USER galaxy WITH SUPERUSER PASSWORD %s;"' % (password), shell=True )
 
-    subprocess.call('sudo -u postgres createdb -O %s %s' % (user, database), shell=True)
+    subprocess.call( """su - postgres -c "psql --command \\"CREATE USER galaxy WITH SUPERUSER PASSWORD 'galaxy'\\";"
+                    """, shell=True )
+
+    subprocess.call("su - postgres -c 'createdb -O %s %s'" % (user, database), shell=True)
 
 
 if __name__ == "__main__":

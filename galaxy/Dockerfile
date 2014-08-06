@@ -35,7 +35,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y py
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y postgresql
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y apache2
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y libapache2-mod-xsendfile
-RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y sudo
 
 # samtools is used to handle BAM files inside of Galaxy
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y samtools
