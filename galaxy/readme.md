@@ -22,9 +22,9 @@ After the successful installation, all what you need to do is:
 I will shortly explain the meaning of all the parameters. For a more detailed describtion please consult the [docker manual](http://docs.docker.io/), it's really worth reading.
 Let's start: ``docker run`` will run the Image/Container for you. In case you do not have the Container stored locally, docker will download it for you. ``-p 8080:80`` will make the port 80 (inside of the container) available on port 8080 on your host. Inside the container a Apache Webserver is running on port 80 and that port can be bound to a local port on your host computer. With this parameter you can access your Galaxy instance via ``http://localhost:8080`` immediately after executing the command above. ``bgruening/galaxy-stable`` is the Image/Container name, that directs docker to the correct path in the [docker index](https://index.docker.io/u/bgruening/galaxy-stable/). ``-d`` will start the docker container in daemon mode. For an interactive session, you can execute:
 
-``docker run -i -t -p 8080:80 bgruening/galaxy-stable``
+``docker run -i -t -p 8080:80 bgruening/galaxy-stable /bin/bash``
 
-and run the ``` startup ``` script by your own, to start PostgreSQL, Apache and Galaxy.
+and run the ``` startup ``` script by yourself, to start PostgreSQL, Apache and Galaxy.
 
 Docker images are "read-only", all your changes inside one session will be lost after restart. This mode is usefull to present Galaxy to your collegues or to run workshops with it. To install Tool Shed respositories or to save your data you need to export the calculated data to the host computer.
 
