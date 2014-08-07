@@ -1,4 +1,4 @@
-# Galaxy - ChemicalToolBox
+# Galaxy - Stable
 #
 # VERSION       0.1
 
