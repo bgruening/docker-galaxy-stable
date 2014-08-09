@@ -30,8 +30,14 @@ def change_path( src ):
 
 
 if __name__ == "__main__":
-
-    if os.path.exists('/export/'):
+    """
+        If the '/export/' folder exist, meaning docker was started with '-v /home/foo/bar:/export',
+        we will link every file that needs to persist to the host system. Addionaly a file (/.galaxy_save) is
+        created that indicates all linking is already done.
+        If the user re-starts (with docker start) the container the file /.galaxy_save is found and the linking
+        is aborted.
+    """
+    if os.path.exists('/export/') and not os.path.exists('/.galaxy_save'):
         change_path('/galaxy-central/universe_wsgi.ini')
         change_path('/galaxy-central/database/files/')
         change_path('/galaxy-central/database/job_working_directory/')
@@ -60,5 +66,6 @@ if __name__ == "__main__":
         cmd = 'sed -i "s|data_directory = .*|data_directory = %s|g" %s' % (new_data_directory, PG_CONF)
         subprocess.call(cmd, shell=True)
 
-
+        # mark user files as exported
+        open('/.galaxy_save', 'a').close()
 
