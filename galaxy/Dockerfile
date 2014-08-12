@@ -50,7 +50,7 @@ RUN a2enmod rewrite
 RUN hg clone https://bitbucket.org/galaxy/galaxy-central/
 WORKDIR /galaxy-central
 RUN hg pull
-RUN hg update next-stable
+RUN hg update latest_2014.08.11
 
 # Configure Galaxy to use the Tool Shed
 RUN cp ~/galaxy-central/universe_wsgi.ini.sample ~/galaxy-central/universe_wsgi.ini
