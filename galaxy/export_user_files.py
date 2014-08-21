@@ -42,7 +42,7 @@ if __name__ == "__main__":
         change_path('/galaxy-central/database/files/')
         change_path('/galaxy-central/database/job_working_directory/')
         change_path('/galaxy-central/tool_deps/')
-        change_path('/galaxy-central/tool_data/')
+        change_path('/galaxy-central/tool-data/')
         change_path('/shed_tools/')
         change_path('/galaxy-central/job_conf.xml')
         change_path('/galaxy-central/shed_tool_conf.xml')
