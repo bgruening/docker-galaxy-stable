@@ -83,6 +83,7 @@ RUN chmod +x /usr/bin/startup
 RUN cp /tmp/ctb.apache /etc/apache2/sites-available/
 
 RUN a2ensite ctb.apache
+RUN a2dissite 000-default
 RUN service apache2 restart
 RUN service postgresql stop
 
