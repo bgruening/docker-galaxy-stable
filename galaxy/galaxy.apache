@@ -1,6 +1,6 @@
 <VirtualHost *:80>
 
-    ServerAdmin bjoern.gruening@gmail.com
+    ServerAdmin galaxy-stable@docker-image.org
     ServerName 127.0.0.1
     ServerAlias localhost
 
