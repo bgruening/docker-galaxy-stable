@@ -82,7 +82,7 @@ ADD ./startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
 RUN mv /tmp/galaxy.apache /etc/apache2/sites-available/
 
-RUN a2ensite ctb.apache
+RUN a2ensite galaxy.apache
 RUN a2dissite 000-default
 RUN service apache2 restart
 RUN service postgresql stop
