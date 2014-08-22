@@ -1,6 +1,6 @@
 # Galaxy - Stable
 #
-# VERSION       0.1
+# VERSION       0.1.1
 
 FROM debian:wheezy
 
@@ -76,13 +76,13 @@ ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.1/main/
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
 ADD ./create_galaxy_user.py /galaxy-central/create_galaxy_user.py
 ADD ./export_user_files.py /galaxy-central/export_user_files.py
-ADD ./ctb.apache /tmp/ctb.apache
+ADD ./galaxy.apache /tmp/galaxy.apache
 ADD ./startup.sh /usr/bin/startup
 
 RUN chmod +x /usr/bin/startup
-RUN cp /tmp/ctb.apache /etc/apache2/sites-available/
+RUN mv /tmp/galaxy.apache /etc/apache2/sites-available/
 
-RUN a2ensite ctb.apache
+RUN a2ensite galaxy.apache
 RUN service apache2 restart
 RUN service postgresql stop
 
