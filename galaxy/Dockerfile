@@ -28,7 +28,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y me
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y subversion
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y python-dev
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y pkg-config
-RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y openjdk-7-jre
+RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y openjdk-7-jre-headless
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y python-setuptools
 
 # Used to get Galaxy running in Docker with Apache2 and PostgreSQL
