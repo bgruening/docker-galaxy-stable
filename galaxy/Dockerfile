@@ -44,6 +44,21 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y su
 # samtools is used to handle BAM files inside of Galaxy
 RUN DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y samtools
 
+# Install docker client (currently 1.2) to allow running Galaxy tools in Docker.
+RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y apt-transport-https
+RUN sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+RUN DEBIAN_FRONTEND=noninteractive apt-get -qq update
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y lxc-docker
+
+# Setup SLURM
+RUN DEBIAN_FRONTEND=noninteractive apt-get install -y slurm-llnl slurm-llnl-torque slurm-drmaa-dev
+# TODO use fixed key
+RUN /usr/sbin/create-munge-key
+RUN mkdir -p /var/run/munge
+RUN chown root:root /var/lib/munge/ /var/log/munge/ /var/run/munge /etc/munge/ /etc/munge/munge.key
+ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
+
 # Download and update Galaxy to the latest stable release
 RUN hg clone https://bitbucket.org/galaxy/galaxy-central/
 WORKDIR /galaxy-central
@@ -76,6 +91,7 @@ ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
 ADD ./create_galaxy_user.py /galaxy-central/create_galaxy_user.py
 ADD ./export_user_files.py /galaxy-central/export_user_files.py
+ADD ./job_conf.xml /galaxy-central/job_conf.xml
 ADD ./startup.sh /usr/bin/startup
 
 RUN chmod +x /usr/bin/startup
@@ -108,6 +124,8 @@ RUN cat /galaxy-central/servers.ini >> /galaxy-central/universe_wsgi.ini
 
 # Expose port 80 to the host
 EXPOSE :80
+
+
 
 RUN rm ./.hg/ -rf
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*

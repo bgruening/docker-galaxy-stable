@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<job_conf>
+    <plugins workers="2">
+        <plugin id="slurm" type="runner" load="galaxy.jobs.runners.slurm:SlurmJobRunner">
+            <param id="drmaa_library_path">/usr/lib/slurm-drmaa/lib/libdrmaa.so</param>
+        </plugin>
+    </plugins>
+    <handlers default="handlers">
+        <handler id="handler0" tags="handlers"/>
+        <handler id="handler1" tags="handlers"/>
+    </handlers>
+    <destinations default="cluster">
+        <destination id="cluster" runner="slurm">
+            <!-- <param id="docker_enabled">true</param> -->
+            <param id="docker_sudo">false</param>
+            <param id="docker_volumes_from">galaxy</param>
+        </destination>
+    </destinations>
+    <limits>
+    </limits>
+</job_conf>
