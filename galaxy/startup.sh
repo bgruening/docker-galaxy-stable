@@ -5,7 +5,5 @@ cd /galaxy-central/
 # symlinks will point from the original location to the new path under /export/
 # If /export/ is not given, nothing will happen in that step
 python ./export_user_files.py $PG_DATA_DIR_DEFAULT
-service postgresql start
-service apache2 start
-# start Galaxy
-./run.sh
+
+/usr/bin/supervisord
