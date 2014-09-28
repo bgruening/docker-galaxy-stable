@@ -50,7 +50,7 @@ RUN hg clone https://bitbucket.org/galaxy/galaxy-central/
 WORKDIR /galaxy-central
 RUN hg pull
 #RUN hg update latest_2014.08.11
-RUN hg update default
+RUN hg update next-stable
 
 # Configure Galaxy to use the Tool Shed
 RUN cp /galaxy-central/config/galaxy.ini.sample /galaxy-central/config/galaxy.ini
@@ -59,9 +59,6 @@ RUN mkdir /galaxy-central/tool_deps
 
 # Fetching all Galaxy python dependencies
 RUN python scripts/fetch_eggs.py
-
-RUN sed -i 's|#database_connection.*|database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy|g' /galaxy-central/config/galaxy.ini
-RUN sed -i 's|debug = True|debug = False|g' /galaxy-central/config/galaxy.ini
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION postgresql://galaxy:galaxy@localhost:5432/galaxy
 ENV GALAXY_CONFIG_TOOL_DEPENDENCY_DIR ./tool_deps
