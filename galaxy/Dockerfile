@@ -50,7 +50,7 @@ RUN hg clone https://bitbucket.org/galaxy/galaxy-central/
 WORKDIR /galaxy-central
 RUN hg pull
 #RUN hg update latest_2014.08.11
-RUN hg update default
+RUN hg update next-stable
 
 # Configure Galaxy to use the Tool Shed
 RUN cp /galaxy-central/config/galaxy.ini.sample /galaxy-central/config/galaxy.ini
