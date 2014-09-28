@@ -60,7 +60,6 @@ RUN mkdir /galaxy-central/tool_deps
 # Fetching all Galaxy python dependencies
 RUN python scripts/fetch_eggs.py
 
-RUN sed -i 's|#database_connection.*|database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy|g' /galaxy-central/config/galaxy.ini
 RUN sed -i 's|debug = True|debug = False|g' /galaxy-central/config/galaxy.ini
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION postgresql://galaxy:galaxy@localhost:5432/galaxy
