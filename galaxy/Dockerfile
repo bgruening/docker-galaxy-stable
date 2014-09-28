@@ -59,9 +59,6 @@ ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
 ADD ./create_galaxy_user.py /galaxy-central/create_galaxy_user.py
 ADD ./export_user_files.py /galaxy-central/export_user_files.py
-ADD ./startup.sh /usr/bin/startup
-
-RUN chmod +x /usr/bin/startup
 
 # Configure PostgreSQL
 # 1. Remove all old configuration
@@ -86,6 +83,9 @@ ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
 
 ADD ./servers.ini /galaxy-central/config/servers.ini
 RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini
+
+ADD ./startup.sh /usr/bin/startup
+RUN chmod +x /usr/bin/startup
 
 # Expose port 80 to the host
 EXPOSE :80
