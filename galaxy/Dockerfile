@@ -30,7 +30,7 @@ ENV DEBIAN_FRONTEND newt
 # Download and update Galaxy to the latest stable release
 RUN hg clone https://bitbucket.org/galaxy/galaxy-central/ && \
     cd /galaxy-central/ && \
-    hg update next-stable && \
+    hg update latest_2014.10.06 && \
     rm /galaxy-central/.hg/ -rf
 
 WORKDIR /galaxy-central
