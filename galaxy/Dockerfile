@@ -85,7 +85,7 @@ ADD ./nginx.conf /etc/nginx/nginx.conf
 ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
 
 ADD ./servers.ini /galaxy-central/config/servers.ini
-RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini
+RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
 
 ADD ./startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
