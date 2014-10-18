@@ -22,7 +22,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake \
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker && \
+    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker proftpd proftpd-mod-pgsql && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV DEBIAN_FRONTEND newt
@@ -53,6 +53,8 @@ ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 ENV GALAXY_CONFIG_JOB_WORKING_DIRECTORY /export/galaxy-central/database/job_working_directory
 ENV GALAXY_CONFIG_FILE_PATH /export/galaxy-central/database/files
 ENV GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY /export/galaxy-central/database/pbs
+ENV GALAXY_CONFIG_FTP_UPLOAD_DIR /export/galaxy-central/database/ftp
+
 
 # Define the default postgresql database path
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
@@ -75,8 +77,7 @@ RUN service postgresql start && sleep 5 && python create_galaxy_user.py --user a
 RUN service postgresql start && sh run.sh --daemon && sleep 60 && sh run.sh --stop-daemon
 
 # nginx and uwsgi Will be controller by supervisor
-RUN update-rc.d -f uwsgi remove
-RUN update-rc.d -f nginx remove
+RUN update-rc.d -f uwsgi remove && update-rc.d -f nginx remove && update-rc.d -f proftpd remove
 
 RUN virtualenv /root/venv
 
@@ -86,6 +87,11 @@ ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
 
 ADD ./servers.ini /galaxy-central/config/servers.ini
 RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
+
+ADD ./proftpd.conf /etc/proftpd/proftpd.conf
+RUN echo 'LoadModule mod_sql_postgres.c' >> /etc/proftpd/modules.conf && \
+    echo 'LoadModule mod_sql_passwd.c' >> /etc/proftpd/modules.conf
+
 
 ADD ./startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
@@ -98,7 +104,7 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated
 
 # Expose port 80 to the host
 EXPOSE :80
-
+EXPOSE :21
 
 # Mark one folders as imported from the host.
 VOLUME ["/export/"]
