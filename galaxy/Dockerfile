@@ -50,6 +50,9 @@ ENV GALAXY_CONFIG_MASTER_API_KEY HSNiugRFvgT574F43jZ7N9F3
 ENV GALAXY_CONFIG_BRAND Galaxy Docker Build
 ENV GALAXY_CONFIG_STATIC_ENABLED False
 ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
+ENV GALAXY_CONFIG_JOB_WORKING_DIRECTORY /export/galaxy-central/database/job_working_directory
+ENV GALAXY_CONFIG_FILE_PATH /export/galaxy-central/database/files
+ENV GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY /export/galaxy-central/database/pbs
 
 # Define the default postgresql database path
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
@@ -86,6 +89,12 @@ RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini
 
 ADD ./startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
+
+RUN mkdir /galaxy-central/database/job_working_directory/ /galaxy-central/database/files/
+
+# This needs to happen here and not above, otherwise the Galaxy start 
+# (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
+ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
 # Expose port 80 to the host
 EXPOSE :80
