@@ -47,6 +47,7 @@ if __name__ == "__main__":
     change_path('/galaxy-central/config/')
     change_path('/galaxy-central/static/welcome.html')
     change_path('/galaxy-central/integrated_tool_panel.xml')
+    change_path('/galaxy-central/display_applications/')
     change_path('/galaxy-central/tool_deps/')
     change_path('/galaxy-central/tool-data/')
     change_path('/shed_tools/')
