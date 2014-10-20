@@ -22,7 +22,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake \
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker && \
+    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker zlib1g-dev && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV DEBIAN_FRONTEND newt
