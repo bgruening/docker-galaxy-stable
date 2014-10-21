@@ -100,6 +100,10 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated
 EXPOSE :80
 
 
+
+RUN rm ./.hg/ -rf
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
 # Mark one folders as imported from the host.
 VOLUME ["/export/"]
 
