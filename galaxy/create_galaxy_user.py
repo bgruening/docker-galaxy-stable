@@ -23,6 +23,7 @@ def add_user(email, password, key=None):
     if query.count() > 0:
         return query.first()
     else:
+        User.use_pbkdf2 = False
         user = User(email)
         user.set_password_cleartext(password)
         sa_session.add(user)

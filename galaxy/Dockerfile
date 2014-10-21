@@ -54,11 +54,27 @@ ENV GALAXY_CONFIG_JOB_WORKING_DIRECTORY /export/galaxy-central/database/job_work
 ENV GALAXY_CONFIG_FILE_PATH /export/galaxy-central/database/files
 ENV GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY /export/galaxy-central/database/pbs
 ENV GALAXY_CONFIG_FTP_UPLOAD_DIR /export/galaxy-central/database/ftp
-
+ENV GALAXY_CONFIG_USE_PBKDF2 False
 
 # Define the default postgresql database path
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
 ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
+
+
+RUN virtualenv /root/venv
+
+RUN mkdir -p /opt/nginx/conf
+ADD ./nginx.conf /etc/nginx/nginx.conf
+ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
+
+ADD ./servers.ini /galaxy-central/config/servers.ini
+RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
+
+ADD ./proftpd.conf /etc/proftpd/proftpd.conf
+RUN echo 'LoadModule mod_sql.c' >> /etc/proftpd/modules.conf && \
+    echo 'LoadModule mod_sql_passwd.c' >> /etc/proftpd/modules.conf && \
+    echo 'LoadModule mod_sql_postgres.c' >> /etc/proftpd/modules.conf
+
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
@@ -78,20 +94,6 @@ RUN service postgresql start && sh run.sh --daemon && sleep 60 && sh run.sh --st
 
 # nginx and uwsgi Will be controller by supervisor
 RUN update-rc.d -f uwsgi remove && update-rc.d -f nginx remove && update-rc.d -f proftpd remove
-
-RUN virtualenv /root/venv
-
-RUN mkdir -p /opt/nginx/conf
-ADD ./nginx.conf /etc/nginx/nginx.conf
-ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
-
-ADD ./servers.ini /galaxy-central/config/servers.ini
-RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
-
-ADD ./proftpd.conf /etc/proftpd/proftpd.conf
-RUN echo 'LoadModule mod_sql_postgres.c' >> /etc/proftpd/modules.conf && \
-    echo 'LoadModule mod_sql_passwd.c' >> /etc/proftpd/modules.conf
-
 
 ADD ./startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
