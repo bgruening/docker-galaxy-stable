@@ -22,7 +22,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake \
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque slurm-drmaa-dev && \
+    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque slurm-drmaa-dev zlib1g-dev && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV DEBIAN_FRONTEND newt
@@ -107,12 +107,8 @@ ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
 # Expose port 80 to the host
 EXPOSE :80
 
-
-RUN rm ./.hg/ -rf
-RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-# Mark one folders as imported from the host.
-VOLUME ["/export/"]
+# Mark folders as imported from the host.
+VOLUME ["/export/", "/data/"]
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
