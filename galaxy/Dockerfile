@@ -22,7 +22,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake \
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker && \
+    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque slurm-drmaa-dev && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV DEBIAN_FRONTEND newt
@@ -96,9 +96,16 @@ RUN mkdir /galaxy-central/database/job_working_directory/ /galaxy-central/databa
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
+
+# Setup SLURM
+# TODO use fixed key
+RUN /usr/sbin/create-munge-key
+RUN mkdir -p /var/run/munge && chown root:root /var/lib/munge/ /var/log/munge/ /var/run/munge /etc/munge/ /etc/munge/munge.key
+ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
+
+
 # Expose port 80 to the host
 EXPOSE :80
-
 
 
 RUN rm ./.hg/ -rf
