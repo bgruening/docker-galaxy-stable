@@ -99,9 +99,8 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated
 # Expose port 80 to the host
 EXPOSE :80
 
-
-# Mark one folders as imported from the host.
-VOLUME ["/export/"]
+# Mark folders as imported from the host.
+VOLUME ["/export/", "/data/"]
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
