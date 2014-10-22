@@ -22,7 +22,8 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake \
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque slurm-drmaa-dev zlib1g-dev && \
+    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque \
+     slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV DEBIAN_FRONTEND newt
@@ -43,20 +44,47 @@ RUN mkdir /galaxy-central/tool_deps
 # Fetching all Galaxy python dependencies
 RUN python scripts/fetch_eggs.py
 
+# Updating genome informations from UCSC
+#RUN export GALAXY=/galaxy-central/ && sh ./cron/updateucsc.sh.sample
+
 ENV GALAXY_CONFIG_DATABASE_CONNECTION postgresql://galaxy:galaxy@localhost:5432/galaxy
 ENV GALAXY_CONFIG_TOOL_DEPENDENCY_DIR ./tool_deps
 ENV GALAXY_CONFIG_ADMIN_USERS admin@galaxy.org
 ENV GALAXY_CONFIG_MASTER_API_KEY HSNiugRFvgT574F43jZ7N9F3
 ENV GALAXY_CONFIG_BRAND Galaxy Docker Build
 ENV GALAXY_CONFIG_STATIC_ENABLED False
-ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 ENV GALAXY_CONFIG_JOB_WORKING_DIRECTORY /export/galaxy-central/database/job_working_directory
 ENV GALAXY_CONFIG_FILE_PATH /export/galaxy-central/database/files
 ENV GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY /export/galaxy-central/database/pbs
+ENV GALAXY_CONFIG_FTP_UPLOAD_DIR /export/galaxy-central/database/ftp
+ENV GALAXY_CONFIG_FTP_UPLOAD_SITE galaxy.docker.org
+ENV GALAXY_CONFIG_USE_PBKDF2 False
+ENV GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE /_x_accel_redirect
+ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
+ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
+ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 
 # Define the default postgresql database path
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
 ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
+
+# Setting a standard encoding. This can get important for things like the unix sort tool.
+ENV LC_ALL en_US.utf-8
+
+RUN virtualenv /root/venv
+
+RUN mkdir -p /opt/nginx/conf
+ADD ./nginx.conf /etc/nginx/nginx.conf
+ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
+
+ADD ./servers.ini /galaxy-central/config/servers.ini
+RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
+
+ADD ./proftpd.conf /etc/proftpd/proftpd.conf
+RUN echo 'LoadModule mod_sql.c' >> /etc/proftpd/modules.conf && \
+    echo 'LoadModule mod_sql_passwd.c' >> /etc/proftpd/modules.conf && \
+    echo 'LoadModule mod_sql_postgres.c' >> /etc/proftpd/modules.conf
+
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
@@ -75,17 +103,7 @@ RUN service postgresql start && sleep 5 && python create_galaxy_user.py --user a
 RUN service postgresql start && sh run.sh --daemon && sleep 60 && sh run.sh --stop-daemon
 
 # nginx and uwsgi Will be controller by supervisor
-RUN update-rc.d -f uwsgi remove
-RUN update-rc.d -f nginx remove
-
-RUN virtualenv /root/venv
-
-RUN mkdir -p /opt/nginx/conf
-ADD ./nginx.conf /etc/nginx/nginx.conf
-ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
-
-ADD ./servers.ini /galaxy-central/config/servers.ini
-RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
+RUN update-rc.d -f uwsgi remove && update-rc.d -f nginx remove && update-rc.d -f proftpd remove
 
 ADD ./startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
@@ -106,6 +124,7 @@ ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
 
 # Expose port 80 to the host
 EXPOSE :80
+EXPOSE :21
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/"]

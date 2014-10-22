@@ -87,6 +87,9 @@ The Galaxy Admin User has the username ``admin@galaxy.org`` and the password ``a
 The PostgreSQL username is ``galaxy``, the password is ``galaxy`` and the database name is ``galaxy`` (I know I was really creative ;)).
 If you want to create new users, please make sure to use the ``/export/`` volume. Otherwise your user will be removed after your docker session is finished.
 
+The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the 
+docker container in production, please do not forget to change the user credentials in /etc/proftp/proftpd.conf too.
+
 
 Requirements
 ============

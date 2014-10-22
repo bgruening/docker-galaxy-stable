@@ -6,6 +6,8 @@ cd /galaxy-central/
 # If /export/ is not given, nothing will happen in that step
 python ./export_user_files.py $PG_DATA_DIR_DEFAULT
 
+mkdir -p /export/galaxy-central/database/ftp/
+
 # Configure SLURM with runtime hostname.
 python /usr/sbin/configure_slurm.py
 
