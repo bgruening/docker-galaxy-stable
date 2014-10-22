@@ -43,23 +43,32 @@ RUN mkdir /galaxy-central/tool_deps
 # Fetching all Galaxy python dependencies
 RUN python scripts/fetch_eggs.py
 
+# Updating genome informations from UCSC
+#RUN export GALAXY=/galaxy-central/ && sh ./cron/updateucsc.sh.sample
+
 ENV GALAXY_CONFIG_DATABASE_CONNECTION postgresql://galaxy:galaxy@localhost:5432/galaxy
 ENV GALAXY_CONFIG_TOOL_DEPENDENCY_DIR ./tool_deps
 ENV GALAXY_CONFIG_ADMIN_USERS admin@galaxy.org
 ENV GALAXY_CONFIG_MASTER_API_KEY HSNiugRFvgT574F43jZ7N9F3
 ENV GALAXY_CONFIG_BRAND Galaxy Docker Build
 ENV GALAXY_CONFIG_STATIC_ENABLED False
-ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 ENV GALAXY_CONFIG_JOB_WORKING_DIRECTORY /export/galaxy-central/database/job_working_directory
 ENV GALAXY_CONFIG_FILE_PATH /export/galaxy-central/database/files
 ENV GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY /export/galaxy-central/database/pbs
 ENV GALAXY_CONFIG_FTP_UPLOAD_DIR /export/galaxy-central/database/ftp
+ENV GALAXY_CONFIG_FTP_UPLOAD_SITE galaxy.docker.org
 ENV GALAXY_CONFIG_USE_PBKDF2 False
+ENV GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE /_x_accel_redirect
+ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
+ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
+ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 
 # Define the default postgresql database path
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
 ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
 
+# Setting a standard encoding. This can get important for things like the unix sort tool.
+ENV LC_ALL en_US.utf-8
 
 RUN virtualenv /root/venv
 
