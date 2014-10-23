@@ -70,6 +70,7 @@ ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
 
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 ENV LC_ALL en_US.utf-8
+RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 RUN virtualenv /root/venv
 
