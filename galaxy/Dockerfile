@@ -26,8 +26,6 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
      slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV DEBIAN_FRONTEND newt
-
 # Download and update Galaxy to the latest stable release
 RUN hg clone https://bitbucket.org/galaxy/galaxy-central/ && \
     cd /galaxy-central/ && \
@@ -45,7 +43,7 @@ RUN mkdir /galaxy-central/tool_deps
 RUN python scripts/fetch_eggs.py
 
 # Updating genome informations from UCSC
-#RUN export GALAXY=/galaxy-central/ && sh ./cron/updateucsc.sh.sample
+RUN export GALAXY=/galaxy-central/ && sh ./cron/updateucsc.sh.sample
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION postgresql://galaxy:galaxy@localhost:5432/galaxy
 ENV GALAXY_CONFIG_TOOL_DEPENDENCY_DIR ./tool_deps
