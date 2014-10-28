@@ -79,6 +79,8 @@ ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
 ADD ./servers.ini /galaxy-central/config/servers.ini
 RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
 
+ADD ./job_conf.xml /galaxy-central/config/job_conf.xml
+
 ADD ./proftpd.conf /etc/proftpd/proftpd.conf
 RUN echo 'LoadModule mod_sql.c' >> /etc/proftpd/modules.conf && \
     echo 'LoadModule mod_sql_passwd.c' >> /etc/proftpd/modules.conf && \
