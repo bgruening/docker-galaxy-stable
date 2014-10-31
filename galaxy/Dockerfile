@@ -122,6 +122,8 @@ RUN /usr/sbin/create-munge-key
 RUN mkdir -p /var/run/munge && chown root:root /var/lib/munge/ /var/log/munge/ /var/run/munge /etc/munge/ /etc/munge/munge.key
 ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
 
+# Add optional watchdog dependency to Galaxy's environment.
+RUN . /root/venv/bin/activate && pip install watchdog
 
 # Expose port 80 to the host
 EXPOSE :80
