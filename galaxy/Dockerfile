@@ -23,7 +23,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque \
-     slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql && \
+    slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql libyaml-dev && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Download and update Galaxy to the latest stable release
