@@ -6,11 +6,15 @@ cd /galaxy-central/
 # If /export/ is not given, nothing will happen in that step
 python ./export_user_files.py $PG_DATA_DIR_DEFAULT
 
-mkdir -p /export/galaxy-central/database/ftp/
-
 # Configure SLURM with runtime hostname.
 python /usr/sbin/configure_slurm.py
 
 /usr/bin/supervisord
 sleep 5
-tail -f /root/*.log
+
+if [ `echo $GALAXY_LOGGING | tr [:upper:] [:lower:]` = "full" ]
+    then 
+        tail -f /root/*.log /var/log/supervisor/*
+    else
+        tail -f /root/*.log
+fi
