@@ -1,6 +1,6 @@
 # Galaxy - Stable
 #
-# VERSION       0.2.0
+# VERSION       Galaxy-central
 
 FROM ubuntu:14.04
 
@@ -23,13 +23,13 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque \
-    slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql libyaml-dev && \
+    slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Download and update Galaxy to the latest stable release
 RUN hg clone https://bitbucket.org/galaxy/galaxy-central/ && \
     cd /galaxy-central/ && \
-    hg update latest_2014.10.06 && \
+    hg update default && \
     rm /galaxy-central/.hg/ -rf
 
 WORKDIR /galaxy-central
@@ -60,7 +60,11 @@ ENV GALAXY_CONFIG_USE_PBKDF2 False
 ENV GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE /_x_accel_redirect
 ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
 ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
+ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGER True
+ENV GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY config/plugins/interactive_environments
+ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
 ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
+
 
 # Define the default postgresql database path
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
@@ -125,9 +129,13 @@ ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
 # Add optional watchdog dependency to Galaxy's environment.
 RUN . /root/venv/bin/activate && pip install watchdog
 
-# Expose port 80 to the host
+# Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
+RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
+
+# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy)
 EXPOSE :80
 EXPOSE :21
+EXPOSE :8800
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/"]
