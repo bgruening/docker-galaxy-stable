@@ -9,6 +9,8 @@ python ./export_user_files.py $PG_DATA_DIR_DEFAULT
 # Configure SLURM with runtime hostname.
 python /usr/sbin/configure_slurm.py
 
+bash /root/cgroupfs_mount.sh
+
 /usr/bin/supervisord
 sleep 5
 

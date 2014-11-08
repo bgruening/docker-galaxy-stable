@@ -23,7 +23,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque \
-    slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm && \
+    slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # Download and update Galaxy to the latest stable release
@@ -60,7 +60,7 @@ ENV GALAXY_CONFIG_USE_PBKDF2 False
 ENV GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE /_x_accel_redirect
 ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
 ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
-ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGER True
+ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE False
 ENV GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY config/plugins/interactive_environments
 ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
 ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
@@ -119,12 +119,13 @@ RUN mkdir /galaxy-central/database/job_working_directory/ /galaxy-central/databa
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
-
 # Setup SLURM
 # TODO use fixed key
 RUN /usr/sbin/create-munge-key
 RUN mkdir -p /var/run/munge && chown root:root /var/lib/munge/ /var/log/munge/ /var/run/munge /etc/munge/ /etc/munge/munge.key
 ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
+# SLURM don't like world writeable StateSaveLocation folders
+RUN chmod 774 /tmp
 
 # Add optional watchdog dependency to Galaxy's environment.
 RUN . /root/venv/bin/activate && pip install watchdog
@@ -132,13 +133,18 @@ RUN . /root/venv/bin/activate && pip install watchdog
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
 
+ADD ./cgroupfs_mount.sh /root/cgroupfs_mount.sh
+
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy)
 EXPOSE :80
 EXPOSE :21
 EXPOSE :8800
 
+RUN apt-get -qq update && apt-get install --no-install-recommends -y nano nmap lynx vim
+
+
 # Mark folders as imported from the host.
-VOLUME ["/export/", "/data/"]
+VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
