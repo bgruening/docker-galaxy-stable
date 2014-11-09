@@ -36,6 +36,7 @@ WORKDIR /galaxy-central
 
 # Configure Galaxy to use the Tool Shed
 RUN cp /galaxy-central/config/galaxy.ini.sample /galaxy-central/config/galaxy.ini
+RUN cp /galaxy-central/config/reports_wsgi.ini.sample /galaxy-central/config/reports_wsgi.ini
 RUN mkdir /shed_tools
 RUN mkdir /galaxy-central/tool_deps
 
@@ -43,7 +44,7 @@ RUN mkdir /galaxy-central/tool_deps
 RUN python scripts/fetch_eggs.py
 
 # Updating genome informations from UCSC
-RUN export GALAXY=/galaxy-central/ && sh ./cron/updateucsc.sh.sample
+RUN export GALAXY=/galaxy-central && sh ./cron/updateucsc.sh.sample
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION postgresql://galaxy:galaxy@localhost:5432/galaxy
 ENV GALAXY_CONFIG_TOOL_DEPENDENCY_DIR ./tool_deps
@@ -58,13 +59,13 @@ ENV GALAXY_CONFIG_FTP_UPLOAD_DIR /export/galaxy-central/database/ftp
 ENV GALAXY_CONFIG_FTP_UPLOAD_SITE galaxy.docker.org
 ENV GALAXY_CONFIG_USE_PBKDF2 False
 ENV GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE /_x_accel_redirect
+ENV GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE /_x_accel_redirect
 ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
 ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
 ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE False
 ENV GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY config/plugins/interactive_environments
 ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
 ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
-
 
 # Define the default postgresql database path
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
@@ -135,13 +136,13 @@ RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
 
 ADD ./cgroupfs_mount.sh /root/cgroupfs_mount.sh
 
-# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy)
+# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9001 (Galaxy report app)
 EXPOSE :80
 EXPOSE :21
 EXPOSE :8800
+EXPOSE :9001
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y nano nmap lynx vim
-
+RUN apt-get -qq update && apt-get install --no-install-recommends -y nano nmap lynx vim curl
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
