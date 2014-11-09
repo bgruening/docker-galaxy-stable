@@ -39,6 +39,33 @@ With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
 
+Enabling Interactive Environments in Galaxy
+-------------------------------------------
+
+Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like IPython, in a secure and reproducible way.
+For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.
+
+``docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
+
+The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker.
+
+
+Enabling the Galaxy Report Tool
+-------------------------------
+
+For admins wishing to have more information on the status of a galaxy instance, you can start this image with ``-p 9001:9001`` to serve the Galaxy Report Tool 
+on port 9001 on your host system.
+
+``docker run -d -p 8080:80 -p 8021:21 -p 9001:9001 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
+
+
+Advaced logging
+---------------
+
+You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:
+
+``docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable``
+
 
 Extending the docker Image
 ==========================
