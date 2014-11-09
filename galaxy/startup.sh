@@ -16,7 +16,7 @@ sleep 5
 
 if [ `echo $GALAXY_LOGGING | tr [:upper:] [:lower:]` = "full" ]
     then 
-        tail -f /root/*.log /var/log/supervisor/*
+        tail -f /root/*.log /var/log/supervisor/* /var/log/nginx/*
     else
         tail -f /root/*.log
 fi
