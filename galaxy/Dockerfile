@@ -65,6 +65,8 @@ ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
 ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE False
 ENV GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY config/plugins/interactive_environments
 ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
+# Next line allow child docker container for viz to find this docker container.
+ENV GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL http://$HOST_IP/
 ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 
 # Define the default postgresql database path
