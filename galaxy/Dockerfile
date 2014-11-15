@@ -40,7 +40,7 @@ RUN mkdir /shed_tools
 RUN mkdir /galaxy-central/tool_deps
 
 # Fetching all Galaxy python dependencies
-RUN python scripts/fetch_eggs.py
+RUN python scripts/fetch_eggs.py && python scripts/fetch_eggs.py -e drmaa
 
 # Updating genome informations from UCSC
 RUN export GALAXY=/galaxy-central && sh ./cron/updateucsc.sh.sample
@@ -62,7 +62,6 @@ ENV GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE /_x_accel_redirect
 ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
 ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
 ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE False
-ENV GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY config/plugins/interactive_environments
 ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
 # Next line allow child docker container for viz to find this docker container.
 ENV GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL http://$HOST_IP/
@@ -136,6 +135,10 @@ RUN . /root/venv/bin/activate && pip install watchdog
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
 
 ADD ./cgroupfs_mount.sh /root/cgroupfs_mount.sh
+
+# Container Style
+ADD GalaxyDocker.png /galaxy-central/static/welcome/GalaxyDocker.png
+ADD welcome.html /galaxy-central/static/welcome.html
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9001 (Galaxy report app)
 EXPOSE :80
