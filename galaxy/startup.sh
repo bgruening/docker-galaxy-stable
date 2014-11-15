@@ -10,8 +10,9 @@ python ./export_user_files.py $PG_DATA_DIR_DEFAULT
 # Configure SLURM with runtime hostname.
 python /usr/sbin/configure_slurm.py
 
+# Try to guess if we are running under --privileged mode
 if mount | grep "/proc/kcore"; then
-    echo "Disable Galaxy Interactive Environments. Start with --privilegd to enable IE's."
+    echo "Disable Galaxy Interactive Environments. Start with --privileged to enable IE's."
     export GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY=""
     /usr/bin/supervisord
     sleep 5
