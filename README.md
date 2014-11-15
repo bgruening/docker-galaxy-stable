@@ -59,8 +59,8 @@ on port 9001 on your host system.
 ``docker run -d -p 8080:80 -p 8021:21 -p 9001:9001 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
 
 
-Advaced logging
----------------
+Advanced logging
+----------------
 
 You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:
 
@@ -132,6 +132,9 @@ History
    - with Apache2, PostgreSQL and Tool Shed integration
  - 0.2: complete new Galaxy stack.
    - with nginx, uwsgi, proftpd, docker, supervisord and SLURM
+ - 0.3: Add Interactive Environments
+   - IPython in docker in Galaxy in docker
+   - advanged logging
 
 
 Support & Bug Reports
