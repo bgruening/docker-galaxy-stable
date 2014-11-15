@@ -10,12 +10,21 @@ python ./export_user_files.py $PG_DATA_DIR_DEFAULT
 # Configure SLURM with runtime hostname.
 python /usr/sbin/configure_slurm.py
 
-bash /root/cgroupfs_mount.sh
+if mount | grep "/proc/kcore"; then
+    echo "Disable Galaxy Interactive Environments. Start with --privilegd to enable IE's."
+    export GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY=""
+    /usr/bin/supervisord
+    sleep 5
+else
+    echo "Enable Galaxy Interactive Environments."
+    export GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY="config/plugins/interactive_environments"
+    bash /root/cgroupfs_mount.sh
+    /usr/bin/supervisord
+    sleep 5
+    supervisorctl start docker
+fi
 
-/usr/bin/supervisord
-sleep 5
-
-if [ `echo $GALAXY_LOGGING | tr [:upper:] [:lower:]` = "full" ]
+if [ `echo ${GALAXY_LOGGING:-'no'} | tr [:upper:] [:lower:]` = "full" ]
     then 
         tail -f /root/*.log /var/log/supervisor/* /var/log/nginx/*
     else
