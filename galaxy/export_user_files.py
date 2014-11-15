@@ -51,7 +51,11 @@ if __name__ == "__main__":
     change_path('/galaxy-central/tool_deps/')
     change_path('/galaxy-central/tool-data/')
     change_path('/shed_tools/')
-    change_path('/var/lib/docker/')
+    try:
+        change_path('/var/lib/docker/')
+    except:
+        # In case of unprivileged access this will result in a "Device or resource busy." error.
+        pass
 
     if not os.path.exists( PG_DATA_DIR_HOST ) or 'PG_VERSION' not in os.listdir( PG_DATA_DIR_HOST ):
         dest_dir = os.path.dirname( PG_DATA_DIR_HOST )
