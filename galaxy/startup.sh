@@ -27,7 +27,7 @@ fi
 
 if [ `echo ${GALAXY_LOGGING:-'no'} | tr [:upper:] [:lower:]` = "full" ]
     then 
-        tail -f /root/*.log /var/log/supervisor/* /var/log/nginx/*
+        tail -f /var/log/supervisor/* /var/log/nginx/* /home/galaxy/*.log
     else
-        tail -f /root/*.log
+        tail -f /home/galaxy/*.log
 fi

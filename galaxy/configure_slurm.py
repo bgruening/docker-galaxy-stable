@@ -38,7 +38,7 @@ SlurmUser=$user
 #SlurmdUser=root
 #SrunEpilog=
 #SrunProlog=
-StateSaveLocation=/tmp
+StateSaveLocation=/tmp/slurm
 SwitchType=switch/none
 #TaskEpilog=
 TaskPlugin=task/none
@@ -81,7 +81,7 @@ PartitionName=debug Nodes=$hostname Default=YES MaxTime=INFINITE State=UP
 
 
 def main():
-    template_params = {"hostname": gethostname(), "user": getuser()}
+    template_params = {"hostname": gethostname(), "user": 'galaxy'} #getuser()
     config_contents = Template(SLURM_CONFIG_TEMPLATE).substitute(template_params)
     open("/etc/slurm-llnl/slurm.conf", "w").write(config_contents)
 
