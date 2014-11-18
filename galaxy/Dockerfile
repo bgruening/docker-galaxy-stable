@@ -78,6 +78,7 @@ ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
 ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
 ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE False
 ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
+ENV GALAXY_CONFIG_TRUST_IPYTHON_NOTEBOOK_CONVERSION True
 # Next line allow child docker container for viz to find this docker container.
 ENV GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL http://$HOST_IP/
 ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
@@ -95,7 +96,7 @@ ADD ./job_conf.xml /galaxy-central/config/job_conf.xml
 #RUN mkdir /galaxy-central/database/job_working_directory/ /galaxy-central/database/files/
 
 # Add optional watchdog dependency to Galaxy's environment.
-RUN . /home/galaxy/venv/bin/activate && pip install watchdog
+RUN . /home/galaxy/venv/bin/activate && pip install watchdog ipython pygments jinja2
 
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
@@ -108,7 +109,7 @@ ADD welcome.html /galaxy-central/static/welcome.html
 USER root
 
 # Setting a standard encoding. This can get important for things like the unix sort tool.
-ENV LC_ALL en_US.utf-8
+ENV LC_ALL en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 RUN mkdir -p /opt/nginx/conf
