@@ -22,10 +22,9 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake \
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque \
+    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 
 RUN groupadd -r galaxy -g 450 && \
     useradd -u 451 -r -g galaxy -d /home/galaxy -c "Galaxy user" galaxy && \
@@ -81,6 +80,8 @@ ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
 ENV GALAXY_CONFIG_TRUST_IPYTHON_NOTEBOOK_CONVERSION True
 # Next line allow child docker container for viz to find this docker container.
 ENV GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL http://$HOST_IP/
+ENV GALAXY_CONFIG_SANITIZE_ALL_HTML False
+ENV GALAXY_CONFIG_TOOLFORM_UPGRADE True
 ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 
 # Define the default postgresql database path
@@ -96,7 +97,8 @@ ADD ./job_conf.xml /galaxy-central/config/job_conf.xml
 #RUN mkdir /galaxy-central/database/job_working_directory/ /galaxy-central/database/files/
 
 # Add optional watchdog dependency to Galaxy's environment.
-RUN . /home/galaxy/venv/bin/activate && pip install watchdog ipython pygments jinja2
+# We need the psutil library to configure SLURM at startup. It's not needed by Galaxy.
+RUN . /home/galaxy/venv/bin/activate && pip install watchdog ipython pygments jinja2 psutil
 
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
@@ -150,7 +152,7 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated
 # Setup SLURM
 # TODO use fixed key
 RUN /usr/sbin/create-munge-key
-RUN mkdir -p /var/run/munge && chown galaxy:galaxy /var/lib/munge/ /var/log/munge/ /var/run/munge /etc/munge/ /etc/munge/munge.key
+RUN mkdir -p /var/run/munge && chown root:root /var/lib/munge/ /var/log/munge/ /var/run/munge /etc/munge/ /etc/munge/munge.key
 ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
 # SLURM don't like world writeable StateSaveLocation folders
 RUN mkdir /tmp/slurm && chown galaxy:galaxy /tmp/slurm
