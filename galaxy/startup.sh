@@ -19,10 +19,19 @@ if mount | grep "/proc/kcore"; then
 else
     echo "Enable Galaxy Interactive Environments."
     export GALAXY_CONFIG_INTERACTIVE_ENVIRONMENT_PLUGINS_DIRECTORY="config/plugins/interactive_environments"
-    bash /root/cgroupfs_mount.sh
-    /usr/bin/supervisord
-    sleep 5
-    supervisorctl start docker
+    if [ x$DOCKER_PARENT == "x" ]; then 
+        #build the docker in docker environment
+        bash /root/cgroupfs_mount.sh
+        /usr/bin/supervisord
+        sleep 5
+        supervisorctl start docker
+    else
+        #inheriting /var/run/docker.sock from parent, assume that you need to
+        #run docker with sudo to validate
+        echo "galaxy ALL = NOPASSWD : ALL" >> /etc/sudoers
+        /usr/bin/supervisord
+        sleep 5
+    fi
 fi
 
 if [ `echo ${GALAXY_LOGGING:-'no'} | tr [:upper:] [:lower:]` = "full" ]
