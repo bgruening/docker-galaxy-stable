@@ -143,7 +143,9 @@ RUN service postgresql start && sudo -u galaxy -i -- sh -c "cd /galaxy-central/ 
 RUN update-rc.d -f uwsgi remove && update-rc.d -f nginx remove && update-rc.d -f proftpd remove
 
 ADD ./startup.sh /usr/bin/startup
-RUN chmod +x /usr/bin/startup
+# Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
+ADD install_repo_wrapper.sh /usr/bin/install-repository
+RUN chmod +x /usr/bin/install-repository /usr/bin/startup
 
 # This needs to happen here and not above, otherwise the Galaxy start 
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
