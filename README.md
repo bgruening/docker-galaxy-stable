@@ -59,6 +59,14 @@ on port 9001 on your host system.
 ``docker run -d -p 8080:80 -p 8021:21 -p 9001:9001 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
 
 
+Restarting Galaxy
+-----------------
+
+If you want to restart Galaxy without restarting the entire Galaxy container we can use `docker exec` (docker > 1.3).
+
+```docker exec <container name> supervisorctl restart galaxy:```
+
+
 Advanced logging
 ----------------
 
