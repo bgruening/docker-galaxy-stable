@@ -32,7 +32,7 @@ RUN groupadd -r galaxy -g 450 && \
     gpasswd -a galaxy docker
 
 # Download and update Galaxy to the latest stable release
-RUN hg clone --rev latest_2015.01.13 https://bitbucket.org/galaxy/galaxy-central/ && \
+RUN hg clone --rev default https://bitbucket.org/galaxy/galaxy-central/ && \
     cd /galaxy-central/ && \
     rm /galaxy-central/.hg/ -rf && chown galaxy:galaxy /galaxy-central/ -R
 
