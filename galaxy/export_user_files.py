@@ -24,6 +24,8 @@ def change_path( src ):
                 os.makedirs(dest_dir)
             shutil.move( src, dest )
             os.symlink( dest, src.rstrip('/') )
+            os.chown( src, 451, 450 )
+            subprocess.call('chown -R 451:450 %s' % dest, shell=True)
         # if destination exists (e.g. continuing a previous session), remove source and symlink
         else:
             if os.path.isdir( src ):
@@ -44,6 +46,9 @@ if __name__ == "__main__":
     if os.path.exists( '/export/.distribution_config/' ):
         shutil.rmtree( '/export/.distribution_config/' )
     shutil.copytree( '/galaxy-central/config/', '/export/.distribution_config/' )
+    if not os.path.exists( '/export/galaxy-central/' ):
+        os.makedirs("/export/galaxy-central/")
+        os.chown("/export/galaxy-central/", 451, 450)
     change_path('/galaxy-central/config/')
     change_path('/galaxy-central/static/welcome.html')
     change_path('/galaxy-central/integrated_tool_panel.xml')
@@ -51,6 +56,11 @@ if __name__ == "__main__":
     change_path('/galaxy-central/tool_deps/')
     change_path('/galaxy-central/tool-data/')
     change_path('/shed_tools/')
+    try:
+        change_path('/var/lib/docker/')
+    except:
+        # In case of unprivileged access this will result in a "Device or resource busy." error.
+        pass
 
     if not os.path.exists( PG_DATA_DIR_HOST ) or 'PG_VERSION' not in os.listdir( PG_DATA_DIR_HOST ):
         dest_dir = os.path.dirname( PG_DATA_DIR_HOST )

@@ -19,7 +19,7 @@ After the successful installation, all what you need to do is:
 
 ``docker run -d -p 8080:80 -p 8021:21 bgruening/galaxy-stable``
 
-I will shortly explain the meaning of all the parameters. For a more detailed describtion please consult the [docker manual](http://docs.docker.io/), it's really worth reading.
+I will shortly explain the meaning of all the parameters. For a more detailed description please consult the [docker manual](http://docs.docker.io/), it's really worth reading.
 Let's start: ``docker run`` will run the Image/Container for you. In case you do not have the Container stored locally, docker will download it for you. ``-p 8080:80`` will make the port 80 (inside of the container) available on port 8080 on your host. Same holds for port 8021, that can be used to transfer data via the FTP protocol. Inside the container a Apache Webserver is running on port 80 and that port can be bound to a local port on your host computer. With this parameter you can access your Galaxy instance via ``http://localhost:8080`` immediately after executing the command above. ``bgruening/galaxy-stable`` is the Image/Container name, that directs docker to the correct path in the [docker index](https://index.docker.io/u/bgruening/galaxy-stable/). ``-d`` will start the docker container in daemon mode. For an interactive session, you can execute:
 
 ``docker run -i -t -p 8080:80 bgruening/galaxy-stable /bin/bash``
@@ -32,12 +32,54 @@ Fortunately, this is as easy as:
 
 ``docker run -d -p 8080:80 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
 
-With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting Apache, PostgreSQL and Galaxy, will recognise the export directory with one of the following outcomes:
+With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting Apache, PostgreSQL and Galaxy, will recognize the export directory with one of the following outcomes:
 
   - In case of an empty ``/export/`` directory, it will move the [PostgreSQL](http://www.postgresql.org/) database, the Galaxy database directory, Shed Tools and Tool Dependencies and various config scripts to /export/ and symlink back to the original location.
-  - In case of a non-empty ``/export/``, for example if you continue a previouse session within the same folder, nothing will be moved, but the symlinks will be created.
+  - In case of a non-empty ``/export/``, for example if you continue a previous session within the same folder, nothing will be moved, but the symlinks will be created.
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
+
+Enabling Interactive Environments in Galaxy
+-------------------------------------------
+
+Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like IPython, in a secure and reproducible way.
+For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.
+
+``docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
+
+The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker.
+
+Using Parent docker
+-------------------
+On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue,
+you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the 
+environmental variable DOCKER_PARENT
+
+``docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true -e DOCKER_PARENT=True -v /var/run/docker.sock:/var/run/docker.sock -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
+
+Enabling the Galaxy Report Tool
+-------------------------------
+
+For admins wishing to have more information on the status of a galaxy instance, you can start this image with ``-p 9001:9001`` to serve the Galaxy Report Tool 
+on port 9001 on your host system.
+
+``docker run -d -p 8080:80 -p 8021:21 -p 9001:9001 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
+
+
+Restarting Galaxy
+-----------------
+
+If you want to restart Galaxy without restarting the entire Galaxy container we can use `docker exec` (docker > 1.3).
+
+```docker exec <container name> supervisorctl restart galaxy:```
+
+
+Advanced logging
+----------------
+
+You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:
+
+``docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable``
 
 
 Extending the docker Image
@@ -105,6 +147,9 @@ History
    - with Apache2, PostgreSQL and Tool Shed integration
  - 0.2: complete new Galaxy stack.
    - with nginx, uwsgi, proftpd, docker, supervisord and SLURM
+ - 0.3: Add Interactive Environments
+   - IPython in docker in Galaxy in docker
+   - advanged logging
 
 
 Support & Bug Reports
