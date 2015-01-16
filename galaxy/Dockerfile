@@ -114,7 +114,6 @@ USER root
 ENV LC_ALL en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
-RUN mkdir -p /opt/nginx/conf
 ADD ./nginx.conf /etc/nginx/nginx.conf
 ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
 
