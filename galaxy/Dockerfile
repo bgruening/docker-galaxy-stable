@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM ubuntu:14.04
+FROM toolshed/requirements
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -11,19 +11,15 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-ENV DEBIAN_FRONTEND noninteractive
-
 RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https  software-properties-common && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
     sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
     apt-get update -qq && apt-get upgrade -y && \
     add-apt-repository ppa:galaxyproject/nginx && apt-get -qq update && \
     apt-get purge -y software-properties-common && \
-    apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake wget \
-    git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
-    openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
+    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \ 
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque libswitch-perl \
-    slurm-drmaa-dev zlib1g-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools && \
+    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN groupadd -r galaxy -g 450 && \
