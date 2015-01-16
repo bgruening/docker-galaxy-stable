@@ -114,7 +114,6 @@ USER root
 ENV LC_ALL en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
-RUN mkdir -p /opt/nginx/conf
 ADD ./nginx.conf /etc/nginx/nginx.conf
 ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
 
@@ -170,6 +169,8 @@ EXPOSE :9001
 RUN apt-get -qq update && apt-get install --no-install-recommends -y nano nmap lynx vim curl
 
 RUN mkdir -p /galaxy-central/database/tmp/upload_store && chown galaxy:galaxy /galaxy-central/database/tmp/upload_store
+# We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
+ENV HOME /home/galaxy
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
