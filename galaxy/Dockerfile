@@ -19,7 +19,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get update -qq && apt-get upgrade -y && \
     add-apt-repository ppa:galaxyproject/nginx && apt-get -qq update && \
     apt-get purge -y software-properties-common && \
-    apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake \
+    apt-get install --no-install-recommends -y autoconf automake build-essential gfortran cmake wget \
     git-core libatlas-base-dev libblas-dev liblapack-dev mercurial subversion python-dev pkg-config \
     openjdk-7-jre-headless python-setuptools python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque libswitch-perl \
