@@ -27,10 +27,11 @@ RUN groupadd -r galaxy -g 450 && \
     mkdir /export/ /home/galaxy/ && chown -R galaxy:galaxy /home/galaxy /export/ && \
     gpasswd -a galaxy docker
 
-# Download and update Galaxy to the latest stable release
-RUN hg clone --rev latest_2015.01.13 https://bitbucket.org/galaxy/galaxy-central/ && \
-    cd /galaxy-central/ && \
-    rm /galaxy-central/.hg/ -rf && chown galaxy:galaxy /galaxy-central/ -R
+
+# Download latest stable release of Galaxy.
+ENV GALAXY_RELEASE latest_2015.01.13
+ENV GALAXY_ROOT /galaxy-central/
+RUN mkdir $GALAXY_ROOT && wget -q -O - https://bitbucket.org/galaxy/galaxy-central/get/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R galaxy:galaxy $GALAXY_ROOT
 
 RUN mkdir /shed_tools && chown galaxy:galaxy /shed_tools
 
