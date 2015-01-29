@@ -15,25 +15,48 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
     sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
     apt-get update -qq && apt-get upgrade -y && \
-    add-apt-repository ppa:galaxyproject/nginx && apt-get -qq update && \
+    apt-add-repository -y ppa:ansible/ansible && \
+    add-apt-repository ppa:galaxyproject/nginx && \
+    apt-get -qq update && \
     apt-get purge -y software-properties-common && \
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \ 
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker slurm-llnl slurm-llnl-torque libswitch-perl \
-    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools && \
+    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools ansible \
+    nano nmap lynx vim curl python-pip && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-RUN groupadd -r galaxy -g 450 && \
-    useradd -u 451 -r -g galaxy -d /home/galaxy -c "Galaxy user" galaxy && \
-    mkdir /export/ /home/galaxy/ && chown -R galaxy:galaxy /home/galaxy /export/ && \
-    gpasswd -a galaxy docker
-
 
 # Download latest stable release of Galaxy.
 ENV GALAXY_RELEASE latest_2015.01.13
-ENV GALAXY_ROOT /galaxy-central/
-RUN mkdir $GALAXY_ROOT && wget -q -O - https://bitbucket.org/galaxy/galaxy-central/get/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R galaxy:galaxy $GALAXY_ROOT
+ENV GALAXY_ROOT /galaxy-central
+# TODO: make this /etc/galaxy
+ENV GALAXY_CONFIG_DIR /galaxy-central/config
+ENV GALAXY_VIRTUALENV /home/galaxy/venv
+ENV GALAXY_USER galaxy
+ENV GALAXY_HOME /home/galaxy
+ENV EXPORT_DIR /export
 
-RUN mkdir /shed_tools && chown galaxy:galaxy /shed_tools
+RUN groupadd -r $GALAXY_USER -g 450 && \
+    useradd -u 451 -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
+    mkdir $EXPORT_DIR $GALAXY_HOME && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR && \
+    gpasswd -a $GALAXY_USER docker
+
+RUN mkdir $GALAXY_ROOT && wget -q -O - https://bitbucket.org/galaxy/galaxy-central/get/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT
+
+# TODO: ensure virtualenv as part of galaxy role
+RUN su $GALAXY_USER -c "virtualenv $GALAXY_VIRTUALENV"
+
+# Setup Galaxy configuration files.
+RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_DIR/galaxy.ini && \
+                        cp $GALAXY_ROOT/config/reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini"
+ADD roles/ /tmp/ansible/roles
+ADD provision.yml /tmp/ansible/provision.yml
+RUN ansible-playbook /tmp/ansible/provision.yml --extra-vars galaxy_user_name=$GALAXY_USER --extra-vars galaxy_config_file=$GALAXY_CONFIG_DIR/galaxy.ini --tags=galaxyextras -c local && \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+ADD roles/ /tmp/ansible/roles
+ADD provision.yml /tmp/ansible/provision.yml
+
+RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
 
 # The following commands will be executed as User galaxy
 USER galaxy
@@ -41,14 +64,10 @@ USER galaxy
 WORKDIR /galaxy-central
 
 # Configure Galaxy to use the Tool Shed
-RUN cp /galaxy-central/config/galaxy.ini.sample /galaxy-central/config/galaxy.ini
-RUN cp /galaxy-central/config/reports_wsgi.ini.sample /galaxy-central/config/reports_wsgi.ini
-RUN mkdir /galaxy-central/tool_deps
-
-RUN virtualenv /home/galaxy/venv
+RUN mkdir $GALAXY_ROOT/tool_deps
 
 # Fetching all Galaxy python dependencies
-RUN . /home/galaxy/venv/bin/activate && python scripts/fetch_eggs.py && python scripts/fetch_eggs.py -e drmaa
+RUN . $GALAXY_VIRTUALENV/bin/activate && python scripts/fetch_eggs.py && python scripts/fetch_eggs.py -e drmaa
 
 # Updating genome informations from UCSC
 #RUN export GALAXY=/galaxy-central && sh ./cron/updateucsc.sh.sample
@@ -70,7 +89,7 @@ ENV GALAXY_CONFIG_FTP_UPLOAD_SITE galaxy.docker.org
 ENV GALAXY_CONFIG_USE_PBKDF2 False
 ENV GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE /_x_accel_redirect
 ENV GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE /_x_accel_redirect
-ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE database/tmp/upload_store
+ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE /tmp/nginx_upload_store
 ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
 ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE False
 ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
@@ -88,15 +107,6 @@ ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
 ADD ./servers.ini /galaxy-central/config/servers.ini
 RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
 
-ADD ./job_conf.xml /galaxy-central/config/job_conf.xml
-
-# can I remove this?
-#RUN mkdir /galaxy-central/database/job_working_directory/ /galaxy-central/database/files/
-
-# Add optional watchdog dependency to Galaxy's environment.
-# We need the psutil library to configure SLURM at startup. It's not needed by Galaxy.
-RUN . /home/galaxy/venv/bin/activate && pip install watchdog ipython pygments jinja2 psutil
-
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
 
@@ -110,14 +120,6 @@ USER root
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 ENV LC_ALL en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
-
-ADD ./nginx.conf /etc/nginx/nginx.conf
-ADD ./supervisor.conf /etc/supervisor/conf.d/galaxy.conf
-
-ADD ./proftpd.conf /etc/proftpd/proftpd.conf
-RUN echo 'LoadModule mod_sql.c' >> /etc/proftpd/modules.conf && \
-    echo 'LoadModule mod_sql_passwd.c' >> /etc/proftpd/modules.conf && \
-    echo 'LoadModule mod_sql_postgres.c' >> /etc/proftpd/modules.conf
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
@@ -135,9 +137,6 @@ RUN service postgresql start && sh create_db.sh
 RUN service postgresql start && sleep 5 && python create_galaxy_user.py --user admin@galaxy.org --password admin --key admin
 RUN service postgresql start && sudo -u galaxy -i -- sh -c "cd /galaxy-central/ && sh run.sh --daemon && sleep 60 && sh run.sh --stop-daemon"
 
-# nginx and uwsgi Will be controller by supervisor
-RUN update-rc.d -f uwsgi remove && update-rc.d -f nginx remove && update-rc.d -f proftpd remove
-
 ADD ./startup.sh /usr/bin/startup
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
 ADD install_repo_wrapper.sh /usr/bin/install-repository
@@ -147,14 +146,6 @@ RUN chmod +x /usr/bin/install-repository /usr/bin/startup
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
-# Setup SLURM
-# TODO use fixed key
-RUN /usr/sbin/create-munge-key
-RUN mkdir -p /var/run/munge && chown root:root /var/lib/munge/ /var/log/munge/ /var/run/munge /etc/munge/ /etc/munge/munge.key
-ADD ./configure_slurm.py /usr/sbin/configure_slurm.py
-# SLURM don't like world writeable StateSaveLocation folders
-RUN mkdir /tmp/slurm && chown galaxy:galaxy /tmp/slurm
-
 ADD ./cgroupfs_mount.sh /root/cgroupfs_mount.sh
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9001 (Galaxy report app)
@@ -162,8 +153,6 @@ EXPOSE :80
 EXPOSE :21
 EXPOSE :8800
 EXPOSE :9001
-
-RUN apt-get -qq update && apt-get install --no-install-recommends -y nano nmap lynx vim curl
 
 RUN mkdir -p /galaxy-central/database/tmp/upload_store && chown galaxy:galaxy /galaxy-central/database/tmp/upload_store
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)

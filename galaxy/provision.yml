@@ -1,0 +1,5 @@
+- hosts: localhost
+  connection: local
+  roles:
+      - role: galaxyprojectdotorg.galaxyextras
+        tags: galaxyextras
