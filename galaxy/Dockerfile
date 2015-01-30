@@ -48,6 +48,7 @@ RUN su $GALAXY_USER -c "virtualenv $GALAXY_VIRTUALENV"
 # Setup Galaxy configuration files.
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_DIR/galaxy.ini && \
                         cp $GALAXY_ROOT/config/reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini"
+ADD job_metrics_conf.xml $GALAXY_CONFIG_DIR/job_metrics_conf.xml
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
 RUN ansible-playbook /tmp/ansible/provision.yml --extra-vars galaxy_user_name=$GALAXY_USER --extra-vars galaxy_config_file=$GALAXY_CONFIG_DIR/galaxy.ini --tags=galaxyextras -c local && \
