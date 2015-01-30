@@ -8,7 +8,7 @@ umount /var/lib/docker
 python ./export_user_files.py $PG_DATA_DIR_DEFAULT
 
 # Configure SLURM with runtime hostname.
-/home/galaxy/venv/bin/python /usr/sbin/configure_slurm.py
+python /usr/sbin/configure_slurm.py
 
 # Try to guess if we are running under --privileged mode
 if mount | grep "/proc/kcore"; then
