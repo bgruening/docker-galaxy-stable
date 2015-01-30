@@ -29,7 +29,7 @@ RUN groupadd -r galaxy -g 450 && \
 
 
 # Download latest stable release of Galaxy.
-ENV GALAXY_RELEASE latest_2015.01.13
+ENV GALAXY_RELEASE default
 ENV GALAXY_ROOT /galaxy-central/
 RUN mkdir $GALAXY_ROOT && wget -q -O - https://bitbucket.org/galaxy/galaxy-central/get/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R galaxy:galaxy $GALAXY_ROOT
 
