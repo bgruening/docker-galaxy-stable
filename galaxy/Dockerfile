@@ -16,7 +16,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-add-repository -y ppa:ansible/ansible && \
-    add-apt-repository ppa:galaxyproject/nginx && \
+    apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get -qq update && \
     apt-get purge -y software-properties-common && \
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \ 
