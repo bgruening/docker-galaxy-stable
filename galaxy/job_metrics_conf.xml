@@ -32,7 +32,7 @@
 
   <!-- Uncomment following to enable plugin dumping complete environment 
        for each job, potentially useful for debuging -->
-  <env />
+  <!-- <env /> -->
   <!-- env plugin can also record more targetted, obviously useful variables
        as well. -->
   <!-- <env variables="HOSTNAME,SLURM_CPUS_ON_NODE,SLURM_JOBID" /> -->
