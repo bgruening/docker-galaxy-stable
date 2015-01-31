@@ -32,11 +32,13 @@ ENV GALAXY_ROOT /galaxy-central
 ENV GALAXY_CONFIG_DIR /galaxy-central/config
 ENV GALAXY_VIRTUALENV /home/galaxy/venv
 ENV GALAXY_USER galaxy
+ENV GALAXY_UID 1450
+ENV GALAXY_GID 1450
 ENV GALAXY_HOME /home/galaxy
 ENV EXPORT_DIR /export
 
-RUN groupadd -r $GALAXY_USER -g 450 && \
-    useradd -u 451 -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
+RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
+    useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
     mkdir $EXPORT_DIR $GALAXY_HOME && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR && \
     gpasswd -a $GALAXY_USER docker
 
@@ -51,6 +53,7 @@ RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_
 ADD job_metrics_conf.xml $GALAXY_CONFIG_DIR/job_metrics_conf.xml
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
+
 RUN ansible-playbook /tmp/ansible/provision.yml --extra-vars galaxy_user_name=$GALAXY_USER --extra-vars galaxy_config_file=$GALAXY_CONFIG_DIR/galaxy.ini --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
