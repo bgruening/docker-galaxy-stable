@@ -7,7 +7,7 @@ One of the main goals is to make the access to entire tool suites as easy as pos
 this includes the setup of a public available webservice that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server. 
 With docker, tool developers can create their own Image with all dependencies and the user only needs to run it within docker.
 
-The Image is based on [Debian/wheezy](http://www.debian.org/). and all recommended Galaxy requirements are installed.
+The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and all recommended Galaxy requirements are installed.
 
 
 Usage
@@ -74,7 +74,7 @@ If you want to restart Galaxy without restarting the entire Galaxy container we 
 ```docker exec <container name> supervisorctl restart galaxy:```
 
 
-Advanced logging
+Advanced Logging
 ----------------
 
 You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:
@@ -82,7 +82,7 @@ You can set the environment variable $GALAXY_LOGGING to FULL to access all logs 
 ``docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable``
 
 
-Extending the docker Image
+Extending the Docker Image
 ==========================
 
 If you have your Tools already included in the Tool Shed, building your own personalised Galaxy docker Image can be done using the following steps:
