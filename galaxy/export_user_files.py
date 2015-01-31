@@ -10,7 +10,6 @@ else:
 PG_DATA_DIR_HOST = os.environ.get("PG_DATA_DIR_HOST", "/export/postgresql/9.3/main/")
 PG_CONF = '/etc/postgresql/9.3/main/postgresql.conf'
 
-
 def change_path( src ):
     """
         src will be copied to /export/`src` and a symlink will be placed in src pointing to /export/
