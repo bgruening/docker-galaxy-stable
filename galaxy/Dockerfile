@@ -28,8 +28,8 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
 # Download latest stable release of Galaxy.
 ENV GALAXY_RELEASE default
 ENV GALAXY_ROOT /galaxy-central
-# TODO: make this /etc/galaxy
-ENV GALAXY_CONFIG_DIR /galaxy-central/config
+ENV GALAXY_CONFIG_DIR /etc/galaxy
+ENV GALAXY_CONFIG_FILE $GALAXY_CONFIG_DIR/galaxy.ini
 ENV GALAXY_VIRTUALENV /home/galaxy/venv
 ENV GALAXY_USER galaxy
 ENV GALAXY_HOME /home/galaxy
@@ -46,12 +46,16 @@ RUN mkdir $GALAXY_ROOT && wget -q -O - https://bitbucket.org/galaxy/galaxy-centr
 RUN su $GALAXY_USER -c "virtualenv $GALAXY_VIRTUALENV"
 
 # Setup Galaxy configuration files.
-RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_DIR/galaxy.ini && \
+RUN mkdir -p $GALAXY_CONFIG_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
+
+RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE && \
                         cp $GALAXY_ROOT/config/reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini"
 ADD job_metrics_conf.xml $GALAXY_CONFIG_DIR/job_metrics_conf.xml
+ADD ./servers.ini $GALAXY_CONFIG_DIR/servers.ini
+RUN cat $GALAXY_CONFIG_DIR/servers.ini >> $GALAXY_CONFIG_FILE && rm $GALAXY_CONFIG_DIR/servers.ini
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
-RUN ansible-playbook /tmp/ansible/provision.yml --extra-vars galaxy_user_name=$GALAXY_USER --extra-vars galaxy_config_file=$GALAXY_CONFIG_DIR/galaxy.ini --tags=galaxyextras -c local && \
+RUN ansible-playbook /tmp/ansible/provision.yml --extra-vars galaxy_user_name=$GALAXY_USER --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ADD roles/ /tmp/ansible/roles
@@ -68,7 +72,7 @@ WORKDIR /galaxy-central
 RUN mkdir $GALAXY_ROOT/tool_deps
 
 # Fetching all Galaxy python dependencies
-RUN . $GALAXY_VIRTUALENV/bin/activate && python scripts/fetch_eggs.py && python scripts/fetch_eggs.py -e drmaa
+RUN . $GALAXY_VIRTUALENV/bin/activate && python scripts/fetch_eggs.py -c $GALAXY_CONFIG_FILE && python scripts/fetch_eggs.py -e drmaa -c $GALAXY_CONFIG_FILE
 
 # Updating genome informations from UCSC
 #RUN export GALAXY=/galaxy-central && sh ./cron/updateucsc.sh.sample
@@ -106,8 +110,6 @@ ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
 ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
 ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
 
-ADD ./servers.ini /galaxy-central/config/servers.ini
-RUN cat /galaxy-central/config/servers.ini >> /galaxy-central/config/galaxy.ini && rm /galaxy-central/config/servers.ini
 
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
@@ -125,7 +127,6 @@ RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
-ADD ./create_galaxy_user.py /galaxy-central/create_galaxy_user.py
 ADD ./export_user_files.py /galaxy-central/export_user_files.py
 
 # Configure PostgreSQL
@@ -135,8 +136,9 @@ ADD ./export_user_files.py /galaxy-central/export_user_files.py
 RUN service postgresql stop
 RUN rm $PG_DATA_DIR_DEFAULT -rf
 RUN python setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
-RUN service postgresql start && sh create_db.sh
-RUN service postgresql start && sleep 5 && python create_galaxy_user.py --user admin@galaxy.org --password admin --key admin
+RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
+ADD ./create_galaxy_user.py /galaxy-central/create_galaxy_user.py
+RUN service postgresql start && sleep 5 && python create_galaxy_user.py --user admin@galaxy.org --password admin -c $GALAXY_CONFIG_FILE --key admin
 RUN service postgresql start && sudo -u galaxy -i -- sh -c "cd /galaxy-central/ && sh run.sh --daemon && sleep 60 && sh run.sh --stop-daemon"
 
 ADD ./startup.sh /usr/bin/startup
