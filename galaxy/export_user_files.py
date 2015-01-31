@@ -10,6 +10,9 @@ else:
 PG_DATA_DIR_HOST = os.environ.get("PG_DATA_DIR_HOST", "/export/postgresql/9.3/main/")
 PG_CONF = '/etc/postgresql/9.3/main/postgresql.conf'
 
+GALAXY_UID = 451
+GALAXY_GID = 450
+
 
 def change_path( src ):
     """
@@ -24,8 +27,8 @@ def change_path( src ):
                 os.makedirs(dest_dir)
             shutil.move( src, dest )
             os.symlink( dest, src.rstrip('/') )
-            os.chown( src, 451, 450 )
-            subprocess.call('chown -R 451:450 %s' % dest, shell=True)
+            os.chown( src, GALAXY_UID, GALAXY_GID )
+            subprocess.call('chown -R %d:%d %s' % (GALAXY_UID, GALAXY_GID, dest), shell=True)
         # if destination exists (e.g. continuing a previous session), remove source and symlink
         else:
             if os.path.isdir( src ):
@@ -48,7 +51,7 @@ if __name__ == "__main__":
     shutil.copytree( '/galaxy-central/config/', '/export/.distribution_config/' )
     if not os.path.exists( '/export/galaxy-central/' ):
         os.makedirs("/export/galaxy-central/")
-        os.chown("/export/galaxy-central/", 451, 450)
+        os.chown( "/export/galaxy-central/", GALAXY_UID, GALAXY_GID )
     change_path('/galaxy-central/config/')
     change_path('/galaxy-central/static/welcome.html')
     change_path('/galaxy-central/integrated_tool_panel.xml')
