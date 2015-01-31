@@ -24,8 +24,8 @@ def change_path( src ):
                 os.makedirs(dest_dir)
             shutil.move( src, dest )
             os.symlink( dest, src.rstrip('/') )
-            os.chown( src, 451, 450 )
-            subprocess.call('chown -R 451:450 %s' % dest, shell=True)
+            os.chown( src, int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
+            subprocess.call( 'chown -R %s:%s %s' % ( os.environ['GALAXY_UID'], os.environ['GALAXY_GID'], dest ), shell=True )
         # if destination exists (e.g. continuing a previous session), remove source and symlink
         else:
             if os.path.isdir( src ):
@@ -48,7 +48,7 @@ if __name__ == "__main__":
     shutil.copytree( '/galaxy-central/config/', '/export/.distribution_config/' )
     if not os.path.exists( '/export/galaxy-central/' ):
         os.makedirs("/export/galaxy-central/")
-        os.chown("/export/galaxy-central/", 451, 450)
+        os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
     change_path('/galaxy-central/config/')
     change_path('/galaxy-central/static/welcome.html')
     change_path('/galaxy-central/integrated_tool_panel.xml')
