@@ -30,6 +30,8 @@ ENV GALAXY_RELEASE default
 ENV GALAXY_ROOT /galaxy-central
 ENV GALAXY_CONFIG_DIR /etc/galaxy
 ENV GALAXY_CONFIG_FILE $GALAXY_CONFIG_DIR/galaxy.ini
+ENV GALAXY_CONFIG_JOB_CONFIG_FILE $GALAXY_CONFIG_DIR/job_conf.xml
+ENV GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE $GALAXY_CONFIG_DIR/job_metrics_conf.xml
 ENV GALAXY_VIRTUALENV /home/galaxy/venv
 ENV GALAXY_USER galaxy
 ENV GALAXY_HOME /home/galaxy
@@ -50,12 +52,17 @@ RUN mkdir -p $GALAXY_CONFIG_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CO
 
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE && \
                         cp $GALAXY_ROOT/config/reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini"
-ADD job_metrics_conf.xml $GALAXY_CONFIG_DIR/job_metrics_conf.xml
 ADD ./servers.ini $GALAXY_CONFIG_DIR/servers.ini
 RUN cat $GALAXY_CONFIG_DIR/servers.ini >> $GALAXY_CONFIG_FILE && rm $GALAXY_CONFIG_DIR/servers.ini
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
-RUN ansible-playbook /tmp/ansible/provision.yml --extra-vars galaxy_user_name=$GALAXY_USER --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR --tags=galaxyextras -c local && \
+RUN ansible-playbook /tmp/ansible/provision.yml \
+    --extra-vars galaxy_user_name=$GALAXY_USER \
+    --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE \
+    --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR \
+    --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
+    --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
+    --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ADD roles/ /tmp/ansible/roles
