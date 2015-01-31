@@ -156,7 +156,6 @@ EXPOSE :21
 EXPOSE :8800
 EXPOSE :9001
 
-RUN mkdir -p /galaxy-central/database/tmp/upload_store && chown galaxy:galaxy /galaxy-central/database/tmp/upload_store
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 ENV HOME /home/galaxy
 
