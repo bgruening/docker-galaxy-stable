@@ -135,8 +135,8 @@ ENV LC_ALL en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 # Include all needed scripts from the host
-ADD ./setup_postgresql.py /galaxy-central/setup_postgresql.py
-ADD ./export_user_files.py /galaxy-central/export_user_files.py
+ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
+ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 
 # Configure PostgreSQL
 # 1. Remove all old configuration
@@ -144,11 +144,10 @@ ADD ./export_user_files.py /galaxy-central/export_user_files.py
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
 RUN service postgresql stop
 RUN rm $PG_DATA_DIR_DEFAULT -rf
-RUN python setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
+RUN python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
 RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
-ADD ./create_galaxy_user.py /galaxy-central/create_galaxy_user.py
-RUN service postgresql start && sleep 5 && python create_galaxy_user.py --user admin@galaxy.org --password admin -c $GALAXY_CONFIG_FILE --key admin
-RUN service postgresql start && sudo -u galaxy -i -- sh -c "cd /galaxy-central/ && sh run.sh --daemon && sleep 60 && sh run.sh --stop-daemon"
+ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
+RUN service postgresql start && sleep 5 && python /usr/local/bin/create_galaxy_user.py --user admin@galaxy.org --password admin -c $GALAXY_CONFIG_FILE --key admin
 
 ADD ./startup.sh /usr/bin/startup
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)

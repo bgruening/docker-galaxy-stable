@@ -1,3 +1,7 @@
+import sys
+sys.path.insert(1,'/galaxy-central')
+sys.path.insert(1,'/galaxy-central/lib')
+
 from scripts.db_shell import *
 from galaxy.util.bunch import Bunch
 from galaxy.security import GalaxyRBACAgent
