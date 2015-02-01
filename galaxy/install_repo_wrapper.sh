@@ -3,7 +3,7 @@
 # start Galaxy
 service postgresql start
 install_log='galaxy_install.log'
-./run.sh --daemon --log-file=$install_log --pid-file=galaxy_install.pid
+sudo -E -u galaxy ./run.sh --daemon --log-file=$install_log --pid-file=galaxy_install.pid
 
 galaxy_install_pid=`cat galaxy_install.pid`
 
