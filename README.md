@@ -57,13 +57,13 @@ environmental variable DOCKER_PARENT
 
 ``docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true -e DOCKER_PARENT=True -v /var/run/docker.sock:/var/run/docker.sock -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
 
-Enabling the Galaxy Report Tool
--------------------------------
+Enabling the Galaxy Report Webapp
+---------------------------------
 
-For admins wishing to have more information on the status of a galaxy instance, you can start this image with ``-p 9001:9001`` to serve the Galaxy Report Tool 
-on port 9001 on your host system.
+For admins wishing to have more information on the status of a galaxy instance, you can start this image with ``-p 9003:9003`` to serve the Galaxy Report Webapp 
+on port 9003 on your host system.
 
-``docker run -d -p 8080:80 -p 8021:21 -p 9001:9001 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
+``docker run -d -p 8080:80 -p 8021:21 -p 9003:9003 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable``
 
 
 Restarting Galaxy
@@ -73,6 +73,10 @@ If you want to restart Galaxy without restarting the entire Galaxy container we 
 
 ```docker exec <container name> supervisorctl restart galaxy:```
 
+In addition you start/stop every supersisord process using a webinterface on port `9002`. Start your container with:
+
+``docker run -p 9002:9002 bgruening/galaxy-stable``
+
 
 Advanced Logging
 ----------------
@@ -80,6 +84,10 @@ Advanced Logging
 You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:
 
 ``docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable``
+
+In addition you can access the supersisord webinterface on port 9002 and get access to log files. Start your container with:
+
+``docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable``
 
 
 Extending the Docker Image
@@ -164,6 +172,11 @@ History
  - 0.3: Add Interactive Environments
    - IPython in docker in Galaxy in docker
    - advanged logging
+ - 0.4:
+   - base the image on toolshed/requirements with all required Galaxy dependencies
+   - use Ansible roles to build large parts of the image
+   - export the supervisord webinterface on port 9002
+   - enable Galaxy reports webapp
 
 
 Support & Bug Reports
