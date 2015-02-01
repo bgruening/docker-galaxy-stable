@@ -148,7 +148,6 @@ RUN python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galax
 RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
 ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 RUN service postgresql start && sleep 5 && python /usr/local/bin/create_galaxy_user.py --user admin@galaxy.org --password admin -c $GALAXY_CONFIG_FILE --key admin
-RUN service postgresql start && sudo -u galaxy -i -- sh -c "cd /galaxy-central/ && sh run.sh --daemon && sleep 60 && sh run.sh --stop-daemon"
 
 ADD ./startup.sh /usr/bin/startup
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
