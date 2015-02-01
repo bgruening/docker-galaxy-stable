@@ -161,12 +161,12 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated
 
 ADD ./cgroupfs_mount.sh /root/cgroupfs_mount.sh
 
-# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9001 (Galaxy report app), 9002 (supvisord web app)
+# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9003 (Galaxy report app), 9002 (supvisord web app)
 EXPOSE :80
 EXPOSE :21
 EXPOSE :8800
-EXPOSE :9001
 EXPOSE :9002
+EXPOSE :9003
 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 ENV HOME /home/galaxy
