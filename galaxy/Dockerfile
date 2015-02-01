@@ -147,7 +147,7 @@ RUN rm $PG_DATA_DIR_DEFAULT -rf
 RUN python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
 RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
 ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
-RUN service postgresql start && sleep 5 && python /usr/local/bin/create_galaxy_user.py --user admin@galaxy.org --password admin -c $GALAXY_CONFIG_FILE --key admin
+RUN service postgresql start && sleep 10 && python /usr/local/bin/create_galaxy_user.py --user admin@galaxy.org --password admin -c $GALAXY_CONFIG_FILE --key admin
 
 ADD ./startup.sh /usr/bin/startup
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
