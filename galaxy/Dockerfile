@@ -11,7 +11,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https  software-properties-common && \
+RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
     sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
     apt-get update -qq && apt-get upgrade -y && \
