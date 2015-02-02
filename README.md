@@ -155,5 +155,5 @@ History
 Support & Bug Reports
 =====================
 
-You can file an issue here https://github.com/bgruening/galaxy_recipes/issues or ask
+You can file an issue here https://github.com/bgruening/docker-galaxy-stable/issues or ask
 us on the Galaxy development list http://lists.bx.psu.edu/listinfo/galaxy-dev
