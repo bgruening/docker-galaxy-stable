@@ -86,38 +86,38 @@ RUN . $GALAXY_VIRTUALENV/bin/activate && python scripts/fetch_eggs.py -c $GALAXY
 # Updating genome informations from UCSC
 #RUN export GALAXY=/galaxy-central && sh ./cron/updateucsc.sh.sample
 
-ENV GALAXY_CONFIG_DATABASE_CONNECTION postgresql://galaxy:galaxy@localhost:5432/galaxy
-ENV GALAXY_CONFIG_TOOL_DEPENDENCY_DIR ./tool_deps
-ENV GALAXY_CONFIG_ADMIN_USERS admin@galaxy.org
-ENV GALAXY_CONFIG_MASTER_API_KEY HSNiugRFvgT574F43jZ7N9F3
-ENV GALAXY_CONFIG_BRAND Galaxy Docker Build
-ENV GALAXY_CONFIG_STATIC_ENABLED False
-ENV GALAXY_CONFIG_JOB_WORKING_DIRECTORY /export/galaxy-central/database/job_working_directory
-ENV GALAXY_CONFIG_FILE_PATH /export/galaxy-central/database/files
-ENV GALAXY_CONFIG_NEW_FILE_PATH /export/galaxy-central/database/files
-ENV GALAXY_CONFIG_TEMPLATE_CACHE_PATH /export/galaxy-central/database/compiled_templates
-ENV GALAXY_CONFIG_CITATION_CACHE_DATA_DIR /export/galaxy-central/database/citations/data
-ENV GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY /export/galaxy-central/database/pbs
-ENV GALAXY_CONFIG_FTP_UPLOAD_DIR /export/galaxy-central/database/ftp
-ENV GALAXY_CONFIG_FTP_UPLOAD_SITE galaxy.docker.org
-ENV GALAXY_CONFIG_USE_PBKDF2 False
-ENV GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE /_x_accel_redirect
-ENV GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE /_x_accel_redirect
-ENV GALAXY_CONFIG_NGINX_UPLOAD_STORE /tmp/nginx_upload_store
-ENV GALAXY_CONFIG_NGINX_UPLOAD_PATH /_upload
-ENV GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE False
-ENV GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY config/plugins/visualizations
-ENV GALAXY_CONFIG_TRUST_IPYTHON_NOTEBOOK_CONVERSION True
-ENV GALAXY_CONFIG_TOOLFORM_UPGRADE True
+ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy \
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=./tool_deps \
+GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
+GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
+GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
+GALAXY_CONFIG_STATIC_ENABLED=False \
+GALAXY_CONFIG_JOB_WORKING_DIRECTORY=/export/galaxy-central/database/job_working_directory \
+GALAXY_CONFIG_FILE_PATH=/export/galaxy-central/database/files \
+GALAXY_CONFIG_NEW_FILE_PATH=/export/galaxy-central/database/files \
+GALAXY_CONFIG_TEMPLATE_CACHE_PATH=/export/galaxy-central/database/compiled_templates \
+GALAXY_CONFIG_CITATION_CACHE_DATA_DIR=/export/galaxy-central/database/citations/data \
+GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY=/export/galaxy-central/database/pbs \
+GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/galaxy-central/database/ftp \
+GALAXY_CONFIG_FTP_UPLOAD_SITE=galaxy.docker.org \
+GALAXY_CONFIG_USE_PBKDF2=False \
+GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=/_x_accel_redirect \
+GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE=/_x_accel_redirect \
+GALAXY_CONFIG_NGINX_UPLOAD_STORE=/tmp/nginx_upload_store \
+GALAXY_CONFIG_NGINX_UPLOAD_PATH=/_upload \
+GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE=False \
+GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY=config/plugins/visualizations \
+GALAXY_CONFIG_TRUST_IPYTHON_NOTEBOOK_CONVERSION=True \
+GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
 # Next line allow child docker container for viz to find this docker container.
-ENV GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL http://$HOST_IP/
-ENV GALAXY_CONFIG_SANITIZE_ALL_HTML False
-ENV GALAXY_CONFIG_TOOLFORM_UPGRADE True
-ENV GALAXY_CONFIG_OVERRIDE_DEBUG False
+GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://$HOST_IP/ \
+GALAXY_CONFIG_SANITIZE_ALL_HTML=False \
+GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
+GALAXY_CONFIG_OVERRIDE_DEBUG=False
 
 # Define the default postgresql database path
-ENV PG_DATA_DIR_DEFAULT /var/lib/postgresql/9.3/main/
-ENV PG_DATA_DIR_HOST /export/postgresql/9.3/main/
+ENV PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
+PG_DATA_DIR_HOST=/export/postgresql/9.3/main/
 
 
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
