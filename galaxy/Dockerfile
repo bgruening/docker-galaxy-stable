@@ -27,8 +27,9 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
 
 ENV GALAXY_RELEASE=default \
 GALAXY_ROOT=/galaxy-central \
-GALAXY_CONFIG_DIR=/etc/galaxy \
-GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
+GALAXY_CONFIG_DIR=/etc/galaxy
+
+ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
 GALAXY_VIRTUALENV=/home/galaxy/venv \
@@ -40,7 +41,6 @@ GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 EXPORT_DIR=/export
-
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
@@ -158,7 +158,7 @@ ADD ./startup.sh /usr/bin/startup
 ADD install_repo_wrapper.sh /usr/bin/install-repository
 RUN chmod +x /usr/bin/install-repository /usr/bin/startup
 
-# This needs to happen here and not above, otherwise the Galaxy start 
+# This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
