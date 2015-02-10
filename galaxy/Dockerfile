@@ -25,18 +25,22 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     nano nmap lynx vim curl python-pip && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV GALAXY_RELEASE default
-ENV GALAXY_ROOT /galaxy-central
-ENV GALAXY_CONFIG_DIR /etc/galaxy
-ENV GALAXY_CONFIG_FILE $GALAXY_CONFIG_DIR/galaxy.ini
-ENV GALAXY_CONFIG_JOB_CONFIG_FILE $GALAXY_CONFIG_DIR/job_conf.xml
-ENV GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE $GALAXY_CONFIG_DIR/job_metrics_conf.xml
-ENV GALAXY_VIRTUALENV /home/galaxy/venv
-ENV GALAXY_USER galaxy
-ENV GALAXY_UID 1450
-ENV GALAXY_GID 1450
-ENV GALAXY_HOME /home/galaxy
-ENV EXPORT_DIR /export
+ENV GALAXY_RELEASE=default \
+GALAXY_ROOT=/galaxy-central \
+GALAXY_CONFIG_DIR=/etc/galaxy \
+GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
+GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
+GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
+GALAXY_VIRTUALENV=/home/galaxy/venv \
+GALAXY_USER=galaxy \
+GALAXY_UID=1450 \
+GALAXY_GID=1450 \
+GALAXY_HOME=/home/galaxy \
+GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
+GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
+GALAXY_DEFAULT_ADMIN_KEY=admin \
+EXPORT_DIR=/export
+
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
@@ -147,7 +151,7 @@ RUN rm $PG_DATA_DIR_DEFAULT -rf
 RUN python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
 RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
 ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
-RUN service postgresql start && sleep 10 && python /usr/local/bin/create_galaxy_user.py --user admin@galaxy.org --password admin -c $GALAXY_CONFIG_FILE --key admin
+RUN service postgresql start && sleep 10 && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY
 
 ADD ./startup.sh /usr/bin/startup
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
