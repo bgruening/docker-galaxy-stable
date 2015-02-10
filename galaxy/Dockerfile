@@ -148,6 +148,10 @@ ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
 RUN service postgresql stop
 RUN rm $PG_DATA_DIR_DEFAULT -rf
+
+# workaround for a Docker AUFS bug: https://github.com/docker/docker/issues/783#issuecomment-56013588
+RUN mkdir /etc/ssl/private-copy; mv /etc/ssl/private/* /etc/ssl/private-copy/; rm -r /etc/ssl/private; mv /etc/ssl/private-copy /etc/ssl/private; chmod -R 0700 /etc/ssl/private; chown -R postgres /etc/ssl/private
+
 RUN python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
 RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
 ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
