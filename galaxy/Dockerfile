@@ -14,15 +14,14 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common && \
     apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
     sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
-    apt-get update -qq && apt-get upgrade -y && \
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
-    apt-get -qq update && \
-    apt-get purge -y software-properties-common && \
+    apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \ 
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker-1.4.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools ansible \
     nano nmap lynx vim curl python-pip && \
+    apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ENV GALAXY_RELEASE=default \
@@ -142,17 +141,15 @@ RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
 ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 
+# workaround for a Docker AUFS bug: https://github.com/docker/docker/issues/783#issuecomment-56013588
+#RUN mkdir /etc/ssl/private-copy; mv /etc/ssl/private/* /etc/ssl/private-copy/; rm -r /etc/ssl/private; mv /etc/ssl/private-copy /etc/ssl/private; chmod -R 0700 /etc/ssl/private; chown -R postgres /etc/ssl/private
+
 # Configure PostgreSQL
 # 1. Remove all old configuration
 # 2. Create DB-user 'galaxy' with password 'galaxy' in database 'galaxy'
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
-RUN service postgresql stop
-RUN rm $PG_DATA_DIR_DEFAULT -rf
 
-# workaround for a Docker AUFS bug: https://github.com/docker/docker/issues/783#issuecomment-56013588
-RUN mkdir /etc/ssl/private-copy; mv /etc/ssl/private/* /etc/ssl/private-copy/; rm -r /etc/ssl/private; mv /etc/ssl/private-copy /etc/ssl/private; chmod -R 0700 /etc/ssl/private; chown -R postgres /etc/ssl/private
-
-RUN python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
+RUN rm $PG_DATA_DIR_DEFAULT -rf && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
 RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
 ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 RUN service postgresql start && sleep 10 && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY
