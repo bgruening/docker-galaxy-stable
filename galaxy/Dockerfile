@@ -24,7 +24,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV GALAXY_RELEASE=default \
+ENV GALAXY_RELEASE=dev \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
 
@@ -47,7 +47,7 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     gpasswd -a $GALAXY_USER docker
 
 # Download latest stable release of Galaxy.
-RUN mkdir $GALAXY_ROOT && wget -q -O - https://bitbucket.org/galaxy/galaxy-central/get/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT
+RUN mkdir $GALAXY_ROOT && wget -q -O - https://github.com/galaxyproject/galaxy/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT
 
 # TODO: ensure virtualenv as part of galaxy role
 RUN su $GALAXY_USER -c "virtualenv $GALAXY_VIRTUALENV"
