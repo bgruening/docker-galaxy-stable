@@ -47,6 +47,7 @@ if __name__ == "__main__":
         shutil.rmtree( '/export/.distribution_config/' )
     shutil.copytree( '/galaxy-central/config/', '/export/.distribution_config/' )
 
+
     # Copy all files starting with "welcome"
     # This enables a flexible start page design.
     for filename in os.listdir('/export/'):
@@ -54,6 +55,12 @@ if __name__ == "__main__":
             export_file = os.path.join( '/export/', filename)
             image_file = os.path.join('/etc/galaxy/', filename)
             shutil.copy(export_file, image_file)
+
+    for config in [ 'galaxy.ini', 'job_conf.xml' ]:
+        export_config = os.path.join( '/export/galaxy-central/config', config )
+        if os.path.exists(export_config):
+            image_config = os.path.join('/etc/galaxy/', config)
+            shutil.copy(export_config, image_config)
 
     if not os.path.exists( '/export/galaxy-central/' ):
         os.makedirs("/export/galaxy-central/")
