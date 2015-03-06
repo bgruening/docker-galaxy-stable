@@ -55,8 +55,8 @@ RUN su $GALAXY_USER -c "virtualenv $GALAXY_VIRTUALENV"
 # Setup Galaxy configuration files.
 RUN mkdir -p $GALAXY_CONFIG_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
 
-RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE && \
-                        cp $GALAXY_ROOT/config/reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini"
+RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE
+ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini"
 ADD ./htpasswd /etc/nginx/htpasswd
 ADD ./servers.ini $GALAXY_CONFIG_DIR/servers.ini
 RUN cat $GALAXY_CONFIG_DIR/servers.ini >> $GALAXY_CONFIG_FILE && rm $GALAXY_CONFIG_DIR/servers.ini
