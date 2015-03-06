@@ -146,14 +146,18 @@ docker container in production, please do not forget to change the user credenti
 Development
 ===========
 
-This repository uses a git submodule to include Ansible roles maintained by the Galaxy project.
-
-https://github.com/galaxyproject/ansible-galaxy-extras
+This repository uses a git submodule to include [Ansible roles](https://github.com/galaxyproject/ansible-galaxy-extras) maintained by the Galaxy project.
 
 You can clone this repository and the Ansible submodule with:
 
 ```
 git clone --recursive https://github.com/bgruening/docker-galaxy-stable.git
+```
+
+Updating already existing submodules is possible with:
+
+```
+git submodule update --remote
 ```
 
 
