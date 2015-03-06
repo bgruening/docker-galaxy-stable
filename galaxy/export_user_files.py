@@ -55,6 +55,11 @@ if __name__ == "__main__":
     change_path('/galaxy-central/tool_deps/')
     change_path('/galaxy-central/tool-data/')
     change_path('/shed_tools/')
+    
+    if os.path.exists('/export/reports_htpassw'):
+        image_config = '/etc/galaxy/htpasswd'
+        shutil.copy(export_config, image_config)
+
     try:
         change_path('/var/lib/docker/')
     except:

@@ -35,8 +35,18 @@ else
 fi
 
 if [ `echo ${GALAXY_LOGGING:-'no'} | tr [:upper:] [:lower:]` = "full" ]
-    then 
+    then
         tail -f /var/log/supervisor/* /var/log/nginx/* /home/galaxy/*.log
     else
         tail -f /home/galaxy/*.log
 fi
+
+if [ "x$DISABLE_REPORTS_AUTH" == "x" ]
+    then
+        # Authentification is enabled by default. There should be /etc/nginx/htpasswd file.
+    else
+        # disable authentification by deleting the htpasswd file
+        rm /etc/nginx/htpasswd
+fi
+
+
