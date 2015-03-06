@@ -45,6 +45,15 @@ if __name__ == "__main__":
     if os.path.exists( '/export/.distribution_config/' ):
         shutil.rmtree( '/export/.distribution_config/' )
     shutil.copytree( '/galaxy-central/config/', '/export/.distribution_config/' )
+
+    # Copy all files starting with "welcome"
+    # This enables a flexible start page design.
+    for filename in os.listdir('/export/'):
+        if filename.startswith('welcome'):
+            export_file = os.path.join( '/export/', filename)
+            image_file = os.path.join('/etc/galaxy/', filename)
+            shutil.copy(export_file, image_file)
+
     if not os.path.exists( '/export/galaxy-central/' ):
         os.makedirs("/export/galaxy-central/")
         os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )

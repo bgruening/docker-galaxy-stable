@@ -3,18 +3,19 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <link rel="stylesheet" href="style/base.css" type="text/css" />
+    <!-- If you want to use Galaxy css or JS files/libraries the path needs to start with '/static/' -->
+    <link rel="stylesheet" href="/static/style/base.css" type="text/css" />
 </head>
 <body>
     <div class="document">
         <div class="donemessagelarge">
             <strong>Hello world! Your Galaxy Docker container is running...</strong>
             <hr>
-            To customize this page edit <code>static/welcome.html</code>
+            To customize this page you can create a <code>welcome.html</code> page in your directory mounted to <code>/export</code>.
         </div>
         <br/>
         <div align=center>
-        <img src="welcome/GalaxyDocker.png"/>
+        <img src="./welcome_image.png"/>
         </div>
         <br>
         <hr/>

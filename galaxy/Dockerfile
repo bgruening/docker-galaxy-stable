@@ -117,6 +117,7 @@ GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
 GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://$HOST_IP/ \
 GALAXY_CONFIG_SANITIZE_ALL_HTML=False \
 GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
+GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/welcome.html \
 GALAXY_CONFIG_OVERRIDE_DEBUG=False
 
 # Define the default postgresql database path
@@ -128,8 +129,8 @@ PG_DATA_DIR_HOST=/export/postgresql/9.3/main/
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
 
 # Container Style
-ADD GalaxyDocker.png /galaxy-central/static/welcome/GalaxyDocker.png
-ADD welcome.html /galaxy-central/static/welcome.html
+ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/welcome_image.png
+ADD welcome.html $GALAXY_CONFIG_DIR/welcome.html
 
 # Switch back to User root
 USER root
