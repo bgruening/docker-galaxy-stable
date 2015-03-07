@@ -58,16 +58,14 @@ if __name__ == "__main__":
         os.makedirs("/export/galaxy-central/")
         os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
     change_path('/galaxy-central/config/')
-    change_path('/galaxy-central/static/welcome.html')
     change_path('/galaxy-central/integrated_tool_panel.xml')
     change_path('/galaxy-central/display_applications/')
     change_path('/galaxy-central/tool_deps/')
     change_path('/galaxy-central/tool-data/')
     change_path('/shed_tools/')
     
-    if os.path.exists('/export/reports_htpassw'):
-        image_config = '/etc/galaxy/htpasswd'
-        shutil.copy(export_config, image_config)
+    if os.path.exists('/export/reports_htpasswd'):
+        shutil.copy('/export/reports_htpasswd', '/etc/nginx/htpasswd')
 
     try:
         change_path('/var/lib/docker/')
