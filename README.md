@@ -15,7 +15,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 Usage
 =====
 
-At first you need to install docker. Please follow the [very good instructions](https://www.docker.io/gettingstarted/#h_installation) from the Docker project.
+At first you need to install docker. Please follow the [very good instructions](https://docs.docker.com/installation/) from the Docker project.
 
 After the successful installation, all what you need to do is:
 
