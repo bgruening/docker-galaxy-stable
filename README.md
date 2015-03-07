@@ -67,8 +67,10 @@ you can use a 'legacy' mode that use a docker socket for the parent docker insta
 environmental variable DOCKER_PARENT
   
   ```bash
-  docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true -e DOCKER_PARENT=True \
-    -v /var/run/docker.sock:/var/run/docker.sock -v /home/user/galaxy_storage/:/export/ \
+  docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
+    --privileged=true -e DOCKER_PARENT=True \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/user/galaxy_storage/:/export/ \
     bgruening/galaxy-stable
   ```
 
