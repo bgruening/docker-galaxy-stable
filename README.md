@@ -120,6 +120,9 @@ Non-essential services can be deactivated during startup. Set the environment va
     -e "NONUSE=nodejs,proftp,reports" bgruening/galaxy-stable
   ```
 
+A graphical user interface, to start and stop your services, is available on port 9002 if you run your container like above.
+
+
 Restarting Galaxy
 -----------------
 
