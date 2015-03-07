@@ -55,7 +55,7 @@ For this we need to be able to launch Docker containers inside our Galaxy Docker
 
   ```bash
   docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true \
-  -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
+    -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
   ```
 
 The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker.
@@ -68,8 +68,8 @@ environmental variable DOCKER_PARENT
   
   ```bash
   docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true -e DOCKER_PARENT=True \
-  -v /var/run/docker.sock:/var/run/docker.sock -v /home/user/galaxy_storage/:/export/ \
-  bgruening/galaxy-stable
+    -v /var/run/docker.sock:/var/run/docker.sock -v /home/user/galaxy_storage/:/export/ \
+    bgruening/galaxy-stable
   ```
 
 Galaxy Report Webapp
@@ -117,7 +117,7 @@ Non-essential services can be deactivated during startup. Set the environment va
 
   ```bash
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 \
-  -e "NONUSE=nodejs,proftp,reports" bgruening/galaxy-stable
+    -e "NONUSE=nodejs,proftp,reports" bgruening/galaxy-stable
   ```
 
 Restarting Galaxy
@@ -225,15 +225,15 @@ This repository uses a git submodule to include [Ansible roles](https://github.c
 
 You can clone this repository and the Ansible submodule with:
 
-```
-git clone --recursive https://github.com/bgruening/docker-galaxy-stable.git
-```
+  ```sh
+  git clone --recursive https://github.com/bgruening/docker-galaxy-stable.git
+  ```
 
 Updating already existing submodules is possible with:
 
-```
-git submodule update --remote
-```
+  ```sh
+  git submodule update --remote
+  ```
 
 Requirements
 ------------
