@@ -62,13 +62,13 @@ The port 8800 is the proxy port that is used to handle Interactive Environments.
 
 Using Parent docker
 -------------------
-On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue,
-you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the 
-environmental variable DOCKER_PARENT
+On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable `DOCKER_PARENT`
   
   ```bash
-  docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 --privileged=true -e DOCKER_PARENT=True \
-    -v /var/run/docker.sock:/var/run/docker.sock -v /home/user/galaxy_storage/:/export/ \
+  docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
+    --privileged=true -e DOCKER_PARENT=True \
+    -v /var/run/docker.sock:/var/run/docker.sock \
+    -v /home/user/galaxy_storage/:/export/ \
     bgruening/galaxy-stable
   ```
 
@@ -120,7 +120,7 @@ Non-essential services can be deactivated during startup. Set the environment va
     -e "NONUSE=nodejs,proftp,reports" bgruening/galaxy-stable
   ```
 
-A graphical user interface, to start and stop your services, is available on port 9002 if you run your container like above.
+A graphical user interface, to start and stop your services, is available on port `9002` if you run your container like above.
 
 
 Restarting Galaxy
@@ -147,7 +147,7 @@ You can set the environment variable $GALAXY_LOGGING to FULL to access all logs 
   docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
 
-In addition you can access the supersisord webinterface on port 9002 and get access to log files. Start your container with:
+In addition you can access the supersisord webinterface on port `9002` and get access to log files. Start your container with:
 
   ```sh
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
