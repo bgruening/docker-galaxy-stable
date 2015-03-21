@@ -126,7 +126,7 @@ A graphical user interface, to start and stop your services, is available on por
 Restarting Galaxy
 -----------------
 
-If you want to restart Galaxy without restarting the entire Galaxy container we can use `docker exec` (docker > 1.3).
+If you want to restart Galaxy without restarting the entire Galaxy container you can use `docker exec` (docker > 1.3).
 
   ```sh
   docker exec <container name> supervisorctl restart galaxy:
