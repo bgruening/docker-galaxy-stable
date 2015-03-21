@@ -53,7 +53,7 @@ if __name__ == "__main__":
     for filename in os.listdir('/export/'):
         if filename.startswith('welcome'):
             export_file = os.path.join( '/export/', filename)
-            image_file = os.path.join('/etc/galaxy/', filename)
+            image_file = os.path.join('/etc/galaxy/web/', filename)
             shutil.copy(export_file, image_file)
 
     if not os.path.exists( '/export/galaxy-central/' ):
