@@ -54,7 +54,7 @@ RUN mkdir $GALAXY_ROOT && wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.
 RUN su $GALAXY_USER -c "virtualenv $GALAXY_VIRTUALENV"
 
 # Setup Galaxy configuration files.
-RUN mkdir -p $GALAXY_CONFIG_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
+RUN mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
 
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE"
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
@@ -118,7 +118,7 @@ GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
 GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://$HOST_IP/ \
 GALAXY_CONFIG_SANITIZE_ALL_HTML=False \
 GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
-GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/welcome.html \
+GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/web/welcome.html \
 GALAXY_CONFIG_OVERRIDE_DEBUG=False
 
 # Define the default postgresql database path
@@ -130,8 +130,8 @@ PG_DATA_DIR_HOST=/export/postgresql/9.3/main/
 RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
 
 # Container Style
-ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/welcome_image.png
-ADD welcome.html $GALAXY_CONFIG_DIR/welcome.html
+ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
+ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
 
 # Switch back to User root
 USER root
