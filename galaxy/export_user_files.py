@@ -24,8 +24,8 @@ def change_path( src ):
                 os.makedirs(dest_dir)
             shutil.move( src, dest )
             os.symlink( dest, src.rstrip('/') )
-            os.chown( src, 451, 450 )
-            subprocess.call('chown -R 451:450 %s' % dest, shell=True)
+            os.chown( src, int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
+            subprocess.call( 'chown -R %s:%s %s' % ( os.environ['GALAXY_UID'], os.environ['GALAXY_GID'], dest ), shell=True )
         # if destination exists (e.g. continuing a previous session), remove source and symlink
         else:
             if os.path.isdir( src ):
@@ -46,16 +46,43 @@ if __name__ == "__main__":
     if os.path.exists( '/export/.distribution_config/' ):
         shutil.rmtree( '/export/.distribution_config/' )
     shutil.copytree( '/galaxy-central/config/', '/export/.distribution_config/' )
+
+
+    # Copy all files starting with "welcome"
+    # This enables a flexible start page design.
+    for filename in os.listdir('/export/'):
+        if filename.startswith('welcome'):
+            export_file = os.path.join( '/export/', filename)
+            image_file = os.path.join('/etc/galaxy/web/', filename)
+            shutil.copy(export_file, image_file)
+
     if not os.path.exists( '/export/galaxy-central/' ):
         os.makedirs("/export/galaxy-central/")
-        os.chown("/export/galaxy-central/", 451, 450)
+        os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
+
     change_path('/galaxy-central/config/')
-    change_path('/galaxy-central/static/welcome.html')
+
+    # copy image defaults to config/<file>.docker_sample to base derivatives on,
+    # and if there is a realized version of these files in the export directory
+    # replace Galaxy's copy with these. Use symbolic link instead of copying so
+    # deployer can update and reload Galaxy and changes will be reflected.
+    for config in [ 'galaxy.ini', 'job_conf.xml' ]:
+        image_config = os.path.join('/etc/galaxy/', config)
+        export_config = os.path.join( '/export/galaxy-central/config', config )
+        export_sample = export_config + ".docker_sample"
+        shutil.copy(image_config, export_sample)
+        if os.path.exists(export_config):
+            subprocess.call('ln -s -f %s %s' % (export_config, image_config), shell=True)
+
     change_path('/galaxy-central/integrated_tool_panel.xml')
     change_path('/galaxy-central/display_applications/')
     change_path('/galaxy-central/tool_deps/')
     change_path('/galaxy-central/tool-data/')
     change_path('/shed_tools/')
+    
+    if os.path.exists('/export/reports_htpasswd'):
+        shutil.copy('/export/reports_htpasswd', '/etc/nginx/htpasswd')
+
     try:
         change_path('/var/lib/docker/')
     except:
@@ -70,7 +97,7 @@ if __name__ == "__main__":
         # copy the postgresql data folder to the new location
         subprocess.call('cp -R %s/* %s' % (PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST), shell=True)
         # copytree needs an non-existing dst dir, how annoying :(
-        #shutil.copytree(PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST)
+        # shutil.copytree(PG_DATA_DIR_DEFAULT, PG_DATA_DIR_HOST)
         subprocess.call('chown -R postgres:postgres /export/postgresql/', shell=True)
         subprocess.call('chmod -R 0755 /export/', shell=True)
         subprocess.call('chmod -R 0700 %s' % PG_DATA_DIR_HOST, shell=True)
@@ -80,4 +107,3 @@ if __name__ == "__main__":
     new_data_directory = "'%s'" % PG_DATA_DIR_HOST
     cmd = 'sed -i "s|data_directory = .*|data_directory = %s|g" %s' % (new_data_directory, PG_CONF)
     subprocess.call(cmd, shell=True)
-
