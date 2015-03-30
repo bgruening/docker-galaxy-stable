@@ -176,7 +176,7 @@ EXPOSE :9002
 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 ENV HOME /home/galaxy
-
+ENV PYTHONPATH /galaxy-central/lib/
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
