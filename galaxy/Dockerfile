@@ -17,14 +17,14 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \ 
+    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \
     nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker-1.4.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools ansible \
     nano nmap lynx vim curl python-pip && \
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV GALAXY_RELEASE=release_15.03_docker \
+ENV GALAXY_RELEASE=dev \
 GALAXY_REPO=https://github.com/jmchilton/galaxy/ \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -176,7 +176,7 @@ EXPOSE :9002
 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 ENV HOME /home/galaxy
-
+ENV PYTHONPATH /galaxy-central/lib/
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
