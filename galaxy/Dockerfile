@@ -24,7 +24,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV GALAXY_RELEASE=dev \
+ENV GALAXY_RELEASE=release_15.05_docker \
 GALAXY_REPO=https://github.com/jmchilton/galaxy/ \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
