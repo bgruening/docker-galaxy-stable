@@ -60,6 +60,17 @@ For this we need to be able to launch Docker containers inside our Galaxy Docker
 
 The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker.
 
+Using passive mode FTP
+----------------------
+
+By default, FTP servers running inside of docker containers are not accessible via passive mode FTP, due to not being able to expose extra ports. To circumvent this, you can use the `--net=host` option to allow Docker to directly open ports on the host server:
+
+  ```bash
+  docker run -d --net=host -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
+  ```
+
+Note that there is no need to specifically bind individual ports (e.g., `-p 80:80`).
+
 Using Parent docker
 -------------------
 On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable `DOCKER_PARENT`
@@ -103,6 +114,11 @@ You can and should overwrite these during launching your container:
     -e "GALAXY_CONFIG_BRAND='My own Galaxy flavour'" \
     bgruening/galaxy-stable
   ```
+
+Note that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.ini`:
+
+    database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy
+    file_path = /export/galaxy-central/database/files 
 
 Personalize your Galaxy
 -----------------------
