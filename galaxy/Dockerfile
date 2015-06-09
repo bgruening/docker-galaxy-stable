@@ -166,6 +166,9 @@ ADD ./startup.sh /usr/bin/startup
 ADD install_repo_wrapper.sh /usr/bin/install-repository
 RUN chmod +x /usr/bin/install-repository /usr/bin/startup
 
+# Activate additional Tool Sheds
+ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
+
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
@@ -179,7 +182,7 @@ EXPOSE :8800
 EXPOSE :9002
 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
-ENV HOME /home/galaxy
+ENV HOME $GALAXY_HOME
 ENV PYTHONPATH /galaxy-central/lib/
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]

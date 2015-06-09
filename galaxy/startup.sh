@@ -7,6 +7,13 @@ cd /galaxy-central/
 umount /var/lib/docker
 python /usr/local/bin/export_user_files.py $PG_DATA_DIR_DEFAULT
 
+# Enable Test Tool Shed
+if [ "x$ENABLE_TTS_INSTALL" != "x" ]
+    then
+        echo "Enable installation from the Test Tool Shed."
+        export GALAXY_CONFIG_TOOL_SHEDS_CONFIG_FILE=$GALAXY_HOME/tool_sheds_conf.xml
+fi
+
 #Copy or link the slurm/munge config files
 if [ -e /export/slurm.conf ]
 then
