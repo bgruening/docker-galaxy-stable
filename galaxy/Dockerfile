@@ -138,6 +138,7 @@ USER root
 
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 # Include all needed scripts from the host
@@ -153,9 +154,11 @@ ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
 
 RUN rm $PG_DATA_DIR_DEFAULT -rf && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
-RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
 ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
-RUN service postgresql start && sleep 10 && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY
+RUN service postgresql start && \
+    sh create_db.sh -c $GALAXY_CONFIG_FILE && \
+    python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
+    service postgresql stop
 
 ADD ./startup.sh /usr/bin/startup
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
