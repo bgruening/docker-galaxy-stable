@@ -47,6 +47,19 @@ With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
 
+
+Upgrading images
+----------------
+
+We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you:
+
+ * Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.
+ * New unmodified configuration files are always stored in a hidden directory called `.distribution_config`. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.
+ * Start your container in interactive mode with an attached terminal and upgrade your database.
+   1.  `docker run -i -t bgruening/galaxy-stable /bin/bash`
+   2. `service postgresql start`
+   3. `sh manage_db.sh upgrade`
+
 Enabling Interactive Environments in Galaxy
 -------------------------------------------
 
