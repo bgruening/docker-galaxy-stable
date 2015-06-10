@@ -69,7 +69,7 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR \
     --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
     --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
-    --extra-vars supervisor_manage_slurm=false \
+    --extra-vars supervisor_manage_slurm="" \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
