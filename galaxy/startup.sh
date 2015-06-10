@@ -45,15 +45,15 @@ function start_supervisor {
         echo "Starting nodejs"
         supervisorctl start galaxy:galaxy_nodejs_proxy
     fi
-    if [[ $NONUSE != *"slurmd"* ]]
-    then
-        echo "Starting slurmd"
-        /usr/sbin/slurmd -D -L /home/galaxy/slurmd.log
-    fi
     if [[ $NONUSE != *"slurmctld"* ]]
     then
         echo "Starting slurmctld"
-        /usr/sbin/slurmctld -D -L /home/galaxy/slurmctld.log
+        /usr/sbin/slurmctld -L /home/galaxy/slurmctld.log
+    fi
+    if [[ $NONUSE != *"slurmd"* ]]
+    then
+        echo "Starting slurmd"
+        /usr/sbin/slurmd -L /home/galaxy/slurmd.log
     fi
 }
 
