@@ -48,12 +48,12 @@ function start_supervisor {
     if [[ $NONUSE != *"slurmd"* ]]
     then
         echo "Starting slurmd"
-        supervisorctl start slurmd
+        /usr/sbin/slurmd -D -L /home/galaxy/slurmd.log
     fi
     if [[ $NONUSE != *"slurmctld"* ]]
     then
         echo "Starting slurmctld"
-        supervisorctl start slurmctld
+        /usr/sbin/slurmctld -D -L /home/galaxy/slurmctld.log
     fi
 }
 
