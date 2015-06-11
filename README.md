@@ -163,6 +163,15 @@ It is often convenient to configure Galaxy to use a high-performance cluster for
 
 Appropriate `munge.key` and `slurm.conf` files must be copied to the `/export` mount point accessible to Galaxy. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files from `/etc`, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
 
+Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
+
+    docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
+
+You would then need the following symbolic links on each of the nodes:
+
+ 1. `/export` -> `/data/galaxy`
+ 2. `/galaxy-central` -> `/data/galaxy/galaxy-central`
+
 A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Unbuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
 
 Extending the Docker Image
