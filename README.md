@@ -187,6 +187,15 @@ You would then need the following symbolic links on each of the nodes:
 
 A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Unbuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
 
+The following is an example for how to specify a destination in `job_conf.xml` that uses a custom partition ("work", rather than "debug") and 4 cores rather than 1:
+
+    <destination id="slurm4threads" runner="slurm">
+        <param id="embed_metadata_in_job">False</param>
+        <param id="nativeSpecification">-p work -n 4</param>
+    </destination>
+
+The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
+
 Extending the Docker Image
 ==========================
 
