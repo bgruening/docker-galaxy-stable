@@ -113,11 +113,11 @@ The Galaxy welcome screen can be changed by providing a `welcome.hml` page in `/
 Deactivating services
 ---------------------
 
-Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp` and `reports` are supported.
+Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
 
   ```bash
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 \
-    -e "NONUSE=nodejs,proftp,reports" bgruening/galaxy-stable
+    -e "NONUSE=nodejs,proftp,reports,slurmd,slurmctld" bgruening/galaxy-stable
   ```
 
 A graphical user interface, to start and stop your services, is available on port `9002` if you run your container like above.
@@ -152,6 +152,18 @@ In addition you can access the supersisord webinterface on port `9002` and get a
   ```sh
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
+
+Using an external Slurm cluster
+-------------------------------
+
+It is often convenient to configure Galaxy to use a high-performance cluster for running jobs. To do so, two files are required:
+
+ 1. munge.key
+ 2. slurm.conf
+
+Appropriate `munge.key` and `slurm.conf` files must be copied to the `/export` mount point accessible to Galaxy. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files from `/etc`, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
+
+A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Unbuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
 
 Extending the Docker Image
 ==========================
