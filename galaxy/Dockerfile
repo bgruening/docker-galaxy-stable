@@ -162,9 +162,12 @@ RUN service postgresql start && \
     service postgresql stop
 
 ADD ./startup.sh /usr/bin/startup
-# Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
+# script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
 ADD install_repo_wrapper.sh /usr/bin/install-repository
-RUN chmod +x /usr/bin/install-repository /usr/bin/startup
+# script to install BioJS visualizations
+ADD install_biojs_vis.sh /usr/bin/install-biojs
+RUN chmod +x /usr/bin/install-repository /usr/bin/startup /usr/bin/install-biojs
+
 
 # Activate additional Tool Sheds
 ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
