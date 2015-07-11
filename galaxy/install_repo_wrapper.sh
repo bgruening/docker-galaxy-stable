@@ -40,3 +40,13 @@ fi
 sudo -E -u galaxy ./run.sh --stop-daemon --log-file=$install_log --pid-file=galaxy_install.pid
 rm $install_log
 service postgresql stop
+
+
+# Enable Test Tool Shed
+if [ "x$ENABLE_TTS_INSTALL" != "x" ]
+    then
+        echo "Enable installation from the Test Tool Shed."
+        export GALAXY_CONFIG_TOOL_SHEDS_CONFIG_FILE=$GALAXY_HOME/tool_sheds_conf.xml
+fi
+
+
