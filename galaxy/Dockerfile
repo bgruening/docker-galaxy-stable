@@ -11,19 +11,6 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
-    sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
-    apt-add-repository -y ppa:ansible/ansible && \
-    apt-add-repository -y ppa:galaxyproject/nginx && \
-    apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker-1.4.1 slurm-llnl slurm-llnl-torque libswitch-perl \
-    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools ansible \
-    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 && \
-    apt-get purge -y software-properties-common && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 ENV GALAXY_RELEASE=dev \
 GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
@@ -36,11 +23,30 @@ GALAXY_VIRTUALENV=/home/galaxy/venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
+GALAXY_POSTGRES_UID=1550 \
+GALAXY_POSTGRES_GID=1550 \
 GALAXY_HOME=/home/galaxy \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 EXPORT_DIR=/export
+
+# Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing /export/postgresql with non-Linux hosts
+RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
+    adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres
+
+RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
+    sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
+    apt-add-repository -y ppa:ansible/ansible && \
+    apt-add-repository -y ppa:galaxyproject/nginx && \
+    apt-get update -qq && apt-get upgrade -y && \
+    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \
+    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker-1.4.1 slurm-llnl slurm-llnl-torque libswitch-perl \
+    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools ansible \
+    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 && \
+    apt-get purge -y software-properties-common && \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
