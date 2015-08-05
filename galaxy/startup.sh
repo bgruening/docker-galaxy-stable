@@ -14,6 +14,15 @@ if [ "x$ENABLE_TTS_INSTALL" != "x" ]
         export GALAXY_CONFIG_TOOL_SHEDS_CONFIG_FILE=$GALAXY_HOME/tool_sheds_conf.xml
 fi
 
+# Backward compatibility for exported postgresql directories before version 15.08.
+# In previous versions postgres has the UID/GID of 102/106. We changed this in 
+# https://github.com/bgruening/docker-galaxy-stable/pull/71 to GALAXY_POSTGRES_UID=1550 and
+# GALAXY_POSTGRES_GID=1550
+if  [ `stat -c %g /export/postgresql/` == "106" ];
+    then
+        chown -R postgres:postgres /export/postgresql/
+fi
+
 #Copy or link the slurm/munge config files
 if [ -e /export/slurm.conf ]
 then
