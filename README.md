@@ -198,8 +198,8 @@ Importantly, Slurm relies on a shared filesystem between the Docker container an
 
 You would then need the following symbolic links on each of the nodes:
 
- 1. `/export` -> `/data/galaxy`
- 2. `/galaxy-central` -> `/data/galaxy/galaxy-central`
+ 1. `/export`  → `/data/galaxy`
+ 2. `/galaxy-central`  → `/data/galaxy/galaxy-central`
 
 A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Unbuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
 
