@@ -241,6 +241,11 @@ ENV GALAXY_CONFIG_BRAND deepTools
 
 WORKDIR /galaxy-central
 
+RUN add-tool-shed --url 'http://testtoolshed.g2.bx.psu.edu/' --name 'Test Tool Shed'
+
+# Install Visualisation
+RUN install-biojs msa
+
 # Install deepTools
 RUN install-repository \
     "--url https://toolshed.g2.bx.psu.edu/ -o bgruening --name deeptools"
@@ -318,6 +323,13 @@ History
    - use Ansible roles to build large parts of the image
    - export the supervisord webinterface on port 9002
    - enable Galaxy reports webapp
+ - 15.07:
+  - `install-biojs` can install BioJS visualisations into Galaxy
+  - `add-tool-shed` can be used to activate third party Tool Sheds in child Dockerfiles
+  - many documentation improvements
+  - RStudio is now part of Galaxy and this Image
+  - configurable postgres UID/GID by @chambm
+  - smarter starting of postgres during Tool installations by @shiltemann
 
 
 Support & Bug Reports
