@@ -214,6 +214,15 @@ The following is an example for how to specify a destination in `job_conf.xml` t
 
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
+Magic Environment variables
+===========================
+
+| Name   | Description   |
+|---|---|
+| ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
+| GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
+| NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
+
 Extending the Docker Image
 ==========================
 
