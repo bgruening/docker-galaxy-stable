@@ -24,7 +24,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ENV GALAXY_RELEASE=dev \
+ENV GALAXY_RELEASE=release_15.07 \
 GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -161,16 +161,18 @@ RUN service postgresql start && \
     python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
     service postgresql stop
 
+# Activate additional Tool Sheds
+# Activate the Test Tool Shed during runtime, useful for testing repositories.
+ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
+# Activate arbritrary Tool Sheds during build-time by manipulating the original tool_sheds_conf.xml file
+ADD ./add_tool_shed.py /usr/bin/add-tool-shed
+
 ADD ./startup.sh /usr/bin/startup
 # script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
 ADD install_repo_wrapper.sh /usr/bin/install-repository
 # script to install BioJS visualizations
 ADD install_biojs_vis.sh /usr/bin/install-biojs
-RUN chmod +x /usr/bin/install-repository /usr/bin/startup /usr/bin/install-biojs
-
-
-# Activate additional Tool Sheds
-ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
+RUN chmod +x /usr/bin/install-repository /usr/bin/startup /usr/bin/install-biojs /usr/bin/add-tool-shed
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
