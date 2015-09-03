@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/5466/bgruening/docker-galaxy-stable.svg)](https://zenodo.org/badge/latestdoi/5466/bgruening/docker-galaxy-stable)
+
 Galaxy Docker Image
 ===================
 
@@ -46,6 +48,19 @@ With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker
   - In case of a non-empty ``/export/``, for example if you continue a previous session within the same folder, nothing will be moved, but the symlinks will be created.
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
+
+
+Upgrading images
+----------------
+
+We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you:
+
+ * Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.
+ * New unmodified configuration files are always stored in a hidden directory called `.distribution_config`. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.
+ * Start your container in interactive mode with an attached terminal and upgrade your database.
+   1.  `docker run -i -t bgruening/galaxy-stable /bin/bash`
+   2. `service postgresql start`
+   3. `sh manage_db.sh upgrade`
 
 Enabling Interactive Environments in Galaxy
 -------------------------------------------
@@ -129,11 +144,11 @@ The Galaxy welcome screen can be changed by providing a `welcome.hml` page in `/
 Deactivating services
 ---------------------
 
-Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp` and `reports` are supported.
+Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
 
   ```bash
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 \
-    -e "NONUSE=nodejs,proftp,reports" bgruening/galaxy-stable
+    -e "NONUSE=nodejs,proftp,reports,slurmd,slurmctld" bgruening/galaxy-stable
   ```
 
 A graphical user interface, to start and stop your services, is available on port `9002` if you run your container like above.
@@ -169,6 +184,45 @@ In addition you can access the supersisord webinterface on port `9002` and get a
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
 
+Using an external Slurm cluster
+-------------------------------
+
+It is often convenient to configure Galaxy to use a high-performance cluster for running jobs. To do so, two files are required:
+
+ 1. munge.key
+ 2. slurm.conf
+
+Appropriate `munge.key` and `slurm.conf` files must be copied to the `/export` mount point accessible to Galaxy. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files from `/etc`, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
+
+Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
+
+    docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
+
+You would then need the following symbolic links on each of the nodes:
+
+ 1. `/export`  → `/data/galaxy`
+ 2. `/galaxy-central`  → `/data/galaxy/galaxy-central`
+
+A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Unbuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
+
+The following is an example for how to specify a destination in `job_conf.xml` that uses a custom partition ("work", rather than "debug") and 4 cores rather than 1:
+
+    <destination id="slurm4threads" runner="slurm">
+        <param id="embed_metadata_in_job">False</param>
+        <param id="nativeSpecification">-p work -n 4</param>
+    </destination>
+
+The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
+
+Magic Environment variables
+===========================
+
+| Name   | Description   |
+|---|---|
+| ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
+| GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
+| NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
+
 Extending the Docker Image
 ==========================
 
@@ -197,6 +251,11 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ENV GALAXY_CONFIG_BRAND deepTools
 
 WORKDIR /galaxy-central
+
+RUN add-tool-shed --url 'http://testtoolshed.g2.bx.psu.edu/' --name 'Test Tool Shed'
+
+# Install Visualisation
+RUN install-biojs msa
 
 # Install deepTools
 RUN install-repository \
@@ -275,6 +334,13 @@ History
    - use Ansible roles to build large parts of the image
    - export the supervisord webinterface on port 9002
    - enable Galaxy reports webapp
+ - 15.07:
+  - `install-biojs` can install BioJS visualisations into Galaxy
+  - `add-tool-shed` can be used to activate third party Tool Sheds in child Dockerfiles
+  - many documentation improvements
+  - RStudio is now part of Galaxy and this Image
+  - configurable postgres UID/GID by @chambm
+  - smarter starting of postgres during Tool installations by @shiltemann
 
 
 Support & Bug Reports

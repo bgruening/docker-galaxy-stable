@@ -11,21 +11,8 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common && \
-    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
-    sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
-    apt-add-repository -y ppa:ansible/ansible && \
-    apt-add-repository -y ppa:galaxyproject/nginx && \
-    apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \
-    nginx-extras uwsgi uwsgi-plugin-python supervisor lxc-docker-1.4.1 slurm-llnl slurm-llnl-torque libswitch-perl \
-    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools ansible \
-    nano nmap lynx vim curl python-pip && \
-    apt-get purge -y software-properties-common && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-ENV GALAXY_RELEASE=release_15.05_docker \
-GALAXY_REPO=https://github.com/jmchilton/galaxy/ \
+ENV GALAXY_RELEASE=release_15.07 \
+GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
 
@@ -36,11 +23,30 @@ GALAXY_VIRTUALENV=/home/galaxy/venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
+GALAXY_POSTGRES_UID=1550 \
+GALAXY_POSTGRES_GID=1550 \
 GALAXY_HOME=/home/galaxy \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 EXPORT_DIR=/export
+
+# Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing /export/postgresql with non-Linux hosts
+RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
+    adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres
+
+RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common && \
+    apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9 && \
+    sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
+    apt-add-repository -y ppa:ansible/ansible && \
+    apt-add-repository -y ppa:galaxyproject/nginx && \
+    apt-get update -qq && apt-get upgrade -y && \
+    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \
+    nginx-extras=1.4.6-1ubuntu3.3ppa1 nginx-common=1.4.6-1ubuntu3.3ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.7.1 slurm-llnl slurm-llnl-torque libswitch-perl \
+    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm aufs-tools ansible \
+    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 && \
+    apt-get purge -y software-properties-common && \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
@@ -69,6 +75,7 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR \
     --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
     --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
+    --extra-vars supervisor_manage_slurm="" \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -138,6 +145,7 @@ USER root
 
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 ENV LC_ALL en_US.UTF-8
+ENV LANG en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 # Include all needed scripts from the host
@@ -153,14 +161,24 @@ ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
 
 RUN rm $PG_DATA_DIR_DEFAULT -rf && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
-RUN service postgresql start && sh create_db.sh -c $GALAXY_CONFIG_FILE
 ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
-RUN service postgresql start && sleep 10 && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY
+RUN service postgresql start && \
+    sh create_db.sh -c $GALAXY_CONFIG_FILE && \
+    python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
+    service postgresql stop
+
+# Activate additional Tool Sheds
+# Activate the Test Tool Shed during runtime, useful for testing repositories.
+ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
+# Activate arbritrary Tool Sheds during build-time by manipulating the original tool_sheds_conf.xml file
+ADD ./add_tool_shed.py /usr/bin/add-tool-shed
 
 ADD ./startup.sh /usr/bin/startup
-# Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
+# script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
 ADD install_repo_wrapper.sh /usr/bin/install-repository
-RUN chmod +x /usr/bin/install-repository /usr/bin/startup
+# script to install BioJS visualizations
+ADD install_biojs_vis.sh /usr/bin/install-biojs
+RUN chmod +x /usr/bin/install-repository /usr/bin/startup /usr/bin/install-biojs /usr/bin/add-tool-shed
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
@@ -175,7 +193,7 @@ EXPOSE :8800
 EXPOSE :9002
 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
-ENV HOME /home/galaxy
+ENV HOME $GALAXY_HOME
 ENV PYTHONPATH /galaxy-central/lib/
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]

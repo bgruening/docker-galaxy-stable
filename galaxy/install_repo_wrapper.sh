@@ -1,8 +1,19 @@
-#!/bin/sh
+#!/bin/bash
 
 # start Galaxy
 service postgresql start
 install_log='galaxy_install.log'
+
+# wait for database to finish starting up
+STATUS=$(psql 2>&1)   
+while [[ ${STATUS} =~ "starting up" ]]
+do
+  echo "waiting for database: $STATUS"
+  STATUS=$(psql 2>&1)  
+  sleep 1
+done
+
+echo "starting Galaxy"
 sudo -E -u galaxy ./run.sh --daemon --log-file=$install_log --pid-file=galaxy_install.pid
 
 galaxy_install_pid=`cat galaxy_install.pid`
@@ -40,3 +51,13 @@ fi
 sudo -E -u galaxy ./run.sh --stop-daemon --log-file=$install_log --pid-file=galaxy_install.pid
 rm $install_log
 service postgresql stop
+
+
+# Enable Test Tool Shed
+if [ "x$ENABLE_TTS_INSTALL" != "x" ]
+    then
+        echo "Enable installation from the Test Tool Shed."
+        export GALAXY_CONFIG_TOOL_SHEDS_CONFIG_FILE=$GALAXY_HOME/tool_sheds_conf.xml
+fi
+
+
