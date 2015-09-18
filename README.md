@@ -5,8 +5,8 @@ Galaxy Docker Image
 
 The [Galaxy](http://www.galaxyproject.org) [Docker](http://www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features.
 
-One of the main goals is to make the access to entire tool suites as easy as possible. Usually, 
-this includes the setup of a public available webservice that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server. 
+One of the main goals is to make the access to entire tool suites as easy as possible. Usually,
+this includes the setup of a public available webservice that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server.
 With docker, tool developers can create their own Image with all dependencies and the user only needs to run it within docker.
 
 The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and all recommended Galaxy requirements are installed. The following chart should illustrate the [Docker](http://www.docker.io) image hierarchy we have build to make is as easy as possible to build on different layers of our stack and create many exciting Galaxy flavours.
@@ -42,7 +42,7 @@ Fortunately, this is as easy as:
   docker run -d -p 8080:80 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
   ```
 
-With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting Apache, PostgreSQL and Galaxy, will recognize the export directory with one of the following outcomes:
+With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the local folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting Apache, PostgreSQL and Galaxy, will recognize the export directory with one of the following outcomes:
 
   - In case of an empty ``/export/`` directory, it will move the [PostgreSQL](http://www.postgresql.org/) database, the Galaxy database directory, Shed Tools and Tool Dependencies and various config scripts to /export/ and symlink back to the original location.
   - In case of a non-empty ``/export/``, for example if you continue a previous session within the same folder, nothing will be moved, but the symlinks will be created.
@@ -89,7 +89,7 @@ Note that there is no need to specifically bind individual ports (e.g., `-p 80:8
 Using Parent docker
 -------------------
 On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable `DOCKER_PARENT`
-  
+
   ```bash
   docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
     --privileged=true -e DOCKER_PARENT=True \
@@ -133,7 +133,7 @@ You can and should overwrite these during launching your container:
 Note that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.ini`:
 
     database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy
-    file_path = /export/galaxy-central/database/files 
+    file_path = /export/galaxy-central/database/files
 
 Personalize your Galaxy
 -----------------------
@@ -178,11 +178,19 @@ You can set the environment variable $GALAXY_LOGGING to FULL to access all logs 
   docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
 
-In addition you can access the supersisord webinterface on port `9002` and get access to log files. Start your container with:
+Then, you can access the supersisord webinterface on port `9002` and get access to log files. To do so, start your container with:
 
   ```sh
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
+
+Alternatively, you can access the container directly using the following command:
+
+  ```sh
+  docker exec -it <container name> bash
+  ```
+
+Once connected to the container, log files are available in `/home/galaxy`.
 
 Using an external Slurm cluster
 -------------------------------
@@ -192,11 +200,13 @@ It is often convenient to configure Galaxy to use a high-performance cluster for
  1. munge.key
  2. slurm.conf
 
-Appropriate `munge.key` and `slurm.conf` files must be copied to the `/export` mount point accessible to Galaxy. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files from `/etc`, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
+These files from the cluster must be copied to the `/export` mount point (i.e., `/data/galaxy` on the host if using below command) accessible to Galaxy before starting the container. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files to `/etc` within the container, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
 
 Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
 
+    ```sh
     docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
+    ```
 
 You would then need the following symbolic links on each of the nodes:
 
@@ -290,7 +300,7 @@ The Galaxy Admin User has the username ``admin@galaxy.org`` and the password ``a
 The PostgreSQL username is ``galaxy``, the password is ``galaxy`` and the database name is ``galaxy`` (I know I was really creative ;)).
 If you want to create new users, please make sure to use the ``/export/`` volume. Otherwise your user will be removed after your docker session is finished.
 
-The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the 
+The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the
 docker container in production, please do not forget to change the user credentials in /etc/proftp/proftpd.conf too.
 
 The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
