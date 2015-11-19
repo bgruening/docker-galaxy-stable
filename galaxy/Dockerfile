@@ -19,7 +19,7 @@ GALAXY_CONFIG_DIR=/etc/galaxy
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
-GALAXY_VIRTUALENV=/home/galaxy/venv \
+GALAXY_VIRTUALENV=$GALAXY_ROOT/.venv/ \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
@@ -56,9 +56,6 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
 # Download latest stable release of Galaxy.
 RUN mkdir $GALAXY_ROOT && wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT
 
-# TODO: ensure virtualenv as part of galaxy role
-RUN su $GALAXY_USER -c "virtualenv $GALAXY_VIRTUALENV"
-
 # Setup Galaxy configuration files.
 RUN mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
 
@@ -67,6 +64,7 @@ ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 ADD ./htpasswd /etc/nginx/htpasswd
 ADD ./servers.ini $GALAXY_CONFIG_DIR/servers.ini
 RUN cat $GALAXY_CONFIG_DIR/servers.ini >> $GALAXY_CONFIG_FILE && rm $GALAXY_CONFIG_DIR/servers.ini
+
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
 RUN ansible-playbook /tmp/ansible/provision.yml \
@@ -76,6 +74,7 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
     --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
     --extra-vars supervisor_manage_slurm="" \
+    --extra-vars galaxy_venv_dir=$GALAXY_VIRTUALENV \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -84,16 +83,13 @@ RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
 # The following commands will be executed as User galaxy
 USER galaxy
 
-WORKDIR /galaxy-central
+WORKDIR $GALAXY_ROOT
 
 # Configure Galaxy to use the Tool Shed
 RUN mkdir $GALAXY_ROOT/tool_deps
 
-# Installing latest version of setuptools
-RUN . $GALAXY_VIRTUALENV/bin/activate && pip install setuptools --upgrade
-
 # Updating genome informations from UCSC
-#RUN export GALAXY=/galaxy-central && sh ./cron/updateucsc.sh.sample
+#RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy \
 GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=./tool_deps \
@@ -129,9 +125,11 @@ GALAXY_CONFIG_OVERRIDE_DEBUG=False
 ENV PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
 PG_DATA_DIR_HOST=/export/postgresql/9.3/main/
 
+# prefetch Python wheels
+RUN ./scripts/common_startup.sh
 
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-RUN  cd /galaxy-central/lib/galaxy/web/proxy/js && npm install
+RUN  cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && npm install
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
@@ -158,9 +156,9 @@ ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
 
 RUN rm $PG_DATA_DIR_DEFAULT -rf && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
-ADD ./create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 RUN service postgresql start && \
     sh create_db.sh -c $GALAXY_CONFIG_FILE && \
+    . $GALAXY_ROOT/.venv/bin/activate && \
     python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
     service postgresql stop
 
@@ -170,9 +168,6 @@ ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
 # Activate arbritrary Tool Sheds during build-time by manipulating the original tool_sheds_conf.xml file
 ADD ./add_tool_shed.py /usr/bin/add-tool-shed
 
-ADD ./startup.sh /usr/bin/startup
-# script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
-ADD install_repo_wrapper.sh /usr/bin/install-repository
 # script to install BioJS visualizations
 ADD install_biojs_vis.sh /usr/bin/install-biojs
 RUN chmod +x /usr/bin/install-repository /usr/bin/startup /usr/bin/install-biojs /usr/bin/add-tool-shed
@@ -180,8 +175,6 @@ RUN chmod +x /usr/bin/install-repository /usr/bin/startup /usr/bin/install-biojs
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
-
-ADD ./cgroupfs_mount.sh /root/cgroupfs_mount.sh
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80
@@ -191,7 +184,6 @@ EXPOSE :9002
 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 ENV HOME $GALAXY_HOME
-ENV PYTHONPATH /galaxy-central/lib/
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
