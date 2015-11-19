@@ -79,9 +79,6 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-ADD roles/ /tmp/ansible/roles
-ADD provision.yml /tmp/ansible/provision.yml
-
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
 
 # The following commands will be executed as User galaxy
