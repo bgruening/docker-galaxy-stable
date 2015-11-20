@@ -52,6 +52,7 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
     mkdir $EXPORT_DIR $GALAXY_HOME && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR && \
     gpasswd -a $GALAXY_USER docker
+ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Download latest stable release of Galaxy.
 RUN mkdir $GALAXY_ROOT && wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT
@@ -162,15 +163,20 @@ RUN service postgresql start && \
     python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
     service postgresql stop
 
+# Add Ansible playbook for installing tools
+ADD roles/galaxy-tools-playbook $GALAXY_HOME/ansible/galaxy-tools-playbook
+
 # Activate additional Tool Sheds
 # Activate the Test Tool Shed during runtime, useful for testing repositories.
 ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
 # Activate arbritrary Tool Sheds during build-time by manipulating the original tool_sheds_conf.xml file
 ADD ./add_tool_shed.py /usr/bin/add-tool-shed
 
+# Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
+ADD install_tools_wrapper.sh /usr/bin/install-tools
 # script to install BioJS visualizations
 ADD install_biojs_vis.sh /usr/bin/install-biojs
-RUN chmod +x /usr/bin/install-repository /usr/bin/startup /usr/bin/install-biojs /usr/bin/add-tool-shed
+RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/install-biojs /usr/bin/add-tool-shed
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
