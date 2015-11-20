@@ -3,4 +3,4 @@
 	url = https://github.com/galaxyproject/ansible-galaxy-extras
 [submodule "galaxy/roles/galaxy-tools-playbook"]
 	path = galaxy/roles/galaxy-tools-playbook
-	url = git@github.com:afgane/galaxy-tools-playbook.git
+	url = https://github.com/afgane/galaxy-tools-playbook
