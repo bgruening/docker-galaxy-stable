@@ -35,4 +35,4 @@ install:
 script:
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
   # Run bioblend nosetests
-  #- cd $HOME/bioblend-0.7.0 && tox -e $TOX_ENV
+  - cd $HOME/bioblend-0.7.0 && tox -e $TOX_ENV
