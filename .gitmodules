@@ -1,6 +1,6 @@
 [submodule "galaxy/roles/galaxyproject.galaxyextras"]
 	path = galaxy/roles/galaxyprojectdotorg.galaxyextras
 	url = https://github.com/galaxyproject/ansible-galaxy-extras
-[submodule "galaxy/roles/galaxyprojectdotorg.galaxytools"]
-	path = galaxy/roles/galaxyprojectdotorg.galaxytools
-	url = https://github.com/galaxyproject/ansible-galaxy-tools
+[submodule "galaxy/roles/galaxy-tools-playbook"]
+	path = galaxy/roles/galaxy-tools-playbook
+	url = git@github.com:afgane/galaxy-tools-playbook.git
