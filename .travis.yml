@@ -13,8 +13,8 @@ before_install:
   - export GALAXY_USER=galaxy
   - export GALAXY_UID=1450
   - export GALAXY_GID=1450
-  - groupadd -r $GALAXY_USER -g $GALAXY_GID
-  - useradd -u $GALAXY_UID -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER
+  - sudo groupadd -r $GALAXY_USER -g $GALAXY_GID
+  - sudo useradd -u $GALAXY_UID -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER
 
   - cd galaxy && docker build -t galaxy-docker/test .
   - |
