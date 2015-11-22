@@ -23,7 +23,7 @@ before_install:
     -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
     -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
     -e GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True \
-    -v /tmp/:/tmp/
+    -v /tmp/:/tmp/ \
     galaxy-docker/test
   - docker ps
   - cd $HOME
