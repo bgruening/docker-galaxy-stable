@@ -10,6 +10,12 @@ env:
   - TOX_ENV=py27
 
 before_install:
+  - export GALAXY_USER=galaxy
+  - export GALAXY_UID=1450
+  - export GALAXY_GID=1450
+  - groupadd -r $GALAXY_USER -g $GALAXY_GID
+  - useradd -u $GALAXY_UID -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER
+
   - cd galaxy && docker build -t galaxy-docker/test .
   - |
     docker run -d -p 8080:80 \
@@ -35,5 +41,6 @@ install:
 
 script:
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
-  # Run bioblend nosetests
-  - cd $HOME/bioblend-0.7.0 && tox -e $TOX_ENV
+  # Run bioblend nosetests with the same UID and GID as the galaxy user inside if Docker
+  # this will guarantee that exchanged files bewteen bioblend and Docker are read & writable from both sides
+  - sudo -E su $GALAXY_USER -c 'cd $HOME/bioblend-0.7.0 && tox -e $TOX_ENV'
