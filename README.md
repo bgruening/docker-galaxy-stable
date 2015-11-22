@@ -1,4 +1,5 @@
 [![DOI](https://zenodo.org/badge/5466/bgruening/docker-galaxy-stable.svg)](https://zenodo.org/badge/latestdoi/5466/bgruening/docker-galaxy-stable)
+[![Build Status](https://travis-ci.org/bgruening/docker-galaxy-stable.svg?branch=dev)](https://travis-ci.org/bgruening/docker-galaxy-stable)
 
 Galaxy Docker Image
 ===================
