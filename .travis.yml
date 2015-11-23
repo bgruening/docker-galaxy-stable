@@ -38,7 +38,7 @@ before_install:
   - cd $GALAXY_HOME
   - sudo su $GALAXY_TRAVIS_USER -c 'wget https://github.com/galaxyproject/bioblend/archive/v0.7.0.tar.gz'
   - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz v0.7.0.tar.gz'
-  - sudo su $GALAXY_TRAVIS_USER -c 'wget --output-document ~/ansible/test_toolset.yml $TEST_TOOLSET_URL'
+  - sudo su $GALAXY_TRAVIS_USER -c "wget --output-document ~/ansible/test_toolset.yml $TEST_TOOLSET_URL"
 
 install:
   - cd $GALAXY_HOME/bioblend-0.7.0
