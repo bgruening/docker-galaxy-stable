@@ -1,0 +1,6 @@
+tools:
+- name: bedtools
+  owner: iuc
+  tool_panel_section_id: textutil
+  revisions:
+  - 2cd7e321d259
