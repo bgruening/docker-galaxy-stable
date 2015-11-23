@@ -9,6 +9,9 @@ services:
 env:
   - TOX_ENV=py27
 
+git:
+  submodules: false
+
 before_install:
   - GALAXY_TRAVIS_USER=galaxy
   - GALAXY_UID=1450
@@ -21,6 +24,7 @@ before_install:
   - BIOBLEND_GALAXY_URL=http://localhost:8080
   - TEST_TOOLSET_URL=https://raw.githubusercontent.com/afgane/docker-galaxy-stable/dev/galaxy/test_toolset.yml
 
+  - git submodule update --init --recursive
   - sudo groupadd -r $GALAXY_TRAVIS_USER -g $GALAXY_GID
   - sudo useradd -u $GALAXY_UID -r -g $GALAXY_TRAVIS_USER -d $GALAXY_HOME -p travis_testing -c "Galaxy user" $GALAXY_TRAVIS_USER
   - sudo mkdir $GALAXY_HOME
