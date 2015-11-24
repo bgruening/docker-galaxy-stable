@@ -341,7 +341,9 @@ History
   - RStudio is now part of Galaxy and this Image
   - configurable postgres UID/GID by @chambm
   - smarter starting of postgres during Tool installations by @shiltemann
-
+ - dev:
+  - enable Travis testing for all builds and PR
+  - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
 
 Support & Bug Reports
 ---------------------
