@@ -166,6 +166,7 @@ RUN service postgresql start && \
 
 # Add Ansible playbook for installing tools
 ADD roles/galaxy-tools-playbook $GALAXY_HOME/ansible/galaxy-tools-playbook
+RUN chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME/ansible
 
 # Activate additional Tool Sheds
 # Activate the Test Tool Shed during runtime, useful for testing repositories.

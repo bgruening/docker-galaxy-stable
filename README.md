@@ -6,8 +6,8 @@ Galaxy Docker Image
 
 The [Galaxy](http://www.galaxyproject.org) [Docker](http://www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features.
 
-One of the main goals is to make the access to entire tool suites as easy as possible. Usually, 
-this includes the setup of a public available webservice that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server. 
+One of the main goals is to make the access to entire tool suites as easy as possible. Usually,
+this includes the setup of a public available webservice that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server.
 With docker, tool developers can create their own Image with all dependencies and the user only needs to run it within docker.
 
 The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and all recommended Galaxy requirements are installed. The following chart should illustrate the [Docker](http://www.docker.io) image hierarchy we have build to make is as easy as possible to build on different layers of our stack and create many exciting Galaxy flavours.
@@ -90,7 +90,7 @@ Note that there is no need to specifically bind individual ports (e.g., `-p 80:8
 Using Parent docker
 -------------------
 On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable `DOCKER_PARENT`
-  
+
   ```bash
   docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
     --privileged=true -e DOCKER_PARENT=True \
@@ -134,7 +134,7 @@ You can and should overwrite these during launching your container:
 Note that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.ini`:
 
     database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy
-    file_path = /export/galaxy-central/database/files 
+    file_path = /export/galaxy-central/database/files
 
 Personalize your Galaxy
 -----------------------
@@ -227,16 +227,16 @@ Magic Environment variables
 Extending the Docker Image
 ==========================
 
-If your tools are already included in the Tool Shed, building your own personalised Galaxy docker Image (Galaxy flavour) can be done using the following steps:
+If the desired tools are already included in the Tool Shed, building your own personalised Galaxy docker Image (Galaxy flavour) can be done using the following steps:
 
- 1. Create a file the name ``Dockerfile``
+ 1. Create a file named ``Dockerfile``
  2. Include ``FROM bgruening/galaxy-stable`` at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.
- 3. Install your Tools from the Tool Shed via the ``install_tool_shed_repositories.py`` script.
- 4. execute ``docker build -t='my-docker-test'``
- 5. run your container with ``docker run -p 8080:80 my-docker-test``
- 6. open your web browser on ``http://localhost:8080``
+ 3. Supply the list of desired tools in a file (`my_tool_list.yml` below). See [this page](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample) for the file format requirements.
+ 4. Execute ``docker build -t='my-docker-test'``
+ 5. Run your container with ``docker run -p 8080:80 my-docker-test``
+ 6. Open your web browser on ``http://localhost:8080``
 
-For example have a look at the [deepTools](http://deeptools.github.io/) or the [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) Dockerfile's.
+For a working example, have a look at the [deepTools](http://deeptools.github.io/) or the [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) Dockerfile's.
  * https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile
  * https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile
 
@@ -259,8 +259,7 @@ RUN add-tool-shed --url 'http://testtoolshed.g2.bx.psu.edu/' --name 'Test Tool S
 RUN install-biojs msa
 
 # Install deepTools
-RUN install-repository \
-    "--url https://toolshed.g2.bx.psu.edu/ -o bgruening --name deeptools"
+RUN install-tools my_tool_list.yml
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
@@ -291,7 +290,7 @@ The Galaxy Admin User has the username ``admin@galaxy.org`` and the password ``a
 The PostgreSQL username is ``galaxy``, the password is ``galaxy`` and the database name is ``galaxy`` (I know I was really creative ;)).
 If you want to create new users, please make sure to use the ``/export/`` volume. Otherwise your user will be removed after your docker session is finished.
 
-The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the 
+The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the
 docker container in production, please do not forget to change the user credentials in /etc/proftp/proftpd.conf too.
 
 The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
