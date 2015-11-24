@@ -53,4 +53,7 @@ script:
   # Run bioblend nosetests with the same UID and GID as the galaxy user inside if Docker
   # this will guarantee that exchanged files bewteen bioblend and Docker are read & writable from both sides
   - sudo -E su $GALAXY_TRAVIS_USER -c "export PATH=$GALAXY_HOME/.local/bin/:$PATH && cd $GALAXY_HOME/bioblend-0.7.0 && tox -e $TOX_ENV"
-  - docker run galaxy-docker/test bash -c "wget --output-document $GALAXY_HOME/test_toolset.yml $TEST_TOOLSET_URL && install-tools $GALAXY_HOME/test_toolset.yml"
+  # Test the 'old' tool installation script
+  - docker run galaxy-docker/test bash -c 'install-repository "--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name 'BEDTools'"'
+  # Test the 'new' tool installation script
+  - docker run galaxy-docker/test bash -c "install-tools $GALAXY_HOME/ansible/galaxy-tools-playbook/files/tool_list.yaml"
