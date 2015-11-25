@@ -281,6 +281,7 @@ List of Galaxy flavours
  * [ballaxy](https://github.com/anhi/docker-scripts/tree/master/ballaxy)
  * [docker-galaxy-deeptools](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools)
  * [docker-galaxyp](https://github.com/bgruening/docker-galaxyp)
+ * [docker-galaxy-csg](https://github.com/gregvonkuster/docker-galaxy-csg)
 
 
 Users & Passwords
