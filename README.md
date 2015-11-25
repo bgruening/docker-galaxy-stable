@@ -276,13 +276,13 @@ CMD ["/usr/bin/startup"]
 List of Galaxy flavours
 -----------------------
 
- * [docker-galaxy-blast](https://github.com/bgruening/docker-galaxy-blast)
+ * [NCBI-Blast](https://github.com/bgruening/docker-galaxy-blast)
  * [ChemicalToolBox](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox)
  * [ballaxy](https://github.com/anhi/docker-scripts/tree/master/ballaxy)
- * [docker-galaxy-deeptools](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools)
- * [docker-galaxyp](https://github.com/bgruening/docker-galaxyp)
-  * [docker-galaxy-imaging](https://github.com/bgruening/docker-galaxy-imaging)
- * [docker-galaxy-csg](https://github.com/gregvonkuster/docker-galaxy-csg)
+ * [NGS-deepTools](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools)
+ * [Galaxy Proteomics](https://github.com/bgruening/docker-galaxyp)
+ * [Imaging](https://github.com/bgruening/docker-galaxy-imaging)
+ * [Constructive Solid Geometry](https://github.com/gregvonkuster/docker-galaxy-csg)
 
 
 Users & Passwords
