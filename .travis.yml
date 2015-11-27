@@ -13,15 +13,15 @@ git:
   submodules: false
 
 before_install:
-  - GALAXY_TRAVIS_USER=galaxy
-  - GALAXY_UID=1450
-  - GALAXY_GID=1450
-  - GALAXY_HOME=/home/galaxy
-  - GALAXY_USER=admin@galaxy.org
-  - GALAXY_USER_EMAIL=admin@galaxy.org
-  - GALAXY_USER_PASSWD=admin
-  - BIOBLEND_GALAXY_API_KEY=admin
-  - BIOBLEND_GALAXY_URL=http://localhost:8080
+  - export GALAXY_TRAVIS_USER=galaxy
+  - export GALAXY_UID=1450
+  - export GALAXY_GID=1450
+  - export GALAXY_HOME=/home/galaxy
+  - export GALAXY_USER=admin@galaxy.org
+  - export GALAXY_USER_EMAIL=admin@galaxy.org
+  - export GALAXY_USER_PASSWD=admin
+  - export BIOBLEND_GALAXY_API_KEY=admin
+  - export BIOBLEND_GALAXY_URL=http://localhost:8080
 
   - git submodule update --init --recursive
   - sudo groupadd -r $GALAXY_TRAVIS_USER -g $GALAXY_GID
