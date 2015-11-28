@@ -45,9 +45,12 @@ if __name__ == "__main__":
         If the user re-starts (with docker start) the container the file /.galaxy_save is found and the linking
         is aborted.
     """
+
+    galaxy_root_dir = os.environ.get('GALAXY_ROOT', '/galaxy-central/')
+
     if os.path.exists( '/export/.distribution_config/' ):
         shutil.rmtree( '/export/.distribution_config/' )
-    shutil.copytree( '/galaxy-central/config/', '/export/.distribution_config/' )
+    shutil.copytree( os.path.join(galaxy_root_dir, 'config'), '/export/.distribution_config/' )
 
 
     # Copy all files starting with "welcome"
@@ -62,7 +65,7 @@ if __name__ == "__main__":
         os.makedirs("/export/galaxy-central/")
         os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
 
-    change_path('/galaxy-central/config/')
+    change_path( os.path.join(galaxy_root_dir, 'config') )
 
     # copy image defaults to config/<file>.docker_sample to base derivatives on,
     # and if there is a realized version of these files in the export directory
@@ -76,11 +79,12 @@ if __name__ == "__main__":
         if os.path.exists(export_config):
             subprocess.call('ln -s -f %s %s' % (export_config, image_config), shell=True)
 
-    change_path('/galaxy-central/integrated_tool_panel.xml')
-    change_path('/galaxy-central/display_applications/')
-    change_path('/galaxy-central/tool_deps/')
-    change_path('/galaxy-central/tool-data/')
-    change_path('/shed_tools/')
+    change_path( os.path.join(galaxy_root_dir, 'tools.yaml') )
+    change_path( os.path.join(galaxy_root_dir, 'integrated_tool_panel.xml') )
+    change_path( os.path.join(galaxy_root_dir, 'display_applications') )
+    change_path( os.path.join(galaxy_root_dir, 'tool_deps') )
+    change_path( os.path.join(galaxy_root_dir, 'tool-data') )
+    change_path( '/shed_tools/' )
     
     if os.path.exists('/export/reports_htpasswd'):
         shutil.copy('/export/reports_htpasswd', '/etc/nginx/htpasswd')
