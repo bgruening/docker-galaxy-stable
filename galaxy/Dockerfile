@@ -29,7 +29,9 @@ GALAXY_HOME=/home/galaxy \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
-EXPORT_DIR=/export
+EXPORT_DIR=/export \
+UWSGI_PROCESSES=2 \
+UWSGI_THREADS=4
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing /export/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
