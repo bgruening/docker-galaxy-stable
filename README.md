@@ -223,6 +223,9 @@ Magic Environment variables
 | ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
 | GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
 | NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
+| UWSGI_PROCESSES | Set the number of uwsgi processes (`UWSGI_PROCESSES=2) |
+| UWSGI_THREADS | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
+
 
 Extending the Docker Image
 ==========================
@@ -346,6 +349,8 @@ History
  - dev:
   - enable Travis testing for all builds and PR
   - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
+  - enable dynamic UWSGI processes and threads with `-e UWSGI_PROCESSES=2` and `-e UWSGI_THREADS=4`
+
 
 Support & Bug Reports
 ---------------------
