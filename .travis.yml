@@ -40,10 +40,10 @@ before_install:
   - docker ps
   - cd $GALAXY_HOME
   - sudo su $GALAXY_TRAVIS_USER -c 'wget https://github.com/galaxyproject/bioblend/archive/d98552222f052f4f126770a90902d3095f1bdaab.tar.gz'
-  - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz bioblend-d98552222f052f4f126770a90902d3095f1bdaab.tar.gz'
+  - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz d98552222f052f4f126770a90902d3095f1bdaab.tar.gz'
 
 install:
-  - cd $GALAXY_HOME/bioblend-0.7.0
+  - cd $GALAXY_HOME/bioblend-d98552222f052f4f126770a90902d3095f1bdaab
   - sudo su $GALAXY_TRAVIS_USER -c 'python setup.py install --user'
   - sudo su $GALAXY_TRAVIS_USER -c 'pip install --user --upgrade "tox>=1.8.0"'
 
