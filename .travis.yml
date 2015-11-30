@@ -39,8 +39,8 @@ before_install:
     galaxy-docker/test
   - docker ps
   - cd $GALAXY_HOME
-  - sudo su $GALAXY_TRAVIS_USER -c 'wget https://github.com/galaxyproject/bioblend/archive/v0.7.0.tar.gz'
-  - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz v0.7.0.tar.gz'
+  - sudo su $GALAXY_TRAVIS_USER -c 'wget https://github.com/galaxyproject/bioblend/archive/d98552222f052f4f126770a90902d3095f1bdaab.tar.gz'
+  - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz bioblend-d98552222f052f4f126770a90902d3095f1bdaab.tar.gz'
 
 install:
   - cd $GALAXY_HOME/bioblend-0.7.0
