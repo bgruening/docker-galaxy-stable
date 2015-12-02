@@ -30,8 +30,11 @@ GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 EXPORT_DIR=/export \
+# The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
-UWSGI_THREADS=4
+UWSGI_THREADS=4 \
+# Set the number of Galaxy handlers
+GALAXY_HANDLER_NUMPROCS=2
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing /export/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
@@ -65,8 +68,6 @@ RUN mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && chown -R $GALAXY_USER:
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE"
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 ADD ./htpasswd /etc/nginx/htpasswd
-ADD ./servers.ini $GALAXY_CONFIG_DIR/servers.ini
-RUN cat $GALAXY_CONFIG_DIR/servers.ini >> $GALAXY_CONFIG_FILE && rm $GALAXY_CONFIG_DIR/servers.ini
 
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml

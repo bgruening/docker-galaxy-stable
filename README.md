@@ -225,6 +225,7 @@ Magic Environment variables
 | NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
 | UWSGI_PROCESSES | Set the number of uwsgi processes (`UWSGI_PROCESSES=2) |
 | UWSGI_THREADS | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
+| GALAXY_HANDLER_NUMPROCS | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
 
 
 Extending the Docker Image
@@ -350,6 +351,7 @@ History
   - enable Travis testing for all builds and PR
   - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
   - enable dynamic UWSGI processes and threads with `-e UWSGI_PROCESSES=2` and `-e UWSGI_THREADS=4`
+  - enable dynamic Galaxy handlers `-e GALAXY_HANDLER_NUMPROCS=2`
 
 
 Support & Bug Reports
