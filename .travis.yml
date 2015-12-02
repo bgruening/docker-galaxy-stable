@@ -39,11 +39,11 @@ before_install:
     galaxy-docker/test
   - docker ps
   - cd $GALAXY_HOME
-  - sudo su $GALAXY_TRAVIS_USER -c 'wget https://github.com/galaxyproject/bioblend/archive/d98552222f052f4f126770a90902d3095f1bdaab.tar.gz'
-  - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz d98552222f052f4f126770a90902d3095f1bdaab.tar.gz'
+  - sudo su $GALAXY_TRAVIS_USER -c 'wget https://github.com/bgruening/bioblend/archive/fc787527832b4a25dd713e11e400e81428075d5f.tar.gz'
+  - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz fc787527832b4a25dd713e11e400e81428075d5f.tar.gz'
 
 install:
-  - cd $GALAXY_HOME/bioblend-d98552222f052f4f126770a90902d3095f1bdaab
+  - cd $GALAXY_HOME/bioblend-fc787527832b4a25dd713e11e400e81428075d5f
   - sudo su $GALAXY_TRAVIS_USER -c 'python setup.py install --user'
   - sudo su $GALAXY_TRAVIS_USER -c 'pip install --user --upgrade "tox>=1.8.0"'
 
@@ -51,7 +51,7 @@ script:
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
   # Run bioblend nosetests with the same UID and GID as the galaxy user inside if Docker
   # this will guarantee that exchanged files bewteen bioblend and Docker are read & writable from both sides
-  - sudo -E su $GALAXY_TRAVIS_USER -c "export PATH=$GALAXY_HOME/.local/bin/:$PATH && cd $GALAXY_HOME/bioblend-d98552222f052f4f126770a90902d3095f1bdaab && tox -e $TOX_ENV"
+  - sudo -E su $GALAXY_TRAVIS_USER -c "export PATH=$GALAXY_HOME/.local/bin/:$PATH && cd $GALAXY_HOME/bioblend-fc787527832b4a25dd713e11e400e81428075d5f && tox -e $TOX_ENV"
   # Test the 'old' tool installation script
   - docker run galaxy-docker/test bash -c 'install-repository "--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name 'BEDTools'"'
   # Test the 'new' tool installation script
