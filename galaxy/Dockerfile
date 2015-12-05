@@ -34,7 +34,13 @@ EXPORT_DIR=/export \
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
 # Set the number of Galaxy handlers
-GALAXY_HANDLER_NUMPROCS=2
+GALAXY_HANDLER_NUMPROCS=2 \
+# Setting a standard encoding. This can get important for things like the unix sort tool.
+LC_ALL=en_US.UTF-8 \
+LANG=en_US.UTF-8
+
+RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
+
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing /export/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
@@ -60,10 +66,12 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Download latest stable release of Galaxy.
-RUN mkdir $GALAXY_ROOT && wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT
-
-# Setup Galaxy configuration files.
-RUN mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
+RUN mkdir $GALAXY_ROOT && \
+    wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT && \
+    # Setup Galaxy configuration files.
+    mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && \
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
 
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE"
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
@@ -123,17 +131,17 @@ GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://$HOST_IP/ \
 GALAXY_CONFIG_SANITIZE_ALL_HTML=False \
 GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
 GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/web/welcome.html \
-GALAXY_CONFIG_OVERRIDE_DEBUG=False
-
+GALAXY_CONFIG_OVERRIDE_DEBUG=False \
 # Define the default postgresql database path
-ENV PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
-PG_DATA_DIR_HOST=/export/postgresql/9.3/main/
+PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
+PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
+# We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
+HOME=$GALAXY_HOME
 
 # prefetch Python wheels
-RUN ./scripts/common_startup.sh
-
-# Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-RUN  cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && npm install
+RUN ./scripts/common_startup.sh && \
+    # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
+    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && npm install
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
@@ -141,11 +149,6 @@ ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
 
 # Switch back to User root
 USER root
-
-# Setting a standard encoding. This can get important for things like the unix sort tool.
-ENV LC_ALL en_US.UTF-8
-ENV LANG en_US.UTF-8
-RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
@@ -156,8 +159,9 @@ ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 # 2. Create DB-user 'galaxy' with password 'galaxy' in database 'galaxy'
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
 
-RUN rm $PG_DATA_DIR_DEFAULT -rf && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT
-RUN service postgresql start && \
+RUN rm $PG_DATA_DIR_DEFAULT -rf && \
+    python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT && \
+    service postgresql start && \
     sh create_db.sh -c $GALAXY_CONFIG_FILE && \
     . $GALAXY_ROOT/.venv/bin/activate && \
     pip install psutil && \
@@ -190,8 +194,6 @@ EXPOSE :21
 EXPOSE :8800
 EXPOSE :9002
 
-# We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
-ENV HOME $GALAXY_HOME
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
