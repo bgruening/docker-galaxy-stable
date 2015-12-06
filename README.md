@@ -351,6 +351,9 @@ History
   - RStudio is now part of Galaxy and this Image
   - configurable postgres UID/GID by @chambm
   - smarter starting of postgres during Tool installations by @shiltemann
+ - 15.10:
+  - new Galaxy 15.10 release
+  - fix https://github.com/bgruening/docker-galaxy-stable/issues/94
 
 
 Support & Bug Reports
