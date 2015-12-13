@@ -228,6 +228,19 @@ Magic Environment variables
 | GALAXY_HANDLER_NUMPROCS | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
 
 
+Lite Mode
+=========
+
+The lite mode will only start postgresql and a single Galaxy process, without nginx, uwsgi or any other
+special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.
+
+  ```sh
+  docker run -i -t -p 8080:8080 bgruening/galaxy-stable startup_lite.sh
+  ```
+
+This will also use the standard `job_conf.xml.sample_basic` shipped by Galaxy. If you want to use the special the regular one from the normal mode you can pass `-j` to the `startup_lite.sh` script.
+
+
 Extending the Docker Image
 ==========================
 
@@ -322,7 +335,7 @@ Updating already existing submodules is possible with:
 Requirements
 ------------
 
-- [docker](https://www.docker.io/gettingstarted/#h_installation)
+- [Docker](https://www.docker.io/gettingstarted/#h_installation)
 
 
 History
@@ -352,6 +365,7 @@ History
   - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
   - enable dynamic UWSGI processes and threads with `-e UWSGI_PROCESSES=2` and `-e UWSGI_THREADS=4`
   - enable dynamic Galaxy handlers `-e GALAXY_HANDLER_NUMPROCS=2`
+  - Addition of a new `lite` mode contributed by @kellrott
 
 
 Support & Bug Reports
