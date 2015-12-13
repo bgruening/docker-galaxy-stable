@@ -189,7 +189,6 @@ RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
-ADD ./job_conf_lite.xml $GALAXY_CONFIG_DIR/job_conf_lite.xml
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80
