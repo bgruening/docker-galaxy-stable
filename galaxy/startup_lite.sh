@@ -34,4 +34,4 @@ threadpool_workers = 10
 _EOF
 
 service postgresql start
-./run.sh --daemon
+./run.sh --daemon --skip-eggs --skip-wheels
