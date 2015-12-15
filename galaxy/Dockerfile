@@ -12,7 +12,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
 ENV GALAXY_RELEASE=dev \
-GALAXY_REPO=https://github.com/galaxyproject/galaxy \
+GALAXY_REPO=https://github.com/galaxyproject/galaxy?client_encoding=utf8 \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
 
