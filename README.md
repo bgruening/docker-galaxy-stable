@@ -49,7 +49,8 @@ With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
 
-For Non-Linux users, data storage via export to the host computer is complicated by ... more info here ...
+As an alternative to data export, you can also store your data within docker by creating a dedicated data volume container:
+concept provides Asan alternative to data export on a local host folder to store galaxy data for reuse, you can create outside of docker, you It is also possible to store in re-use For Non-Linux users, data storage via export to the host computer is complicated by ... more info here ...
 
 Upgrading images
 ----------------
