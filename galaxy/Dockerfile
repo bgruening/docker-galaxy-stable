@@ -12,7 +12,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
 ENV GALAXY_RELEASE=dev \
-GALAXY_REPO=https://github.com/galaxyproject/galaxy?client_encoding=utf8 \
+GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
 
@@ -103,7 +103,7 @@ RUN mkdir $GALAXY_ROOT/tool_deps
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
-ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy \
+ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8 \
 GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=./tool_deps \
 GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
