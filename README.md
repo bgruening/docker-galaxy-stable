@@ -49,6 +49,7 @@ With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
 
+For Non-Linux users, data storage via export to the host computer is complicated by ...
 
 Upgrading images
 ----------------
