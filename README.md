@@ -61,7 +61,7 @@ To mount this data volume in a Galaxy container, use the  ``--volumes-from`` par
   docker run -d -p 8080:80 --volumes-from galaxy-store bgruening/galaxy-stable
   ```
 
-This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your ``$HOME/.docker`` folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the [permissions problems](https://github.com/bgruening/docker-galaxy-stable/issues/68) associated with data export on non-Linux hosts.
+This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your ``$HOME/.docker`` folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the problems with permissions [reported](https://github.com/bgruening/docker-galaxy-stable/issues/68) for data export on non-Linux hosts.
 
 Upgrading images
 ----------------
