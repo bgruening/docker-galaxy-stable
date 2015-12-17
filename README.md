@@ -49,6 +49,19 @@ With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
 
+You can also collect and store ``/export/`` data of Galaxy instances in a dedicated docker [Data  volume Container](https://docs.docker.com/engine/userguide/dockervolumes/) created by:
+
+```sh
+  docker create -v /export --name galaxy-store bgruening/galaxy-stable /bin/true
+  ```
+
+To mount this data volume in a Galaxy container, use the  ``--volumes-from`` parameter:
+
+```sh
+  docker run -d -p 8080:80 --volumes-from galaxy-store bgruening/galaxy-stable
+  ```
+
+This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your ``$HOME/.docker`` folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the problems with permissions [reported](https://github.com/bgruening/docker-galaxy-stable/issues/68) for data export on non-Linux hosts.
 
 Upgrading images
 ----------------
