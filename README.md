@@ -49,7 +49,7 @@ With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker
 
 This enables you to have different export folders for different sessions - means real separation of your different projects.
 
-It is also possible to collect and store ``/export/`` data of Galaxy instances inside Docker in a dedicated [Data](https://docs.docker.com/engine/userguide/dockervolumes/ easily created with:
+It is also possible to collect and store ``/export/`` data of Galaxy instances inside Docker in a dedicated [Data](https://docs.docker.com/engine/userguide/dockervolumes/) easily created with:
 
 ```sh
   docker create -v /export --name galaxy-store bgruening/galaxy-stable /bin/true
