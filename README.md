@@ -66,7 +66,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
 Enabling Interactive Environments in Galaxy
 -------------------------------------------
 
-Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like IPython, in a secure and reproducible way.
+Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like Jupyter, in a secure and reproducible way.
 For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.
 
   ```bash
@@ -360,12 +360,13 @@ History
   - RStudio is now part of Galaxy and this Image
   - configurable postgres UID/GID by @chambm
   - smarter starting of postgres during Tool installations by @shiltemann
- - dev:
+ - 16.01:
   - enable Travis testing for all builds and PR
   - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
   - enable dynamic UWSGI processes and threads with `-e UWSGI_PROCESSES=2` and `-e UWSGI_THREADS=4`
   - enable dynamic Galaxy handlers `-e GALAXY_HANDLER_NUMPROCS=2`
   - Addition of a new `lite` mode contributed by @kellrott
+  - first release with Jupyter integration
 
 
 Support & Bug Reports
