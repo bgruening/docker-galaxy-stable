@@ -297,6 +297,7 @@ List of Galaxy flavours
  * [ChemicalToolBox](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox)
  * [ballaxy](https://github.com/anhi/docker-scripts/tree/master/ballaxy)
  * [NGS-deepTools](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools)
+ * [Galaxy ChIP-exo](https://github.com/gregvonkuster/docker-galaxy-ChIP-exo)
  * [Galaxy Proteomics](https://github.com/bgruening/docker-galaxyp)
  * [Imaging](https://github.com/bgruening/docker-galaxy-imaging)
  * [Constructive Solid Geometry](https://github.com/gregvonkuster/docker-galaxy-csg)
