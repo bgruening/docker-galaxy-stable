@@ -49,7 +49,7 @@ install:
 
 script:
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
-  - time > $GALAXY_HOME/time.txt && curl --fail -T $GALAXY_HOME/time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
+  - time > $HOME/time.txt && curl --fail -T $HOME/time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   - curl --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   # Run bioblend nosetests with the same UID and GID as the galaxy user inside if Docker
   # this will guarantee that exchanged files bewteen bioblend and Docker are read & writable from both sides
