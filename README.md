@@ -330,7 +330,7 @@ You can clone this repository and the Ansible submodule with:
 Updating already existing submodules is possible with:
 
   ```sh
-  git submodule update --remote
+  git submodule update --init --recursive
   ```
 
 Requirements
