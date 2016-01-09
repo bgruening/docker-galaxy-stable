@@ -31,8 +31,8 @@ before_install:
   - cd galaxy && docker build -t galaxy-docker/test .
   - |
     docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
-    --name galaxy_test_container
-    --privileged=true
+    --name galaxy_test_container \
+    --privileged=true \
     -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
     -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
     -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
