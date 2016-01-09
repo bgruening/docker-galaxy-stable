@@ -32,7 +32,6 @@ before_install:
   - |
     docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
     --name galaxy_test_container
-    --rm
     --privileged=true
     -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
     -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
