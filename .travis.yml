@@ -49,6 +49,8 @@ before_install:
   - sudo su $GALAXY_TRAVIS_USER -c 'tar xfz master.tar.gz'
 
 install:
+  - sudo apt-get update
+  - sudo apt-get install docker-engine
   - cd $GALAXY_HOME/bioblend-master
   - sudo su $GALAXY_TRAVIS_USER -c 'pip install --user --upgrade "tox>=1.8.0"'
   - sudo su $GALAXY_TRAVIS_USER -c 'python setup.py install --user'
