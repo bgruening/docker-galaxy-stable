@@ -23,6 +23,12 @@ before_install:
   - export BIOBLEND_GALAXY_API_KEY=admin
   - export BIOBLEND_GALAXY_URL=http://localhost:8080
 
+  - sudo apt-get update
+  - sudo apt-get install docker-engine
+
+  - docker --version
+  - docker info
+
   - git submodule update --init --recursive
   - sudo groupadd -r $GALAXY_TRAVIS_USER -g $GALAXY_GID
   - sudo useradd -u $GALAXY_UID -r -g $GALAXY_TRAVIS_USER -d $GALAXY_HOME -p travis_testing -c "Galaxy user" $GALAXY_TRAVIS_USER
@@ -30,7 +36,9 @@ before_install:
   - sudo chown -R $GALAXY_TRAVIS_USER:$GALAXY_TRAVIS_USER $GALAXY_HOME
   - cd galaxy && docker build -t galaxy-docker/test .
   - |
-    docker run -d -p 8080:80 -p 8021:21 \
+    docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
+    --name galaxy_test_container \
+    --privileged=true \
     -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
     -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
     -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
@@ -44,7 +52,7 @@ before_install:
 
 install:
   - cd $GALAXY_HOME/bioblend-master
-  - sudo su $GALAXY_TRAVIS_USER -c 'pip install --user --upgrade "tox>=1.8.0"'
+  - sudo su $GALAXY_TRAVIS_USER -c 'pip install --user --upgrade "tox>=1.8.0" "pep8<=1.6.2" '
   - sudo su $GALAXY_TRAVIS_USER -c 'python setup.py install --user'
 
 script:
@@ -58,3 +66,5 @@ script:
   - docker run galaxy-docker/test bash -c 'install-repository "--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name 'BEDTools'"'
   # Test the 'new' tool installation script
   - docker run galaxy-docker/test bash -c "install-tools $GALAXY_HOME/ansible/galaxy-tools-playbook/files/tool_list.yaml"
+  # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
+  - docker exec -i -t galaxy_test_container docker info

@@ -11,7 +11,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-ENV GALAXY_RELEASE=dev \
+ENV GALAXY_RELEASE=release_16.01 \
 GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -53,7 +53,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \
-    nginx-extras=1.4.6-1ubuntu3.3ppa1 nginx-common=1.4.6-1ubuntu3.3ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.7.1 slurm-llnl slurm-llnl-torque libswitch-perl \
+    nginx-extras=1.4.6-1ubuntu3.3ppa1 nginx-common=1.4.6-1ubuntu3.3ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
     nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 && \
     apt-get purge -y software-properties-common && \
@@ -189,6 +189,8 @@ RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
+
+#ADD cgroupfs_mount.sh /root/cgroupfs_mount.sh
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80

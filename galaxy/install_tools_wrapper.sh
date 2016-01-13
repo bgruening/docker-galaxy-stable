@@ -36,16 +36,16 @@ while : ; do
     fi
 done
 
-for arg do shift
-    set -- "$@" \',\' "$arg"
-done; shift
-tl="\"['"`printf %s "$@"`"']\""
+#for arg do shift
+#    set -- "$@" \',\' "$arg"
+#done; shift
+#tl="\"['"`printf %s "$@"`"']\""
 su galaxy -c "cd $GALAXY_HOME/ansible/galaxy-tools-playbook; unset PYTHONPATH; \
     ansible-playbook tools.yml -i "localhost," --extra-vars galaxy_tools_api_key=admin \
     --extra-vars galaxy_config_file=/etc/galaxy/galaxy.ini \
     --extra-vars galaxy_venv_dir=$GALAXY_HOME/venv \
     --extra-vars galaxy_server_dir=/galaxy-central \
-    --extra-vars galaxy_tools_tool_list_files=$tl"
+    --extra-vars galaxy_tools_tool_list=$1"
 
 exit_code=$?
 
