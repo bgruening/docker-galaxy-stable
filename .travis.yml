@@ -54,6 +54,8 @@ install:
   - cd $GALAXY_HOME/bioblend-master
   - sudo su $GALAXY_TRAVIS_USER -c 'pip install --user --upgrade "tox>=1.8.0" "pep8<=1.6.2" '
   - sudo su $GALAXY_TRAVIS_USER -c 'python setup.py install --user'
+  # remove flake8 testing for bioblend from tox
+  - sudo su $GALAXY_TRAVIS_USER -c 'sed -i.bak "s/commands.*$/commands =/" tox.ini'
 
 script:
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
