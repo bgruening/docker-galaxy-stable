@@ -136,11 +136,6 @@ PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
 
-# prefetch Python wheels
-RUN ./scripts/common_startup.sh && \
-    # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && npm install
-
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
 ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
