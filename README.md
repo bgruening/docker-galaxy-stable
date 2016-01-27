@@ -74,7 +74,8 @@ For this we need to be able to launch Docker containers inside our Galaxy Docker
     -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
   ```
 
-The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker.
+The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker. If your IE does not open, please make sure you open your Galaxy instance with your hostname or a [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name), but not with localhost or 127.0.0.1.
+
 
 Using passive mode FTP
 ----------------------
