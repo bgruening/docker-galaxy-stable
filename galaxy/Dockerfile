@@ -96,6 +96,7 @@ RUN mkdir $GALAXY_ROOT/tool_deps
 RUN . $GALAXY_VIRTUALENV/bin/activate && python scripts/fetch_eggs.py -c $GALAXY_CONFIG_FILE && python scripts/fetch_eggs.py -e drmaa -c $GALAXY_CONFIG_FILE
 # Installing latest version of setuptools
 RUN . $GALAXY_VIRTUALENV/bin/activate && pip install setuptools --upgrade
+RUN . $GALAXY_VIRTUALENV/bin/activate && pip install bioblend
 
 # Updating genome informations from UCSC
 #RUN export GALAXY=/galaxy-central && sh ./cron/updateucsc.sh.sample
