@@ -56,6 +56,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     nginx-extras=1.4.6-1ubuntu3.3ppa1 nginx-common=1.4.6-1ubuntu3.3ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
     nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 && \
+    pip install --upgrade pip && \
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -151,6 +152,8 @@ USER root
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
 ADD ./export_user_files.py /usr/local/bin/export_user_files.py
+
+RUN [ -f "/usr/local/bin/create_galaxy_user.py" ] || { echo "Did you checkout the repo with the recursive option? Try git clone --recursive ..." ; exit 1 ; }
 
 # Configure PostgreSQL
 # 1. Remove all old configuration
