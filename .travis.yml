@@ -24,7 +24,7 @@ before_install:
   - export BIOBLEND_GALAXY_URL=http://localhost:8080
 
   - sudo apt-get update -qq
-  - sudo apt-get install docker-engine --no-install-recommends -y 
+  - sudo apt-get install docker-engine --no-install-recommends -y -o Dpkg::Options::="--force-confmiss"
 
   - docker --version
   - docker info
