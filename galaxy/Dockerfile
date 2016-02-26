@@ -189,8 +189,6 @@ RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
 
-#ADD cgroupfs_mount.sh /root/cgroupfs_mount.sh
-
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80
 EXPOSE :21

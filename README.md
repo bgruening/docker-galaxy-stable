@@ -44,7 +44,7 @@ Fortunately, this is as easy as:
   docker run -d -p 8080:80 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
   ```
 
-With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting Apache, PostgreSQL and Galaxy, will recognize the export directory with one of the following outcomes:
+With the additional ``-v /home/user/galaxy_storage/:/export/`` parameter, docker will mount the local folder ``/home/user/galaxy_storage`` into the Container under ``/export/``. A ``startup.sh`` script, that is usually starting Apache, PostgreSQL and Galaxy, will recognize the export directory with one of the following outcomes:
 
   - In case of an empty ``/export/`` directory, it will move the [PostgreSQL](http://www.postgresql.org/) database, the Galaxy database directory, Shed Tools and Tool Dependencies and various config scripts to /export/ and symlink back to the original location.
   - In case of a non-empty ``/export/``, for example if you continue a previous session within the same folder, nothing will be moved, but the symlinks will be created.
@@ -181,11 +181,19 @@ You can set the environment variable $GALAXY_LOGGING to FULL to access all logs 
   docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
 
-In addition you can access the supersisord webinterface on port `9002` and get access to log files. Start your container with:
+Then, you can access the supersisord webinterface on port `9002` and get access to log files. To do so, start your container with:
 
   ```sh
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
+
+Alternatively, you can access the container directly using the following command:
+
+  ```sh
+  docker exec -it <container name> bash
+  ```
+
+Once connected to the container, log files are available in `/home/galaxy`.
 
 Using an external Slurm cluster
 -------------------------------
@@ -195,11 +203,13 @@ It is often convenient to configure Galaxy to use a high-performance cluster for
  1. munge.key
  2. slurm.conf
 
-Appropriate `munge.key` and `slurm.conf` files must be copied to the `/export` mount point accessible to Galaxy. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files from `/etc`, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
+These files from the cluster must be copied to the `/export` mount point (i.e., `/data/galaxy` on the host if using below command) accessible to Galaxy before starting the container. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files to `/etc` within the container, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
 
 Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
 
+    ```sh
     docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
+    ```
 
 You would then need the following symbolic links on each of the nodes:
 
@@ -364,6 +374,9 @@ History
   - RStudio is now part of Galaxy and this Image
   - configurable postgres UID/GID by @chambm
   - smarter starting of postgres during Tool installations by @shiltemann
+ - 15.10:
+  - new Galaxy 15.10 release
+  - fix https://github.com/bgruening/docker-galaxy-stable/issues/94
  - 16.01:
   - enable Travis testing for all builds and PR
   - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
