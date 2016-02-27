@@ -1,4 +1,6 @@
 [![DOI](https://zenodo.org/badge/5466/bgruening/docker-galaxy-stable.svg)](https://zenodo.org/badge/latestdoi/5466/bgruening/docker-galaxy-stable)
+[![Build Status](https://travis-ci.org/bgruening/docker-galaxy-stable.svg?branch=dev)](https://travis-ci.org/bgruening/docker-galaxy-stable)
+[![Docker Repository on Quay](https://quay.io/repository/bgruening/galaxy/status "Docker Repository on Quay")](https://quay.io/repository/bgruening/galaxy)
 
 Galaxy Docker Image
 ===================
@@ -78,7 +80,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
 Enabling Interactive Environments in Galaxy
 -------------------------------------------
 
-Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like IPython, in a secure and reproducible way.
+Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like Jupyter, in a secure and reproducible way.
 For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.
 
   ```bash
@@ -86,7 +88,8 @@ For this we need to be able to launch Docker containers inside our Galaxy Docker
     -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
   ```
 
-The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker.
+The port 8800 is the proxy port that is used to handle Interactive Environments. ``--privileged`` is needed to start docker containers inside docker. If your IE does not open, please make sure you open your Galaxy instance with your hostname or a [FQDN](https://en.wikipedia.org/wiki/Fully_qualified_domain_name), but not with localhost or 127.0.0.1.
+
 
 Using passive mode FTP
 ----------------------
@@ -245,20 +248,37 @@ Magic Environment variables
 | ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
 | GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
 | NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
+| UWSGI_PROCESSES | Set the number of uwsgi processes (`UWSGI_PROCESSES=2) |
+| UWSGI_THREADS | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
+| GALAXY_HANDLER_NUMPROCS | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
+
+
+Lite Mode
+=========
+
+The lite mode will only start postgresql and a single Galaxy process, without nginx, uwsgi or any other
+special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.
+
+  ```sh
+  docker run -i -t -p 8080:8080 bgruening/galaxy-stable startup_lite.sh
+  ```
+
+This will also use the standard `job_conf.xml.sample_basic` shipped by Galaxy. If you want to use the special the regular one from the normal mode you can pass `-j` to the `startup_lite.sh` script.
+
 
 Extending the Docker Image
 ==========================
 
-If your tools are already included in the Tool Shed, building your own personalised Galaxy docker Image (Galaxy flavour) can be done using the following steps:
+If the desired tools are already included in the Tool Shed, building your own personalised Galaxy docker Image (Galaxy flavour) can be done using the following steps:
 
- 1. Create a file the name ``Dockerfile``
+ 1. Create a file named ``Dockerfile``
  2. Include ``FROM bgruening/galaxy-stable`` at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.
- 3. Install your Tools from the Tool Shed via the ``install_tool_shed_repositories.py`` script.
- 4. execute ``docker build -t='my-docker-test'``
- 5. run your container with ``docker run -p 8080:80 my-docker-test``
- 6. open your web browser on ``http://localhost:8080``
+ 3. Supply the list of desired tools in a file (`my_tool_list.yml` below). See [this page](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample) for the file format requirements.
+ 4. Execute ``docker build -t='my-docker-test'``
+ 5. Run your container with ``docker run -p 8080:80 my-docker-test``
+ 6. Open your web browser on ``http://localhost:8080``
 
-For example have a look at the [deepTools](http://deeptools.github.io/) or the [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) Dockerfile's.
+For a working example, have a look at the [deepTools](http://deeptools.github.io/) or the [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) Dockerfile's.
  * https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile
  * https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile
 
@@ -281,8 +301,7 @@ RUN add-tool-shed --url 'http://testtoolshed.g2.bx.psu.edu/' --name 'Test Tool S
 RUN install-biojs msa
 
 # Install deepTools
-RUN install-repository \
-    "--url https://toolshed.g2.bx.psu.edu/ -o bgruening --name deeptools"
+RUN install-tools my_tool_list.yml
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
@@ -299,11 +318,15 @@ CMD ["/usr/bin/startup"]
 List of Galaxy flavours
 -----------------------
 
- * [docker-galaxy-blast](https://github.com/bgruening/docker-galaxy-blast)
+ * [NCBI-Blast](https://github.com/bgruening/docker-galaxy-blast)
  * [ChemicalToolBox](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox)
  * [ballaxy](https://github.com/anhi/docker-scripts/tree/master/ballaxy)
- * [docker-galaxy-deeptools](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools)
- * [docker-galaxyp](https://github.com/bgruening/docker-galaxyp)
+ * [NGS-deepTools](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools)
+ * [Galaxy ChIP-exo](https://github.com/gregvonkuster/docker-galaxy-ChIP-exo)
+ * [Galaxy Proteomics](https://github.com/bgruening/docker-galaxyp)
+ * [Imaging](https://github.com/bgruening/docker-galaxy-imaging)
+ * [Constructive Solid Geometry](https://github.com/gregvonkuster/docker-galaxy-csg)
+ * [Galaxy for metagenomics](https://github.com/bgruening/galaxy-metagenomics)
 
 
 Users & Passwords
@@ -333,13 +356,13 @@ You can clone this repository and the Ansible submodule with:
 Updating already existing submodules is possible with:
 
   ```sh
-  git submodule update --remote
+  git submodule update --init --recursive
   ```
 
 Requirements
 ------------
 
-- [docker](https://www.docker.io/gettingstarted/#h_installation)
+- [Docker](https://www.docker.io/gettingstarted/#h_installation)
 
 
 History
@@ -367,6 +390,13 @@ History
  - 15.10:
   - new Galaxy 15.10 release
   - fix https://github.com/bgruening/docker-galaxy-stable/issues/94
+ - 16.01:
+  - enable Travis testing for all builds and PR
+  - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
+  - enable dynamic UWSGI processes and threads with `-e UWSGI_PROCESSES=2` and `-e UWSGI_THREADS=4`
+  - enable dynamic Galaxy handlers `-e GALAXY_HANDLER_NUMPROCS=2`
+  - Addition of a new `lite` mode contributed by @kellrott
+  - first release with Jupyter integration
 
 
 Support & Bug Reports

@@ -1,3 +1,6 @@
 [submodule "galaxy/roles/galaxyproject.galaxyextras"]
 	path = galaxy/roles/galaxyprojectdotorg.galaxyextras
 	url = https://github.com/galaxyproject/ansible-galaxy-extras
+[submodule "galaxy/roles/galaxy-tools-playbook"]
+	path = galaxy/roles/galaxy-tools-playbook
+	url = https://github.com/afgane/galaxy-tools-playbook
