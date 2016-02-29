@@ -76,6 +76,14 @@ We will release a new version of this image concurrent with every new Galaxy rel
    1.  `docker run -i -t bgruening/galaxy-stable /bin/bash`
    2. `service postgresql start`
    3. `sh manage_db.sh upgrade`
+An alternative is to set the environment variable `DB_UPGRADE`.
+  ```sh
+  docker run -d -p 8080:80 -v /home/user/galaxy_storage/:/export/ -e DB_UPGRADE="true" bgruening/galaxy-stable
+  ```
+will perform a basic backup and a database upgrade. If you insist on doing it without a backup (because you have your own) just do                          
+  ```sh
+  docker run -d -p 8080:80 -v /home/user/galaxy_storage/:/export/ -e DB_UPGRADE="nobackup" bgruening/galaxy-stable
+  ```
 
 Enabling Interactive Environments in Galaxy
 -------------------------------------------
@@ -245,6 +253,7 @@ Magic Environment variables
 
 | Name   | Description   |
 |---|---|
+| DB_UPGRADE | Enables the automatic upgrade of the database. This implies GALAXY_LOGGING=full (`DB_UPGRADE=True,NOBACKUP`) |
 | ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
 | GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
 | NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
