@@ -10,21 +10,15 @@ do_upgrade () {
    python ./scripts/manage_db.py "$@"
 }
 
-if [ -z "${DB_UPGRADE+x}" ]; then
+if [ -z "$DB_UPGRADE" ]; then
    echo "no upgrade performed. If you want to upgrade your database use 'export DB_UPGRADE=true'";
 else
    echo "GALAXY_LOGGING will be set to full, because DB_UPGRADE is enabled."
    export GALAXY_LOGGING="full"
    echo DB_UPGRADE="${DB_UPGRADE,,}"
-   case "$DB_UPGRADE" in
-       "true") do_backup && do_upgrade "$@"
-       ;;
-       "t") do_backup && do_upgrade "$@"
-       ;;
-       "1") do_backup && do_upgrade "$@"
-       ;;
-       "nobackup") do_upgrade "$@"
-        ;;
-       *) echo "please set DB_UPGRADE either to 'true' or to 'nobackup'"
-   esac
+   if [ "$DB_UPGRADE" = "nobackup" ]; then
+      do_upgrade "$@"
+      else
+      do_backup && do_upgrade "$@"
+   fi
 fi
