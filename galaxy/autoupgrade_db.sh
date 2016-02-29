@@ -2,7 +2,7 @@
 
 do_backup () {
    backupdest="/export/preupgradebackup_"$(date +%Y_%m_%d_%H_%M_%S)
-   mkdir -p "${backupdest}" && cp -R /export/.distribution_config /export/galaxy-central /export/postgresql  /export/shed_tools /export/var "${backupdest}"
+   mkdir -p "${backupdest}" && cp -R /export/galaxy-central /export/postgresql /export/shed_tools /export/var "${backupdest}"
 }
 
 do_upgrade () {
