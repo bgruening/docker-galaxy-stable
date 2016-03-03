@@ -55,7 +55,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv wget \
     nginx-extras nginx-common uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
-    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 && \
+    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 htcondor && \
     pip install --upgrade pip && \
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -184,6 +184,10 @@ ADD install_tools_wrapper.sh /usr/bin/install-tools
 ADD install_biojs_vis.sh /usr/bin/install-biojs
 RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/bin/install-biojs /usr/bin/add-tool-shed
 
+#Add condor-specific files
+ADD startCondor.sh /usr/bin/startCondor.sh
+RUN chmod +x /usr/bin/startCondor.sh /usr/bin/startCondor.sh
+
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
@@ -199,4 +203,4 @@ EXPOSE :9002
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
 # Autostart script that is invoked during container start
-CMD ["/usr/bin/startup"]
+CMD ["/usr/bin/startCondor.sh"]
