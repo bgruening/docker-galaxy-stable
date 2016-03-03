@@ -11,4 +11,5 @@ then
         /etc/init.d/condor start
     fi
 fi
+
 bash /usr/bin/startup
