@@ -8,8 +8,7 @@ then
     then
         rm -f /etc/condor/condor_config
         ln -s /export/condor_config /etc/condor/condor_config
-        /etc/init.d/condor start
     fi
+    /etc/init.d/condor start
 fi
-
 bash /usr/bin/startup
