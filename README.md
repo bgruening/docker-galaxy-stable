@@ -243,6 +243,34 @@ The following is an example for how to specify a destination in `job_conf.xml` t
 
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
+Tips for Running Jobs Outside the Container
+---------------------------------------------
+
+In its default state Galaxy is assumes both the Galaxy source code and
+various temporary files are available on shared file systems across the
+cluster. When using Condor or SLURM (as described above) to run jobs outside
+of the Docker container one can take steps to mitegate these assumptions.
+
+The ``embed_metadata_in_job`` option on job destinations in `job_conf.xml`
+forces Galaxy collect metadata inside the container instead of on the
+cluster:
+
+    <param id="embed_metadata_in_job">False</param>
+
+This has performance implications and may not scale as well as performing
+these calculations on the remote cluster - but this should not be a problem
+for most Galaxy instances.
+
+Additionally, many framework tools depend on Galaxy's Python virtual
+environment being avaiable. This should be created outside of the container
+on a shared filesystem available to your cluster using the instructions
+[here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#managing-dependencies-manually). Job destinations
+can then source these virtual environments using the instructions outlined
+[here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#galaxy-job-handlers). In other words, by adding
+a line such as this to each job destination:
+
+    <env file="/path/to/shared/galaxy/venv" />
+
 Magic Environment variables
 ===========================
 
