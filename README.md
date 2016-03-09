@@ -246,7 +246,7 @@ The usage of `-n` can be confusing. Note that it will specify the number of core
 Tips for Running Jobs Outside the Container
 ---------------------------------------------
 
-In its default state Galaxy is assumes both the Galaxy source code and
+In its default state Galaxy assumes both the Galaxy source code and
 various temporary files are available on shared file systems across the
 cluster. When using Condor or SLURM (as described above) to run jobs outside
 of the Docker container one can take steps to mitegate these assumptions.
