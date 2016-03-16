@@ -7,7 +7,8 @@ services:
   - docker
 
 env:
-  - TOX_ENV=py27
+  - TOX_ENV=py27 EXTERNAL_GALAXY=1
+  - TOX_ENV=py27 EXTERNAL_GALAXY=0
 
 git:
   submodules: false
@@ -20,6 +21,7 @@ before_install:
   - export GALAXY_USER=admin@galaxy.org
   - export GALAXY_USER_EMAIL=admin@galaxy.org
   - export GALAXY_USER_PASSWD=admin
+  - export GALAXY_VERSION=master
   - export BIOBLEND_GALAXY_API_KEY=admin
   - export BIOBLEND_GALAXY_URL=http://localhost:8080
 
@@ -35,10 +37,20 @@ before_install:
   - sudo mkdir $GALAXY_HOME
   - sudo chown -R $GALAXY_TRAVIS_USER:$GALAXY_TRAVIS_USER $GALAXY_HOME
   - cd galaxy && docker build -t galaxy-docker/test .
+  - cd $GALAXY_HOME
+  # Download Galaxy so we can test mounting an external Galaxy instance into the
+  # container.
+  - sudo su $GALAXY_TRAVIS_USER -c "wget https://github.com/galaxyproject/galaxy/archive/${GALAXY_VERSION}.tar.gz"
+  - sudo su $GALAXY_TRAVIS_USER -c "tar xvzf ${GALAXY_VERSION}.tar.gz | tail"
+  # Cleanup so this cannot conflict with bioblend.
+  - sudo su $GALAXY_TRAVIS_USER -c "rm ${GALAXY_VERSION}.tar.gz"
+  - GALAXY_VOLUME_DOCKER_ARG=""
+  - if [ "$EXTERNAL_GALAXY" == "1" ]; then GALAXY_VOLUME_DOCKER_ARG="-v $GALAXY_HOME/galaxy-${GALAXY_VERSION}:/galaxy-central"; fi
   - |
     docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
     --name galaxy_test_container \
     --privileged=true \
+    $GALAXY_VOLUME_DOCKER_ARG \
     -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
     -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
     -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
