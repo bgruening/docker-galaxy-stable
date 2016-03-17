@@ -197,7 +197,7 @@ You can set the environment variable $GALAXY_LOGGING to FULL to access all logs 
   docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
 
-Then, you can access the supersisord webinterface on port `9002` and get access to log files. To do so, start your container with:
+Then, you can access the supervisord web interface on port `9002` and get access to log files. To do so, start your container with:
 
   ```sh
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
@@ -209,7 +209,15 @@ Alternatively, you can access the container directly using the following command
   docker exec -it <container name> bash
   ```
 
-Once connected to the container, log files are available in `/home/galaxy`.
+Once connected to the container, log files are available in `/home/galaxy/logs`.
+
+A volume can also be used to map this directory to one external to the container - for instance if logs need to be persisted for auditing reasons (security, debugging, performance testing, etc...).:
+
+  ```sh
+  mkdir gx_logs
+  docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/home/galaxy/logs bgruening/galaxy-stable
+  ```
+
 
 Using an external Slurm cluster
 -------------------------------
@@ -223,9 +231,9 @@ These files from the cluster must be copied to the `/export` mount point (i.e., 
 
 Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
 
-```sh
-docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
-```
+  ```sh
+  docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
+  ```
 
 You would then need the following symbolic links on each of the nodes:
 
