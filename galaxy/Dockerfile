@@ -26,6 +26,7 @@ GALAXY_GID=1450 \
 GALAXY_POSTGRES_UID=1550 \
 GALAXY_POSTGRES_GID=1550 \
 GALAXY_HOME=/home/galaxy \
+GALAXY_LOGS_DIR=/home/galaxy/logs \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
@@ -62,7 +63,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
-    mkdir $EXPORT_DIR $GALAXY_HOME && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR && \
+    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
     gpasswd -a $GALAXY_USER docker
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
@@ -84,6 +85,7 @@ ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
 RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
+    --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
     --extra-vars galaxy_user_name=$GALAXY_USER \
     --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE \
     --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR \
