@@ -80,11 +80,6 @@ We will release a new version of this image concurrent with every new Galaxy rel
    5. logout from the container
    6. start your container as usual: `docker run -i -t bgruening/galaxy-stable`
 
-
-logout
-gruening@bipc41:~$ sudo docker run -i -t quay.io/bgruening/galaxy
-
-
 Enabling Interactive Environments in Galaxy
 -------------------------------------------
 
