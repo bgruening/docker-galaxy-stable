@@ -286,6 +286,7 @@ Magic Environment variables
 |---|---|
 | ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
 | GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
+| BARE | Disables all default Galaxy tools. (`BARE=True`)  |
 | NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
 | UWSGI_PROCESSES | Set the number of uwsgi processes (`UWSGI_PROCESSES=2) |
 | UWSGI_THREADS | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
