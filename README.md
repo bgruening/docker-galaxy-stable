@@ -74,8 +74,11 @@ We will release a new version of this image concurrent with every new Galaxy rel
  * New unmodified configuration files are always stored in a hidden directory called `.distribution_config`. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.
  * Start your container in interactive mode with an attached terminal and upgrade your database.
    1.  `docker run -i -t bgruening/galaxy-stable /bin/bash`
-   2. `service postgresql start`
-   3. `sh manage_db.sh upgrade`
+   2. `startup` to startup all processes
+   3. `Ctrl+C` to abort the log messages
+   4. `sh manage_db.sh upgrade` will upgrade your database to the most recent version
+   5. logout from the container
+   6. start your container as usual: `docker run -i -t bgruening/galaxy-stable`
 
 Enabling Interactive Environments in Galaxy
 -------------------------------------------
