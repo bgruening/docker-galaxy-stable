@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<toolbox>
+    <section hidden="true" name="Get Data" id="getext">
+        <tool hidden="true" file="data_source/upload.xml"/>
+    </section>
+</toolbox>
