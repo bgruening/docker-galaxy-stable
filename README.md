@@ -364,6 +364,7 @@ List of Galaxy flavours
  * [Imaging](https://github.com/bgruening/docker-galaxy-imaging)
  * [Constructive Solid Geometry](https://github.com/gregvonkuster/docker-galaxy-csg)
  * [Galaxy for metagenomics](https://github.com/bgruening/galaxy-metagenomics)
+ * [Galaxy with the Language Application Grid tools](https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid)
 
 
 Users & Passwords
