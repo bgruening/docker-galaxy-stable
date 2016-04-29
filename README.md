@@ -277,7 +277,7 @@ If the desired tools are already included in the Tool Shed, building your own pe
  1. Create a file named ``Dockerfile``
  2. Include ``FROM bgruening/galaxy-stable`` at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.
  3. Supply the list of desired tools in a file (`my_tool_list.yml` below). See [this page](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample) for the file format requirements.
- 4. Execute ``docker build -t='my-docker-test'``
+ 4. Execute ``docker build -t my-docker-test .``
  5. Run your container with ``docker run -p 8080:80 my-docker-test``
  6. Open your web browser on ``http://localhost:8080``
 
