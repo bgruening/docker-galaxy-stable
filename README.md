@@ -375,7 +375,7 @@ The PostgreSQL username is ``galaxy``, the password is ``galaxy`` and the databa
 If you want to create new users, please make sure to use the ``/export/`` volume. Otherwise your user will be removed after your docker session is finished.
 
 The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the
-docker container in production, please do not forget to change the user credentials in /etc/proftp/proftpd.conf too.
+docker container in production, please do not forget to change the user credentials in /etc/proftpd/proftpd.conf too.
 
 The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
 
