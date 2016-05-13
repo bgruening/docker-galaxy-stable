@@ -47,11 +47,13 @@ if __name__ == "__main__":
     """
 
     galaxy_root_dir = os.environ.get('GALAXY_ROOT', '/galaxy-central/')
+    root_mount = os.lstat("/").st_dev
+    galaxy_mount = os.lstat(galaxy_root_dir).st_dev
+    galaxy_from_volume = root_mount != galaxy_mount
 
     if os.path.exists( '/export/.distribution_config/' ):
         shutil.rmtree( '/export/.distribution_config/' )
     shutil.copytree( os.path.join(galaxy_root_dir, 'config'), '/export/.distribution_config/' )
-
 
     # Copy all files starting with "welcome"
     # This enables a flexible start page design.
@@ -61,31 +63,35 @@ if __name__ == "__main__":
             image_file = os.path.join('/etc/galaxy/web/', filename)
             shutil.copy(export_file, image_file)
 
+    # TODO: If galaxy_from_volume don't create this - it shouldn't be needed.
     if not os.path.exists( '/export/galaxy-central/' ):
         os.makedirs("/export/galaxy-central/")
         os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
 
-    change_path( os.path.join(galaxy_root_dir, 'config') )
+    if not galaxy_from_volume:
+        change_path( os.path.join(galaxy_root_dir, 'config') )
 
-    # copy image defaults to config/<file>.docker_sample to base derivatives on,
-    # and if there is a realized version of these files in the export directory
-    # replace Galaxy's copy with these. Use symbolic link instead of copying so
-    # deployer can update and reload Galaxy and changes will be reflected.
-    for config in [ 'galaxy.ini', 'job_conf.xml' ]:
-        image_config = os.path.join('/etc/galaxy/', config)
-        export_config = os.path.join( '/export/galaxy-central/config', config )
-        export_sample = export_config + ".docker_sample"
-        shutil.copy(image_config, export_sample)
-        if os.path.exists(export_config):
-            subprocess.call('ln -s -f %s %s' % (export_config, image_config), shell=True)
+        # copy image defaults to config/<file>.docker_sample to base derivatives on,
+        # and if there is a realized version of these files in the export directory
+        # replace Galaxy's copy with these. Use symbolic link instead of copying so
+        # deployer can update and reload Galaxy and changes will be reflected.
+        for config in [ 'galaxy.ini', 'job_conf.xml' ]:
+            image_config = os.path.join('/etc/galaxy/', config)
+            export_config = os.path.join( '/export/galaxy-central/config', config )
+            export_sample = export_config + ".docker_sample"
+            shutil.copy(image_config, export_sample)
+            if os.path.exists(export_config):
+                subprocess.call('ln -s -f %s %s' % (export_config, image_config), shell=True)
 
-    change_path( os.path.join(galaxy_root_dir, 'tools.yaml') )
-    change_path( os.path.join(galaxy_root_dir, 'integrated_tool_panel.xml') )
-    change_path( os.path.join(galaxy_root_dir, 'display_applications') )
-    change_path( os.path.join(galaxy_root_dir, 'tool_deps') )
-    change_path( os.path.join(galaxy_root_dir, 'tool-data') )
+        change_path( os.path.join(galaxy_root_dir, 'tools.yaml') )
+        change_path( os.path.join(galaxy_root_dir, 'integrated_tool_panel.xml') )
+        change_path( os.path.join(galaxy_root_dir, 'display_applications') )
+        change_path( os.path.join(galaxy_root_dir, 'tool-data') )
+
     change_path( '/shed_tools/' )
-    
+
+    change_path( os.path.join(galaxy_root_dir, 'tool_deps') )
+
     if os.path.exists('/export/reports_htpasswd'):
         shutil.copy('/export/reports_htpasswd', '/etc/nginx/htpasswd')
 
