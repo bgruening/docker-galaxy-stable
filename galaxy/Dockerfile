@@ -70,7 +70,6 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     gpasswd -a $GALAXY_USER docker && \
     adduser condor docker
 ADD ./bashrc $GALAXY_HOME/.bashrc
-ADD ./bare_tool_conf.xml $GALAXY_HOME/bare_tool_conf.xml
 
 # Download latest stable release of Galaxy.
 RUN mkdir $GALAXY_ROOT && \
