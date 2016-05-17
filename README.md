@@ -441,7 +441,9 @@ History
   - enable dynamic Galaxy handlers `-e GALAXY_HANDLER_NUMPROCS=2`
   - Addition of a new `lite` mode contributed by @kellrott
   - first release with Jupyter integration
-
+ - 16.04:
+  - include a Galaxy-bare mode, enable with `-e BARE=True`
+  - first release with [HTCondor](https://research.cs.wisc.edu/htcondor/) installed and pre-configured
 
 Support & Bug Reports
 ---------------------
