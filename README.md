@@ -197,7 +197,7 @@ You can set the environment variable $GALAXY_LOGGING to FULL to access all logs 
   docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
   ```
 
-Then, you can access the supersisord webinterface on port `9002` and get access to log files. To do so, start your container with:
+Then, you can access the supervisord web interface on port `9002` and get access to log files. To do so, start your container with:
 
   ```sh
   docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 -e "GALAXY_LOGGING=full" bgruening/galaxy-stable
@@ -209,7 +209,15 @@ Alternatively, you can access the container directly using the following command
   docker exec -it <container name> bash
   ```
 
-Once connected to the container, log files are available in `/home/galaxy`.
+Once connected to the container, log files are available in `/home/galaxy/logs`.
+
+A volume can also be used to map this directory to one external to the container - for instance if logs need to be persisted for auditing reasons (security, debugging, performance testing, etc...).:
+
+  ```sh
+  mkdir gx_logs
+  docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/home/galaxy/logs bgruening/galaxy-stable
+  ```
+
 
 Using an external Slurm cluster
 -------------------------------
@@ -223,9 +231,9 @@ These files from the cluster must be copied to the `/export` mount point (i.e., 
 
 Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
 
-```sh
-docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
-```
+  ```sh
+  docker run -d -e "NONUSE=slurmd,slurmctld" -p 80:80 -v /data/galaxy:/export bgruening/galaxy-stable
+  ```
 
 You would then need the following symbolic links on each of the nodes:
 
@@ -243,6 +251,34 @@ The following is an example for how to specify a destination in `job_conf.xml` t
 
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
+Tips for Running Jobs Outside the Container
+---------------------------------------------
+
+In its default state Galaxy assumes both the Galaxy source code and
+various temporary files are available on shared file systems across the
+cluster. When using Condor or SLURM (as described above) to run jobs outside
+of the Docker container one can take steps to mitegate these assumptions.
+
+The ``embed_metadata_in_job`` option on job destinations in `job_conf.xml`
+forces Galaxy collect metadata inside the container instead of on the
+cluster:
+
+    <param id="embed_metadata_in_job">False</param>
+
+This has performance implications and may not scale as well as performing
+these calculations on the remote cluster - but this should not be a problem
+for most Galaxy instances.
+
+Additionally, many framework tools depend on Galaxy's Python virtual
+environment being avaiable. This should be created outside of the container
+on a shared filesystem available to your cluster using the instructions
+[here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#managing-dependencies-manually). Job destinations
+can then source these virtual environments using the instructions outlined
+[here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#galaxy-job-handlers). In other words, by adding
+a line such as this to each job destination:
+
+    <env file="/path/to/shared/galaxy/venv" />
+
 Magic Environment variables
 ===========================
 
@@ -250,6 +286,7 @@ Magic Environment variables
 |---|---|
 | ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
 | GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
+| BARE | Disables all default Galaxy tools. (`BARE=True`)  |
 | NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
 | UWSGI_PROCESSES | Set the number of uwsgi processes (`UWSGI_PROCESSES=2) |
 | UWSGI_THREADS | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
@@ -333,6 +370,7 @@ List of Galaxy flavours
  * [Imaging](https://github.com/bgruening/docker-galaxy-imaging)
  * [Constructive Solid Geometry](https://github.com/gregvonkuster/docker-galaxy-csg)
  * [Galaxy for metagenomics](https://github.com/bgruening/galaxy-metagenomics)
+ * [Galaxy with the Language Application Grid tools](https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid)
 
 
 Users & Passwords
@@ -343,7 +381,7 @@ The PostgreSQL username is ``galaxy``, the password is ``galaxy`` and the databa
 If you want to create new users, please make sure to use the ``/export/`` volume. Otherwise your user will be removed after your docker session is finished.
 
 The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the
-docker container in production, please do not forget to change the user credentials in /etc/proftp/proftpd.conf too.
+docker container in production, please do not forget to change the user credentials in /etc/proftpd/proftpd.conf too.
 
 The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
 
@@ -403,7 +441,9 @@ History
   - enable dynamic Galaxy handlers `-e GALAXY_HANDLER_NUMPROCS=2`
   - Addition of a new `lite` mode contributed by @kellrott
   - first release with Jupyter integration
-
+ - 16.04:
+  - include a Galaxy-bare mode, enable with `-e BARE=True`
+  - first release with [HTCondor](https://research.cs.wisc.edu/htcondor/) installed and pre-configured
 
 Support & Bug Reports
 ---------------------
