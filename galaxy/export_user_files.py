@@ -84,6 +84,7 @@ if __name__ == "__main__":
     change_path( os.path.join(galaxy_root_dir, 'display_applications') )
     change_path( os.path.join(galaxy_root_dir, 'tool_deps') )
     change_path( os.path.join(galaxy_root_dir, 'tool-data') )
+    change_path( os.path.join(galaxy_root_dir, 'database') )
     change_path( '/shed_tools/' )
     
     if os.path.exists('/export/reports_htpasswd'):
