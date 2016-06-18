@@ -9,7 +9,7 @@ SLURM_CONFIG_TEMPLATE = '''
 # Put this file on all nodes of your cluster.
 # See the slurm.conf man page for more information.
 #
-ControlMachine=$hostname
+ControlMachine=$control_machine
 #ControlAddr=
 #BackupController=
 #BackupAddr=
@@ -62,7 +62,7 @@ SelectTypeParameters=CR_Core_Memory
 AccountingStorageType=accounting_storage/none
 #AccountingStorageUser=
 AccountingStoreJobComment=YES
-ClusterName=cluster
+ClusterName=$cluster_name
 #DebugFlags=
 #JobCompHost=
 #JobCompLoc=
@@ -90,11 +90,14 @@ except:
     mem = psutil.virtual_memory().total
 
 def main():
+    hostname = gethostname()
     template_params = {
-        "hostname": gethostname(),
-        "user": environ.get('SLURM_USER_NAME', 'galaxy'),
+        "hostname": hostname,
+        "cluster_name": environ.get('SLURM_CLUSTER_NAME', 'Cluster'),
+        "control_machine": environ.get('SLURM_CONTROL_MACHINE', hostname),
+        "user": environ.get('SLURM_USER_NAME', '{{ galaxy_user_name }}'),
         "cpus": environ.get("SLURM_CPUS", cpus),
-        "partition_name": environ.get('SLURM_PARTITION_NAME', 'work'),
+        "partition_name": environ.get('SLURM_PARTITION_NAME', 'debug'),
         "memory": environ.get("SLURM_MEMORY", int(mem / (1024 * 1024)))
     }
     config_contents = Template(SLURM_CONFIG_TEMPLATE).substitute(template_params)
