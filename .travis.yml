@@ -32,9 +32,11 @@ before_install:
   - git submodule update --init --recursive
   - sudo groupadd -r $GALAXY_TRAVIS_USER -g $GALAXY_GID
   - sudo useradd -u $GALAXY_UID -r -g $GALAXY_TRAVIS_USER -d $GALAXY_HOME -p travis_testing -c "Galaxy user" $GALAXY_TRAVIS_USER
+  - sudo adduser $GALAXY_TRAVIS_USER docker
   - sudo mkdir $GALAXY_HOME
   - sudo chown -R $GALAXY_TRAVIS_USER:$GALAXY_TRAVIS_USER $GALAXY_HOME
   - cd galaxy && docker build -t galaxy-docker/test .
+  - cd ../docs/slurm && docker build -t slurm .
   - |
     docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
     --name galaxy_test_container \
@@ -58,6 +60,10 @@ install:
   - sudo su $GALAXY_TRAVIS_USER -c 'sed -i.bak "s/commands.*$/commands =/" tox.ini'
 
 script:
+  # Test submitting jobs to an external slurm cluster
+  - docker tag galaxy-docker/test quay.io/bgruening/galaxy
+  - cd $TRAVIS_BUILD_DIR/docs/slurm/test && sudo -E su $GALAXY_TRAVIS_USER -c 'bash test.sh'
+  - sudo chown -R $GALAXY_TRAVIS_USER:$GALAXY_TRAVIS_USER /tmp
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
   - time > $HOME/time.txt && curl --fail -T $HOME/time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   - curl --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
@@ -70,3 +76,4 @@ script:
   - docker run galaxy-docker/test bash -c "install-tools $GALAXY_HOME/ansible/galaxy-tools-playbook/files/tool_list.yaml"
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
   - docker exec -i -t galaxy_test_container docker info
+  - docker stop galaxy_test_container

@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
 # Setup the galaxy user UID/GID and pass control on to supervisor
+usermod -u $SLURM_UID  $SLURM_USER_NAME
+groupmod -g $SLURM_GID $SLURM_USER_NAME
 if [ -f /export/munge.key ]
   then cp /export/munge.key /etc/munge/munge.key
 else
@@ -13,8 +15,14 @@ else
   python /usr/local/bin/configure_slurm.py
   cp /etc/slurm-llnl/slurm.conf /export/slurm.conf
 fi
-usermod -u $GALAXY_UID  galaxy
-groupmod -g $GALAXY_GID galaxy
-chown galaxy /tmp/slurm
+if [ ! -f /export/.venv ]
+  then
+    mkdir -p /export/.venv
+    chown $SLURM_USER_NAME:$SLURM_USER_NAME /export/.venv
+    su - $SLURM_USER_NAME -c 'virtualenv /export/.venv &&\
+                    . /export/.venv/bin/activate &&\
+                    pip install galaxy-lib'
+fi
+chown $SLURM_USER_NAME /tmp/slurm
 exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 
