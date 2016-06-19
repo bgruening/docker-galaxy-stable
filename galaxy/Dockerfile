@@ -98,6 +98,7 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars supervisor_manage_slurm="" \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
+    --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -131,7 +132,7 @@ GALAXY_CONFIG_FTP_UPLOAD_SITE=galaxy.docker.org \
 GALAXY_CONFIG_USE_PBKDF2=False \
 GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=/_x_accel_redirect \
 GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE=/_x_accel_redirect \
-GALAXY_CONFIG_NGINX_UPLOAD_STORE=/tmp/nginx_upload_store \
+GALAXY_CONFIG_NGINX_UPLOAD_STORE=/export/nginx_upload_store \
 GALAXY_CONFIG_NGINX_UPLOAD_PATH=/_upload \
 GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE=False \
 GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY=config/plugins/visualizations \
