@@ -48,10 +48,14 @@ if __name__ == "__main__":
 
     galaxy_root_dir = os.environ.get('GALAXY_ROOT', '/galaxy-central/')
 
-    if os.path.exists( '/export/.distribution_config/' ):
-        shutil.rmtree( '/export/.distribution_config/' )
-    shutil.copytree( os.path.join(galaxy_root_dir, 'config'), '/export/.distribution_config/' )
-
+    galaxy_distrib_paths = {'/galaxy-central/config/': '/export/.distribution_config',
+                            '/galaxy-central/lib': '/export/galaxy-central/lib',
+                            '/galaxy-central/.venv': '/export/galaxy-central/.venv',
+                            '/galaxy-central/tools': '/export/galaxy-central/tools'}
+    for image_path, export_path in galaxy_distrib_paths.items():
+        if os.path.exists(export_path):
+            shutil.rmtree(export_path)
+        shutil.copytree( image_path, export_path )
 
     # Copy all files starting with "welcome"
     # This enables a flexible start page design.
@@ -63,7 +67,7 @@ if __name__ == "__main__":
 
     if not os.path.exists( '/export/galaxy-central/' ):
         os.makedirs("/export/galaxy-central/")
-        os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
+    os.chown( "/export/galaxy-central/", int(os.environ['GALAXY_UID']), int(os.environ['GALAXY_GID']) )
 
     change_path( os.path.join(galaxy_root_dir, 'config') )
 
