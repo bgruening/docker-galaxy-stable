@@ -24,5 +24,6 @@ if [ ! -f /export/.venv ]
                     pip install galaxy-lib'
 fi
 chown $SLURM_USER_NAME /tmp/slurm
+ln -s /export/galaxy-central /galaxy-central
 exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 
