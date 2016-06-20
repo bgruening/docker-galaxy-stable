@@ -30,7 +30,7 @@ GALAXY_LOGS_DIR=/home/galaxy/logs \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
-GALAXY_DESTINATIONS_DEFAULT=slurm \
+GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 EXPORT_DIR=/export \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
