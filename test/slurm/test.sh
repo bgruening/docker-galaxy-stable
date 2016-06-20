@@ -5,17 +5,19 @@
 # We use /tmp as an export dir that will hold the shared data between
 # galaxy and slurm:
 EXPORT=/tmp
-JOB_CONF_XML=`pwd`"/job_conf.xml"
 # We build the slurm image
 docker build -t slurm .
 # We fire up a slurm node (with hostname slurm)
 docker run -d -v "$EXPORT":/export --name slurm \
            --hostname slurm \
            slurm
+# We copy the job_conf.xml to the $EXPORT folder
+mkdir -p "$EXPORT"/galaxy-central/config/
+chown -R 1450:1450 "$EXPORT"/galaxy-central/
+cp job_conf.xml "$EXPORT"/galaxy-central/config/
 # We start galaxy (without the internal slurm, but with a modified job_conf.xml)
 # and link it to the slurm container (so that galaxy resolves the slurm container's hostname)
 docker run -d -e "NONUSE=slurmd,slurmctld" \
-   -v "$JOB_CONF_XML":/etc/galaxy/job_conf.xml \
    --link slurm --name galaxy-slurm-test -h galaxy \
    -p 80:80 -v "$EXPORT":/export quay.io/bgruening/galaxy
 # Let's submit a job from the galaxy container and check it runs in the slurm container
