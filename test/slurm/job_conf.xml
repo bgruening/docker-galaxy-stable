@@ -12,6 +12,7 @@
     <destinations default="cluster">
         <destination id="cluster" runner="slurm">
             <param id="nativeSpecification">-p work -n 2</param>
+            <param id="embed_metadata_in_job">False</param>
             <env file="/export/galaxy-central/.venv/bin/activate" />
             <param id="docker_enabled" from_environ="GALAXY_DOCKER_ENABLED">False</param>
             <param id="docker_sudo" from_environ="GALAXY_DOCKER_SUDO">False</param>

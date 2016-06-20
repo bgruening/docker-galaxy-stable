@@ -77,7 +77,7 @@ SlurmctldDebug=3
 SlurmdDebug=3
 #SlurmdLogFile=
 NodeName=$hostname CPUs=$cpus RealMemory=$memory State=UNKNOWN
-PartitionName=$partition_name Nodes=$hostname Default=YES MaxTime=INFINITE State=UP Shared=YES
+PartitionName=$partition_name Nodes=$nodes Default=YES MaxTime=INFINITE State=UP Shared=YES
 '''
 
 try:
@@ -93,6 +93,7 @@ def main():
     hostname = gethostname()
     template_params = {
         "hostname": hostname,
+        "nodes": ",".join(environ.get('SLURM_NODES', hostname).split(',')),
         "cluster_name": environ.get('SLURM_CLUSTER_NAME', 'Cluster'),
         "control_machine": environ.get('SLURM_CONTROL_MACHINE', hostname),
         "user": environ.get('SLURM_USER_NAME', '{{ galaxy_user_name }}'),

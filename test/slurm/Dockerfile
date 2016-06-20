@@ -4,11 +4,12 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     slurm-llnl slurm-llnl-torque slurm-drmaa-dev \
-    python-virtualenv python-pip python-psutil supervisor
+    python-virtualenv python-pip python-psutil supervisor samtools
 RUN adduser galaxy &&\
     /usr/sbin/create-munge-key &&\
     touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log &&\
-    mkdir /tmp/slurm
+    mkdir /tmp/slurm && pip install --upgrade supervisor
+RUN apt-get remove -y supervisor && mkdir /var/log/supervisor
 ADD configure_slurm.py /usr/local/bin/configure_slurm.py
 ADD munge.conf /etc/default/munge
 RUN service munge start && service munge stop
@@ -20,7 +21,9 @@ ENV SLURM_USER_NAME=galaxy \
     SLURM_UID=1450 \
     SLURM_GID=1450 \
     SLURM_PARTITION_NAME=work \
-    SLURM_CLUSTER_NAME=Cluster
+    SLURM_CLUSTER_NAME=Cluster \
+    SLURMD_AUTOSTART=True \
+    SLURMCTLD_AUTOSTART=True
 
 VOLUME ["/export/"]
 CMD ["/usr/bin/startup.sh"]
