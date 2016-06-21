@@ -17,7 +17,9 @@ ADD startup.sh /usr/bin/startup.sh
 ADD supervisor_slurm.conf /etc/supervisor/conf.d/slurm.conf
 RUN chmod +x /usr/bin/startup.sh
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
-ENV SLURM_USER_NAME=galaxy \
+ENV GALAXY_DIR=/export/galaxy-central \
+    SYMLINK_TARGET=/galaxy-central \
+    SLURM_USER_NAME=galaxy \
     SLURM_UID=1450 \
     SLURM_GID=1450 \
     SLURM_PARTITION_NAME=work \
