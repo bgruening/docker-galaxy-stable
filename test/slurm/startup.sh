@@ -15,15 +15,16 @@ else
   python /usr/local/bin/configure_slurm.py
   cp /etc/slurm-llnl/slurm.conf /export/slurm.conf
 fi
-if [ ! -f /export/galaxy-central/.venv ]
+if [ ! -f "$GALAXY_DIR"/.venv ]
   then
-    mkdir -p /export/galaxy-central/.venv
-    chown $SLURM_USER_NAME:$SLURM_USER_NAME /export/galaxy-central/.venv
-    su - $SLURM_USER_NAME -c 'virtualenv /export/galaxy-central/.venv &&\
-                    . /export/galaxy-central/.venv/bin/activate &&\
+    mkdir -p "$GALAXY_DIR"/.venv
+    chown $SLURM_USER_NAME:$SLURM_USER_NAME "$GALAXY_DIR"/.venv
+    su - $SLURM_USER_NAME --preserve-environment -c \
+                      'virtualenv "$GALAXY_DIR"/.venv &&\
+                    . "$GALAXY_DIR"/.venv/bin/activate &&\
                     pip install galaxy-lib'
 fi
 chown $SLURM_USER_NAME /tmp/slurm
-ln -s /export/galaxy-central /galaxy-central
+ln -s "$GALAXY_DIR" "$SYMLINK_TARGET"
 exec /usr/local/bin/supervisord -n -c /etc/supervisor/supervisord.conf
 
