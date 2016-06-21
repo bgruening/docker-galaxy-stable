@@ -13,7 +13,6 @@ docker run -d -v "$EXPORT":/export --name slurm \
            slurm
 # We copy the job_conf.xml to the $EXPORT folder
 mkdir -p "$EXPORT"/galaxy-central/config/
-chown -R 1450:1450 "$EXPORT"/galaxy-central/
 cp job_conf.xml "$EXPORT"/galaxy-central/config/
 # We start galaxy (without the internal slurm, but with a modified job_conf.xml)
 # and link it to the slurm container (so that galaxy resolves the slurm container's hostname)
