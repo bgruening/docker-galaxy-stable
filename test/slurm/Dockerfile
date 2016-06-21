@@ -1,10 +1,10 @@
-FROM ubuntu:14.04
+FROM toolshed/requirements
 
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     slurm-llnl slurm-llnl-torque slurm-drmaa-dev \
-    python-virtualenv python-pip python-psutil supervisor samtools
+    python-pip python-psutil supervisor samtools
 RUN adduser galaxy &&\
     /usr/sbin/create-munge-key &&\
     touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log &&\
