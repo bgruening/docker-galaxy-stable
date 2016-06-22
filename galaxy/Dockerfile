@@ -30,7 +30,7 @@ GALAXY_LOGS_DIR=/home/galaxy/logs \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
-GALAXY_DESTINATIONS_DEFAULT=slurm \
+GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 EXPORT_DIR=/export \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
@@ -57,7 +57,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras nginx-common uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
+    nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
     nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap && \
     pip install --upgrade pip && \
@@ -98,6 +98,7 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars supervisor_manage_slurm="" \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
+    --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -131,7 +132,7 @@ GALAXY_CONFIG_FTP_UPLOAD_SITE=galaxy.docker.org \
 GALAXY_CONFIG_USE_PBKDF2=False \
 GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=/_x_accel_redirect \
 GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE=/_x_accel_redirect \
-GALAXY_CONFIG_NGINX_UPLOAD_STORE=/tmp/nginx_upload_store \
+GALAXY_CONFIG_NGINX_UPLOAD_STORE=/export/nginx_upload_store \
 GALAXY_CONFIG_NGINX_UPLOAD_PATH=/_upload \
 GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE=False \
 GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY=config/plugins/visualizations \

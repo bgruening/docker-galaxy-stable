@@ -371,7 +371,8 @@ List of Galaxy flavours
  * [Constructive Solid Geometry](https://github.com/gregvonkuster/docker-galaxy-csg)
  * [Galaxy for metagenomics](https://github.com/bgruening/galaxy-metagenomics)
  * [Galaxy with the Language Application Grid tools](https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid)
-
+ * [RNAcommender](https://github.com/gianlucacorrado/galaxy-RNAcommender)
+ * [OpenMoleculeGenerator](https://github.com/bgruening/galaxy-open-molecule-generator)
 
 Users & Passwords
 -----------------
