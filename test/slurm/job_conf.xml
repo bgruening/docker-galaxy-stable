@@ -4,13 +4,14 @@
         <plugin id="slurm" type="runner" load="galaxy.jobs.runners.slurm:SlurmJobRunner">
             <param id="drmaa_library_path">/usr/lib/slurm-drmaa/lib/libdrmaa.so</param>
         </plugin>
+        <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="2"/>
     </plugins>
     <handlers default="handlers">
         <handler id="handler0" tags="handlers"/>
         <handler id="handler1" tags="handlers"/>
     </handlers>
-    <destinations default="cluster">
-        <destination id="cluster" runner="slurm">
+    <destinations default="slurm_cluster">
+        <destination id="slurm_cluster" runner="slurm">
             <param id="nativeSpecification">-p work -n 2</param>
             <param id="embed_metadata_in_job">False</param>
             <env file="/export/galaxy-central/.venv/bin/activate" />
@@ -26,7 +27,16 @@
           -->
           <param id="docker_volumes" from_environ="GALAXY_DOCKER_VOLUMES">$defaults</param>
         </destination>
+        <destination id="local" runner="local"/>
     </destinations>
+    <tools>
+        <!-- Tools can be configured to use specific destinations or handlers,
+             identified by either the "id" or "tags" attribute.  If assigned to
+             a tag, a handler or destination that matches that tag will be
+             chosen at random.
+         -->
+        <tool id="upload1" destination="local"/>
+    </tools>
     <limits>
     </limits>
 </job_conf>
