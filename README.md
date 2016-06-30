@@ -467,6 +467,8 @@ History
  - 16.04:
   - include a Galaxy-bare mode, enable with `-e BARE=True`
   - first release with [HTCondor](https://research.cs.wisc.edu/htcondor/) installed and pre-configured
+ - 16.07:
+  - documentation and tests updates for SLURM integration by @mvdbeek
 
 Support & Bug Reports
 ---------------------
