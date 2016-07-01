@@ -1,19 +1,22 @@
 version: '2'
 services:
-  proftpd:
-    image: quay.io/galaxy/proftpd:dev
-    container_name: galaxy-proftpd
+  proftp:
+    image: proftp #quay.io/galaxy/proftpd:dev
+    container_name: galaxy-proftp
     volumes:
-     - ftp_config:/etc/proftpd/
-     - ftp_data:/export/galaxy-central/database/ftp
+        - ftp_config:/etc/proftpd/
+        - ftp_data:/galaxy-central/database/ftp
     expose:
-     - 21
+        - 21
     ports:
-      - "8021:21"
-    # config file from Galaxy needed
+        - "8021:21"
+    # proftpd config files from Galaxy are needed
     depends_on:
-     - galaxy
+        - galaxy
+    links:
+        - galaxy:galaxy.local
     # restart: always
+    hostname: galaxy-proftp
 
 
   galaxy:
@@ -32,11 +35,15 @@ services:
     container_name: galaxy
     volumes:
      - ftp_config:/etc/proftpd/
-     - ftp_data:/export/galaxy-central/database/ftp
+     - ftp_data:/galaxy-central/database/ftp
+     - ./galaxy-storage/:/export/
+     - ./conf/postgresql.conf:/etc/postgresql/9.3/main/postgresql.conf
+     - ./conf/pg_hba.conf:/etc/postgresql/9.3/main/pg_hba.conf
     #volumes:
     # - .:/code
-    logging:
-        driver: syslog
+    #logging:
+    #    driver: syslog
+    hostname: galaxy
 
 volumes:
   ftp_config: {}
