@@ -39,7 +39,7 @@ before_install:
         docker build -t quay.io/galaxy/proftpd ./proftpd
         docker tag quay.io/galaxy/proftpd quay.io/galaxy/proftpd:compose
         docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
-        docker-compose up
+        docker-compose up -d
     else
         docker run -d -p 7080:80 -p 7021:21 \
             --name galaxy_test_container \
@@ -51,6 +51,7 @@ before_install:
             -v /tmp/:/tmp/ \
             quay.io/bgruening/galaxy
     fi
+  - sleep 10
   - docker ps
 
 script:
