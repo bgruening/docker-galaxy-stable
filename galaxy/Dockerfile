@@ -98,6 +98,7 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
+    --extra-vars proftpd_files_dir=/export/ftp \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -208,6 +209,14 @@ EXPOSE :80
 EXPOSE :21
 EXPOSE :8800
 EXPOSE :9002
+
+# needs to move in the ansible role
+COPY postgresql.conf /var/lib/postgresql/9.3/main/postgresql.conf
+COPY pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
+
+RUN chown postgres:postgres /var/lib/postgresql/9.3/main/postgresql.conf
+RUN chown postgres:postgres /etc/postgresql/9.3/main/pg_hba.conf
+
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
