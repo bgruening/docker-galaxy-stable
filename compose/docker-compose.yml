@@ -1,8 +1,6 @@
 version: '2'
 services:
-  """
-    proftpd container
-  """
+  # proftpd container
   proftp:
     image: quay.io/galaxy/proftpd:compose
     container_name: galaxy-proftp
@@ -21,17 +19,14 @@ services:
     restart: always
     hostname: galaxy-proftp
 
-  """
-    Main Galaxy container
-  """
+
+  # Main Galaxy container
   galaxy:
     image: quay.io/bgruening/galaxy:compose
     environment:
-        """
-            Insert here your environment variables to change Galaxy's behaviour.
-            For example to personalise Galaxy by changing the branding with
-            - GALAXY_CONFIG_BRAND=FOO
-        """
+        #    Insert here your environment variables to change Galaxy's behaviour.
+        #    For example to personalise Galaxy by changing the branding with
+        #    - GALAXY_CONFIG_BRAND=FOO
         - NONUSE=proftp
         - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
     ports:
