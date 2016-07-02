@@ -158,7 +158,7 @@ Note that if you would like to run any of the [cleanup scripts](https://wiki.gal
 Personalize your Galaxy
 -----------------------
 
-The Galaxy welcome screen can be changed by providing a `welcome.hml` page in `/home/user/galaxy_storage/`. All files starting with `welcome` will be copied during starup and served as indroduction page. If you want to include images or other media, name them `welcome_*` and link them relative to your `welcome.html` ([example](`https://github.com/bgruening/docker-galaxy-stable/blob/master/galaxy/welcome.html`)).
+The Galaxy welcome screen can be changed by providing a `welcome.html` page in `/home/user/galaxy_storage/`. All files starting with `welcome` will be copied during starup and served as indroduction page. If you want to include images or other media, name them `welcome_*` and link them relative to your `welcome.html` ([example](`https://github.com/bgruening/docker-galaxy-stable/blob/master/galaxy/welcome.html`)).
 
 
 Deactivating services
@@ -446,6 +446,8 @@ History
  - 16.04:
   - include a Galaxy-bare mode, enable with `-e BARE=True`
   - first release with [HTCondor](https://research.cs.wisc.edu/htcondor/) installed and pre-configured
+ - 16.07:
+  - documentation and tests updates for SLURM integration by @mvdbeek
 
 Support & Bug Reports
 ---------------------
