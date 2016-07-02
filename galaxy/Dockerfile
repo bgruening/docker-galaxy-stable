@@ -210,6 +210,10 @@ EXPOSE :21
 EXPOSE :8800
 EXPOSE :9002
 
+# Make galaxy an official alias for localhost. This will match the defaul hostname in Docker compose.
+RUN echo "127.0.0.1	galaxy" > /etc/hosts
+
+
 # needs to move in the ansible role
 COPY postgresql.conf /var/lib/postgresql/9.3/main/postgresql.conf
 COPY pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf

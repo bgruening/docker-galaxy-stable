@@ -43,6 +43,7 @@ services:
         # on your host system
         - ./galaxy-storage/:/export/
     hostname: galaxy
+    privileged: True
 
 volumes:
   ftp_config: {}

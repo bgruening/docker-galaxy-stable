@@ -56,7 +56,12 @@ before_install:
 
 script:
   # Test submitting jobs to an external slurm cluster
-  - cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $TRAVIS_BUILD_DIR
+  - |
+      if ! [ "${COMPOSE}" ]
+      then
+        cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $TRAVIS_BUILD_DIR
+      fi
+  # Test FTP Server
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
   - time > time.txt && curl --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   - curl --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
@@ -68,3 +73,14 @@ script:
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
   - docker exec -i -t galaxy docker info
   - docker stop galaxy
+
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/559f5480ac7a4ef238af
+    on_success: change
+    on_failure: always
+    on_start: never
+
+
