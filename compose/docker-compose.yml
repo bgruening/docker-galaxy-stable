@@ -1,11 +1,11 @@
 version: '2'
 services:
   proftp:
-    image: proftp #quay.io/galaxy/proftpd:dev
+    image: quay.io/galaxy/proftpd:compose
     container_name: galaxy-proftp
     volumes:
         - ftp_config:/etc/proftpd/
-        - ftp_data:/galaxy-central/database/ftp
+        - ftp_data:/export/ftp
     expose:
         - 21
     ports:
@@ -18,31 +18,24 @@ services:
     # restart: always
     hostname: galaxy-proftp
 
-
   galaxy:
-    image: galaxy #quay.io/bgruening/galaxy
+    image: quay.io/bgruening/galaxy:compose
     environment:
-      - NONUSE=proftp
-      - GALAXY_CONFIG_BRAND=FOO
-      - GALAXY_LOGGING=full
+        - NONUSE=proftp
+        - GALAXY_CONFIG_BRAND=FOO
+        - GALAXY_LOGGING=full
+        - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
     ports:
-      - "8080:80"
-    #  - "8021:21"
-      - "9002:9002"
+        - "8080:80"
+        - "9002:9002"
     # proftpd needs postgres to check authentification
     expose:
-     - 5432
+        - 5432
     container_name: galaxy
     volumes:
-     - ftp_config:/etc/proftpd/
-     - ftp_data:/galaxy-central/database/ftp
-     - ./galaxy-storage/:/export/
-     - ./conf/postgresql.conf:/etc/postgresql/9.3/main/postgresql.conf
-     - ./conf/pg_hba.conf:/etc/postgresql/9.3/main/pg_hba.conf
-    #volumes:
-    # - .:/code
-    #logging:
-    #    driver: syslog
+        - ftp_config:/etc/proftpd/
+        - ftp_data:/export/ftp
+        - ./galaxy-storage/:/export/
     hostname: galaxy
 
 volumes:
