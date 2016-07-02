@@ -41,8 +41,8 @@ before_install:
         docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
         docker-compose up -d
     else
-        docker run -d -p 7080:80 -p 7021:21 \
-            --name galaxy_test_container \
+        docker run -d -p 8080:80 -p 8021:21 \
+            --name galaxy \
             --privileged=true \
             -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
             -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
@@ -66,5 +66,5 @@ script:
   # Test the 'new' tool installation script
   - docker run quay.io/bgruening/galaxy bash -c "install-tools $GALAXY_HOME/ansible/galaxy-tools-playbook/files/sample_tool_list.yaml"
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
-  - docker exec -i -t galaxy_test_container docker info
-  - docker stop galaxy_test_container
+  - docker exec -i -t galaxy docker info
+  - docker stop galaxy
