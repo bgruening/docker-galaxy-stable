@@ -1,0 +1,12 @@
+- hosts: localhost
+  connection: local
+  remote_user: root
+  vars:
+    postgresql_backup_local_dir: /export/postgresql_backup/
+    postgresql_version: 9.3
+    postgresql_conf:
+      listen_addresses: "'*'"
+    postgresql_pg_hba_conf:
+      - host all all 172.18.0.0/24 md5
+  roles:
+      - role: galaxy-postgresql
