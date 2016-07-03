@@ -88,7 +88,6 @@ ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
 ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
 RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
-    echo "include_dir 'conf.d'" >> /var/lib/postgresql/9.3/main/postgresql.conf && \
     ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
@@ -200,27 +199,18 @@ ADD install_tools_wrapper.sh /usr/bin/install-tools
 ADD install_biojs_vis.sh /usr/bin/install-biojs
 RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/bin/install-biojs /usr/bin/add-tool-shed
 
-RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local
-RUN echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
-
+RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local && \
+    echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
-
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80
 EXPOSE :21
 EXPOSE :8800
 EXPOSE :9002
-
-# needs to move in the ansible role
-#COPY postgresql.conf /var/lib/postgresql/9.3/main/postgresql.conf
-#COPY pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
-
-#RUN chown postgres:postgres /var/lib/postgresql/9.3/main/postgresql.conf
-#RUN chown postgres:postgres /etc/postgresql/9.3/main/pg_hba.conf
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
