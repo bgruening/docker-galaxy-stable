@@ -39,7 +39,7 @@ before_install:
         docker build -t quay.io/galaxy/proftpd ./proftpd
         docker tag quay.io/galaxy/proftpd quay.io/galaxy/proftpd:compose
         docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
-        docker-compose up -d
+        docker-compose --project-name galaxy_compose up -d
     else
         docker run -d -p 8080:80 -p 8021:21 \
             --name galaxy \
