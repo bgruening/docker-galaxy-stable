@@ -86,7 +86,9 @@ ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
-RUN ansible-playbook /tmp/ansible/provision.yml \
+ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
+RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
+    ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
     --extra-vars galaxy_user_name=$GALAXY_USER \
@@ -103,7 +105,8 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
+RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
+    mkdir /export/ftp/ && chown galaxy:galaxy /export/ftp
 
 # The following commands will be executed as User galaxy
 USER galaxy
@@ -145,6 +148,7 @@ GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/web/welcome.html \
 GALAXY_CONFIG_OVERRIDE_DEBUG=False \
 # Define the default postgresql database path
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
 PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
@@ -211,12 +215,11 @@ EXPOSE :8800
 EXPOSE :9002
 
 # needs to move in the ansible role
-COPY postgresql.conf /var/lib/postgresql/9.3/main/postgresql.conf
-COPY pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
+#COPY postgresql.conf /var/lib/postgresql/9.3/main/postgresql.conf
+#COPY pg_hba.conf /etc/postgresql/9.3/main/pg_hba.conf
 
-RUN chown postgres:postgres /var/lib/postgresql/9.3/main/postgresql.conf
-RUN chown postgres:postgres /etc/postgresql/9.3/main/pg_hba.conf
-
+#RUN chown postgres:postgres /var/lib/postgresql/9.3/main/postgresql.conf
+#RUN chown postgres:postgres /etc/postgresql/9.3/main/pg_hba.conf
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
