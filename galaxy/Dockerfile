@@ -88,6 +88,7 @@ ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
 ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
 RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
+    echo "include_dir 'conf.d'" >> /var/lib/postgresql/9.3/main/postgresql.conf && \
     ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
