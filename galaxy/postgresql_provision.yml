@@ -6,6 +6,8 @@
     postgresql_version: 9.3
     postgresql_conf:
       listen_addresses: "'*'"
+      hba_file: "'/etc/postgresql/9.3/main/pg_hba.conf'"
+      ident_file: "'/etc/postgresql/9.3/main/pg_ident.conf'"
     postgresql_pg_hba_conf:
       - host all all 172.18.0.0/24 md5
   roles:
