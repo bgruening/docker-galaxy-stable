@@ -29,6 +29,10 @@ services:
         #    - GALAXY_CONFIG_BRAND=FOO
         - NONUSE=proftp
         - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
+        - GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True
+        - GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True
+        - GALAXY_CONFIG_ENABLE_USER_DELETION=True
+        - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
     ports:
         - "8080:80" # nginx
         - "9002:9002" # supervisor web-interface - not super useful in compose mode
