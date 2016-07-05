@@ -36,9 +36,6 @@ services:
     ports:
         - "8080:80" # nginx
         - "9002:9002" # supervisor web-interface - not super useful in compose mode
-    expose:
-        # The proftp container needs Galaxy's postgres to check authentification
-        - 5432
     container_name: galaxy
     volumes:
         - ftp_config:/etc/proftpd/
