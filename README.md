@@ -447,6 +447,7 @@ History
   - first release with [HTCondor](https://research.cs.wisc.edu/htcondor/) installed and pre-configured
  - 16.07:
   - documentation and tests updates for SLURM integration by @mvdbeek
+  - first version with initial Docker compose support (proftpd ✔️ )
 
 Support & Bug Reports
 ---------------------
