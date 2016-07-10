@@ -8,6 +8,7 @@ services:
 
 env:
   - TOX_ENV=py27
+  - COMPOSE=True
 
 git:
   submodules: false
@@ -27,32 +28,59 @@ before_install:
   - docker info
 
   - git submodule update --init --recursive
-  - docker build -t galaxy-docker/test galaxy/
+  - docker build -t quay.io/bgruening/galaxy galaxy/
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
+
   - |
-    docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
-    --name galaxy_test_container \
-    --privileged=true \
-    -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
-    -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
-    -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
-    -e GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True \
-    -v /tmp/:/tmp/ \
-    galaxy-docker/test
+    if [ "${COMPOSE}" ]
+    then
+        pip install docker-compose
+        cd compose
+        docker build -t quay.io/galaxy/proftpd ./proftpd
+        docker tag quay.io/galaxy/proftpd quay.io/galaxy/proftpd:compose
+        docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
+        docker-compose --project-name galaxy_compose up -d
+    else
+        docker run -d -p 8080:80 -p 8021:21 \
+            --name galaxy \
+            --privileged=true \
+            -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
+            -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
+            -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
+            -e GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True \
+            -v /tmp/:/tmp/ \
+            quay.io/bgruening/galaxy
+    fi
+  - sleep 10
   - docker ps
-  - docker tag galaxy-docker/test quay.io/bgruening/galaxy
 
 script:
   # Test submitting jobs to an external slurm cluster
-  - cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $TRAVIS_BUILD_DIR
+  - |
+      if ! [ "${COMPOSE}" ]
+      then
+        cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $TRAVIS_BUILD_DIR
+      fi
+  # Test FTP Server
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
   - time > time.txt && curl --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   - curl --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   - cd $TRAVIS_BUILD_DIR/test/bioblend/ && bash test.sh && cd $TRAVIS_BUILD_DIR/
   # Test the 'old' tool installation script
-  - docker run galaxy-docker/test bash -c 'install-repository "--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name 'BEDTools'"'
+  - docker run quay.io/bgruening/galaxy bash -c 'install-repository "--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name 'BEDTools'"'
   # Test the 'new' tool installation script
-  - docker run galaxy-docker/test bash -c "install-tools $GALAXY_HOME/ansible/galaxy-tools-playbook/files/sample_tool_list.yaml"
+  - docker run quay.io/bgruening/galaxy bash -c "install-tools $GALAXY_HOME/ansible/galaxy-tools-playbook/files/sample_tool_list.yaml"
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
-  - docker exec -i -t galaxy_test_container docker info
-  - docker stop galaxy_test_container
+  - docker exec -i -t galaxy docker info
+  - docker stop galaxy
+
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/559f5480ac7a4ef238af
+    on_success: change
+    on_failure: always
+    on_start: never
+
+

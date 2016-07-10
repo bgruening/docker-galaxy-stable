@@ -4,3 +4,6 @@
 [submodule "galaxy/roles/galaxy-tools-playbook"]
 	path = galaxy/roles/galaxy-tools-playbook
 	url = https://github.com/afgane/galaxy-tools-playbook
+[submodule "galaxy/roles/galaxy-postgresql"]
+	path = galaxy/roles/galaxy-postgresql
+	url = https://github.com/galaxyproject/ansible-postgresql
