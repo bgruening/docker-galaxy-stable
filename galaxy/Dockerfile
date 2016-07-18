@@ -87,7 +87,9 @@ ADD ./htpasswd /etc/nginx/htpasswd
 
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
-RUN ansible-playbook /tmp/ansible/provision.yml \
+ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
+RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
+    ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
     --extra-vars galaxy_user_name=$GALAXY_USER \
@@ -98,11 +100,14 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars supervisor_manage_slurm="" \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
+    --extra-vars proftpd_db_connection=galaxy@galaxy \
+    --extra-vars proftpd_files_dir=/export/ftp \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
+RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
+    mkdir /export/ftp/ && chown galaxy:galaxy /export/ftp
 
 # The following commands will be executed as User galaxy
 USER galaxy
@@ -144,6 +149,7 @@ GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/web/welcome.html \
 GALAXY_CONFIG_OVERRIDE_DEBUG=False \
 # Define the default postgresql database path
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
 PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
@@ -194,14 +200,12 @@ ADD install_tools_wrapper.sh /usr/bin/install-tools
 ADD install_biojs_vis.sh /usr/bin/install-biojs
 RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/bin/install-biojs /usr/bin/add-tool-shed
 
-RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local
-RUN echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
-
+RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local && \
+    echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
-
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80

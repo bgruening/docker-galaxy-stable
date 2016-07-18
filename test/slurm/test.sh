@@ -2,9 +2,9 @@
 
 # Test that jobs run successfully on an external slurm cluster
 
-# We use /tmp as an export dir that will hold the shared data between
+# We use a temporary directory as an export dir that will hold the shared data between
 # galaxy and slurm:
-EXPORT=/tmp
+EXPORT=`mktemp --directory`
 # We build the slurm image
 docker build -t slurm .
 # We fire up a slurm node (with hostname slurm)
@@ -28,8 +28,6 @@ docker run -d -e "NONUSE=slurmd,slurmctld" \
    -p 80:80 -v "$EXPORT":/export quay.io/bgruening/galaxy
 # Let's submit a job from the galaxy container and check it runs in the slurm container
 sleep 40s
-docker cp testscript.sh galaxy-slurm-test:/export/galaxy-central/testscript.sh
-docker exec galaxy-slurm-test chmod +x /export/galaxy-central/testscript.sh
 docker exec galaxy-slurm-test su - galaxy -c 'srun hostname' | grep slurm && \
 docker stop galaxy-slurm-test slurm && \
 docker rm galaxy-slurm-test slurm

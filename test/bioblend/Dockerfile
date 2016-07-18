@@ -12,6 +12,11 @@ RUN . /galaxy_venv/bin/activate && \
 
 ENV TOX_ENV=py27 \
     BIOBLEND_GALAXY_API_KEY=admin \
-    BIOBLEND_GALAXY_URL=http://galaxy_test_container
+    BIOBLEND_GALAXY_URL=http://galaxy
 
-CMD /bin/bash -c ". /galaxy_venv/bin/activate && cd /home/galaxy/bioblend-master && tox -e $TOX_ENV -- -e 'test_download_dataset'"
+CMD /bin/bash -c ". /galaxy_venv/bin/activate && cd /home/galaxy/bioblend-master && tox -e $TOX_ENV -- -e 'test_download_dataset|test_upload_from_galaxy_filesystem|test_get_datasets|test_datasets_from_fs'"
+
+# library tests, needs share /tmp filesystem
+# * test_upload_from_galaxy_filesystem
+# * test_get_datasets
+# * test_datasets_from_fs

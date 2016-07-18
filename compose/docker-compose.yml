@@ -1,0 +1,51 @@
+version: '2'
+services:
+  # proftpd container
+  proftp:
+    image: quay.io/galaxy/proftpd:compose
+    container_name: galaxy-proftp
+    volumes:
+        - ftp_config:/etc/proftpd/
+        - ftp_data:/export/ftp
+    expose:
+        - 21
+    ports:
+        - "8021:21"
+    # proftpd config files from Galaxy are needed
+    depends_on:
+        - galaxy
+    links:
+        - galaxy:galaxy.local
+    restart: always
+    hostname: galaxy-proftp
+
+
+  # Main Galaxy container
+  galaxy:
+    image: quay.io/bgruening/galaxy:compose
+    environment:
+        #    Insert here your environment variables to change Galaxy's behaviour.
+        #    For example to personalise Galaxy by changing the branding with
+        #    - GALAXY_CONFIG_BRAND=FOO
+        - NONUSE=proftp
+        - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
+        - GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True
+        - GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True
+        - GALAXY_CONFIG_ENABLE_USER_DELETION=True
+        - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
+    ports:
+        - "8080:80" # nginx
+        - "9002:9002" # supervisor web-interface - not super useful in compose mode
+    container_name: galaxy
+    volumes:
+        - ftp_config:/etc/proftpd/
+        - ftp_data:/export/ftp
+        # This is the directory where all your files from Galaxy will be stored
+        # on your host system
+        - ./galaxy-storage/:/export/
+    hostname: galaxy
+    privileged: True
+
+volumes:
+  ftp_config: {}
+  ftp_data: {}
