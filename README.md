@@ -301,10 +301,10 @@ The lite mode will only start postgresql and a single Galaxy process, without ng
 special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.
 
   ```sh
-  docker run -i -t -p 8080:8080 bgruening/galaxy-stable startup_lite.sh
+  docker run -i -t -p 8080:8080 bgruening/galaxy-stable startup_lite
   ```
 
-This will also use the standard `job_conf.xml.sample_basic` shipped by Galaxy. If you want to use the special the regular one from the normal mode you can pass `-j` to the `startup_lite.sh` script.
+This will also use the standard `job_conf.xml.sample_basic` shipped by Galaxy. If you want to use the special the regular one from the normal mode you can pass `-j` to the `startup_lite` script.
 
 
 Extending the Docker Image
