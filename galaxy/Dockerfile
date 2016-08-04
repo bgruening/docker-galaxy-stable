@@ -101,6 +101,7 @@ RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=/export/ftp \
+    --extra-vars proftpd_use_sftp=True \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
