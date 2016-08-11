@@ -1,48 +1,46 @@
+---
 
+- hosts: localhost
 
+  vars:
+    globus_endpoint_name: "{{ globus_username }}#{{ ansible_hostname }}"
 
-vars_prompt:
-  - name: globus_username
-    prompt: "Enter your Globus Online Username:"
-    private: no
-  - name: globus_passwd
-    prompt: "Enter your Globus Online Password:"
-    private: yes
+  vars_prompt:
+    - name: globus_username
+      prompt: "Enter your Globus Online Username:"
+      private: no
+    - name: globus_passwd
+      prompt: "Enter your Globus Online Password:"
+      private: yes
 
+  tasks:
 
-vars:
-  globus_endpoint_name: "{{ globus_username }}#{{ ansible_hostname }}"
+    # http://docs.ansible.com/ansible/get_url_module.html
+    - name: Download Globus Connect Server
+      shell: curl -LOs http://toolkit.globus.org/ftppub/globus-connect-server/globus-connect-server-repo_latest_all.deb
+      become: true
 
+    - name: Install Globus Repo
+      shell: dpkg -i globus-connect-server-repo_latest_all.deb
+      become: true
 
+    - name: apt update
+      apt: update_cache=yes
+      become: true
 
-tasks:
+    - name: Install Globus Connect Server
+      apt: pkg=globus-connect-server
+      become: true
 
-  # http://docs.ansible.com/ansible/get_url_module.html
-  - name: Download Globus Connect Server
-    shell: curl -LOs http://toolkit.globus.org/ftppub/globus-connect-server/globus-connect-server-repo_latest_all.deb
-    become: true
+    - name: test
+      shell: echo {{ ansible_hostname }}  > test1.tmp
 
-  - name: Install Globus Repo
-    shell: dpkg -i globus-connect-server-repo_latest_all.deb
-    become: true
+    - template: src=templatesglobus.conf dest=/etc/globus.conf
 
-  - name: apt update
-    apt: update_cache=yes
-    become: true
-
-  - name: Install Globus Connect Server
-    apt: pkg=globus-connect-server
-    become: true
-
-  - name: test
-    shell: echo {{ ansible_hostname }}  > test1.tmp
-
-  - template: src=templatesglobus.conf dest=/etc/globus.conf
-
-  - expect:
-    command: globus-connect-server-setup
-    responses:
-      (?i)Globus Username: "{{ globus_username }}"
-      (?i)Globus Password: "{{ globus_passwd }}"
+    - expect:
+      command: globus-connect-server-setup
+      responses:
+        (?i)Globus Username: "{{ globus_username }}"
+        (?i)Globus Password: "{{ globus_passwd }}"
 
 
