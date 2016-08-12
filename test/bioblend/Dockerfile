@@ -4,7 +4,7 @@ USER galaxy
 WORKDIR /home/galaxy
 
 RUN . /galaxy_venv/bin/activate && \
-    wget https://github.com/galaxyproject/bioblend/archive/v0.8.0.tar.gz && tar xfz bioblend-0.8.0.tar.gz && \
+    wget https://github.com/galaxyproject/bioblend/archive/v0.8.0.tar.gz && tar xfz v0.8.0.tar.gz && \
     cd bioblend-0.8.0 && \
     pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" && \
     python setup.py install && \
