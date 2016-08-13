@@ -102,6 +102,7 @@ RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=/export/ftp \
+    --extra-vars proftpd_use_sftp=True \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
@@ -132,7 +133,7 @@ GALAXY_CONFIG_NEW_FILE_PATH=/export/galaxy-central/database/files \
 GALAXY_CONFIG_TEMPLATE_CACHE_PATH=/export/galaxy-central/database/compiled_templates \
 GALAXY_CONFIG_CITATION_CACHE_DATA_DIR=/export/galaxy-central/database/citations/data \
 GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY=/export/galaxy-central/database/pbs \
-GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/galaxy-central/database/ftp \
+GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp \
 GALAXY_CONFIG_FTP_UPLOAD_SITE=galaxy.docker.org \
 GALAXY_CONFIG_USE_PBKDF2=False \
 GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=/_x_accel_redirect \
