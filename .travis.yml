@@ -64,11 +64,11 @@ script:
       fi
   # Test FTP Server
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
-  - time > time.txt && curl --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
+  - date > time.txt && curl --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   - curl --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
 
   # Test SFTP Server
-  - sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER localhost <<< $'put time.txt'
+  - sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
 
   - cd $TRAVIS_BUILD_DIR/test/bioblend/ && bash test.sh && cd $TRAVIS_BUILD_DIR/
   # Test the 'old' tool installation script
