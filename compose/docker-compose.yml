@@ -9,8 +9,10 @@ services:
         - ftp_data:/export/ftp
     expose:
         - 21
+        - 22
     ports:
         - "8021:21"
+        - "8022:22"
     # proftpd config files from Galaxy are needed
     depends_on:
         - galaxy
