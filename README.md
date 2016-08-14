@@ -23,7 +23,7 @@ Usage
 
 At first you need to install docker. Please follow the [very good instructions](https://docs.docker.com/installation/) from the Docker project.
 
-After the successful installation, all what you need to do is:
+After the successful installation, all you need to do is:
 
   ```sh
   docker run -d -p 8080:80 -p 8021:21 -p 8022:22 bgruening/galaxy-stable
@@ -107,13 +107,13 @@ By default, FTP servers running inside of docker containers are not accessible v
 
 Note that there is no need to specifically bind individual ports (e.g., `-p 80:80`) if you use `--net`.
 
-An alternative to FTP and it's shortcomings it to use the SFTP protocoll via port 22. Start your Galaxy container with a port binding to 22.
+An alternative to FTP and it's shortcomings it to use the SFTP protocol via port 22. Start your Galaxy container with a port binding to 22.
 
   ```bash
   docker run -i -t -p 8022:22 -v /home/user/galaxy_storage/:/export/ bgruening/galaxy-stable
   ```
 
-And use for example the sftp programm to transfer data.
+And use for example [Filezilla](https://filezilla-project.org/) or the `sftp` program to transfer data:
 
   ```bash
   sftp -v -P 8022 -o User=admin@galaxy.org localhost <<< $'put <YOUR FILE HERE>'
