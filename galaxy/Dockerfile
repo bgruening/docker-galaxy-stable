@@ -116,13 +116,13 @@ USER galaxy
 WORKDIR $GALAXY_ROOT
 
 # Configure Galaxy to use the Tool Shed
-RUN mkdir $GALAXY_ROOT/tool_deps
+RUN mkdir /tool_deps
 
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8 \
-GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=./tool_deps \
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
 GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
