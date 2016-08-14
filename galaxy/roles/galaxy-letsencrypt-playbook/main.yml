@@ -1,0 +1,44 @@
+---
+
+- hosts: localhost
+
+  vars:
+    letsencrypt_csr_country: "US"
+    letsencrypt_csr_state: "New York"
+    letsencrypt_csr_locality: "New York"
+    letsencrypt_csr_organization: "your organization"
+    letsencrypt_csr_common_name: "e.g. galaxy.nyu.edu"
+    letsencrypt_csr_fields: "/C={{letsencrypt_csr_country}}/ST={{letsencrypt_csr_state}}/L={{letsencrypt_csr_locality}}/O={{letsencrypt_csr_organization}}/CN={{letsencrypt_csr_common_name}}"
+
+  tasks:
+    - apt: name=openssl update_cache=yes
+
+    - name: Generate RSA key
+      command: openssl genrsa -out /etc/pki/cert/private/account.key 2048
+        creates: /etc/pki/cert/private/account.key
+
+    - name: Generate CSR
+      command: openssl req -new -sha256 -subj "{{ letsencrypt_csr_fields }}" -key /etc/pki/cert/private/account.key -out /etc/pki/cert/csr/sample.com.csr
+        creates: /etc/pki/cert/csr/sample.com.csr
+
+
+    - letsencrypt:
+        account_key: /etc/pki/cert/private/account.key
+        csr: /etc/pki/cert/csr/sample.com.csr
+        dest: /etc/httpd/ssl/sample.com.crt
+      register: sample_com_challenge
+
+    - debug: msg="csr submitted, sample challenge registered"
+      when: sample_com_challenge|changed
+
+    - copy:
+        dest: /var/www/html/{{ sample_com_challenge['challenge_data']['sample.com']['http-01']['resource'] }}
+        content: "{{ sample_com_challenge['challenge_data']['sample.com']['http-01']['resource_value'] }}"
+      when: sample_com_challenge|changed
+
+    - letsencrypt:
+        account_key: /etc/pki/cert/private/account.key
+        csr: /etc/pki/cert/csr/sample.com.csr
+        dest: /etc/httpd/ssl/sample.com.crt
+        data: "{{ sample_com_challenge }}"
+      when: sample_com_challenge|changed
