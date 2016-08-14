@@ -108,15 +108,13 @@ RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
-    mkdir /export/ftp/ && chown galaxy:galaxy /export/ftp
+    mkdir /export/ftp/ && chown $GALAXY_USER:$GALAXY_USER /export/ftp && \
+    mkdir /tool_deps && chown $GALAXY_USER:$GALAXY_USER /tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as User galaxy
 USER galaxy
 
 WORKDIR $GALAXY_ROOT
-
-# Configure Galaxy to use the Tool Shed
-RUN mkdir /tool_deps
 
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
