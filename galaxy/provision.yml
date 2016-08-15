@@ -3,5 +3,3 @@
   roles:
       - role: galaxyprojectdotorg.galaxyextras
         tags: galaxyextras
-
-      - { role: galaxy-letsencrypt-playbook, when: "{{ galaxy_use_https }}" }
