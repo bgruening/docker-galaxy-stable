@@ -79,7 +79,7 @@ script:
   - docker exec -i -t galaxy docker info
   - docker stop galaxy
   # Test the Conda installation
-  - export PATH=/tool_deps/_conda/bin/:$PATH && conda --version && conda install samtools
+  - docker run -i -t quay.io/bgruening/galaxy bash -c 'export PATH=/tool_deps/_conda/bin/:$PATH && conda --version && conda install samtools -c bioconda'
 
 
 notifications:

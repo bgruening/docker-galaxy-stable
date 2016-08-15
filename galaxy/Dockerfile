@@ -19,6 +19,7 @@ GALAXY_CONFIG_DIR=/etc/galaxy
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
 GALAXY_VIRTUAL_ENV=/galaxy_venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -109,7 +110,7 @@ RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
     mkdir /export/ftp/ && chown $GALAXY_USER:$GALAXY_USER /export/ftp && \
-    mkdir /tool_deps && chown $GALAXY_USER:$GALAXY_USER /tool_deps # Configure Galaxy to use the Tool Shed
+    mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as User galaxy
 USER galaxy
@@ -120,7 +121,6 @@ WORKDIR $GALAXY_ROOT
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8 \
-GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
 GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
@@ -152,7 +152,7 @@ PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
 PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME \
-GALAXY_CONDA_PREFIX=GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
+GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
 # prefetch Python wheels
 RUN ./scripts/common_startup.sh && \
@@ -160,9 +160,9 @@ RUN ./scripts/common_startup.sh && \
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
     wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p GALAXY_CONDA_PREFIX && \
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
     rm Miniconda3-latest-Linux-x86_64.sh && \
-    GALAXY_CONDA_PREFIX/bin/conda install conda==3.19.3
+    $GALAXY_CONDA_PREFIX/bin/conda install conda==3.19.3
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
