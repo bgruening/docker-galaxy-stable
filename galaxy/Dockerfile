@@ -151,12 +151,18 @@ PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
 PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
 PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
-HOME=$GALAXY_HOME
+HOME=$GALAXY_HOME \
+GALAXY_CONDA_PREFIX=GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
 # prefetch Python wheels
 RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && npm install
+    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
+    npm install && \
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p GALAXY_CONDA_PREFIX && \
+    rm Miniconda3-latest-Linux-x86_64.sh && \
+    GALAXY_CONDA_PREFIX/bin/conda install conda==3.19.3
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
