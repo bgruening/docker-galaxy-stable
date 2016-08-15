@@ -3,17 +3,15 @@
 - hosts: localhost
 
   vars:
+    # globus_username: call this playbook with --extra-vars globus_username=<your globus username>
+    # globus_passwd: call this playbook with --extra-vars globus_passwd=<your globus password>
     globus_endpoint_name: "{{ globus_username }}#{{ ansible_hostname }}"
 
-  vars_prompt:
-    - name: globus_username
-      prompt: "Enter your Globus Online Username:"
-      private: no
-    - name: globus_passwd
-      prompt: "Enter your Globus Online Password:"
-      private: yes
-
   tasks:
+    - assert:
+        that:
+          - globus_username is defined
+          - globus_passwd is defined
 
     # http://docs.ansible.com/ansible/get_url_module.html
     - name: Download Globus Connect Server
