@@ -389,7 +389,7 @@ In rare situations where you cannot share your tools but still want to include t
  * Create a `tool_conf.xml` file for your tools. 
  
     This should look similar to the main [`tool_conf.xml`](https://github.com/galaxyproject/galaxy/blob/dev/config/tool_conf.xml.sample) file, but references your tools from the new directory. In other words a tool entry should look like this `<tool file="/local_tools/application_foo/foo.xml" />`.
-    This file can be located in `/local_tools` or `/export/local_tools` depending on your setup. The only important part is, it should be available from inside of the container. We assume you have it stored under `/local_tools/my_tools.xml`.
+    Your `tool_conf.xml` should be available from inside of the container. We assume you have it stored under `/local_tools/my_tools.xml`.
 
 * Add the new tool config file to the Galaxy configuration.
 
