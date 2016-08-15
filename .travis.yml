@@ -78,6 +78,8 @@ script:
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
   - docker exec -i -t galaxy docker info
   - docker stop galaxy
+  # Test the Conda installation
+  - export PATH=/tool_deps/_conda/bin/:$PATH && conda --version && conda install samtools
 
 
 notifications:
