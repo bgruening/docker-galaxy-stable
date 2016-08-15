@@ -3,14 +3,22 @@
 - hosts: localhost
 
   vars:
-    letsencrypt_csr_country: "US"
-    letsencrypt_csr_state: "New York"
-    letsencrypt_csr_locality: "New York"
-    letsencrypt_csr_organization: "your organization"
-    letsencrypt_csr_common_name: "e.g. galaxy.nyu.edu"
-    letsencrypt_csr_fields: "/C={{letsencrypt_csr_country}}/ST={{letsencrypt_csr_state}}/L={{letsencrypt_csr_locality}}/O={{letsencrypt_csr_organization}}/CN={{letsencrypt_csr_common_name}}"
+    # country: "e.g. US" -- define this at runtime with --extra-vars country=___
+    # state: "e.g. New York" -- define this at runtime with --extra-vars state=___
+    # locality: "e.g. New York" -- define this at runtime with --extra-vars locality=___
+    # organization: "e.g. New York University" -- define this at runtime with --extra-vars organization=___
+    # common_name: "e.g. galaxy.nyu.edu" -- define this at runtime with --extra-vars common_name=___
+    letsencrypt_csr_fields: "/C={{country}}/ST={{state}}/L={{locality}}/O={{organization}}/CN={{common_name}}"
 
   tasks:
+    - assert:
+        that:
+          - country is defined
+          - state is defined
+          - locality is defined
+          - organization is defined
+          - common_name is defined
+
     - apt: name=openssl update_cache=yes
 
     - name: Generate RSA key
