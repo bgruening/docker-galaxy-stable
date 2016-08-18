@@ -174,7 +174,6 @@ USER root
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
-ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 
 # Configure PostgreSQL
 # 1. Remove all old configuration
