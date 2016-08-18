@@ -105,6 +105,7 @@ RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
     --extra-vars proftpd_files_dir=/export/ftp \
     --extra-vars proftpd_use_sftp=True \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
+    --extra-vars supervisor_postgres_config_path=/export/postgresql/9.3/main/postgresql.conf \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
