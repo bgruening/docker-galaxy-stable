@@ -32,6 +32,10 @@ GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
+# Define the default postgresql database path
+PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
+PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 EXPORT_DIR=/export \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
@@ -105,7 +109,7 @@ RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
     --extra-vars proftpd_files_dir=/export/ftp \
     --extra-vars proftpd_use_sftp=True \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
-    --extra-vars supervisor_postgres_config_path=/export/postgresql/9.3/main/postgresql.conf \
+    --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -147,10 +151,6 @@ GALAXY_CONFIG_SANITIZE_ALL_HTML=False \
 GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
 GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/web/welcome.html \
 GALAXY_CONFIG_OVERRIDE_DEBUG=False \
-# Define the default postgresql database path
-PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
-PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
-PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME \
 GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
