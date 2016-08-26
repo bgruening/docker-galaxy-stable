@@ -8,6 +8,18 @@ export GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True
 unset GALAXY_CONFIG_NGINX_UPLOAD_STORE
 unset GALAXY_CONFIG_NGINX_UPLOAD_PATH
 
+# The lite mode can be useful to populate data libraries.
+# To make this work it is needed to unset the following variables
+unset GALAXY_CONFIG_JOB_WORKING_DIRECTORY
+unset GALAXY_CONFIG_FILE_PATH
+unset GALAXY_CONFIG_NEW_FILE_PATH
+unset GALAXY_CONFIG_TEMPLATE_CACHE_PATH
+unset GALAXY_CONFIG_CITATION_CACHE_DATA_DIR
+unset GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY
+unset GALAXY_CONFIG_FTP_UPLOAD_DIR
+unset GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG
+
+
 JOB_CONF=/galaxy-central/config/job_conf.xml.sample_basic
 
 while getopts "j" opt; do

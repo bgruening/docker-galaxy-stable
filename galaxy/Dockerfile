@@ -11,7 +11,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-ENV GALAXY_RELEASE=release_16.04 \
+ENV GALAXY_RELEASE=dev \
 GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -19,6 +19,7 @@ GALAXY_CONFIG_DIR=/etc/galaxy
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
 GALAXY_VIRTUAL_ENV=/galaxy_venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -30,7 +31,11 @@ GALAXY_LOGS_DIR=/home/galaxy/logs \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
-GALAXY_DESTINATIONS_DEFAULT=slurm \
+GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
+# Define the default postgresql database path
+PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
+PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 EXPORT_DIR=/export \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
@@ -52,15 +57,17 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
     sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
     sh -c "echo deb http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib > /etc/apt/sources.list.d/htcondor.list" && \
-    sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \    
+    sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
     nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
-    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap && \
+    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
+    gridengine-common gridengine-drmaa1.0 && \
     pip install --upgrade pip && \
+    pip install ephemeris && \
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -86,7 +93,9 @@ ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
-RUN ansible-playbook /tmp/ansible/provision.yml \
+ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
+RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
+    ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
     --extra-vars galaxy_user_name=$GALAXY_USER \
@@ -97,24 +106,27 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars supervisor_manage_slurm="" \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
+    --extra-vars proftpd_db_connection=galaxy@galaxy \
+    --extra-vars proftpd_files_dir=/export/ftp \
+    --extra-vars proftpd_use_sftp=True \
+    --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
+    --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
+RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
+    mkdir /export/ftp/ && chown $GALAXY_USER:$GALAXY_USER /export/ftp && \
+    mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as User galaxy
 USER galaxy
 
 WORKDIR $GALAXY_ROOT
 
-# Configure Galaxy to use the Tool Shed
-RUN mkdir $GALAXY_ROOT/tool_deps
-
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8 \
-GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=./tool_deps \
 GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
@@ -125,12 +137,12 @@ GALAXY_CONFIG_NEW_FILE_PATH=/export/galaxy-central/database/files \
 GALAXY_CONFIG_TEMPLATE_CACHE_PATH=/export/galaxy-central/database/compiled_templates \
 GALAXY_CONFIG_CITATION_CACHE_DATA_DIR=/export/galaxy-central/database/citations/data \
 GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY=/export/galaxy-central/database/pbs \
-GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/galaxy-central/database/ftp \
+GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp \
 GALAXY_CONFIG_FTP_UPLOAD_SITE=galaxy.docker.org \
 GALAXY_CONFIG_USE_PBKDF2=False \
 GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=/_x_accel_redirect \
 GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE=/_x_accel_redirect \
-GALAXY_CONFIG_NGINX_UPLOAD_STORE=/tmp/nginx_upload_store \
+GALAXY_CONFIG_NGINX_UPLOAD_STORE=/export/nginx_upload_store \
 GALAXY_CONFIG_NGINX_UPLOAD_PATH=/_upload \
 GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE=False \
 GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY=config/plugins/visualizations \
@@ -140,16 +152,19 @@ GALAXY_CONFIG_SANITIZE_ALL_HTML=False \
 GALAXY_CONFIG_TOOLFORM_UPGRADE=True \
 GALAXY_CONFIG_WELCOME_URL=$GALAXY_CONFIG_DIR/web/welcome.html \
 GALAXY_CONFIG_OVERRIDE_DEBUG=False \
-# Define the default postgresql database path
-PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
-PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
-HOME=$GALAXY_HOME
+HOME=$GALAXY_HOME \
+GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
 # prefetch Python wheels
 RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && npm install
+    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
+    npm install && \
+    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
+    bash Miniconda3-latest-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
+    rm Miniconda3-latest-Linux-x86_64.sh && \
+    $GALAXY_CONDA_PREFIX/bin/conda install conda==3.19.3
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
@@ -160,7 +175,6 @@ USER root
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
-ADD ./export_user_files.py /usr/local/bin/export_user_files.py
 
 # Configure PostgreSQL
 # 1. Remove all old configuration
@@ -192,14 +206,12 @@ ADD install_tools_wrapper.sh /usr/bin/install-tools
 ADD install_biojs_vis.sh /usr/bin/install-biojs
 RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/bin/install-biojs /usr/bin/add-tool-shed
 
-RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local
-RUN echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
-
+RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local && \
+    echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
-
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80
