@@ -52,7 +52,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
     sh -c "echo deb https://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list" && \
     sh -c "echo deb http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib > /etc/apt/sources.list.d/htcondor.list" && \
-    sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \    
+    sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
@@ -97,6 +97,7 @@ RUN ansible-playbook /tmp/ansible/provision.yml \
     --extra-vars supervisor_manage_slurm="" \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
+    --extra-vars galaxy_extras_config_letsencrypt=True \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -203,6 +204,7 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated
 
 # Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :80
+EXPOSE :443
 EXPOSE :21
 EXPOSE :8800
 EXPOSE :9002
