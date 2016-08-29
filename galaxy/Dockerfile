@@ -11,7 +11,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-ENV GALAXY_RELEASE=dev \
+ENV GALAXY_RELEASE=release_16.07 \
 GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -161,10 +161,10 @@ RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
-    rm Miniconda3-latest-Linux-x86_64.sh && \
-    $GALAXY_CONDA_PREFIX/bin/conda install conda==3.19.3
+    wget https://repo.continuum.io/miniconda/Miniconda3-4.0.5-Linux-x86_64.sh && \
+    bash Miniconda3-4.0.5-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
+    rm Miniconda3-4.0.5-Linux-x86_64.sh && \
+    $GALAXY_CONDA_PREFIX/bin/conda install -y conda==3.19.3
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
