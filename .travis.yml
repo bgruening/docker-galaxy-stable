@@ -76,7 +76,7 @@ script:
   # Test the 'old' tool installation script
   - docker run quay.io/bgruening/galaxy bash -c 'install-repository "--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name 'BEDTools'"'
   # Test the 'new' tool installation script
-  - docker run quay.io/bgruening/galaxy bash -c "install-tools $GALAXY_HOME/ansible/galaxy-tools-playbook/files/sample_tool_list.yaml"
+  - docker run quay.io/bgruening/galaxy bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
   - docker exec -i -t galaxy docker info
   - docker stop galaxy
