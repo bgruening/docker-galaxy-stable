@@ -3,9 +3,9 @@
 tools:
 - name: 'column_maker'
   owner: 'devteam'
-  tool_panel_section_id: 'textutil'
+  tool_panel_section_label: 'Columnmaker section'
 - name: 'tabular_to_fasta'
   owner: 'devteam'
-  tool_panel_section_id: 'convert'
+  tool_panel_section_label: 'New Converters'
   revisions:
   - '0b4e36026794'  # v1.1.0
