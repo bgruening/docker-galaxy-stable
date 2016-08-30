@@ -11,7 +11,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-ENV GALAXY_RELEASE=dev \
+ENV GALAXY_RELEASE=release_16.07 \
 GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -64,7 +64,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
     nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
-    nano nmap lynx vim curl python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
+    nano nmap lynx vim curl python-crypto python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
     gridengine-common gridengine-drmaa1.0 && \
     pip install --upgrade pip && \
     pip install ephemeris && \
@@ -91,6 +91,7 @@ RUN mkdir $GALAXY_ROOT && \
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE"
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 
+ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
 ADD roles/ /tmp/ansible/roles
 ADD provision.yml /tmp/ansible/provision.yml
 ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
@@ -161,10 +162,10 @@ RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
-    wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh && \
-    bash Miniconda3-latest-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
-    rm Miniconda3-latest-Linux-x86_64.sh && \
-    $GALAXY_CONDA_PREFIX/bin/conda install conda==3.19.3
+    wget https://repo.continuum.io/miniconda/Miniconda3-4.0.5-Linux-x86_64.sh && \
+    bash Miniconda3-4.0.5-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
+    rm Miniconda3-4.0.5-Linux-x86_64.sh && \
+    $GALAXY_CONDA_PREFIX/bin/conda install -y conda==3.19.3
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
@@ -188,10 +189,6 @@ RUN rm $PG_DATA_DIR_DEFAULT -rf && \
     sh create_db.sh -c $GALAXY_CONFIG_FILE && \
     python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
     service postgresql stop
-
-# Add Ansible playbook for installing tools
-ADD roles/galaxy-tools-playbook $GALAXY_HOME/ansible/galaxy-tools-playbook
-RUN chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME/ansible
 
 # Activate additional Tool Sheds
 # Activate the Test Tool Shed during runtime, useful for testing repositories.

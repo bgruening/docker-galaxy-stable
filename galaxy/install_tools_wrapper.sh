@@ -47,13 +47,7 @@ else
     done
 fi
 
-su galaxy -c "cd $GALAXY_HOME/ansible/galaxy-tools-playbook; unset PYTHONPATH; \
-    ansible-playbook tools.yml -i "localhost," --extra-vars galaxy_tools_api_key=admin \
-    --extra-vars galaxy_config_file=/etc/galaxy/galaxy.ini \
-    --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
-    --extra-vars galaxy_server_dir=/galaxy-central \
-    --extra-vars galaxy_tools_galaxy_instance_url=localhost:$PORT \
-    --extra-vars galaxy_tools_tool_list=$1"
+shed-install -g "http://localhost:$PORT" -a admin -t "$1"
 
 exit_code=$?
 
