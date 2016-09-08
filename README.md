@@ -334,7 +334,7 @@ YOUR_GRIDENGINE_MASTER_HOST
 
 Your Grid Engine needs to accept job submissions from inside the container.
 
-If Grid Engine accepts job submission from the Docker host, the easiest way to forward all necessary ports is to use the --net Docker options in the following way:
+If Grid Engine accepts job submission from the Docker host, the easiest way to forward all necessary ports is to use the ```--net``` Docker options in the following way:
 
 ```
 --net=host
