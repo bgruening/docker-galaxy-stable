@@ -100,11 +100,11 @@ RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 
 ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
-ADD roles/ /tmp/ansible/roles
-ADD provision.yml /tmp/ansible/provision.yml
-ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
-RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
-    ansible-playbook /tmp/ansible/provision.yml \
+ADD roles/ /ansible/roles
+ADD provision.yml /ansible/provision.yml
+ADD postgresql_provision.yml /ansible/postgresql_provision.yml
+RUN ansible-playbook /ansible/postgresql_provision.yml && \
+    ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
     --extra-vars galaxy_user_name=$GALAXY_USER \
