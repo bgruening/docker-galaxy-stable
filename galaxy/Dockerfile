@@ -43,6 +43,11 @@ EXPORT_DIR=/export \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
+# Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
+USE_HTTPS=False \
+# Set USE_HTTPS_LENSENCRYPT and GALAXY_DOMAIN to a domain that is reachable to get a letsencrypt certificate
+USE_HTTPS_LETSENCRYPT=False \
+GALAXY_DOMAIN=localhost \
 # Set the number of Galaxy handlers
 GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
@@ -213,9 +218,10 @@ RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
-# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
-EXPOSE :80
+# Expose port 80, 443 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :21
+EXPOSE :80
+EXPOSE :443
 EXPOSE :8800
 EXPOSE :9002
 
