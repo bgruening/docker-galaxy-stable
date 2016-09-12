@@ -280,6 +280,38 @@ The following is an example for how to specify a destination in `job_conf.xml` t
 
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
+Using an external Grid Engine cluster
+-------------------------------------
+
+Almost things is as same as Slurm cluster.
+
+To use Grid Engine ( Sun Grid Engine, Open Grid Scheduler )
+ , one configuration file and an environment variable are required:
+
+ 1. set the environment variable ```SGE_ROOT```
+ 2. create /var/lib/gridengine/default/common/act_qmaster file
+
+By default
+
+```
+-e SGE_ROOT=/var/lib/gridengine|
+-v $PWD/act_qmaster:/var/lib/gridengine/default/common/act_qmaster
+```
+
+In ***act_qmaster*** is something like this.
+
+```
+YOUR_GRIDENGINE_MASTER_HOST
+```
+
+Your Grid Engine needs to accept job submissions from inside the container.
+
+If Grid Engine accepts job submission from the Docker host, the easiest way to forward all necessary ports is to use the ```--net``` Docker options in the following way:
+
+```
+--net=host
+```
+
 Tips for Running Jobs Outside the Container
 ---------------------------------------------
 
