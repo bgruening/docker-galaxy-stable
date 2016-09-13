@@ -42,9 +42,9 @@ UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
 # Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
 USE_HTTPS=False \
-# Set USE_HTTPS_LENSENCRYPT and GALAXY_DOMAIN to a domain that is reachable to get a letsencrypt certificate
+# Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to a domain that is reachable to get a letsencrypt certificate
 USE_HTTPS_LETSENCRYPT=False \
-GALAXY_DOMAIN=localhost \
+GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=localhost \
 # Set the number of Galaxy handlers
 GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
