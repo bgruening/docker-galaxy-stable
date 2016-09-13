@@ -499,7 +499,8 @@ History
   - documentation and tests updates for SLURM integration by @mvdbeek
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
-
+ - 16.10:
+  - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
 
 Support & Bug Reports
 ---------------------
