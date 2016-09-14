@@ -294,7 +294,7 @@ To use Grid Engine ( Sun Grid Engine, Open Grid Scheduler )
 By default
 
 ```
--e SGE_ROOT=/var/lib/gridengine|
+-e SGE_ROOT=/var/lib/gridengine
 -v $PWD/act_qmaster:/var/lib/gridengine/default/common/act_qmaster
 ```
 
