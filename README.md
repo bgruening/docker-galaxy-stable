@@ -419,6 +419,9 @@ EXPOSE :8800
 CMD ["/usr/bin/startup"]
 ```
 
+If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:
+https://github.com/bgruening/galaxy-flavor-testing
+
 List of Galaxy flavours
 -----------------------
 
