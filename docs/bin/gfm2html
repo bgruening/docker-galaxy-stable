@@ -33,7 +33,7 @@ then
   echo $result
   exit 1
 fi
-echo $result
+echo "$result"
 }
 
 # read markdown file
