@@ -437,6 +437,7 @@ List of Galaxy flavours
  * [Galaxy with the Language Application Grid tools](https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid)
  * [RNAcommender](https://github.com/gianlucacorrado/galaxy-RNAcommender)
  * [OpenMoleculeGenerator](https://github.com/bgruening/galaxy-open-molecule-generator)
+ * [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
 
 
 Integrating tools non-Tool Shed tools into the container
