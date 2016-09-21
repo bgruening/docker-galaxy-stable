@@ -39,9 +39,9 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   * [List of Galaxy flavours](#List-of-Galaxy-flavours)
   * [Integrating tools non-Tool Shed tools into the container](#Integrating-tools-non-Tool-Shed-tools-into-the-container)
   * [Users & Passwords](#Users-Passwords)
-- [Development](#Development)
-- [Requirements](#Requirements)
-- [History](#History)
+- [Development](#development)
+- [Requirements](#requirements)
+- [History](#history)
 - [Support & Bug Reports](#Support-Bug-Reports)
 
 
@@ -484,8 +484,7 @@ In rare situations where you cannot share your tools but still want to include t
     To make Galaxy aware of your new tool configuration file you need to add the path to `tool_config_file`, which is by default `#tool_config_file = config/tool_conf.xml,config/shed_tool_conf.xml`. You can do this during container start by setting the environment variable `-e GALAXY_CONFIG_TOOL_CONFIG_FILE=config/tool_conf.xml.sample,config/shed_tool_conf.xml.sample,/local_tools/my_tools.xml`.
 
 
-Users & Passwords <a name="Users-Passwords" />
------------------
+## Users & Passwords <a name="Users-Passwords" />
 
 The Galaxy Admin User has the username ``admin@galaxy.org`` and the password ``admin``.
 The PostgreSQL username is ``galaxy``, the password is ``galaxy`` and the database name is ``galaxy`` (I know I was really creative ;)).
@@ -497,8 +496,7 @@ docker container in production, please do not forget to change the user credenti
 The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
 
 
-Development
------------
+## Development
 
 This repository uses a git submodule to include [Ansible roles](https://github.com/galaxyproject/ansible-galaxy-extras) maintained by the Galaxy project.
 
@@ -514,14 +512,12 @@ Updating already existing submodules is possible with:
   git submodule update --init --recursive
   ```
 
-Requirements
-------------
+## Requirements
 
 - [Docker](https://www.docker.io/gettingstarted/#h_installation)
 
 
-History <a name="" />
--------
+## History
 
  - 0.1: Initial release!
    - with Apache2, PostgreSQL and Tool Shed integration
