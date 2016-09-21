@@ -17,6 +17,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 ![Docker hierarchy](chart.png)
 
+<a name="toc" />
 ## Table of Contents
 
 - [Usage](#usage)
@@ -107,7 +108,7 @@ To mount this data volume in a Galaxy container, use the  ``--volumes-from`` par
 This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your ``$HOME/.docker`` folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the problems with permissions [reported](https://github.com/bgruening/docker-galaxy-stable/issues/68) for data export on non-Linux hosts.
 
 <a name="Upgrading-images" />
-Upgrading images
+Upgrading images [[toc]](#toc)
 ----------------
 
 We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you:
