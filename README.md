@@ -17,6 +17,34 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 ![Docker hierarchy](chart.png)
 
+## Table of Contents
+
+- [Usage](#usage)
+  * [Upgrading images](#upgrading-images)
+  * [Enabling Interactive Environments in Galaxy](#Enabling-Interactive-Environments-in-Galaxy)
+  * [Using passive mode FTP or SFTP](#Using-passive-mode-FTP-or-SFTP)
+  * [Using Parent docker](#Using-Parent-docker)
+  * [Galaxy Report Webapp](#Galaxy-Report-Webapp)
+  * [Galaxy's config settings](#Galaxys-config-settings)
+  * [Personalize your Galaxy](#Personalize-your-Galaxy)
+  * [Deactivating services](#Deactivating-services)
+  * [Restarting Galaxy](#Restarting-Galaxy)
+  * [Advanced Logging](#Advanced-Logging)
+  * [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
+  * [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
+  * [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
+- [Magic Environment variables](#Magic-Environment-variables)
+- [Lite Mode](#Lite-Mode)
+- [Extending the Docker Image](#Extending-the-Docker-Image)
+  * [List of Galaxy flavours](#List-of-Galaxy-flavours)
+  * [Integrating tools non-Tool Shed tools into the container](#Integrating-tools-non-Tool-Shed-tools-into-the-container)
+  * [Users & Passwords](#Users-Passwords)
+- [Development](#Development)
+- [Requirements](#Requirements)
+- [History](#History)
+- [Support & Bug Reports](#Support-Bug-Reports)
+
+
 
 Usage
 =====
