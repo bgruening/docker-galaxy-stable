@@ -405,7 +405,7 @@ special feature from the normal mode. In particular there is no support for the 
 This will also use the standard `job_conf.xml.sample_basic` shipped by Galaxy. If you want to use the special the regular one from the normal mode you can pass `-j` to the `startup_lite` script.
 
 <a name="Extending-the-Docker-Image" />
-# Extending the Docker Image
+# Extending the Docker Image [[toc]](#toc)
 
 If the desired tools are already included in the Tool Shed, building your own personalised Galaxy docker Image (Galaxy flavour) can be done using the following steps:
 
