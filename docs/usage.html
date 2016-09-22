@@ -48,8 +48,7 @@
 
 <p>After the successful installation, all you need to do is:</p>
 
-<pre><code>docker run -d -p 8080:80 -p 8021:21 -p 8022:22 bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 8021:21 -p 8022:22 bgruening/galaxy-stable</pre></div>
 
 <p>I will shortly explain the meaning of all the parameters. For a more detailed description please consult the <a href="http://docs.docker.io/">docker manual</a>, it's really worth reading.</p>
 
@@ -73,8 +72,7 @@
 
 <p>For an interactive session, you can execute:</p>
 
-<pre><code>docker run -i -t -p 8080:80 \n bgruening/galaxy-stable \n /bin/bash
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -i -t -p 8080:80 <span class="pl-cce">\n</span> bgruening/galaxy-stable <span class="pl-cce">\n</span> /bin/bash</pre></div>
 
 <p>and run the <code>startup</code> script by yourself, to start PostgreSQL, nginx and Galaxy.</p>
 
@@ -82,8 +80,7 @@
 
 <p>Fortunately, this is as easy as:</p>
 
-<pre><code>docker run -d -p 8080:80 \n -v /home/user/galaxy_storage/:/export/ \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 <span class="pl-cce">\n</span> -v /home/user/galaxy_storage/:/export/ <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>With the additional <code>-v /home/user/galaxy_storage/:/export/</code> parameter, Docker will mount the local folder <code>/home/user/galaxy_storage</code> into the Container under <code>/export/</code>. A <code>startup.sh</code> script, that is usually starting nginx, PostgreSQL and Galaxy, will recognize the export directory with one of the following outcomes:</p>
 
@@ -96,13 +93,11 @@
 
 <p>You can also collect and store <code>/export/</code> data of Galaxy instances in a dedicated docker <a href="https://docs.docker.com/engine/userguide/dockervolumes/">Data volume Container</a> created by:</p>
 
-<pre><code>docker create -v /export \n --name galaxy-store \n bgruening/galaxy-stable \n /bin/true
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker create -v /export <span class="pl-cce">\n</span> --name galaxy-store <span class="pl-cce">\n</span> bgruening/galaxy-stable <span class="pl-cce">\n</span> /bin/true</pre></div>
 
 <p>To mount this data volume in a Galaxy container, use the <code>--volumes-from</code> parameter:</p>
 
-<pre><code>docker run -d -p 8080:80 \n --volumes-from galaxy-store \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 <span class="pl-cce">\n</span> --volumes-from galaxy-store <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your <code>$HOME/.docker</code> folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the problems with permissions <a href="https://github.com/bgruening/docker-galaxy-stable/issues/68">reported</a> for data export on non-Linux hosts.</p>
 
@@ -138,8 +133,7 @@
 
 <p>For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.</p>
 
-<pre><code>docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \n --privileged=true \n -v /home/user/galaxy_storage/:/export/ \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 <span class="pl-cce">\n</span> --privileged=<span class="pl-c1">true</span> <span class="pl-cce">\n</span> -v /home/user/galaxy_storage/:/export/ <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>The port 8800 is the proxy port that is used to handle Interactive Environments. <code>--privileged</code> is needed to start docker containers inside docker. If your IE does not open, please make sure you open your Galaxy instance with your hostname or a <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDN</a>, but not with localhost or 127.0.0.1.</p>
 
@@ -148,28 +142,24 @@
 
 <p>By default, FTP servers running inside of docker containers are not accessible via passive mode FTP, due to not being able to expose extra ports. To circumvent this, you can use the <code>--net=host</code> option to allow Docker to directly open ports on the host server:</p>
 
-<pre><code>docker run -d \n --net=host \n -v /home/user/galaxy_storage/:/export/ \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d <span class="pl-cce">\n</span> --net=host <span class="pl-cce">\n</span> -v /home/user/galaxy_storage/:/export/ <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>Note that there is no need to specifically bind individual ports (e.g., <code>-p 80:80</code>) if you use <code>--net</code>.</p>
 
 <p>An alternative to FTP and it's shortcomings it to use the SFTP protocol via port 22. Start your Galaxy container with a port binding to 22.</p>
 
-<pre><code>docker run -i -t -p 8080:80 -p 8022:22 \n -v /home/user/galaxy_storage/:/export/ \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -i -t -p 8080:80 -p 8022:22 <span class="pl-cce">\n</span> -v /home/user/galaxy_storage/:/export/ <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>And use for example <a href="https://filezilla-project.org/">Filezilla</a> or the <code>sftp</code> program to transfer data:</p>
 
-<pre><code>sftp -v -P 8022 -o User=admin@galaxy.org localhost &lt;&lt;&lt; $'put &lt;YOUR FILE HERE&gt;'
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>sftp -v -P 8022 -o User=admin@galaxy.org localhost <span class="pl-k">&lt;&lt;&lt;</span> <span class="pl-s"><span class="pl-pds">$'</span>put &lt;YOUR FILE HERE&gt;<span class="pl-pds">'</span></span></pre></div>
 
 <h2>Using Parent docker <a name="user-content-Using-Parent-docker"> </a>
 </h2>
 
 <p>On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable <code>DOCKER_PARENT</code></p>
 
-<pre><code>docker run -p 8080:80 -p 8021:21 -p 8800:8800 \n --privileged=true -e DOCKER_PARENT=True \n -v /var/run/docker.sock:/var/run/docker.sock \n -v /home/user/galaxy_storage/:/export/ \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -p 8080:80 -p 8021:21 -p 8800:8800 <span class="pl-cce">\n</span> --privileged=<span class="pl-c1">true</span> -e DOCKER_PARENT=True <span class="pl-cce">\n</span> -v /var/run/docker.sock:/var/run/docker.sock <span class="pl-cce">\n</span> -v /home/user/galaxy_storage/:/export/ <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <h2>Galaxy Report Webapp <a name="user-content-Galaxy-Report-Webapp"> </a>
 </h2>
@@ -178,8 +168,7 @@
 
 <p>You can disable the Report Webapp entirely by providing the environment variable <code>NONUSE</code> during container startup.</p>
 
-<pre><code>docker run -p 8080:80 \n -e "NONUSE=reports" \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -p 8080:80 <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=reports<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <h2>Galaxy's config settings <a name="user-content-Galaxys-config-settings"> </a>
 </h2>
@@ -193,8 +182,7 @@ GALAXY_CONFIG_BRAND="Galaxy Docker Build"
 
 <p>You can and should overwrite these during launching your container:</p>
 
-<pre><code>docker run -p 8080:80 \n -e "GALAXY_CONFIG_ADMIN_USERS=albert@einstein.gov" \n -e "GALAXY_CONFIG_MASTER_API_KEY=83D4jaba7330aDKHkakjGa937" \n -e "GALAXY_CONFIG_BRAND='My own Galaxy flavour'" \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -p 8080:80 <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_CONFIG_ADMIN_USERS=albert@einstein.gov<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_CONFIG_MASTER_API_KEY=83D4jaba7330aDKHkakjGa937<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_CONFIG_BRAND='My own Galaxy flavour'<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>Note that if you would like to run any of the <a href="https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets">cleanup scripts</a>, you will need to add the following to <code>/export/galaxy-central/config/galaxy.ini</code>:</p>
 
@@ -212,8 +200,7 @@ file_path = /export/galaxy-central/database/files
 
 <p>Non-essential services can be deactivated during startup. Set the environment variable <code>NONUSE</code> to a comma separated list of services. Currently, <code>nodejs</code>, <code>proftp</code>, <code>reports</code>, <code>slurmd</code> and <code>slurmctld</code> are supported.</p>
 
-<pre><code>docker run -d -p 8080:80 -p 9002:9002 \n -e "NONUSE=nodejs,proftp,reports,slurmd,slurmctld" \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 9002:9002 <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=nodejs,proftp,reports,slurmd,slurmctld<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>A graphical user interface, to start and stop your services, is available on port <code>9002</code> if you run your container like above.</p>
 
@@ -222,39 +209,33 @@ file_path = /export/galaxy-central/database/files
 
 <p>If you want to restart Galaxy without restarting the entire Galaxy container you can use <code>docker exec</code> (docker &gt; 1.3).</p>
 
-<pre><code>docker exec &lt;container name&gt; supervisorctl restart galaxy:
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker <span class="pl-c1">exec</span> <span class="pl-k">&lt;</span>container name<span class="pl-k">&gt;</span> supervisorctl restart galaxy:</pre></div>
 
 <p>In addition you start/stop every supersisord process using a webinterface on port <code>9002</code>. Start your container with:</p>
 
-<pre><code>docker run -p 9002:9002 bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -p 9002:9002 bgruening/galaxy-stable</pre></div>
 
 <h2>Advanced Logging <a name="user-content-Advanced-Logging"> </a>
 </h2>
 
 <p>You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:</p>
 
-<pre><code>docker run -d -p 8080:80 -p 8021:21 \n -e "GALAXY_LOGGING=full" \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 8021:21 <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_LOGGING=full<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>Then, you can access the supervisord web interface on port <code>9002</code> and get access to log files. To do so, start your container with:</p>
 
-<pre><code>docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 \n -e "GALAXY_LOGGING=full" \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_LOGGING=full<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>Alternatively, you can access the container directly using the following command:</p>
 
-<pre><code>docker exec -it &lt;container name&gt; bash
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker <span class="pl-c1">exec</span> -it <span class="pl-k">&lt;</span>container name<span class="pl-k">&gt;</span> bash</pre></div>
 
 <p>Once connected to the container, log files are available in <code>/home/galaxy/logs</code>.</p>
 
 <p>A volume can also be used to map this directory to one external to the container - for instance if logs need to be persisted for auditing reasons (security, debugging, performance testing, etc...).:</p>
 
-<pre><code>mkdir gx_logs
-docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/home/galaxy/logs bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>mkdir gx_logs
+docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_LOGGING=full<span class="pl-pds">"</span></span> -v <span class="pl-s"><span class="pl-pds">`</span><span class="pl-c1">pwd</span><span class="pl-pds">`</span></span>/gx_logs:/home/galaxy/logs bgruening/galaxy-stable</pre></div>
 
 <h2>Using an external Slurm cluster <a name="user-content-Using-an-external-Slurm-cluster"> </a>
 </h2>
@@ -270,8 +251,7 @@ docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/h
 
 <p>Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need <code>/export</code> and <code>/galaxy-central</code> directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:</p>
 
-<pre><code>docker run -d \n -e "NONUSE=slurmd,slurmctld" \n -p 80:80 \n -v /data/galaxy:/export \n bgruening/galaxy-stable
-</code></pre>
+<div class="highlight highlight-source-shell"><pre>docker run -d <span class="pl-cce">\n</span> -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=slurmd,slurmctld<span class="pl-pds">"</span></span> <span class="pl-cce">\n</span> -p 80:80 <span class="pl-cce">\n</span> -v /data/galaxy:/export <span class="pl-cce">\n</span> bgruening/galaxy-stable</pre></div>
 
 <p>You would then need the following symbolic links on each of the nodes:</p>
 

@@ -52,7 +52,7 @@ At first you need to install docker. Please follow the [very good instructions](
 
 After the successful installation, all you need to do is:
 
-```
+```sh
 docker run -d -p 8080:80 -p 8021:21 -p 8022:22 bgruening/galaxy-stable
 ```
 
@@ -72,7 +72,7 @@ Let's start:
 
 For an interactive session, you can execute:
 
-```
+```sh
 docker run -i -t -p 8080:80 \
     bgruening/galaxy-stable \
     /bin/bash
@@ -84,7 +84,7 @@ Docker images are "read-only", all your changes inside one session will be lost 
 
 Fortunately, this is as easy as:
 
-```
+```sh
 docker run -d -p 8080:80 \
     -v /home/user/galaxy_storage/:/export/ \
     bgruening/galaxy-stable
@@ -99,7 +99,7 @@ This enables you to have different export folders for different sessions - means
 
 You can also collect and store `/export/` data of Galaxy instances in a dedicated docker [Data  volume Container](https://docs.docker.com/engine/userguide/dockervolumes/) created by:
 
-```
+```sh
 docker create -v /export \
     --name galaxy-store \
     bgruening/galaxy-stable \
@@ -108,7 +108,7 @@ docker create -v /export \
 
 To mount this data volume in a Galaxy container, use the  `--volumes-from` parameter:
 
-```
+```sh
 docker run -d -p 8080:80 \
     --volumes-from galaxy-store \
     bgruening/galaxy-stable
@@ -137,7 +137,7 @@ Interactive Environments (IE) are sophisticated ways to extend Galaxy with power
 
 For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.
 
-```
+```sh
 docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
     --privileged=true \
     -v /home/user/galaxy_storage/:/export/ \
@@ -151,7 +151,7 @@ The port 8800 is the proxy port that is used to handle Interactive Environments.
 
 By default, FTP servers running inside of docker containers are not accessible via passive mode FTP, due to not being able to expose extra ports. To circumvent this, you can use the `--net=host` option to allow Docker to directly open ports on the host server:
 
-```
+```sh
 docker run -d \
     --net=host \
     -v /home/user/galaxy_storage/:/export/ \
@@ -162,7 +162,7 @@ Note that there is no need to specifically bind individual ports (e.g., `-p 80:8
 
 An alternative to FTP and it's shortcomings it to use the SFTP protocol via port 22. Start your Galaxy container with a port binding to 22.
 
-```
+```sh
 docker run -i -t -p 8080:80 -p 8022:22 \
     -v /home/user/galaxy_storage/:/export/ \
     bgruening/galaxy-stable
@@ -170,7 +170,7 @@ docker run -i -t -p 8080:80 -p 8022:22 \
 
 And use for example [Filezilla](https://filezilla-project.org/) or the `sftp` program to transfer data:
 
-```
+```sh
 sftp -v -P 8022 -o User=admin@galaxy.org localhost <<< $'put <YOUR FILE HERE>'
 ```
 
@@ -179,7 +179,7 @@ sftp -v -P 8022 -o User=admin@galaxy.org localhost <<< $'put <YOUR FILE HERE>'
 
 On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable `DOCKER_PARENT`
 
-```
+```sh
 docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
     --privileged=true -e DOCKER_PARENT=True \
     -v /var/run/docker.sock:/var/run/docker.sock \
@@ -193,7 +193,7 @@ For admins wishing to have more information on the status of a galaxy instance, 
 
 You can disable the Report Webapp entirely by providing the environment variable `NONUSE` during container startup.
 
-```
+```sh
 docker run -p 8080:80 \
     -e "NONUSE=reports" \
     bgruening/galaxy-stable
@@ -211,7 +211,7 @@ GALAXY_CONFIG_BRAND="Galaxy Docker Build"
 
 You can and should overwrite these during launching your container:
 
-```
+```sh
 docker run -p 8080:80 \
     -e "GALAXY_CONFIG_ADMIN_USERS=albert@einstein.gov" \
     -e "GALAXY_CONFIG_MASTER_API_KEY=83D4jaba7330aDKHkakjGa937" \
@@ -235,7 +235,7 @@ The Galaxy welcome screen can be changed by providing a `welcome.html` page in `
 
 Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
 
-```
+```sh
 docker run -d -p 8080:80 -p 9002:9002 \
     -e "NONUSE=nodejs,proftp,reports,slurmd,slurmctld" \
     bgruening/galaxy-stable
@@ -248,13 +248,13 @@ A graphical user interface, to start and stop your services, is available on por
 
 If you want to restart Galaxy without restarting the entire Galaxy container you can use `docker exec` (docker > 1.3).
 
-```
+```sh
 docker exec <container name> supervisorctl restart galaxy:
 ```
 
 In addition you start/stop every supersisord process using a webinterface on port `9002`. Start your container with:
 
-```
+```sh
 docker run -p 9002:9002 bgruening/galaxy-stable
 ```
 
@@ -263,7 +263,7 @@ docker run -p 9002:9002 bgruening/galaxy-stable
 
 You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:
 
-```
+```sh
 docker run -d -p 8080:80 -p 8021:21 \
     -e "GALAXY_LOGGING=full" \
     bgruening/galaxy-stable
@@ -271,7 +271,7 @@ docker run -d -p 8080:80 -p 8021:21 \
 
 Then, you can access the supervisord web interface on port `9002` and get access to log files. To do so, start your container with:
 
-```
+```sh
 docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 \
     -e "GALAXY_LOGGING=full" \
     bgruening/galaxy-stable
@@ -279,7 +279,7 @@ docker run -d -p 8080:80 -p 8021:21 -p 9002:9002 \
 
 Alternatively, you can access the container directly using the following command:
 
-```
+```sh
 docker exec -it <container name> bash
 ```
 
@@ -287,7 +287,7 @@ Once connected to the container, log files are available in `/home/galaxy/logs`.
 
 A volume can also be used to map this directory to one external to the container - for instance if logs need to be persisted for auditing reasons (security, debugging, performance testing, etc...).:
 
-```
+```sh
 mkdir gx_logs
 docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/home/galaxy/logs bgruening/galaxy-stable
 ```
@@ -304,7 +304,7 @@ These files from the cluster must be copied to the `/export` mount point (i.e., 
 
 Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
 
-```
+```sh
 docker run -d \
     -e "NONUSE=slurmd,slurmctld" \
     -p 80:80 \
@@ -407,7 +407,7 @@ a line such as this to each job destination:
 The lite mode will only start postgresql and a single Galaxy process, without nginx, uwsgi or any other
 special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.
 
-```
+```sh
 docker run -i -t -p 8080:8080 bgruening/galaxy-stable startup_lite
 ```
 
@@ -523,13 +523,13 @@ This repository uses a git submodule to include [Ansible roles](https://github.c
 
 You can clone this repository and the Ansible submodule with:
 
-```
+```sh
 git clone --recursive https://github.com/bgruening/docker-galaxy-stable.git
 ```
 
 Updating already existing submodules is possible with:
 
-```
+```sh
 git submodule update --init --recursive
 ```
 
