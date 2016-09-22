@@ -50,9 +50,6 @@ elif [[ ! -r "$1" ]]; then
     echo "The $1 file cannot be read! Verify the permissions!"
     exit 1
 else
-    header=$(head -n 6 $1)
-    formatted_header=$(format_text "$header")
-    #doc=$(tail -n +8 "$1")
     doc=$(<"$1")
     formatted_doc=$(format_text "$doc")
 fi
