@@ -91,6 +91,7 @@ def extract_html_structure(html_content_filepath):
                 section_subcontent = []
             else:
                 line = line.replace('<a href="#toc">[toc]</a>', "")
+                line = line.replace('<span class="pl-cce">\\n</span>', "\\\n")
                 section_content += line
 
                 if line.find("<h2>") != -1:
