@@ -15,7 +15,7 @@ With docker, tool developers can create their own Image with all dependencies an
 
 The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and all recommended Galaxy requirements are installed. The following chart should illustrate the [Docker](http://www.docker.io) image hierarchy we have build to make is as easy as possible to build on different layers of our stack and create many exciting Galaxy flavours.
 
-![Docker hierarchy](chart.png)
+![Docker hierarchy](https://raw.githubusercontent.com/bgruening/docker-galaxy-stable/master/chart.png)
 
 
 # Table of Contents <a name="toc" />
