@@ -426,8 +426,8 @@ If the desired tools are already included in the Tool Shed, building your own pe
 6. Open your web browser on `http://localhost:8080`
 
 For a working example, have a look at the  or the  Dockerfile's.
-* [deepTools](http://deeptools.github.io/) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile)
-* [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile)
+- [deepTools](http://deeptools.github.io/) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile)
+- [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile)
 
 ```
 # Galaxy - deepTools
@@ -491,16 +491,16 @@ https://github.com/bgruening/galaxy-flavor-testing
 We recommend to use the [Main Galaxy Tool Shed](https://toolshed.g2.bx.psu.edu/) for all your tools and workflows that you would like to share.
 In rare situations where you cannot share your tools but still want to include them into your Galaxy Docker instance, please follow the next steps.
 
-* Get your tools into the container.
+- Get your tools into the container.
 
     Mount your tool directory into the container with a separate `-v /home/user/my_galaxy_tools/:/local_tools`.
 
-* Create a `tool_conf.xml` file for your tools.
+- Create a `tool_conf.xml` file for your tools.
 
     This should look similar to the main [`tool_conf.xml`](https://github.com/galaxyproject/galaxy/blob/dev/config/tool_conf.xml.sample) file, but references your tools from the new directory. In other words a tool entry should look like this `<tool file="/local_tools/application_foo/foo.xml" />`.
     Your `tool_conf.xml` should be available from inside of the container. We assume you have it stored under `/local_tools/my_tools.xml`.
 
-* Add the new tool config file to the Galaxy configuration.
+- Add the new tool config file to the Galaxy configuration.
 
     To make Galaxy aware of your new tool configuration file you need to add the path to `tool_config_file`, which is by default `#tool_config_file = config/tool_conf.xml,config/shed_tool_conf.xml`. You can do this during container start by setting the environment variable `-e GALAXY_CONFIG_TOOL_CONFIG_FILE=config/tool_conf.xml.sample,config/shed_tool_conf.xml.sample,/local_tools/my_tools.xml`.
 
