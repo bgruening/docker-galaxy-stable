@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+
+# Convert a Github Flavored Markdown Syntax file to HTML for the landing page
+# using CSS stylesheet and JS scripts
+#
+# This script is highly based on the one of Evertton de Lima available on
+# https://gist.github.com/evertton/4133083
+#
+# Requirements: cURL (sudo apt-get install curl)
+# Input/Output: filename/STDOUT
+#
+# Usage: gfm2html <input> <output_dir>
+# * input: filename of the Github Flavored Markdown (GFM) syntax document
+# * output_dir: dirpath where the HTML documents have to be generate
+#
+# eg: ./gfm2html README.md docs/
+set -e
+
+function format_text {
+text=$1
+text=${text//\"/\\\"}
+text=${text//	/\\\t}
+text=${text//
+/\\\n}
+echo $text
+}
+
+function generate_html {
+result=$(curl --silent https://api.github.com/markdown -d "{\"text\": \"$1\", \"mode\": \"gfm\", \"context\": \"\"}")
+stringtosearch='"message": '
+if `echo $result | grep "$stringtosearch" 1>/dev/null 2>&1`
+then
+  echo $result
+  exit 1
+fi
+echo "$result"
+}
+
+# read markdown file
+if [[ ! -n "$1" ]]; then
+    echo "No input file specified!"
+    exit 1
+elif [[ -d "$1" ]]; then
+    echo "$1 is a directory."
+    exit 1
+elif [[ ! -e "$1" ]]; then
+    echo "The file $1 not exist!"
+    exit 1
+elif [[ ! -r "$1" ]]; then
+    echo "The $1 file cannot be read! Verify the permissions!"
+    exit 1
+else
+    doc=$(<"$1")
+    formatted_doc=$(format_text "$doc")
+fi
+
+if [[ ! -n "$2" ]]; then
+  echo "No output file specified!"
+  exit 1
+fi
+
+rm docs/*.html
+generate_html "$formatted_doc" > tmp_html
+python docs/src/generate_html.py --html_content tmp_html --output_dir docs/
+rm tmp_html
