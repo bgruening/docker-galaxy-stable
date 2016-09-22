@@ -20,7 +20,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 # Table of Contents <a name="toc" />
 
-- [Usage](#usage)
+- [Usage](#Usage)
   * [Upgrading images](#Upgrading-images)
   * [Enabling Interactive Environments in Galaxy](#Enabling-Interactive-Environments-in-Galaxy)
   * [Using passive mode FTP or SFTP](#Using-passive-mode-FTP-or-SFTP)
@@ -46,7 +46,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 - [Support & Bug Reports](#Support-Bug-Reports)
 
 
-# Usage
+# Usage <a name="Usage" /> [[toc]](#toc)
 
 At first you need to install docker. Please follow the [very good instructions](https://docs.docker.com/installation/) from the Docker project.
 
