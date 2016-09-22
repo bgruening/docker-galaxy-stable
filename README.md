@@ -18,7 +18,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 ![Docker hierarchy](chart.png)
 
 <a name="toc" />
-## Table of Contents
+# Table of Contents
 
 - [Usage](#usage)
   * [Upgrading images](#Upgrading-images)
@@ -46,9 +46,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 - [Support & Bug Reports](#Support-Bug-Reports)
 
 
-
-Usage
-=====
+# Usage
 
 At first you need to install docker. Please follow the [very good instructions](https://docs.docker.com/installation/) from the Docker project.
 
@@ -108,8 +106,8 @@ To mount this data volume in a Galaxy container, use the  ``--volumes-from`` par
 This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your ``$HOME/.docker`` folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the problems with permissions [reported](https://github.com/bgruening/docker-galaxy-stable/issues/68) for data export on non-Linux hosts.
 
 <a name="Upgrading-images" />
-Upgrading images [[toc]](#toc)
-----------------
+## Upgrading images [[toc]](#toc)
+
 
 We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you:
 
@@ -124,8 +122,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
    6. start your container as usual: `docker run -i -t bgruening/galaxy-stable`
 
 <a name="Enabling-Interactive-Environments-in-Galaxy" />
-Enabling Interactive Environments in Galaxy [[toc]](#toc)
--------------------------------------------
+## Enabling Interactive Environments in Galaxy [[toc]](#toc)
 
 Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like Jupyter, in a secure and reproducible way.
 For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.
@@ -139,8 +136,7 @@ The port 8800 is the proxy port that is used to handle Interactive Environments.
 
 
 <a name="Using-passive-mode-FTP-or-SFTP" />
-Using passive mode FTP or SFTP [[toc]](#toc)
-------------------------------
+## Using passive mode FTP or SFTP [[toc]](#toc)
 
 By default, FTP servers running inside of docker containers are not accessible via passive mode FTP, due to not being able to expose extra ports. To circumvent this, you can use the `--net=host` option to allow Docker to directly open ports on the host server:
 
@@ -164,8 +160,8 @@ And use for example [Filezilla](https://filezilla-project.org/) or the `sftp` pr
 
 
 <a name="Using-Parent-docker" />
-Using Parent docker [[toc]](#toc)
--------------------
+## Using Parent docker [[toc]](#toc)
+
 On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable `DOCKER_PARENT`
 
   ```bash
@@ -177,8 +173,7 @@ On some linux distributions, Docker-In-Docker can run into issues (such as runni
   ```
 
 <a name="Galaxy-Report-Webapp" />
-Galaxy Report Webapp [[toc]](#toc)
---------------------
+## Galaxy Report Webapp [[toc]](#toc)
 
 For admins wishing to have more information on the status of a galaxy instance, the Galaxy Report Webapp is served on `http://localhost:8080/reports`. As default this site is password protected with `admin:admin`. You can change this by providing a `reports_htpasswd` file in `/home/user/galaxy_storage/`.
 
@@ -189,8 +184,7 @@ You can disable the Report Webapp entirely by providing the environment variable
   ```
 
 <a name="Galaxys-config-settings" />
-Galaxy's config settings  [[toc]](#toc)
-------------------------
+## Galaxy's config settings  [[toc]](#toc)
 
 Every Galaxy configuration setting can be overwritten by a given environment variable during startup. For example by default the `admin_users`, `master_api_key` and the `brand` variable it set to:
 
@@ -216,14 +210,12 @@ Note that if you would like to run any of the [cleanup scripts](https://wiki.gal
     file_path = /export/galaxy-central/database/files
 
 <a name="Personalize-your-Galaxy" />
-Personalize your Galaxy [[toc]](#toc)
------------------------
+## Personalize your Galaxy [[toc]](#toc)
 
 The Galaxy welcome screen can be changed by providing a `welcome.html` page in `/home/user/galaxy_storage/`. All files starting with `welcome` will be copied during starup and served as indroduction page. If you want to include images or other media, name them `welcome_*` and link them relative to your `welcome.html` ([example](`https://github.com/bgruening/docker-galaxy-stable/blob/master/galaxy/welcome.html`)).
 
 <a name="Deactivating-services" />
-Deactivating services [[toc]](#toc)
----------------------
+## Deactivating services [[toc]](#toc)
 
 Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
 
@@ -235,8 +227,7 @@ Non-essential services can be deactivated during startup. Set the environment va
 A graphical user interface, to start and stop your services, is available on port `9002` if you run your container like above.
 
 <a name="Restarting-Galaxy" />
-Restarting Galaxy [[toc]](#toc)
------------------
+## Restarting Galaxy [[toc]](#toc)
 
 If you want to restart Galaxy without restarting the entire Galaxy container you can use `docker exec` (docker > 1.3).
 
@@ -251,8 +242,7 @@ In addition you start/stop every supersisord process using a webinterface on por
   ```
 
 <a name="Advanced-Logging" />
-Advanced Logging [[toc]](#toc)
-----------------
+## Advanced Logging [[toc]](#toc)
 
 You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:
 
@@ -282,8 +272,7 @@ A volume can also be used to map this directory to one external to the container
   ```
 
 <a name="Using-an-external-Slurm-cluster" />
-Using an external Slurm cluster [[toc]](#toc)
--------------------------------
+## Using an external Slurm cluster [[toc]](#toc)
 
 It is often convenient to configure Galaxy to use a high-performance cluster for running jobs. To do so, two files are required:
 
@@ -315,8 +304,7 @@ The following is an example for how to specify a destination in `job_conf.xml` t
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
 <a name="Using-an-external-Grid-Engine-cluster" />
-Using an external Grid Engine cluster [[toc]](#toc)
--------------------------------------
+## Using an external Grid Engine cluster [[toc]](#toc)
 
 Almost things is as same as Slurm cluster.
 
@@ -348,8 +336,7 @@ If Grid Engine accepts job submission from the Docker host, the easiest way to f
 ```
 
 <a name="Tips-for-Running-Jobs-Outside-the-Container" />
-Tips for Running Jobs Outside the Container [[toc]](#toc)
----------------------------------------------
+## Tips for Running Jobs Outside the Container [[toc]](#toc)
 
 In its default state Galaxy assumes both the Galaxy source code and
 various temporary files are available on shared file systems across the
@@ -377,8 +364,7 @@ a line such as this to each job destination:
     <env file="/path/to/shared/galaxy/venv" />
 
 <a name="Magic-Environment-variables" />
-Magic Environment variables [[toc]](#toc)
-===========================
+# Magic Environment variables [[toc]](#toc)
 
 | Name   | Description   |
 |---|---|
@@ -392,8 +378,7 @@ Magic Environment variables [[toc]](#toc)
 
 
 <a name="Lite-Mode" />
-Lite Mode [[toc]](#toc)
-=========
+# Lite Mode [[toc]](#toc)
 
 The lite mode will only start postgresql and a single Galaxy process, without nginx, uwsgi or any other
 special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.
@@ -460,8 +445,7 @@ If you host your flavor on GitHub consider to test our build with Travis-CI. Thi
 https://github.com/bgruening/galaxy-flavor-testing
 
 <a name="List-of-Galaxy-flavours" />
-List of Galaxy flavours [[toc]](#toc)
------------------------
+## List of Galaxy flavours [[toc]](#toc)
 
  * [NCBI-Blast](https://github.com/bgruening/docker-galaxy-blast)
  * [ChemicalToolBox](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox)
@@ -478,8 +462,7 @@ List of Galaxy flavours [[toc]](#toc)
  * [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
 
 
-Integrating tools non-Tool Shed tools into the container <a name="Integrating-tools-non-Tool-Shed-tools-into-the-container" />
---------------------------------------------------------
+## Integrating tools non-Tool Shed tools into the container <a name="Integrating-tools-non-Tool-Shed-tools-into-the-container" />
 
 We recommend to use the [Main Galaxy Tool Shed](https://toolshed.g2.bx.psu.edu/) for all your tools and workflows that you would like to share.
 In rare situations where you cannot share your tools but still want to include them into your Galaxy Docker instance, please follow the next steps.
@@ -510,7 +493,7 @@ docker container in production, please do not forget to change the user credenti
 The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
 
 
-## Development [[toc]](#toc)
+# Development [[toc]](#toc)
 
 This repository uses a git submodule to include [Ansible roles](https://github.com/galaxyproject/ansible-galaxy-extras) maintained by the Galaxy project.
 
@@ -526,12 +509,12 @@ Updating already existing submodules is possible with:
   git submodule update --init --recursive
   ```
 
-## Requirements [[toc]](#toc)
+# Requirements [[toc]](#toc)
 
 - [Docker](https://www.docker.io/gettingstarted/#h_installation)
 
 
-## History [[toc]](#toc)
+# History [[toc]](#toc)
 
  - 0.1: Initial release!
    - with Apache2, PostgreSQL and Tool Shed integration
@@ -571,8 +554,7 @@ Updating already existing submodules is possible with:
   - SFTP support by @zfrenchee
 
 <a name="Support-Bug-Reports" />
-Support & Bug Reports  [[toc]](#toc)
----------------------
+# Support & Bug Reports  [[toc]](#toc)
 
 You can file an [github issue](https://github.com/bgruening/docker-galaxy-stable/issues) or ask
 us on the [Galaxy development list](http://lists.bx.psu.edu/listinfo/galaxy-dev).
