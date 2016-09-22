@@ -40,9 +40,9 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   * [List of Galaxy flavours](#List-of-Galaxy-flavours)
   * [Integrating tools non-Tool Shed tools into the container](#Integrating-tools-non-Tool-Shed-tools-into-the-container)
   * [Users & Passwords](#Users-Passwords)
-- [Development](#development)
-- [Requirements](#requirements)
-- [History](#history)
+- [Development](#Development)
+- [Requirements](#Requirements)
+- [History](#History)
 - [Support & Bug Reports](#Support-Bug-Reports)
 
 
@@ -330,7 +330,7 @@ The following is an example for how to specify a destination in `job_conf.xml` t
 
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
-## Using an external Grid Engine cluster <a name="Using-an-external-Grid-Engine-cluster"/>[[toc]](#toc)
+## Using an external Grid Engine cluster <a name="Using-an-external-Grid-Engine-cluster"/> [[toc]](#toc)
 
 Almost things is as same as Slurm cluster.
 
@@ -486,7 +486,7 @@ https://github.com/bgruening/galaxy-flavor-testing
  * [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
 
 
-## Integrating tools non-Tool Shed tools into the container <a name="Integrating-tools-non-Tool-Shed-tools-into-the-container" />
+## Integrating tools non-Tool Shed tools into the container <a name="Integrating-tools-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
 We recommend to use the [Main Galaxy Tool Shed](https://toolshed.g2.bx.psu.edu/) for all your tools and workflows that you would like to share.
 In rare situations where you cannot share your tools but still want to include them into your Galaxy Docker instance, please follow the next steps.
@@ -517,7 +517,7 @@ docker container in production, please do not forget to change the user credenti
 The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
 
 
-# Development [[toc]](#toc)
+# Development <a name="Development" /> [[toc]](#toc)
 
 This repository uses a git submodule to include [Ansible roles](https://github.com/galaxyproject/ansible-galaxy-extras) maintained by the Galaxy project.
 
@@ -533,12 +533,12 @@ Updating already existing submodules is possible with:
 git submodule update --init --recursive
 ```
 
-# Requirements [[toc]](#toc)
+# Requirements <a name="Requirements" /> [[toc]](#toc)
 
 - [Docker](https://www.docker.io/gettingstarted/#h_installation)
 
 
-# History [[toc]](#toc)
+# History <a name="History" /> [[toc]](#toc)
 
 - 0.1: Initial release!
     - with Apache2, PostgreSQL and Tool Shed integration
@@ -577,8 +577,7 @@ git submodule update --init --recursive
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
 
-<a name="Support-Bug-Reports" />
-# Support & Bug Reports  [[toc]](#toc)
+# Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
 You can file an [github issue](https://github.com/bgruening/docker-galaxy-stable/issues) or ask
 us on the [Galaxy development list](http://lists.bx.psu.edu/listinfo/galaxy-dev).
