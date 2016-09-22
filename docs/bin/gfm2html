@@ -9,11 +9,11 @@
 # Requirements: cURL (sudo apt-get install curl)
 # Input/Output: filename/STDOUT
 #
-# Usage: gfm2html <input> <output>
+# Usage: gfm2html <input> <output_dir>
 # * input: filename of the Github Flavored Markdown (GFM) syntax document
-# * output: filename of the HTML document to generate
+# * output_dir: dirpath where the HTML documents have to be generate
 #
-# eg: ./gfm2html README.md index.html
+# eg: ./gfm2html README.md docs/
 set -e
 
 function format_text {
@@ -52,7 +52,8 @@ elif [[ ! -r "$1" ]]; then
 else
     header=$(head -n 6 $1)
     formatted_header=$(format_text "$header")
-    doc=$(tail -n +8 "$1")
+    #doc=$(tail -n +8 "$1")
+    doc=$(<"$1")
     formatted_doc=$(format_text "$doc")
 fi
 
@@ -61,54 +62,8 @@ if [[ ! -n "$2" ]]; then
   exit 1
 fi
 
-echo "$formatted_doc"
-html_formatted_header=$(generate_html "$formatted_header")
-html_formatted_doc=$(generate_html "$formatted_doc")
-#generate_html $formatted_doc
-#echo $html_formatted_doc
-
-# output html
-echo "<!doctype html>
-<html>
-  <head>
-    <meta charset=\"utf-8\">
-    <meta http-equiv=\"X-UA-Compatible\" content=\"chrome=1\">
-    <title>Galaxy Docker Image by bgruening</title>
-
-    <link rel=\"stylesheet\" href=\"css/landing_page.css\">
-    <meta name=\"viewport\" content=\"width=device-width\">
-    <!--[if lt IE 9]>
-    <script src=\"//html5shiv.googlecode.com/svn/trunk/html5.js\"></script>
-    <![endif]-->
-  </head>
-
-<body>
-  <div class=\"wrapper\">
-    <header>
-      <h1>Galaxy Docker Image</h1>
-      <p>Docker Images tracking the stable Galaxy releases</p>
-
-      "$html_formatted_header"
-
-      <p class=\"view\"><a href=\"https://github.com/bgruening/docker-galaxy-stable\">View the Project on GitHub <small>bgruening/docker-galaxy-stable</small></a></p>
-
-      <ul>
-        <li><a href=\"https://github.com/bgruening/docker-galaxy-stable/zipball/master\">Download <strong>ZIP File</strong></a></li>
-        <li><a href=\"https://github.com/bgruening/docker-galaxy-stable/tarball/master\">Download <strong>TAR Ball</strong></a></li>
-        <li><a href=\"https://github.com/bgruening/docker-galaxy-stable\">View On <strong>GitHub</strong></a></li>
-      </ul>
-    </header>
-
-    <section>
-    "$html_formatted_doc"
-
-    </section>
-
-    <footer>
-      <p>This project is maintained by <a href=\"https://github.com/bgruening\">bgruening</a></p>
-      <p><small>Hosted on GitHub Pages &mdash; Theme by <a href=\"https://github.com/orderedlist\">orderedlist</a></small></p>
-    </footer>
-    <script src=\"js/landing_page.js\"></script>
-  </div>
-</body>
-</html>" > $2
+#html_formatted_header=$(generate_html "$formatted_header")
+#html_formatted_doc=$(generate_html "$formatted_doc")
+generate_html "$formatted_doc" > tmp_html
+python docs/src/generate_html.py --html_content tmp_html --output_dir docs/
+rm tmp_html
