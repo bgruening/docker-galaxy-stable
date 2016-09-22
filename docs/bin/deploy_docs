@@ -6,6 +6,6 @@ git remote rm origin && git remote add origin https://bebatut:${GH_TOKEN}@github
 git fetch origin
 git checkout master
 ./docs/bin/gfm2html README.md docs/
-git add *.html
+git add docs/
 git commit -m "[ci skip] Update site on `date "+%Y-%m-%d %H:%M:%S"`"
 git push origin master

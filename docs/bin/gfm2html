@@ -62,8 +62,7 @@ if [[ ! -n "$2" ]]; then
   exit 1
 fi
 
-#html_formatted_header=$(generate_html "$formatted_header")
-#html_formatted_doc=$(generate_html "$formatted_doc")
+rm docs/*.html
 generate_html "$formatted_doc" > tmp_html
 python docs/src/generate_html.py --html_content tmp_html --output_dir docs/
 rm tmp_html
