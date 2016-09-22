@@ -546,39 +546,39 @@ git submodule update --init --recursive
 
 # History [[toc]](#toc)
 
- - 0.1: Initial release!
-   - with Apache2, PostgreSQL and Tool Shed integration
- - 0.2: complete new Galaxy stack.
+- 0.1: Initial release!
+    - with Apache2, PostgreSQL and Tool Shed integration
+- 0.2: complete new Galaxy stack.
    - with nginx, uwsgi, proftpd, docker, supervisord and SLURM
- - 0.3: Add Interactive Environments
+- 0.3: Add Interactive Environments
    - IPython in docker in Galaxy in docker
    - advanged logging
- - 0.4:
+- 0.4:
    - base the image on toolshed/requirements with all required Galaxy dependencies
    - use Ansible roles to build large parts of the image
    - export the supervisord webinterface on port 9002
    - enable Galaxy reports webapp
- - 15.07:
+- 15.07:
   - `install-biojs` can install BioJS visualisations into Galaxy
   - `add-tool-shed` can be used to activate third party Tool Sheds in child Dockerfiles
   - many documentation improvements
   - RStudio is now part of Galaxy and this Image
   - configurable postgres UID/GID by @chambm
   - smarter starting of postgres during Tool installations by @shiltemann
- - 15.10:
+- 15.10:
   - new Galaxy 15.10 release
   - fix https://github.com/bgruening/docker-galaxy-stable/issues/94
- - 16.01:
+- 16.01:
   - enable Travis testing for all builds and PR
   - offer new [yaml based tool installations](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample)
   - enable dynamic UWSGI processes and threads with `-e UWSGI_PROCESSES=2` and `-e UWSGI_THREADS=4`
   - enable dynamic Galaxy handlers `-e GALAXY_HANDLER_NUMPROCS=2`
   - Addition of a new `lite` mode contributed by @kellrott
   - first release with Jupyter integration
- - 16.04:
+- 16.04:
   - include a Galaxy-bare mode, enable with `-e BARE=True`
   - first release with [HTCondor](https://research.cs.wisc.edu/htcondor/) installed and pre-configured
- - 16.07:
+- 16.07:
   - documentation and tests updates for SLURM integration by @mvdbeek
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
