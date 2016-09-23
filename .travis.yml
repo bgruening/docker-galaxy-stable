@@ -89,8 +89,8 @@ after_success:
   - |
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ]
     then
-      echo "Generate and deploy index.html"
-      ./bin/deploy_docs
+      echo "Generate and deploy html documentation"
+      ./docs/bin/deploy_docs
     fi
 
 
