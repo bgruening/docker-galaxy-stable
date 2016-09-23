@@ -44,12 +44,11 @@
     <h1>Lite Mode </h1>
 </h1>
 
-<p>The lite mode will only start postgresql and a single Galaxy process, without nginx, uwsgi or any other<br>
-special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.</p>
+<p>The lite mode will only start postgresql and a single Galaxy process, without nginx, uwsgi or any other special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.</p>
 
 <div class="highlight highlight-source-shell"><pre>docker run -i -t -p 8080:8080 bgruening/galaxy-stable startup_lite</pre></div>
 
-<p>This will also use the standard <code>job_conf.xml.sample_basic</code> shipped by Galaxy. If you want to use the special the regular one from the normal mode you can pass <code>-j</code> to the <code>startup_lite</code> script.</p>
+<p>This will also use the standard <code>job_conf.xml.sample_basic</code> shipped by Galaxy. If you want to use the regular one from the normal mode you can pass <code>-j</code> to the <code>startup_lite</code> script.</p>
 
 
 
