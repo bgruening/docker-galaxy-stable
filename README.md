@@ -38,8 +38,8 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 - [Lite Mode](#Lite-Mode)
 - [Extending the Docker Image](#Extending-the-Docker-Image)
   - [List of Galaxy flavours](#List-of-Galaxy-flavours)
-  - [Integrating tools non-Tool Shed tools into the container](#Integrating-tools-non-Tool-Shed-tools-into-the-container)
-  - [Users & Passwords](#Users-Passwords)
+- [Integrating non-Tool Shed tools into the container](#Integrating-non-Tool-Shed-tools-into-the-container)
+- [Users & Passwords](#Users-Passwords)
 - [Development](#Development)
 - [Requirements](#Requirements)
 - [History](#History)
@@ -485,7 +485,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
 
 
-## Integrating tools non-Tool Shed tools into the container <a name="Integrating-tools-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
+# Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
 We recommend to use the [Main Galaxy Tool Shed](https://toolshed.g2.bx.psu.edu/) for all your tools and workflows that you would like to share.
 In rare situations where you cannot share your tools but still want to include them into your Galaxy Docker instance, please follow the next steps.
@@ -504,7 +504,7 @@ In rare situations where you cannot share your tools but still want to include t
     To make Galaxy aware of your new tool configuration file you need to add the path to `tool_config_file`, which is by default `#tool_config_file = config/tool_conf.xml,config/shed_tool_conf.xml`. You can do this during container start by setting the environment variable `-e GALAXY_CONFIG_TOOL_CONFIG_FILE=config/tool_conf.xml.sample,config/shed_tool_conf.xml.sample,/local_tools/my_tools.xml`.
 
 
-## Users & Passwords <a name="Users-Passwords" /> [[toc]](#toc)
+# Users & Passwords <a name="Users-Passwords" /> [[toc]](#toc)
 
 The Galaxy Admin User has the username `admin@galaxy.org` and the password `admin`.
 The PostgreSQL username is `galaxy`, the password is `galaxy` and the database name is `galaxy` (I know I was really creative ;)).
