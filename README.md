@@ -47,7 +47,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 
 
-Usage
+Usages
 =====
 
 At first you need to install docker. Please follow the [very good instructions](https://docs.docker.com/installation/) from the Docker project.
@@ -488,8 +488,8 @@ In rare situations where you cannot share your tools but still want to include t
 
     Mount your tool directory into the container with a separate `-v /home/user/my_galaxy_tools/:/local_tools`.
 
- * Create a `tool_conf.xml` file for your tools. 
- 
+ * Create a `tool_conf.xml` file for your tools.
+
     This should look similar to the main [`tool_conf.xml`](https://github.com/galaxyproject/galaxy/blob/dev/config/tool_conf.xml.sample) file, but references your tools from the new directory. In other words a tool entry should look like this `<tool file="/local_tools/application_foo/foo.xml" />`.
     Your `tool_conf.xml` should be available from inside of the container. We assume you have it stored under `/local_tools/my_tools.xml`.
 
