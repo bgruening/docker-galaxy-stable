@@ -66,6 +66,12 @@ script:
       then
         cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $TRAVIS_BUILD_DIR
       fi
+  # Test submitting jobs to an external gridengine cluster
+  - |
+      if ! [ "${COMPOSE}" ]
+      then
+        cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $TRAVIS_BUILD_DIR
+      fi
   # Test FTP Server
   - curl --fail $BIOBLEND_GALAXY_URL/api/version
   - date > time.txt && curl --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
