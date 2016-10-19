@@ -483,7 +483,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [RNAcommender](https://github.com/gianlucacorrado/galaxy-RNAcommender)
 - [OpenMoleculeGenerator](https://github.com/bgruening/galaxy-open-molecule-generator)
 - [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
-
+- [HiC-Explorer](https://github.com/maxplanck-ie/docker-galaxy-hicexplorer)
 
 # Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
