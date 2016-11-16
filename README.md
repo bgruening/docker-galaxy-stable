@@ -233,7 +233,7 @@ The Galaxy welcome screen can be changed by providing a `welcome.html` page in `
 
 ## Deactivating services <a name="Deactivating-services" /> [[toc]](#toc)
 
-Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
+Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `postgres`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
 
 ```sh
 docker run -d -p 8080:80 -p 9002:9002 \
