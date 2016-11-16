@@ -1,0 +1,111 @@
+# Includes DSO modules
+Include /etc/proftpd/modules.conf
+
+# Basics, some site-specific
+ServerName                      "{{ proftpd_welcome }}"
+ServerType                      standalone
+DefaultServer                   on
+Port                            {{ proftpd_ftp_port }}
+Umask                           022
+#SyslogFacility                 DAEMON
+#SyslogLevel                    debug
+MaxInstances                    30
+User                            nobody
+Group                           nogroup
+
+# Passive port range for the firewall
+PassivePorts                    {{ proftpd_passive_port_low }} {{ proftpd_passive_port_high }}
+
+
+{% if proftpd_nat_masquerade %}
+# If your host was NATted, this option is useful in order to
+# allow passive tranfers to work. You have to use your public
+# address and opening the passive ports used on your firewall as well.
+MasqueradeAddress               %{env:MASQUERADE_ADDRESS}
+{% endif %}
+
+# Cause every FTP user to be "jailed" (chrooted) into their home directory
+DefaultRoot                     ~
+
+# Automatically create home directory if it doesn't exist
+CreateHome                      on dirmode 700
+
+# Allow users to overwrite their files
+AllowOverwrite                  on
+
+# Allow users to resume interrupted uploads
+AllowStoreRestart               on
+
+# Bar use of SITE CHMOD
+<Limit SITE_CHMOD>
+    DenyAll
+</Limit>
+
+# Bar use of RETR (download) since this is not a public file drop
+<Limit RETR>
+    DenyAll
+</Limit>
+
+# Do not authenticate against real (system) users
+AuthPAM                         off
+
+{% macro SQL_Auth() -%}
+
+# Set up mod_sql_password - Galaxy passwords are stored as hex-encoded SHA1
+SQLPasswordEngine               on
+{% if proftpd_sql_auth_type == "SHA1" %}
+SQLPasswordEncoding             hex
+{% elif proftpd_sql_auth_type == "PBKDF2" %}
+SQLPasswordEncoding             base64
+{% endif %}
+
+# Set up mod_sql to authenticate against the Galaxy database
+SQLEngine                       on
+SQLBackend                      postgres
+SQLConnectInfo                  {{ proftpd_db_connection }} {{ proftpd_db_username }} {{ proftpd_db_password }}
+SQLAuthTypes                    {{ proftpd_sql_auth_type }}
+SQLAuthenticate                 users
+
+# An empty directory in case chroot fails
+SQLDefaultHomedir               /var/opt/local/proftpd
+
+# Define a custom query for lookup that returns a passwd-like entry.  UID and GID should match your Galaxy user.
+SQLUserInfo                     custom:/LookupGalaxyUser
+{% if proftpd_sql_auth_type == "SHA1" %}
+
+SQLNamedQuery                   LookupGalaxyUser SELECT "email,password,'%{env:GALAXY_UID}','%{env:GALAXY_GID}','{{ proftpd_files_dir }}/%U','/bin/bash' FROM galaxy_user WHERE email='%U'"
+
+{% elif proftpd_sql_auth_type == "PBKDF2" %}
+
+SQLNamedQuery                   LookupGalaxyUser SELECT "email, (CASE WHEN substring(password from 1 for 6) = 'PBKDF2' THEN substring(password from 38 for 69) ELSE password END) AS password2,512,512,'{{ proftpd_files_dir }}/%U','/bin/bash' FROM galaxy_user WHERE email='%U'"
+SQLNamedQuery                   GetUserSalt SELECT "(CASE WHEN SUBSTRING (password from 1 for 6) = 'PBKDF2' THEN SUBSTRING (password from 21 for 16) END) AS salt FROM galaxy_user WHERE email='%U'"
+SQLDefaultGID                   %{env:GALAXY_GID}
+SQLDefaultUID                   %{env:GALAXY_UID}
+SQLPasswordPBKDF2               SHA256 10000 24
+SQLPasswordUserSalt             sql:/GetUserSalt
+
+{% endif %}
+
+{%- endmacro %}
+
+{{ SQL_Auth() }}
+
+{% if proftpd_use_sftp %}
+<IfModule mod_sftp.c>
+    <VirtualHost 0.0.0.0>
+        Port                        {{ proftpd_sftp_port }}
+        SFTPEngine                  on
+        SFTPPAMEngine               off
+        CreateHome                  on dirmode 700
+        SFTPHostKey                 /etc/proftpd/ssh_host_keys/rsa
+        SFTPHostKey                 /etc/proftpd/ssh_host_keys/dsa
+        SFTPCompression             delayed
+
+        {{ SQL_Auth() }}
+
+    </VirtualHost>
+</IfModule>
+{% endif %}
+
+#TraceLog /var/log/proftpd/trace.log
+#Trace DEFAULT:10

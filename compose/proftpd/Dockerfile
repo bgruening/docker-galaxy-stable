@@ -10,10 +10,20 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
-    apt-get -qq update && apt-get install --no-install-recommends -y proftpd proftpd-mod-pgsql && \
+    apt-get -qq update && \
+    apt-get install --no-install-recommends -y software-properties-common && \
+    apt-add-repository ppa:ansible/ansible && \
+    apt-get -qq update && \
+    apt-get install --no-install-recommends -y ansible openssh-client proftpd proftpd-mod-pgsql && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-EXPOSE 21
+#ADD ansible /ansible
+ADD ansible /ansible
+ADD run.sh /usr/bin/run.sh
+RUN chown $GALAXY_UID:$GALAXY_GID /usr/bin/run.sh && chmod 755 /usr/bin/run.sh
+
+EXPOSE 21 22
 
 # Autostart script that is invoked during container start
-CMD ["proftpd","--nodaemon"]
+CMD ["/usr/bin/run.sh"]
+#CMD ["proftpd","--nodaemon"]

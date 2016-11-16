@@ -225,5 +225,8 @@ EXPOSE :9002
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
+ADD install_db.sh /usr/bin/install_db.sh
+RUN chmod +x /usr/bin/install_db.sh
+
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
