@@ -40,7 +40,7 @@ services:
 #    image: postgres
 # This comes with an initialization to quickly populate the database on first start
 #    build: postgres-galaxy
-    image: quay.io/bgruening/postgres:compose
+    image: quay.io/galaxy/postgres:compose
     container_name: galaxy-postgres
     environment:
         - POSTGRES_PASSWORD=chaopagoosaequuashie
