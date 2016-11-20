@@ -193,7 +193,7 @@ The Galaxy welcome screen can be changed by providing a `welcome.html` page in `
 Deactivating services
 ---------------------
 
-Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
+Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `postgres`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
 
   ```bash
   docker run -d -p 8080:80 -p 9002:9002 \
@@ -316,7 +316,7 @@ Magic Environment variables
 | ENABLE_TTS_INSTALL  | Enables the Test Tool Shed during container startup. This change is not persistent. (`ENABLE_TTS_INSTALL=True`)  |
 | GALAXY_LOGGING | Enables for verbose logging at Docker stdout. (`GALAXY_LOGGING=full`)  |
 | BARE | Disables all default Galaxy tools. (`BARE=True`)  |
-| NONUSE |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
+| NONUSE |  Disable services during container startup. (`NONUSE=nodejs,postgres,proftp,reports,slurmd,slurmctld`) |
 | UWSGI_PROCESSES | Set the number of uwsgi processes (`UWSGI_PROCESSES=2) |
 | UWSGI_THREADS | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
 | GALAXY_HANDLER_NUMPROCS | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |

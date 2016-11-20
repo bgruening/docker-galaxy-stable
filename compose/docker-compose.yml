@@ -2,10 +2,20 @@ version: '2'
 services:
   # proftpd container
   proftp:
+#    build: proftpd
     image: quay.io/galaxy/proftpd:compose
+    environment:
+        - proftpd_db_connection=galaxy@db
+        - proftpd_db_username=galaxy
+        - proftpd_db_password=chaopagoosaequuashie
+        - proftpd_files_dir=/export/ftp
+        - proftpd_use_sftp=True
+        - proftpd_passive_port_low=30000
+        - proftpd_passive_port_low=30010
+    build: proftpd
     container_name: galaxy-proftp
     volumes:
-        - ftp_config:/etc/proftpd/
+#        - ftp_config:/etc/proftpd/
         - ftp_data:/export/ftp
     expose:
         - 21
@@ -13,34 +23,58 @@ services:
     ports:
         - "8021:21"
         - "8022:22"
-    # proftpd config files from Galaxy are needed
-    depends_on:
-        - galaxy
+        - "30000-30010:30000-30010"
+#    # proftpd config files from Galaxy are needed
+#    depends_on:
+#        - galaxy
     links:
-        - galaxy:galaxy.local
+#        - galaxy:galaxy.local
+        - postgres:db
     restart: always
     hostname: galaxy-proftp
+
+  postgres:
+# Using the official postgres image. This needs to be populated by calling
+#  docker-compose run galaxy install_db.sh
+# on first run
+#    image: postgres
+# This comes with an initialization to quickly populate the database on first start
+#    build: postgres-galaxy
+    image: quay.io/galaxy/postgres:compose
+    container_name: galaxy-postgres
+    environment:
+        - POSTGRES_PASSWORD=chaopagoosaequuashie
+        - POSTGRES_USER=galaxy
+        - POSTGRES_DB=galaxy
+    volumes:
+        - ./postgres-storage:/var/lib/postgresql/data
+    hostname: galaxy-postgres
+
 
 
   # Main Galaxy container
   galaxy:
     image: quay.io/bgruening/galaxy:compose
+#    build: ../galaxy
     environment:
         #    Insert here your environment variables to change Galaxy's behaviour.
         #    For example to personalise Galaxy by changing the branding with
         #    - GALAXY_CONFIG_BRAND=FOO
-        - NONUSE=proftp
+        - NONUSE=proftp postgres
         - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
         - GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True
         - GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True
         - GALAXY_CONFIG_ENABLE_USER_DELETION=True
         - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
+        - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@db/galaxy?client_encoding=utf8
     ports:
         - "8080:80" # nginx
         - "9002:9002" # supervisor web-interface - not super useful in compose mode
+    links:
+        - postgres:db
     container_name: galaxy
     volumes:
-        - ftp_config:/etc/proftpd/
+#        - ftp_config:/etc/proftpd/
         - ftp_data:/export/ftp
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
@@ -49,5 +83,5 @@ services:
     privileged: True
 
 volumes:
-  ftp_config: {}
+#  ftp_config: {}
   ftp_data: {}
