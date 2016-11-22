@@ -25,7 +25,6 @@ docker run -d \
            -v $PWD/outputhostname.tool.xml:/galaxy-central/outputhostname.tool.xml \
            -v $PWD/setup_tool.sh:/galaxy-central/setup_tool.sh \
            -v $PWD/tool_conf.xml:/galaxy-central/tool_conf.xml \
-           -v $PWD/galaxy.ini:/galaxy-central/galaxy.ini \
            -v $PWD/act_qmaster:/var/lib/gridengine/default/common/act_qmaster \
            ${GALAXY_CONTAINER} \
            /galaxy-central/setup_tool.sh
