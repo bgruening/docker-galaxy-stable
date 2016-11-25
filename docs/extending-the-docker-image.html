@@ -44,34 +44,20 @@
 
     <section>
     <h1>Extending the Docker Image </h1>
-</h1>
-
 <p>If the desired tools are already included in the Tool Shed, building your own personalised Galaxy docker Image (Galaxy flavour) can be done using the following steps:</p>
-
 <ol>
-<li>Create a file named <code>Dockerfile</code>
-</li>
+<li>Create a file named <code>Dockerfile</code></li>
 <li>Include <code>FROM bgruening/galaxy-stable</code> at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.</li>
 <li>Supply the list of desired tools in a file (<code>my_tool_list.yml</code> below). See <a href="https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample">this page</a> for the file format requirements.</li>
-<li>Execute <code>docker build -t my-docker-test .</code>
-</li>
-<li>Run your container with <code>docker run -p 8080:80 my-docker-test</code>
-</li>
-<li>Open your web browser on <code>http://localhost:8080</code>
-</li>
+<li>Execute <code>docker build -t my-docker-test .</code></li>
+<li>Run your container with <code>docker run -p 8080:80 my-docker-test</code></li>
+<li>Open your web browser on <code>http://localhost:8080</code></li>
 </ol>
-
 <p>For a working example, have a look at the or the Dockerfile's.</p>
-
 <ul>
-<li>
-<a href="http://deeptools.github.io/">deepTools</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile">Dockerfile</a>
-</li>
-<li>
-<a href="https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox">ChemicalToolBox</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile">Dockerfile</a>
-</li>
+<li><a href="http://deeptools.github.io/">deepTools</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile">Dockerfile</a></li>
+<li><a href="https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox">ChemicalToolBox</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile">Dockerfile</a></li>
 </ul>
-
 <pre><code># Galaxy - deepTools
 #
 # VERSION 0.2
@@ -106,13 +92,9 @@ EXPOSE :8800
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
 </code></pre>
-
 <p>If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:<br>
 <a href="https://github.com/bgruening/galaxy-flavor-testing">https://github.com/bgruening/galaxy-flavor-testing</a></p>
-
-<h2>List of Galaxy flavours <a name="user-content-List-of-Galaxy-flavours"> </a>
-</h2>
-
+<h2>List of Galaxy flavours <a name="user-content-List-of-Galaxy-flavours"> </a></h2>
 <ul>
 <li><a href="https://github.com/bgruening/docker-galaxy-blast">NCBI-Blast</a></li>
 <li><a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox">ChemicalToolBox</a></li>
@@ -129,7 +111,6 @@ CMD ["/usr/bin/startup"]
 <li><a href="https://github.com/workflow4metabolomics/w4m-vm">Workflow4Metabolomics</a></li>
 <li><a href="https://github.com/maxplanck-ie/docker-galaxy-hicexplorer">HiC-Explorer</a></li>
 </ul>
-
 
 
     </section>

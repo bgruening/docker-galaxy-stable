@@ -44,47 +44,50 @@
 
     <section>
     <h1>Magic Environment variables </h1>
-</h1>
-
 <table>
 <thead>
 <tr>
-<th>Name</th>
-<th>Description</th>
+<th> Name </th>
+<th> Description </th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>ENABLE_TTS_INSTALL</code></td>
-<td>Enables the Test Tool Shed during container startup. This change is not persistent. (<code>ENABLE_TTS_INSTALL=True</code>)</td>
+<td> <code>ENABLE_TTS_INSTALL</code> </td>
+<td> Enables the Test Tool Shed during container startup. This change is not persistent. (<code>ENABLE_TTS_INSTALL=True</code>) </td>
 </tr>
 <tr>
-<td><code>GALAXY_LOGGING</code></td>
-<td>Enables for verbose logging at Docker stdout. (<code>GALAXY_LOGGING=full</code>)</td>
+<td> <code>GALAXY_LOGGING</code> </td>
+<td> Enables for verbose logging at Docker stdout. (<code>GALAXY_LOGGING=full</code>) </td>
 </tr>
 <tr>
-<td><code>BARE</code></td>
-<td>Disables all default Galaxy tools. (<code>BARE=True</code>)</td>
+<td> <code>BARE</code> </td>
+<td> Disables all default Galaxy tools. (<code>BARE=True</code>) </td>
 </tr>
 <tr>
-<td><code>NONUSE</code></td>
-<td>Disable services during container startup. (<code>NONUSE=nodejs,proftp,reports,slurmd,slurmctld</code>)</td>
+<td> <code>NONUSE</code> </td>
+<td> Disable services during container startup. (<code>NONUSE=nodejs,proftp,reports,slurmd,slurmctld</code>) </td>
 </tr>
 <tr>
-<td><code>UWSGI_PROCESSES</code></td>
-<td>Set the number of uwsgi processes (`UWSGI_PROCESSES=2)</td>
+<td> <code>UWSGI_PROCESSES</code> </td>
+<td> Set the number of uwsgi processes (`UWSGI_PROCESSES=2) </td>
 </tr>
 <tr>
-<td><code>UWSGI_THREADS</code></td>
-<td>Set the number of uwsgi threads (<code>UWSGI_THREADS=4</code>)</td>
+<td> <code>UWSGI_THREADS</code> </td>
+<td> Set the number of uwsgi threads (<code>UWSGI_THREADS=4</code>) </td>
 </tr>
 <tr>
-<td><code>GALAXY_HANDLER_NUMPROCS</code></td>
-<td>Set the number of Galaxy handler (<code>GALAXY_HANDLER_NUMPROCS=2</code>)</td>
+<td> <code>GALAXY_DOCKER_ENABLED</code> </td>
+<td> Enable Galaxy to use Docker containers if annotated in tools (<code>GALAXY_DOCKER_ENABLED=False</code>) </td>
 </tr>
-</tbody>
-</table>
-
+<tr>
+<td> <code>GALAXY_DOCKER_VOLUMES</code> </td>
+<td> Specify volumes that should be mounted into tool containers (<code>GALAXY_DOCKER_VOLUMES=""</code>) </td>
+</tr>
+<tr>
+<td> <code>GALAXY_HANDLER_NUMPROCS</code> </td>
+<td> Set the number of Galaxy handler (<code>GALAXY_HANDLER_NUMPROCS=2</code>) </td>
+</tr></tbody></table>
 
 
     </section>
