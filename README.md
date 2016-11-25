@@ -398,6 +398,8 @@ a line such as this to each job destination:
 | `NONUSE` |  Disable services during container startup. (`NONUSE=nodejs,proftp,reports,slurmd,slurmctld`) |
 | `UWSGI_PROCESSES` | Set the number of uwsgi processes (`UWSGI_PROCESSES=2) |
 | `UWSGI_THREADS` | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
+| `GALAXY_DOCKER_ENABLED` | Enable Galaxy to use Docker containers if annotated in tools (`GALAXY_DOCKER_ENABLED=False`) |
+| `GALAXY_DOCKER_VOLUMES` | Specify volumes that should be mounted into tool containers (`GALAXY_DOCKER_VOLUMES=""`) |
 | `GALAXY_HANDLER_NUMPROCS` | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
 
 
