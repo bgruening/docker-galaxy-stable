@@ -11,6 +11,8 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
+ARG GALAXY_SOURCE_ARCHIVE
+
 ENV GALAXY_RELEASE=release_16.07 \
 GALAXY_REPO=https://github.com/galaxyproject/galaxy \
 GALAXY_ROOT=/galaxy-central \
@@ -78,9 +80,9 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     adduser condor docker
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
-# Download latest stable release of Galaxy.
+# Download latest stable release of Galaxy or GALAXY_SOURCE_ARCHIVE.
 RUN mkdir $GALAXY_ROOT && \
-    wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
+    wget -q -O - ${GALAXY_SOURCE_ARCHIVE:-$GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz} | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT && \
