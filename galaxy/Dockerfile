@@ -22,7 +22,7 @@ GALAXY_CONFIG_DIR=/etc/galaxy
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
-GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/export/tool_deps \
 GALAXY_VIRTUAL_ENV=/galaxy_venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -126,7 +126,8 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
     mkdir /export/ftp/ && chown $GALAXY_USER:$GALAXY_USER /export/ftp && \
-    mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps # Configure Galaxy to use the Tool Shed
+    mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps && \
+    ln -s /tool_deps/ /export/tool_deps && chown $GALAXY_USER:$GALAXY_USER /export/tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as User galaxy
 USER galaxy
