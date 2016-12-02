@@ -24,6 +24,6 @@ done
 
 # Run playbook to generate config, etc.
 ansible-playbook /ansible/provision.yml \
-    --tags=proftpd -c local $playbookargs
+    --tags=proftpd --skip-tags=proftpd_apt -c local $playbookargs
 # Run service
 proftpd --nodaemon

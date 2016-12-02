@@ -1,5 +1,4 @@
 - hosts: localhost
   connection: local
   roles:
-      - role: proftpd
-        tags: proftpd
+      - role: galaxyprojectdotorg.galaxyextras

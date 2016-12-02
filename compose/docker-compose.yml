@@ -1,7 +1,7 @@
 version: '2'
 services:
   # proftpd container
-  proftp:
+  proftpd:
 #    build: proftpd
     image: quay.io/galaxy/proftpd:compose
     environment:
@@ -12,8 +12,7 @@ services:
         - proftpd_use_sftp=True
         - proftpd_passive_port_low=30000
         - proftpd_passive_port_low=30010
-    build: proftpd
-    container_name: galaxy-proftp
+    container_name: galaxy-proftpd
     volumes:
 #        - ftp_config:/etc/proftpd/
         - ftp_data:/export/ftp
@@ -31,7 +30,7 @@ services:
 #        - galaxy:galaxy.local
         - postgres:db
     restart: always
-    hostname: galaxy-proftp
+    hostname: galaxy-proftpd
 
   postgres:
 # Using the official postgres image. This needs to be populated by calling
@@ -67,6 +66,9 @@ services:
         - GALAXY_CONFIG_ENABLE_USER_DELETION=True
         - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
         - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@db/galaxy?client_encoding=utf8
+        - GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org
+        - GALAXY_DEFAULT_ADMIN_PASSWORD=admin
+        - GALAXY_DEFAULT_ADMIN_KEY=admin
     ports:
         - "8080:80" # nginx
         - "9002:9002" # supervisor web-interface - not super useful in compose mode
