@@ -1,36 +1,4 @@
 --
--- PostgreSQL database cluster dump
---
-
-SET default_transaction_read_only = off;
-
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-
---
--- Roles
---
-
---CREATE ROLE galaxy;
---ALTER ROLE galaxy WITH SUPERUSER INHERIT NOCREATEROLE NOCREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'md5666674dd41619ef362702472963541d8';
---CREATE ROLE postgres;
---ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS;
-
-
-
-
---
--- Database creation
---
-
---CREATE DATABASE galaxy WITH TEMPLATE = template0 OWNER = postgres;
-
-
-\connect galaxy
-
-SET default_transaction_read_only = off;
-
---
 -- PostgreSQL database dump
 --
 
@@ -6297,7 +6265,6 @@ ALTER TABLE ONLY workflow_tag_association ALTER COLUMN id SET DEFAULT nextval('w
 --
 
 COPY api_keys (id, create_time, user_id, key) FROM stdin;
-1	2016-11-20 11:12:42.07306	1	admin
 \.
 
 
@@ -6305,7 +6272,7 @@ COPY api_keys (id, create_time, user_id, key) FROM stdin;
 -- Name: api_keys_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('api_keys_id_seq', 1, true);
+SELECT pg_catalog.setval('api_keys_id_seq', 1, false);
 
 
 --
@@ -6598,7 +6565,6 @@ SELECT pg_catalog.setval('default_quota_association_id_seq', 1, false);
 --
 
 COPY default_user_permissions (id, user_id, action, role_id) FROM stdin;
-1	1	manage permissions	1
 \.
 
 
@@ -6606,7 +6572,7 @@ COPY default_user_permissions (id, user_id, action, role_id) FROM stdin;
 -- Name: default_user_permissions_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('default_user_permissions_id_seq', 1, true);
+SELECT pg_catalog.setval('default_user_permissions_id_seq', 1, false);
 
 
 --
@@ -6779,7 +6745,6 @@ SELECT pg_catalog.setval('galaxy_session_to_history_id_seq', 1, false);
 --
 
 COPY galaxy_user (id, create_time, update_time, email, password, external, deleted, purged, username, form_values_id, disk_usage, active, activation_token, last_password_change) FROM stdin;
-1	2016-11-20 11:12:42.038663	2016-11-20 11:12:42.03867	admin@galaxy.org	d033e22ae348aeb5660fc2140aec35850c4da997	f	f	f	admin	\N	\N	f	\N	2016-11-20 11:12:42.036527
 \.
 
 
@@ -6787,7 +6752,7 @@ COPY galaxy_user (id, create_time, update_time, email, password, external, delet
 -- Name: galaxy_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('galaxy_user_id_seq', 1, true);
+SELECT pg_catalog.setval('galaxy_user_id_seq', 1, false);
 
 
 --
@@ -7856,7 +7821,6 @@ SELECT pg_catalog.setval('request_type_run_association_id_seq', 1, false);
 --
 
 COPY role (id, create_time, update_time, name, description, type, deleted) FROM stdin;
-1	2016-11-20 11:12:42.045707	2016-11-20 11:12:42.045716	admin@galaxy.org	Private Role for admin@galaxy.org	private	f
 \.
 
 
@@ -7864,7 +7828,7 @@ COPY role (id, create_time, update_time, name, description, type, deleted) FROM 
 -- Name: role_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('role_id_seq', 1, true);
+SELECT pg_catalog.setval('role_id_seq', 1, false);
 
 
 --
@@ -8277,7 +8241,6 @@ SELECT pg_catalog.setval('user_quota_association_id_seq', 1, false);
 --
 
 COPY user_role_association (id, user_id, role_id, create_time, update_time) FROM stdin;
-1	1	1	2016-11-20 11:12:42.053843	2016-11-20 11:12:42.05385
 \.
 
 
@@ -8285,7 +8248,7 @@ COPY user_role_association (id, user_id, role_id, create_time, update_time) FROM
 -- Name: user_role_association_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('user_role_association_id_seq', 1, true);
+SELECT pg_catalog.setval('user_role_association_id_seq', 1, false);
 
 
 --
@@ -15352,99 +15315,5 @@ ALTER TABLE ONLY workflow_tag_association
 
 --
 -- PostgreSQL database dump complete
---
-
-\connect postgres
-
-SET default_transaction_read_only = off;
-
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 9.6.0
--- Dumped by pg_dump version 9.6.0
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- Name: postgres; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON DATABASE postgres IS 'default administrative connection database';
-
-
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
---
--- PostgreSQL database dump complete
---
-
-\connect template1
-
-SET default_transaction_read_only = off;
-
---
--- PostgreSQL database dump
---
-
--- Dumped from database version 9.6.0
--- Dumped by pg_dump version 9.6.0
-
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-SET row_security = off;
-
---
--- Name: template1; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON DATABASE template1 IS 'default template for new databases';
-
-
---
--- Name: plpgsql; Type: EXTENSION; Schema: -; Owner: -
---
-
-CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
-
-
---
--- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
-
-
---
--- PostgreSQL database dump complete
---
-
---
--- PostgreSQL database cluster dump complete
 --
 
