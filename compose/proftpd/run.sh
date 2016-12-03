@@ -3,6 +3,7 @@
 playbookvars=('proftpd_db_connection' \
 'proftpd_db_username' \
 'proftpd_db_password' \
+'proftpd_files_dir' \
 'proftpd_sql_auth_type' \
 'proftpd_welcome' \
 'proftpd_passive_port_low' \
@@ -24,6 +25,6 @@ done
 
 # Run playbook to generate config, etc.
 ansible-playbook /ansible/provision.yml \
-    --tags=proftpd -c local $playbookargs
+    --tags=proftpd --skip-tags=proftpd_apt -c local $playbookargs
 # Run service
 proftpd --nodaemon
