@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Galaxy Docker Image by bgruening</title>
+
+    <link rel="stylesheet" href="css/landing_page.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+
+<body>
+  <div class="wrapper">
+    <header>
+      <h1>Galaxy Docker Image</h1>
+      <p>Docker Images tracking the stable Galaxy releases</p>
+
+        <p class="bold">Table of content</p>
+  <ul>
+    <li><a href="index.html">Global description</a>  </li>
+    <li><a href="usage.html">Usage </a>  </li>
+    <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
+    <li><a href="lite-mode.html">Lite Mode </a>  </li>
+    <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
+    <li><a href="integrating-non-tool-shed-tools-into-the-container.html">Integrating non-Tool Shed tools into the container </a>  </li>
+    <li><a href="users-passwords.html">Users &amp; Passwords </a>  </li>
+    <li><a href="development.html">Development </a>  </li>
+    <li><a href="requirements.html">Requirements </a>  </li>
+    <li><a href="history.html">History </a>  </li>
+  </ul>
+
+
+      <p class="view"><a href="https://github.com/bgruening/docker-galaxy-stable">View the Project on GitHub <small>bgruening/docker-galaxy-stable</small></a></p>
+
+      <ul class="box">
+        <li class="box"><a href="https://github.com/bgruening/docker-galaxy-stable/zipball/master">Download <strong>ZIP File</strong></a></li>
+        <li class="box"><a href="https://github.com/bgruening/docker-galaxy-stable/tarball/master">Download <strong>TAR Ball</strong></a></li>
+        <li class="box"><a href="https://github.com/bgruening/docker-galaxy-stable">View On <strong>GitHub</strong></a></li>
+      </ul>
+    </header>
+
+    <section>
+    <h1>Extending the Docker Image </h1>
+<p>If the desired tools are already included in the Tool Shed, building your own personalised Galaxy docker Image (Galaxy flavour) can be done using the following steps:</p>
+<ol>
+<li>Create a file named <code>Dockerfile</code></li>
+<li>Include <code>FROM bgruening/galaxy-stable</code> at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.</li>
+<li>Supply the list of desired tools in a file (<code>my_tool_list.yml</code> below). See <a href="https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample">this page</a> for the file format requirements.</li>
+<li>Execute <code>docker build -t my-docker-test .</code></li>
+<li>Run your container with <code>docker run -p 8080:80 my-docker-test</code></li>
+<li>Open your web browser on <code>http://localhost:8080</code></li>
+</ol>
+<p>For a working example, have a look at the or the Dockerfile's.</p>
+<ul>
+<li><a href="http://deeptools.github.io/">deepTools</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile">Dockerfile</a></li>
+<li><a href="https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox">ChemicalToolBox</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile">Dockerfile</a></li>
+</ul>
+<pre><code># Galaxy - deepTools
+#
+# VERSION 0.2
+
+FROM bgruening/galaxy-stable
+
+MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
+
+ENV GALAXY_CONFIG_BRAND deepTools
+
+WORKDIR /galaxy-central
+
+RUN add-tool-shed --url 'http://testtoolshed.g2.bx.psu.edu/' --name 'Test Tool Shed'
+
+# Install Visualisation
+RUN install-biojs msa
+
+# Adding the tool definitions to the container
+ADD my_tool_list.yml $GALAXY_ROOT/my_tool_list.yml
+
+# Install deepTools
+RUN install-tools $GALAXY_ROOT/my_tool_list.yml
+
+# Mark folders as imported from the host.
+VOLUME ["/export/", "/data/", "/var/lib/docker"]
+
+# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy)
+EXPOSE :80
+EXPOSE :21
+EXPOSE :8800
+
+# Autostart script that is invoked during container start
+CMD ["/usr/bin/startup"]
+</code></pre>
+<p>If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:<br>
+<a href="https://github.com/bgruening/galaxy-flavor-testing">https://github.com/bgruening/galaxy-flavor-testing</a></p>
+<h2>List of Galaxy flavours <a name="user-content-List-of-Galaxy-flavours"> </a></h2>
+<ul>
+<li><a href="https://github.com/bgruening/docker-galaxy-blast">NCBI-Blast</a></li>
+<li><a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox">ChemicalToolBox</a></li>
+<li><a href="https://github.com/anhi/docker-scripts/tree/master/ballaxy">ballaxy</a></li>
+<li><a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools">NGS-deepTools</a></li>
+<li><a href="https://github.com/gregvonkuster/docker-galaxy-ChIP-exo">Galaxy ChIP-exo</a></li>
+<li><a href="https://github.com/bgruening/docker-galaxyp">Galaxy Proteomics</a></li>
+<li><a href="https://github.com/bgruening/docker-galaxy-imaging">Imaging</a></li>
+<li><a href="https://github.com/gregvonkuster/docker-galaxy-csg">Constructive Solid Geometry</a></li>
+<li><a href="https://github.com/bgruening/galaxy-metagenomics">Galaxy for metagenomics</a></li>
+<li><a href="https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid">Galaxy with the Language Application Grid tools</a></li>
+<li><a href="https://github.com/gianlucacorrado/galaxy-RNAcommender">RNAcommender</a></li>
+<li><a href="https://github.com/bgruening/galaxy-open-molecule-generator">OpenMoleculeGenerator</a></li>
+<li><a href="https://github.com/workflow4metabolomics/w4m-vm">Workflow4Metabolomics</a></li>
+<li><a href="https://github.com/maxplanck-ie/docker-galaxy-hicexplorer">HiC-Explorer</a></li>
+</ul>
+
+
+    </section>
+
+    <footer>
+      <p>This project is maintained by <a href="https://github.com/bgruening">bgruening</a></p>
+      <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+    </footer>
+    <script src="js/landing_page.js"></script>
+  </div>
+</body>
+</html>

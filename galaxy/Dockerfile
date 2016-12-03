@@ -11,8 +11,11 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * Enable the @natefoo magic
 # Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
 
-ENV GALAXY_RELEASE=release_16.07 \
-GALAXY_REPO=https://github.com/galaxyproject/galaxy \
+ARG GALAXY_RELEASE
+ARG GALAXY_REPO
+
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_16.07} \
+GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
 

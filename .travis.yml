@@ -7,8 +7,10 @@ services:
   - docker
 
 env:
-  - TOX_ENV=py27
-  - COMPOSE=True
+  global:
+        - TOX_ENV=py27
+        - COMPOSE=True
+        - secure: "PgEA6vDYZWAIZ3KyUTeA9SNSNR+eJU3kBkoEIsTnmnkyta0Z0VbIv98B9ApYeiC0VHpVzY1gblimmkXSY5+4oD9tUxpA630cUhE9iLNuo5o3MpRFun8nf8H6Jz2Y/PaPw3VPLKsH49LJYgJXeqgzoV7FHrpUP9Q3/5dycWybV2I="
 
 git:
   submodules: false
@@ -67,6 +69,8 @@ script:
       then
         cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $TRAVIS_BUILD_DIR
       fi
+  # Test submitting jobs to an external gridengine cluster
+  - cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $TRAVIS_BUILD_DIR
   # Test FTP Server
   - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
   - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
@@ -90,6 +94,14 @@ script:
   # Test the Conda installation
   - docker run -i -t quay.io/bgruening/galaxy bash -c 'export PATH=/tool_deps/_conda/bin/:$PATH && conda --version && conda install samtools -c bioconda --yes'
 
+after_success:
+  - |
+    if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ]
+    then
+      echo "Generate and deploy html documentation"
+      ./docs/bin/deploy_docs
+    fi
+
 
 notifications:
   webhooks:
@@ -98,5 +110,3 @@ notifications:
     on_success: change
     on_failure: always
     on_start: never
-
-
