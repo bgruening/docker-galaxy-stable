@@ -45,6 +45,7 @@ before_install:
         docker tag quay.io/galaxy/postgres quay.io/galaxy/postgres:compose
         docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
         docker-compose --project-name galaxy_compose up -d
+        sleep 50
     else
         mkdir local_folder
         docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
