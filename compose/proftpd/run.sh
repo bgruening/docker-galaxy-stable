@@ -3,6 +3,7 @@
 playbookvars=('proftpd_db_connection' \
 'proftpd_db_username' \
 'proftpd_db_password' \
+'proftpd_files_dir' \
 'proftpd_sql_auth_type' \
 'proftpd_welcome' \
 'proftpd_passive_port_low' \
