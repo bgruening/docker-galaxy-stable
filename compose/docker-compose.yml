@@ -11,7 +11,7 @@ services:
         - proftpd_files_dir=/export/ftp
         - proftpd_use_sftp=True
         - proftpd_passive_port_low=30000
-        - proftpd_passive_port_low=30010
+        - proftpd_passive_port_high=30010
     container_name: galaxy-proftpd
     volumes:
 #        - ftp_config:/etc/proftpd/
