@@ -67,15 +67,15 @@ script:
         cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $TRAVIS_BUILD_DIR
       fi
   # Test FTP Server
-  - curl --fail $BIOBLEND_GALAXY_URL/api/version
-  - date > time.txt && curl --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
-  - curl --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
+  - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
+  - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
+  - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
 
   # Test SFTP Server
   - sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
   # Test self-signed HTTPS
   - docker run -d -p 443:443 -e "USE_HTTPS=True" quay.io/bgruening/galaxy
-  - sleep 60s && curl -k --fail https://127.0.0.1:443/api/version
+  - sleep 60s && curl -v -k --fail https://127.0.0.1:443/api/version
   - echo | openssl s_client -connect 127.0.0.1:443 2>/dev/null | openssl x509 -issuer -noout| grep selfsigned
 
   - cd $TRAVIS_BUILD_DIR/test/bioblend/ && bash test.sh && cd $TRAVIS_BUILD_DIR/
