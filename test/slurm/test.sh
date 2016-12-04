@@ -18,6 +18,9 @@ docker run -d -e "NONUSE=slurmd,slurmctld" \
    -p 80:80 -v "$EXPORT":/export quay.io/bgruening/galaxy
 # We wait for the creation of the /galaxy-central/config/ if it does not exist yet
 sleep 20s
+ls -la "$EXPORT"
+ls -la "$EXPORT"/galaxy-central/
+ls -la "$EXPORT"/galaxy-central/config/
 # We copy the job_conf.xml to the $EXPORT folder
 cp job_conf.xml "$EXPORT"/galaxy-central/config/
 # We restart galaxy
