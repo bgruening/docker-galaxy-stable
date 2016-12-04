@@ -20,7 +20,7 @@ docker run -d -e "NONUSE=slurmd,slurmctld" \
 sleep 20s
 # We copy the job_conf.xml to the $EXPORT folder
 sudo cp job_conf.xml "$EXPORT"/galaxy-central/config/
-sudo chmod 1450:1450 "$EXPORT"/galaxy-central/config/job_conf.xml
+sudo chown 1450:1450 "$EXPORT"/galaxy-central/config/job_conf.xml
 # We restart galaxy
 docker stop galaxy-slurm-test
 docker rm galaxy-slurm-test
