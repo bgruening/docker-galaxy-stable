@@ -22,7 +22,8 @@ ls -la "$EXPORT"
 ls -la "$EXPORT"/galaxy-central/
 ls -la "$EXPORT"/galaxy-central/config/
 # We copy the job_conf.xml to the $EXPORT folder
-cp job_conf.xml "$EXPORT"/galaxy-central/config/
+sudo cp job_conf.xml "$EXPORT"/galaxy-central/config/
+sudo chmod 1450:1450 "$EXPORT"/galaxy-central/config/job_conf.xml
 # We restart galaxy
 docker stop galaxy-slurm-test
 docker rm galaxy-slurm-test
