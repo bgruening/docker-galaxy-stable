@@ -14,7 +14,6 @@ services:
         - proftpd_passive_port_high=30010
     container_name: galaxy-proftpd
     volumes:
-#        - ftp_config:/etc/proftpd/
         - ftp_data:/export/ftp
     expose:
         - 21
@@ -23,11 +22,7 @@ services:
         - "8021:21"
         - "8022:22"
         - "30000-30010:30000-30010"
-#    # proftpd config files from Galaxy are needed
-#    depends_on:
-#        - galaxy
     links:
-#        - galaxy:galaxy.local
         - postgres:db
     restart: always
     hostname: galaxy-proftpd
@@ -53,8 +48,8 @@ services:
 
   # Main Galaxy container
   galaxy:
-    image: quay.io/bgruening/galaxy:compose
 #    build: ../galaxy
+    image: quay.io/bgruening/galaxy:compose
     environment:
         #    Insert here your environment variables to change Galaxy's behaviour.
         #    For example to personalise Galaxy by changing the branding with
@@ -76,7 +71,6 @@ services:
         - postgres:db
     container_name: galaxy
     volumes:
-#        - ftp_config:/etc/proftpd/
         - ftp_data:/export/ftp
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
@@ -85,5 +79,4 @@ services:
     privileged: True
 
 volumes:
-#  ftp_config: {}
   ftp_data: {}
