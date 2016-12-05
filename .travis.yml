@@ -7,10 +7,11 @@ services:
   - docker
 
 env:
+  matrix:
+    - TOX_ENV=py27
+    - COMPOSE=True
   global:
-        - TOX_ENV=py27
-        - COMPOSE=True
-        - secure: "PgEA6vDYZWAIZ3KyUTeA9SNSNR+eJU3kBkoEIsTnmnkyta0Z0VbIv98B9ApYeiC0VHpVzY1gblimmkXSY5+4oD9tUxpA630cUhE9iLNuo5o3MpRFun8nf8H6Jz2Y/PaPw3VPLKsH49LJYgJXeqgzoV7FHrpUP9Q3/5dycWybV2I="
+    - secure: "PgEA6vDYZWAIZ3KyUTeA9SNSNR+eJU3kBkoEIsTnmnkyta0Z0VbIv98B9ApYeiC0VHpVzY1gblimmkXSY5+4oD9tUxpA630cUhE9iLNuo5o3MpRFun8nf8H6Jz2Y/PaPw3VPLKsH49LJYgJXeqgzoV7FHrpUP9Q3/5dycWybV2I="
 
 git:
   submodules: false

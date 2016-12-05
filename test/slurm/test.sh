@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-set -x
 
+set -x
 # Test that jobs run successfully on an external slurm cluster
 
 # We use a temporary directory as an export dir that will hold the shared data between
@@ -22,8 +22,11 @@ sleep 60s
 # We restart galaxy
 docker stop galaxy-slurm-test
 docker rm galaxy-slurm-test
+
 # We copy the job_conf.xml to the $EXPORT folder
-cp job_conf.xml "$EXPORT"/galaxy-central/config/
+sudo cp job_conf.xml "$EXPORT"/galaxy-central/config/
+sudo chown 1450:1450 "$EXPORT"/galaxy-central/config/job_conf.xml
+
 docker run -d -e "NONUSE=slurmd,slurmctld" \
    --link slurm --name galaxy-slurm-test -h galaxy \
    -p 80:80 -v "$EXPORT":/export quay.io/bgruening/galaxy
