@@ -10,7 +10,7 @@ playbookvars=('proftpd_db_connection' \
 'proftpd_passive_port_high' \
 'proftpd_use_sftp' \
 'proftpd_nat_masquerade' \
-'use_pbkdf2')
+'proftpd_masquerade_address')
 
 # Generate override argument for ansible playbook
 playbookargs=""
