@@ -1853,7 +1853,8 @@ CREATE TABLE job (
     handler character varying(255),
     exit_code integer,
     destination_id character varying(255),
-    destination_params bytea
+    destination_params bytea,
+    dependencies bytea
 );
 
 
@@ -7074,7 +7075,7 @@ SELECT pg_catalog.setval('implicitly_created_dataset_collection_inputs_id_seq', 
 -- Data for Name: job; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY job (id, create_time, update_time, history_id, tool_id, tool_version, state, info, command_line, param_filename, runner_name, stdout, stderr, traceback, session_id, job_runner_name, job_runner_external_id, library_folder_id, user_id, imported, object_store_id, params, handler, exit_code, destination_id, destination_params) FROM stdin;
+COPY job (id, create_time, update_time, history_id, tool_id, tool_version, state, info, command_line, param_filename, runner_name, stdout, stderr, traceback, session_id, job_runner_name, job_runner_external_id, library_folder_id, user_id, imported, object_store_id, params, handler, exit_code, destination_id, destination_params, dependencies) FROM stdin;
 \.
 
 
@@ -7549,7 +7550,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	132
+Galaxy	lib/galaxy/model/migrate	133
 \.
 
 
