@@ -58,6 +58,12 @@ docker-compose run galaxy install_db.sh
 ```
 which will perform database migration.
 
+### Updating
+To update the database to a new migration level, run 
+```sh
+docker-compose run galaxy install_db.sh
+```
+
 ### Configuration <a name="postgres-Configuration" /> [[toc]](#toc)
 See [official postgres container](https://hub.docker.com/_/postgres/).
 
