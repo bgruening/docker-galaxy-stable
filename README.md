@@ -233,7 +233,7 @@ The Galaxy welcome screen can be changed by providing a `welcome.html` page in `
 
 ## Deactivating services <a name="Deactivating-services" /> [[toc]](#toc)
 
-Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
+Non-essential services can be deactivated during startup. Set the environment variable `NONUSE` to a comma separated list of services. Currently, `nodejs`, `postgres`, `proftp`, `reports`, `slurmd` and `slurmctld` are supported.
 
 ```sh
 docker run -d -p 8080:80 -p 9002:9002 \
@@ -578,6 +578,8 @@ git submodule update --init --recursive
   - documentation and tests updates for SLURM integration by @mvdbeek
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
+ - 16.10:
+  - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 

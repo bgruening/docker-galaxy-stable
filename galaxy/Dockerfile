@@ -14,7 +14,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_16.07} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_16.10} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -22,7 +22,7 @@ GALAXY_CONFIG_DIR=/etc/galaxy
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
-GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/export/tool_deps \
 GALAXY_VIRTUAL_ENV=/galaxy_venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -43,6 +43,11 @@ EXPORT_DIR=/export \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
+# Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
+USE_HTTPS=False \
+# Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to a domain that is reachable to get a letsencrypt certificate
+USE_HTTPS_LETSENCRYPT=False \
+GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=localhost \
 # Set the number of Galaxy handlers
 GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
@@ -95,11 +100,11 @@ RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 
 ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
-ADD roles/ /tmp/ansible/roles
-ADD provision.yml /tmp/ansible/provision.yml
-ADD postgresql_provision.yml /tmp/ansible/postgresql_provision.yml
-RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
-    ansible-playbook /tmp/ansible/provision.yml \
+ADD roles/ /ansible/roles
+ADD provision.yml /ansible/provision.yml
+ADD postgresql_provision.yml /ansible/postgresql_provision.yml
+RUN ansible-playbook /ansible/postgresql_provision.yml && \
+    ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
     --extra-vars galaxy_user_name=$GALAXY_USER \
@@ -115,12 +120,14 @@ RUN ansible-playbook /tmp/ansible/postgresql_provision.yml && \
     --extra-vars proftpd_use_sftp=True \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
+    --extra-vars supervisor_postgres_autostart=false \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
     mkdir /export/ftp/ && chown $GALAXY_USER:$GALAXY_USER /export/ftp && \
-    mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps # Configure Galaxy to use the Tool Shed
+    mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps && \
+    ln -s /tool_deps/ /export/tool_deps && chown $GALAXY_USER:$GALAXY_USER /export/tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as User galaxy
 USER galaxy
@@ -213,14 +220,18 @@ RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
 
-# Expose port 80 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
-EXPOSE :80
+# Expose port 80, 443 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :21
+EXPOSE :80
+EXPOSE :443
 EXPOSE :8800
 EXPOSE :9002
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
+
+ADD install_db.sh /usr/bin/install_db.sh
+RUN chmod +x /usr/bin/install_db.sh
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
