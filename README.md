@@ -535,6 +535,13 @@ Updating already existing submodules is possible with:
 git submodule update --init --recursive
 ```
 
+If you simply want to change the Galaxy repository and/or the Galaxy branch, from which the container is build you can do this with Docker `--build-arg` during the `docker build` step. For example you can use these parameters during container build:
+
+```
+ --build-arg GALAXY_RELEASE=install_workflow_and_tools
+ --build-arg GALAXY_REPO=https://github.com/manabuishii/galaxy
+```
+
 # Requirements <a name="Requirements" /> [[toc]](#toc)
 
 - [Docker](https://www.docker.io/gettingstarted/#h_installation)
