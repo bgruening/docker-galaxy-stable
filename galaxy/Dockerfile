@@ -73,7 +73,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
     nano nmap lynx vim curl python-crypto python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
-    gridengine-common gridengine-drmaa1.0 && \
+    gridengine-common gridengine-drmaa1.0 rabbitmq-server && \
     pip install --upgrade pip && \
     pip install ephemeris && \
     apt-get purge -y software-properties-common && \
@@ -115,6 +115,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars supervisor_manage_slurm="" \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
+    --extra-vars galaxy_extras_config_rabbitmq=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=/export/ftp \
     --extra-vars proftpd_use_sftp=True \
