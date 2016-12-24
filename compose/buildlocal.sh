@@ -1,4 +1,5 @@
 #!/bin/bash
+set -x
 
 docker build -t quay.io/bgruening/galaxy ../galaxy/
 docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
