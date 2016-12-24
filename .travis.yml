@@ -40,11 +40,7 @@ before_install:
     then
         pip install docker-compose
         cd compose
-        docker build -t quay.io/galaxy/proftpd ./proftpd
-        docker tag quay.io/galaxy/proftpd quay.io/galaxy/proftpd:compose
-        docker build -t quay.io/galaxy/postgres ./postgres-galaxy
-        docker tag quay.io/galaxy/postgres quay.io/galaxy/postgres:compose
-        docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
+        ./buildlocal.sh
         docker-compose --project-name galaxy_compose up -d
         sleep 50
     else

@@ -44,7 +44,16 @@ services:
         - ./postgres-storage:/var/lib/postgresql/data
     hostname: galaxy-postgres
 
-
+  # slurm container
+  slurm:
+#    build: slurm-galaxy
+    image: quay.io/galaxy/slurm:compose
+    environment: {}
+    container_name: galaxy-slurm
+    volumes:
+        - ./galaxy-storage/:/export
+    restart: always
+    hostname: galaxy-slurm
 
   # Main Galaxy container
   galaxy:
@@ -54,7 +63,7 @@ services:
         #    Insert here your environment variables to change Galaxy's behaviour.
         #    For example to personalise Galaxy by changing the branding with
         #    - GALAXY_CONFIG_BRAND=FOO
-        - NONUSE=proftp postgres
+        - NONUSE=proftp,postgres,slurmd,slurmctld
         - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
         - GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True
         - GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True
@@ -69,6 +78,7 @@ services:
         - "9002:9002" # supervisor web-interface - not super useful in compose mode
     links:
         - postgres:db
+        - slurm
     container_name: galaxy
     volumes:
         - ftp_data:/export/ftp
