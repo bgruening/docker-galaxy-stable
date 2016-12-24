@@ -19,7 +19,7 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     python-pip python-psutil supervisor samtools software-properties-common docker-engine && \
     /usr/sbin/create-munge-key && \
     touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log && \
-    mkdir /tmp/slurm && pip install --upgrade supervisor && \
+    mkdir /tmp/slurm && pip install --upgrade supervisor virtualenv && \
     apt-get remove -y supervisor && mkdir /var/log/supervisor && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
