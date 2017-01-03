@@ -487,6 +487,9 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
 - [HiC-Explorer](https://github.com/maxplanck-ie/docker-galaxy-hicexplorer)
 - [SNVPhyl](https://github.com/phac-nml/snvphyl-galaxy)
+- [GraphClust](https://github.com/BackofenLab/docker-galaxy-graphclust)
+- [RNA workbench](https://github.com/bgruening/galaxy-rna-workbench)
+
 
 # Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
