@@ -87,12 +87,12 @@ script:
   - docker run quay.io/bgruening/galaxy bash -c 'install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml'
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
   - docker exec -i -t galaxy docker info
-  - docker stop galaxy
-  # Test the Conda installation
-  - docker run -i -t quay.io/bgruening/galaxy bash -c 'export PATH=/tool_deps/_conda/bin/:$PATH && conda --version && conda install samtools -c bioconda --yes'
   # Selenium UI tests
   - docker exec -i -t galaxy docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.0.1-aluminum
   - docker exec -i -t galaxy bash -c 'GALAXY_TEST_SELENIUM_REMOTE=1 ./run_tests.sh -selenium test/selenium_tests/test_stock_tours.py:TestStockToursTestCase.test_core_galaxy_ui'
+  - docker stop galaxy
+  # Test the Conda installation
+  - docker run -i -t quay.io/bgruening/galaxy bash -c 'export PATH=/tool_deps/_conda/bin/:$PATH && conda --version && conda install samtools -c bioconda --yes'
 
 after_success:
   - |
