@@ -588,7 +588,7 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
   - documentation and tests updates for SLURM integration by @mvdbeek
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
- - 16.10:
+- 16.10:
   - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
