@@ -34,7 +34,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
   - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
   - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
-- [Enable Galaxy to fetch Docker containers registered with quay.io](#auto-exec-tools-in-docker)
+- [Enable Galaxy to use BioContainers (Docker)](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
 - [Lite Mode](#Lite-Mode)
 - [Extending the Docker Image](#Extending-the-Docker-Image)
@@ -391,14 +391,14 @@ a line such as this to each job destination:
 ```
 <env file="/path/to/shared/galaxy/venv" />
 ```
-# Enable Galaxy to fetch Docker containers registered with quay.io <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
+# Enable Galaxy to use BioContainers (Docker) <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
 This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using [mulled](https://github.com/mulled). To test, install the [iuc bedtools](https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&changeset_revision=7b3aaff0d78c) from the toolshed. When you try to execute *ClusterBed* for example. You may get a missing dependancy error for *bedtools*. But bedtools has an associated docker image on [quay.io](https://quay.io/).  Now configure Galaxy as follows:
 - Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True` 
 - In `job_conf.xml` configure a Docker enabled destination and add the following parameter to it:
 ```
 <param id="docker_volumes">$galaxy_root:ro,$galaxy_root/database/tmp:rw,$tool_directory:ro,$job_directory:ro,$working_directory:rw,$default_file_path:rw</param>
 ```
-When you execute the tool again, Galaxy will pull the image from quay.io, run the container, and produce your output.
+When you execute the tool again, Galaxy will pull the image from Biocontainers (quay.io/biocontainers), run the tool inside of this container to produce the desired output.
 
 # Magic Environment variables <a name="Magic-Environment-variables"/> [[toc]](#toc)
 
