@@ -22,6 +22,7 @@
   <ul>
     <li><a href="index.html">Global description</a>  </li>
     <li><a href="usage.html">Usage </a>  </li>
+    <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
@@ -137,7 +138,10 @@
  -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=reports<span class="pl-pds">"</span></span> \
  bgruening/galaxy-stable</pre></div>
 <h2>Galaxy's config settings <a name="user-content-Galaxys-config-settings"> </a></h2>
-<p>Every Galaxy configuration setting can be overwritten by a given environment variable during startup. For example by default the <code>admin_users</code>, <code>master_api_key</code> and the <code>brand</code> variable it set to:</p>
+<p>Every Galaxy configuration parameter in <code>config/galaxy.ini</code> can be overwritten by passing an environment variable to the <code>docker run</code> command during startup. The name of the environment variable has to be:<br>
+<code>GALAXY_CONFIG</code>+ <em>the_original_parameter_name_in_capital_letters</em><br>
+For example, you can set the Galaxy session timeout to 5 mintues by adding <code>-e "GALAXY_CONFIG_SESSION_DURATION=5"</code> to the <code>docker run command</code></p>
+<p><em>by default</em> the <code>admin_users</code>, <code>master_api_key</code> and the <code>brand</code> variable it set to:</p>
 <pre><code>GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
 GALAXY_CONFIG_BRAND="Galaxy Docker Build"
