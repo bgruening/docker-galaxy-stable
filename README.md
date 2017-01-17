@@ -34,6 +34,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
   - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
   - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
+- [Enable Galaxy to fetch Docker containers registered with quay.io](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
 - [Lite Mode](#Lite-Mode)
 - [Extending the Docker Image](#Extending-the-Docker-Image)
@@ -201,7 +202,11 @@ docker run -p 8080:80 \
 
 ## Galaxy's config settings <a name="Galaxys-config-settings" /> [[toc]](#toc)
 
-Every Galaxy configuration setting can be overwritten by a given environment variable during startup. For example by default the `admin_users`, `master_api_key` and the `brand` variable it set to:
+Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
+`GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters* 
+For example, you can set the Galaxy session timeout to 5 mintues by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
+
+*by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
 
 ```
 GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
@@ -218,7 +223,6 @@ docker run -p 8080:80 \
     -e "GALAXY_CONFIG_BRAND='My own Galaxy flavour'" \
     bgruening/galaxy-stable
 ```
-
 Note that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.ini`:
 
 ```
@@ -387,6 +391,14 @@ a line such as this to each job destination:
 ```
 <env file="/path/to/shared/galaxy/venv" />
 ```
+# Enable Galaxy to fetch Docker containers registered with quay.io <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
+This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using [mulled](https://github.com/mulled). To test, install the [iuc bedtools](https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&changeset_revision=7b3aaff0d78c) from the toolshed. When you try to execute *ClusterBed* for example. You may get a missing dependancy error for *bedtools*. But bedtools has an associated docker image on [quay.io](https://quay.io/).  Now configure Galaxy as follows:
+- Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True` 
+- In `job_conf.xml` configure a Docker enabled destination and add the following parameter to it:
+```
+<param id="docker_volumes">$galaxy_root:ro,$galaxy_root/database/tmp:rw,$tool_directory:ro,$job_directory:ro,$working_directory:rw,$default_file_path:rw</param>
+```
+When you execute the tool again, Galaxy will pull the image from quay.io, run the container, and produce your output.
 
 # Magic Environment variables <a name="Magic-Environment-variables"/> [[toc]](#toc)
 
