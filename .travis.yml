@@ -89,6 +89,7 @@ script:
   - docker exec -i -t galaxy docker info
   # Selenium UI tests
   - docker exec -i -t galaxy docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.0.1-aluminum
+  - sleep 60s
   - docker exec -i -t galaxy bash -c 'GALAXY_TEST_SELENIUM_REMOTE=1 ./run_tests.sh -selenium test/selenium_tests/test_stock_tours.py:TestStockToursTestCase.test_core_galaxy_ui'
   - docker stop galaxy
   # Test the Conda installation
