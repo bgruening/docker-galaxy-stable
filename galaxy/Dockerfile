@@ -14,7 +14,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_17.01} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -229,7 +229,7 @@ EXPOSE :8800
 EXPOSE :9002
 
 # Mark folders as imported from the host.
-VOLUME ["/export/", "/data/", "/var/lib/docker"]
+#VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
 ADD install_db.sh /usr/bin/install_db.sh
 RUN chmod +x /usr/bin/install_db.sh
