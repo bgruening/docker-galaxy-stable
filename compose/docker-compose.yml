@@ -2,19 +2,21 @@ version: '2'
 services:
   # proftpd container
   proftpd:
-#    build: proftpd
+#    build: galaxy-proftpd
     image: quay.io/galaxy/proftpd:compose
     environment:
-        - proftpd_db_connection=galaxy@db
+        - proftpd_db_connection=galaxy@galaxy-postgres
         - proftpd_db_username=galaxy
         - proftpd_db_password=chaopagoosaequuashie
         - proftpd_files_dir=/export/ftp
         - proftpd_use_sftp=True
+        - proftpd_generate_ssh_key=False
         - proftpd_passive_port_low=30000
         - proftpd_passive_port_high=30010
     container_name: galaxy-proftpd
+    hostname: galaxy-proftpd
     volumes:
-        - ftp_data:/export/ftp
+        - ./galaxy-storage/ftp:/export/ftp
     expose:
         - 21
         - 22
@@ -22,10 +24,7 @@ services:
         - "8021:21"
         - "8022:22"
         - "30000-30010:30000-30010"
-    links:
-        - postgres:db
     restart: always
-    hostname: galaxy-proftpd
 
   postgres:
 # Using the official postgres image. This needs to be populated by calling
@@ -33,60 +32,94 @@ services:
 # on first run
 #    image: postgres
 # This comes with an initialization to quickly populate the database on first start
-#    build: postgres-galaxy
+#    build: galaxy-postgres
     image: quay.io/galaxy/postgres:compose
     container_name: galaxy-postgres
+    hostname: galaxy-postgres
     environment:
         - POSTGRES_PASSWORD=chaopagoosaequuashie
         - POSTGRES_USER=galaxy
         - POSTGRES_DB=galaxy
     volumes:
         - ./postgres-storage:/var/lib/postgresql/data
-    hostname: galaxy-postgres
 
   # slurm container
   slurm:
-#    build: slurm-galaxy
+#    build: galaxy-slurm
     image: quay.io/galaxy/slurm:compose
     environment: {}
     container_name: galaxy-slurm
+    hostname: galaxy-slurm
     volumes:
         - ./galaxy-storage/:/export
     restart: always
-    hostname: galaxy-slurm
 
-  # Main Galaxy container
-  galaxy:
-#    build: ../galaxy
-    image: quay.io/bgruening/galaxy:compose
+  # This container initializes the galaxy export.
+  galaxy-init:
+#    build: galaxy-init
+    image: quay.io/bgruening/galaxy-init:compose
+    container_name: galaxy-init
+    hostname: galaxy-init
+    volumes:
+        # This is the directory where all your files from Galaxy will be stored
+        # on your host system
+        - ./galaxy-storage/:/export/
+
+  # This container provides the galaxy uwsgi webhandlers, job handlers, nginx
+  galaxy-web:
+#    build: galaxy-web
+    image: quay.io/bgruening/galaxy-web:compose
     environment:
-        #    Insert here your environment variables to change Galaxy's behaviour.
-        #    For example to personalise Galaxy by changing the branding with
-        #    - GALAXY_CONFIG_BRAND=FOO
-        - NONUSE=proftp,postgres,slurmd,slurmctld
-        - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
+        # In case the galaxy-init container is not used, you need to include "sleeplock" to NONUSE
+        - NONUSE=proftpd,postgres,slurmd,slurmctld
+        - GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org
+        - GALAXY_DEFAULT_ADMIN_PASSWORD=admin
+        - GALAXY_DEFAULT_ADMIN_KEY=admin
+        - GALAXY_HANDLER_NUMPROCS=2
+        - UWSGI_PROCESSES=4
         - GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True
         - GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True
         - GALAXY_CONFIG_ENABLE_USER_DELETION=True
         - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
-        - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@db/galaxy?client_encoding=utf8
-        - GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org
-        - GALAXY_DEFAULT_ADMIN_PASSWORD=admin
-        - GALAXY_DEFAULT_ADMIN_KEY=admin
+        - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@galaxy-postgres/galaxy?client_encoding=utf8
+        # Configurate admin and master api key. Can be overridden in galaxy.ini
+        - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
+        - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
+    container_name: galaxy-web
+    hostname: galaxy
     ports:
         - "8080:80" # nginx
-        - "9002:9002" # supervisor web-interface - not super useful in compose mode
-    links:
-        - postgres:db
-        - slurm
-    container_name: galaxy
     volumes:
-        - ftp_data:/export/ftp
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
         - ./galaxy-storage/:/export/
-    hostname: galaxy
     privileged: True
 
-volumes:
-  ftp_data: {}
+  # Use the monolith galaxy container instead
+#  galaxy:
+##    build: ../galaxy
+#    image: quay.io/bgruening/galaxy:compose
+#    environment:
+#        #    Insert here your environment variables to change Galaxy's behaviour.
+#        #    For example to personalise Galaxy by changing the branding with
+#        #    - GALAXY_CONFIG_BRAND=FOO
+#        - NONUSE=proftp,postgres,slurmd,slurmctld
+#        - GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp
+#        - GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True
+#        - GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True
+#        - GALAXY_CONFIG_ENABLE_USER_DELETION=True
+#        - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
+#        - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@galaxy-postgres/galaxy?client_encoding=utf8
+#        - GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org
+#        - GALAXY_DEFAULT_ADMIN_PASSWORD=admin
+#        - GALAXY_DEFAULT_ADMIN_KEY=admin
+#    ports:
+#        - "8080:80" # nginx
+#        - "9002:9002" # supervisor web-interface - not super useful in compose mode
+#    container_name: galaxy
+#    volumes:
+#        # This is the directory where all your files from Galaxy will be stored
+#        # on your host system
+#        - ./galaxy-storage/:/export/
+#    hostname: galaxy
+#    privileged: True
