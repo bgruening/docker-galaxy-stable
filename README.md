@@ -508,7 +508,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [SNVPhyl](https://github.com/phac-nml/snvphyl-galaxy)
 - [GraphClust](https://github.com/BackofenLab/docker-galaxy-graphclust)
 - [RNA workbench](https://github.com/bgruening/galaxy-rna-workbench)
-
+- [Cancer Genomics Toolkit](https://github.com/morinlab/tools-morinlab/tree/master/docker)
 
 # Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
