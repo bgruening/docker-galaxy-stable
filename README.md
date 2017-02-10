@@ -34,6 +34,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
   - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
   - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
+- [Enable Galaxy to use BioContainers (Docker)](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
 - [Lite Mode](#Lite-Mode)
 - [Extending the Docker Image](#Extending-the-Docker-Image)
@@ -201,7 +202,11 @@ docker run -p 8080:80 \
 
 ## Galaxy's config settings <a name="Galaxys-config-settings" /> [[toc]](#toc)
 
-Every Galaxy configuration setting can be overwritten by a given environment variable during startup. For example by default the `admin_users`, `master_api_key` and the `brand` variable it set to:
+Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
+`GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters* 
+For example, you can set the Galaxy session timeout to 5 mintues by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
+
+*by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
 
 ```
 GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
@@ -218,7 +223,6 @@ docker run -p 8080:80 \
     -e "GALAXY_CONFIG_BRAND='My own Galaxy flavour'" \
     bgruening/galaxy-stable
 ```
-
 Note that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.ini`:
 
 ```
@@ -387,6 +391,21 @@ a line such as this to each job destination:
 ```
 <env file="/path/to/shared/galaxy/venv" />
 ```
+# Enable Galaxy to use BioContainers (Docker) <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
+This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using [mulled](https://github.com/mulled). To test, install the [IUC bedtools](https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&changeset_revision=7b3aaff0d78c) from the toolshed. When you try to execute *ClusterBed* for example. You may get a missing dependancy error for *bedtools*. But bedtools has an associated docker image on [quay.io](https://quay.io/).  Now configure Galaxy as follows:
+
+- Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True` 
+- In `job_conf.xml` configure a Docker enabled destination as follows:
+
+```xml
+<destination id="docker_local" runner="local">
+    <param id="docker_enabled">true</param>
+    <param id="docker_volumes">$galaxy_root:ro,$galaxy_root/database/tmp:rw,$tool_directory:ro,$job_directory:ro,$working_directory:rw,$default_file_path:rw</param>
+    <paraam id="docker_sudo">false</param>
+</destination>
+```
+
+When you execute the tool again, Galaxy will pull the image from Biocontainers ([quay.io/biocontainers](https://quay.io/organization/biocontainers)), run the tool inside of this container to produce the desired output.
 
 # Magic Environment variables <a name="Magic-Environment-variables"/> [[toc]](#toc)
 
@@ -486,6 +505,10 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [OpenMoleculeGenerator](https://github.com/bgruening/galaxy-open-molecule-generator)
 - [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
 - [HiC-Explorer](https://github.com/maxplanck-ie/docker-galaxy-hicexplorer)
+- [SNVPhyl](https://github.com/phac-nml/snvphyl-galaxy)
+- [GraphClust](https://github.com/BackofenLab/docker-galaxy-graphclust)
+- [RNA workbench](https://github.com/bgruening/galaxy-rna-workbench)
+- [Cancer Genomics Toolkit](https://github.com/morinlab/tools-morinlab/tree/master/docker)
 
 # Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
@@ -534,6 +557,13 @@ Updating already existing submodules is possible with:
 git submodule update --init --recursive
 ```
 
+If you simply want to change the Galaxy repository and/or the Galaxy branch, from which the container is build you can do this with Docker `--build-arg` during the `docker build` step. For example you can use these parameters during container build:
+
+```
+ --build-arg GALAXY_RELEASE=install_workflow_and_tools
+ --build-arg GALAXY_REPO=https://github.com/manabuishii/galaxy
+```
+
 # Requirements <a name="Requirements" /> [[toc]](#toc)
 
 - [Docker](https://www.docker.io/gettingstarted/#h_installation)
@@ -577,7 +607,7 @@ git submodule update --init --recursive
   - documentation and tests updates for SLURM integration by @mvdbeek
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
- - 16.10:
+- 16.10:
   - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)

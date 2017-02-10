@@ -23,10 +23,12 @@ A brief note is in order regarding the version of Slurm installed. This Docker i
 
 The following is an example for how to specify a destination in `job_conf.xml` that uses a custom partition ("work", rather than "debug") and 4 cores rather than 1:
 
-    <destination id="slurm4threads" runner="slurm">
+```xml
+    <destination id="slurm4threads" runner="slurm">
         <param id="embed_metadata_in_job">False</param>
         <param id="nativeSpecification">-p work -n 4</param>
-    </destination>
+    </destination>
+```
 
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
@@ -45,7 +47,9 @@ The ``embed_metadata_in_job`` option on job destinations in `job_conf.xml`
 forces Galaxy collect metadata inside the container instead of on the
 cluster:
 
-    <param id="embed_metadata_in_job">False</param>
+```xml
+    <param id="embed_metadata_in_job">False</param>
+```
 
 This has performance implications and may not scale as well as performing
 these calculations on the remote cluster - but this should not be a problem
@@ -59,7 +63,9 @@ can then source these virtual environments using the instructions outlined
 [here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#galaxy-job-handlers). In other words, by adding
 a line such as this to each job destination:
 
+```xml
     <env file="/path/to/shared/galaxy/venv" />
+```
 
 A Hands-on example of running SLURM on an external cluster container
 --------------------------------------------------------------------

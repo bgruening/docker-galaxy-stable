@@ -22,6 +22,7 @@
   <ul>
     <li><a href="index.html">Global description</a>  </li>
     <li><a href="usage.html">Usage </a>  </li>
+    <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
@@ -106,7 +107,7 @@
 <p>Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like <a href="http://jupyter.org/">Jupyter</a>, in a secure and reproducible way.</p>
 <p>For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.</p>
 <div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
- --privileged=<span class="pl-c1">true</span> \
+ --privileged=true \
  -v /home/user/galaxy_storage/:/export/ \
  bgruening/galaxy-stable</pre></div>
 <p>The port 8800 is the proxy port that is used to handle Interactive Environments. <code>--privileged</code> is needed to start docker containers inside docker. If your IE does not open, please make sure you open your Galaxy instance with your hostname or a <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDN</a>, but not with localhost or 127.0.0.1.</p>
@@ -126,7 +127,7 @@
 <h2>Using Parent docker <a name="user-content-Using-Parent-docker"> </a></h2>
 <p>On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable <code>DOCKER_PARENT</code></p>
 <div class="highlight highlight-source-shell"><pre>docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
- --privileged=<span class="pl-c1">true</span> -e DOCKER_PARENT=True \
+ --privileged=true -e DOCKER_PARENT=True \
  -v /var/run/docker.sock:/var/run/docker.sock \
  -v /home/user/galaxy_storage/:/export/ \
  bgruening/galaxy-stable</pre></div>
@@ -137,7 +138,10 @@
  -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=reports<span class="pl-pds">"</span></span> \
  bgruening/galaxy-stable</pre></div>
 <h2>Galaxy's config settings <a name="user-content-Galaxys-config-settings"> </a></h2>
-<p>Every Galaxy configuration setting can be overwritten by a given environment variable during startup. For example by default the <code>admin_users</code>, <code>master_api_key</code> and the <code>brand</code> variable it set to:</p>
+<p>Every Galaxy configuration parameter in <code>config/galaxy.ini</code> can be overwritten by passing an environment variable to the <code>docker run</code> command during startup. The name of the environment variable has to be:<br>
+<code>GALAXY_CONFIG</code>+ <em>the_original_parameter_name_in_capital_letters</em><br>
+For example, you can set the Galaxy session timeout to 5 mintues by adding <code>-e "GALAXY_CONFIG_SESSION_DURATION=5"</code> to the <code>docker run command</code></p>
+<p><em>by default</em> the <code>admin_users</code>, <code>master_api_key</code> and the <code>brand</code> variable it set to:</p>
 <pre><code>GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
 GALAXY_CONFIG_BRAND="Galaxy Docker Build"
@@ -155,7 +159,7 @@ file_path = /export/galaxy-central/database/files
 <h2>Personalize your Galaxy <a name="user-content-Personalize-your-Galaxy"> </a></h2>
 <p>The Galaxy welcome screen can be changed by providing a <code>welcome.html</code> page in <code>/home/user/galaxy_storage/</code>. All files starting with <code>welcome</code> will be copied during starup and served as indroduction page. If you want to include images or other media, name them <code>welcome_*</code> and link them relative to your <code>welcome.html</code> (example).</p>
 <h2>Deactivating services <a name="user-content-Deactivating-services"> </a></h2>
-<p>Non-essential services can be deactivated during startup. Set the environment variable <code>NONUSE</code> to a comma separated list of services. Currently, <code>nodejs</code>, <code>proftp</code>, <code>reports</code>, <code>slurmd</code> and <code>slurmctld</code> are supported.</p>
+<p>Non-essential services can be deactivated during startup. Set the environment variable <code>NONUSE</code> to a comma separated list of services. Currently, <code>nodejs</code>, <code>postgres</code>, <code>proftp</code>, <code>reports</code>, <code>slurmd</code> and <code>slurmctld</code> are supported.</p>
 <div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 9002:9002 \
  -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=nodejs,proftp,reports,slurmd,slurmctld<span class="pl-pds">"</span></span> \
  bgruening/galaxy-stable</pre></div>
@@ -179,7 +183,7 @@ file_path = /export/galaxy-central/database/files
 <p>Once connected to the container, log files are available in <code>/home/galaxy/logs</code>.</p>
 <p>A volume can also be used to map this directory to one external to the container - for instance if logs need to be persisted for auditing reasons (security, debugging, performance testing, etc...).:</p>
 <div class="highlight highlight-source-shell"><pre>mkdir gx_logs
-docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_LOGGING=full<span class="pl-pds">"</span></span> -v <span class="pl-s"><span class="pl-pds">`</span><span class="pl-c1">pwd</span><span class="pl-pds">`</span></span>/gx_logs:/home/galaxy/logs bgruening/galaxy-stable</pre></div>
+docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_LOGGING=full<span class="pl-pds">"</span></span> -v <span class="pl-s"><span class="pl-pds">`</span>pwd<span class="pl-pds">`</span></span>/gx_logs:/home/galaxy/logs bgruening/galaxy-stable</pre></div>
 <h2>Using an external Slurm cluster <a name="user-content-Using-an-external-Slurm-cluster"> </a></h2>
 <p>It is often convenient to configure Galaxy to use a high-performance cluster for running jobs. To do so, two files are required:</p>
 <ol>

@@ -44,10 +44,18 @@
     </header>
 
     <section>
-    <h1>Requirements </h1>
+    <h1>Enable Galaxy to use BioContainers (Docker) </h1>
+<p>This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using <a href="https://github.com/mulled">mulled</a>. To test, install the <a href="https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&amp;changeset_revision=7b3aaff0d78c">IUC bedtools</a> from the toolshed. When you try to execute <em>ClusterBed</em> for example. You may get a missing dependancy error for <em>bedtools</em>. But bedtools has an associated docker image on <a href="https://quay.io/">quay.io</a>. Now configure Galaxy as follows:</p>
 <ul>
-<li><a href="https://www.docker.io/gettingstarted/#h_installation">Docker</a></li>
+<li>Add this environment variable to <code>docker run</code>: <code>-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True</code></li>
+<li>In <code>job_conf.xml</code> configure a Docker enabled destination as follows:</li>
 </ul>
+<div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">destination</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_local<span class="pl-pds">"</span></span> <span class="pl-e">runner</span>=<span class="pl-s"><span class="pl-pds">"</span>local<span class="pl-pds">"</span></span>&gt;
+ &lt;<span class="pl-ent">param</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_enabled<span class="pl-pds">"</span></span>&gt;true&lt;/<span class="pl-ent">param</span>&gt;
+ &lt;<span class="pl-ent">param</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_volumes<span class="pl-pds">"</span></span>&gt;$galaxy_root:ro,$galaxy_root/database/tmp:rw,$tool_directory:ro,$job_directory:ro,$working_directory:rw,$default_file_path:rw&lt;/<span class="pl-ent">param</span>&gt;
+ &lt;<span class="pl-ent">paraam</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_sudo<span class="pl-pds">"</span></span>&gt;false&lt;/<span class="pl-ent">param</span>&gt;
+&lt;/<span class="pl-ent">destination</span>&gt;</pre></div>
+<p>When you execute the tool again, Galaxy will pull the image from Biocontainers (<a href="https://quay.io/organization/biocontainers">quay.io/biocontainers</a>), run the tool inside of this container to produce the desired output.</p>
 
 
     </section>

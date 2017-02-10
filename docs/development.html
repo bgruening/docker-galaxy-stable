@@ -22,6 +22,7 @@
   <ul>
     <li><a href="index.html">Global description</a>  </li>
     <li><a href="usage.html">Usage </a>  </li>
+    <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
@@ -49,6 +50,10 @@
 <div class="highlight highlight-source-shell"><pre>git clone --recursive https://github.com/bgruening/docker-galaxy-stable.git</pre></div>
 <p>Updating already existing submodules is possible with:</p>
 <div class="highlight highlight-source-shell"><pre>git submodule update --init --recursive</pre></div>
+<p>If you simply want to change the Galaxy repository and/or the Galaxy branch, from which the container is build you can do this with Docker <code>--build-arg</code> during the <code>docker build</code> step. For example you can use these parameters during container build:</p>
+<pre><code> --build-arg GALAXY_RELEASE=install_workflow_and_tools
+ --build-arg GALAXY_REPO=https://github.com/manabuishii/galaxy
+</code></pre>
 
 
     </section>
