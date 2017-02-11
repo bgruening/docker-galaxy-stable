@@ -172,6 +172,7 @@ GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
+    python $GALAXY_ROOT/scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_DIR/galaxy.ini" init_if_needed && \
     npm install
 
 # Container Style
