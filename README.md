@@ -401,7 +401,7 @@ This is a very cool feature where Galaxy automatically detects that your tool ha
 <destination id="docker_local" runner="local">
     <param id="docker_enabled">true</param>
     <param id="docker_volumes">$galaxy_root:ro,$galaxy_root/database/tmp:rw,$tool_directory:ro,$job_directory:ro,$working_directory:rw,$default_file_path:rw</param>
-    <paraam id="docker_sudo">false</param>
+    <param id="docker_sudo">false</param>
 </destination>
 ```
 
