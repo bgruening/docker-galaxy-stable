@@ -53,7 +53,7 @@
 <div class="highlight highlight-text-xml"><pre>&lt;<span class="pl-ent">destination</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_local<span class="pl-pds">"</span></span> <span class="pl-e">runner</span>=<span class="pl-s"><span class="pl-pds">"</span>local<span class="pl-pds">"</span></span>&gt;
  &lt;<span class="pl-ent">param</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_enabled<span class="pl-pds">"</span></span>&gt;true&lt;/<span class="pl-ent">param</span>&gt;
  &lt;<span class="pl-ent">param</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_volumes<span class="pl-pds">"</span></span>&gt;$galaxy_root:ro,$galaxy_root/database/tmp:rw,$tool_directory:ro,$job_directory:ro,$working_directory:rw,$default_file_path:rw&lt;/<span class="pl-ent">param</span>&gt;
- &lt;<span class="pl-ent">paraam</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_sudo<span class="pl-pds">"</span></span>&gt;false&lt;/<span class="pl-ent">param</span>&gt;
+ &lt;<span class="pl-ent">param</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>docker_sudo<span class="pl-pds">"</span></span>&gt;false&lt;/<span class="pl-ent">param</span>&gt;
 &lt;/<span class="pl-ent">destination</span>&gt;</pre></div>
 <p>When you execute the tool again, Galaxy will pull the image from Biocontainers (<a href="https://quay.io/organization/biocontainers">quay.io/biocontainers</a>), run the tool inside of this container to produce the desired output.</p>
 
