@@ -503,7 +503,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [Galaxy with the Language Application Grid tools](https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid)
 - [RNAcommender](https://github.com/gianlucacorrado/galaxy-RNAcommender)
 - [OpenMoleculeGenerator](https://github.com/bgruening/galaxy-open-molecule-generator)
-- [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
+- [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-docker)
 - [HiC-Explorer](https://github.com/maxplanck-ie/docker-galaxy-hicexplorer)
 - [SNVPhyl](https://github.com/phac-nml/snvphyl-galaxy)
 - [GraphClust](https://github.com/BackofenLab/docker-galaxy-graphclust)
