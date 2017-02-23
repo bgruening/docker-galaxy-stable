@@ -611,7 +611,7 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
   - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
 - 17.01:
   - enable Conda dependency resultion by deault
-  - enable rabbitmq support
+  - [new Galaxy version](https://docs.galaxyproject.org/en/master/releases/17.01_announce.html)
   - more compose work (slurm, postgresql)
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
