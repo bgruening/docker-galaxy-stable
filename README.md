@@ -256,7 +256,7 @@ If you want to restart Galaxy without restarting the entire Galaxy container you
 docker exec <container name> supervisorctl restart galaxy:
 ```
 
-In addition you start/stop every supersisord process using a webinterface on port `9002`. Start your container with:
+In addition you start/stop every supervisord process using a webinterface on port `9002`. Start your container with:
 
 ```sh
 docker run -p 9002:9002 bgruening/galaxy-stable
@@ -321,7 +321,7 @@ You would then need the following symbolic links on each of the nodes:
 1. `/export`  → `/data/galaxy`
 2. `/galaxy-central`  → `/data/galaxy/galaxy-central`
 
-A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Unbuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
+A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Ubuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
 
 The following is an example for how to specify a destination in `job_conf.xml` that uses a custom partition ("work", rather than "debug") and 4 cores rather than 1:
 
@@ -366,7 +366,7 @@ If Grid Engine accepts job submission from the Docker host, the easiest way to f
 In its default state Galaxy assumes both the Galaxy source code and
 various temporary files are available on shared file systems across the
 cluster. When using Condor or SLURM (as described above) to run jobs outside
-of the Docker container one can take steps to mitegate these assumptions.
+of the Docker container one can take steps to mitigate these assumptions.
 
 The `embed_metadata_in_job` option on job destinations in `job_conf.xml`
 forces Galaxy collect metadata inside the container instead of on the
@@ -381,7 +381,7 @@ these calculations on the remote cluster - but this should not be a problem
 for most Galaxy instances.
 
 Additionally, many framework tools depend on Galaxy's Python virtual
-environment being avaiable. This should be created outside of the container
+environment being available. This should be created outside of the container
 on a shared filesystem available to your cluster using the instructions
 [here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#managing-dependencies-manually). Job destinations
 can then source these virtual environments using the instructions outlined
@@ -609,6 +609,10 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
   - SFTP support by @zfrenchee
 - 16.10:
   - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
+- 17.01:
+  - enable Conda dependency resultion by deault
+  - [new Galaxy version](https://docs.galaxyproject.org/en/master/releases/17.01_announce.html)
+  - more compose work (slurm, postgresql)
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 

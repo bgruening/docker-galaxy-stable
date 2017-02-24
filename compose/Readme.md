@@ -11,6 +11,8 @@ Galaxy Docker Compose
     - [Configuration](#postgres-Configuration)
   - [proftpd](#proftpd)
     - [Configuration](#proftpd-Configuration)
+  - [slurm](#slurm)
+    - [Configuration](#slurm-Configuration)
 
 # Usage <a name="Usage" /> [[toc]](#toc)
 
@@ -58,6 +60,12 @@ docker-compose run galaxy install_db.sh
 ```
 which will perform database migration.
 
+### Updating
+To update the database to a new migration level, run 
+```sh
+docker-compose run galaxy install_db.sh
+```
+
 ### Configuration <a name="postgres-Configuration" /> [[toc]](#toc)
 See [official postgres container](https://hub.docker.com/_/postgres/).
 
@@ -78,3 +86,11 @@ Proftpd uses the [ansible galaxy extras project](https://github.com/galaxyprojec
 - *proftpd\_nat\_masquerade*=_false_: Set masquearade to true if host is NAT'ed.
 - *proftpd\_masquerade\_address*=_ip_: Refers to the ip that clients use to establish an ftp connection. Can be a command that returns an IP or an IP address and applies only if proftpd\_nat\_masquerade is true. `\`ec2metadata --public-ipv4\`` returns the public ip for amazon's ec2 service.
 
+## slurm <a name="slurm" /> [[toc]](#toc)
+
+The slurm container is an example of how to use an external slurm cluster. The container is set up with a pre-installed virtual python environment ready for galaxy. The default galaxy job_conf.xml is compatible with this container, but will require change for your own external cluster or a more advanced setup.
+
+As of now the container contains one runner, but in future the runners might be split off.
+
+### Configuration <a name="slurm-Configuration" /> [[toc]](#toc)
+See [Running jobs outside of the container](https://github.com/bgruening/docker-galaxy-stable/blob/master/docs/Running_jobs_outside_of_the_container.md) and [Using an external Slurm cluster](https://github.com/bgruening/docker-galaxy-stable#using-an-external-slurm-cluster--toc).

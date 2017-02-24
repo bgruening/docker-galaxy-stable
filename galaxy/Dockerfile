@@ -14,7 +14,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_16.10} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_17.01} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy
@@ -73,7 +73,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
     nano nmap lynx vim curl python-crypto python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
-    gridengine-common gridengine-drmaa1.0 && \
+    gridengine-common gridengine-drmaa1.0 rabbitmq-server && \
     pip install --upgrade pip && \
     pip install ephemeris && \
     apt-get purge -y software-properties-common && \
@@ -115,6 +115,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars supervisor_manage_slurm="" \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
+    --extra-vars galaxy_extras_config_rabbitmq=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=/export/ftp \
     --extra-vars proftpd_use_sftp=True \
@@ -171,11 +172,9 @@ GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
-    npm install && \
-    wget https://repo.continuum.io/miniconda/Miniconda3-4.0.5-Linux-x86_64.sh && \
-    bash Miniconda3-4.0.5-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
-    rm Miniconda3-4.0.5-Linux-x86_64.sh && \
-    $GALAXY_CONDA_PREFIX/bin/conda install -y conda==3.19.3
+    . "$GALAXY_VIRTUAL_ENV/bin/activate" && \
+    python $GALAXY_ROOT/scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_DIR/galaxy.ini" init_if_needed && \
+    npm install
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
@@ -228,7 +227,7 @@ EXPOSE :8800
 EXPOSE :9002
 
 # Mark folders as imported from the host.
-VOLUME ["/export/", "/data/", "/var/lib/docker"]
+#VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
 ADD install_db.sh /usr/bin/install_db.sh
 RUN chmod +x /usr/bin/install_db.sh
