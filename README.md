@@ -120,17 +120,85 @@ This also allows for data separation, but keeps everything encapsulated within t
 
 ## Upgrading images <a name="Upgrading-images" /> [[toc]](#toc)
 
-We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you:
+We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you. Please, take in account that that upgrading may vary depending on your Galaxy installation, and the changes in new versions. Use this example carefully!
 
 * Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.
 * New unmodified configuration files are always stored in a hidden directory called `.distribution_config`. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.
-* Start your container in interactive mode with an attached terminal and upgrade your database.
-    1. `docker run -i -t bgruening/galaxy-stable /bin/bash`
-    2. `startup` to startup all processes
-    3. `Ctrl+C` to abort the log messages
-    4. `sh manage_db.sh upgrade` will upgrade your database to the most recent version
-    5. logout from the container
-    6. start your container as usual: `docker run -i -t bgruening/galaxy-stable`
+* Note that copying database and datasets can be expensive if you have many GB of data.
+
+1. Download newer version of the Galaxy image
+
+  ```
+  $ sudo docker pull bgruening/galaxy-stable
+  ```
+2. Stop and rename the current galaxy container
+  
+  ```
+  $ sudo docker stop galaxy-instance
+  $ sudo docker rename galaxy-instance galaxy-instance-old
+  ```
+3. Rename the data directory (the one that is mounted to /export in the docker)
+
+  ```
+  $ sudo mv /data/galaxy-data /data/galaxy-data-old
+  ```
+4. Run a new Galaxy container using newer image and wait while Galaxy generates the default content for /export
+
+  ```
+  $ sudo run -p 8080:80 -v /data/galaxy-data:/export --name galaxy-instance bgruening/galaxy-stable
+  ```
+5. Stop the Galaxy container
+
+  ```
+  $ sudo docker stop galaxy-instance
+  ```
+6. Replace the content of the postgres database by the old db data
+
+  ```
+  $ sudo rm -r /data/galaxy-data/postgresql/
+  $ sudo rsync -var /data/galaxy-data-old/postgresql/  /data/galaxy-data/postgresql/
+  ```
+7. Use diff to find changes in the config files (only if you changed any config file). 
+
+  ```
+  $ cd /data/galaxy-data/.distribution_config
+  $ for f in *; do echo $f; diff $f ../../galaxy-data-old/galaxy-central/config/$f; read; done
+  ```
+8. Copy all the users' datasets to the new instance
+
+  ```
+  $ sudo rsync -var /data/galaxy-data-old/galaxy-central/database/files/* /data/galaxy-data/galaxy-central/da
+  tabase/files/
+  ```
+9. Copy all the installed tools 
+
+  ```
+  $ sudo rsync -var /data/galaxy-data-old/tool_deps/* /data/galaxy-data/tool_deps/
+  $ sudo rsync -var /data/galaxy-data-old/shed_tools/* /data/galaxy-data/shed_tools/
+  ```
+10. Copy the welcome page and all its files.
+
+  ```
+  $ sudo rsync -var /data/galaxy-data-old/welcome* /data/galaxy-data/
+  ```
+11. Create a auxiliar docker in interactive mode and upgrade the database.
+
+  ```
+  $ sudo docker run -it --rm -v /data/galaxy-data:/export bgruening/galaxy-stable /bin/bash
+  # Startup all processes
+  > startup &
+  #Upgrade the database to the most recent version
+  > sh manage_db.sh upgrade
+  #Logout
+  > exit
+  ``` 
+12. Start the docker and test
+
+  ``` 
+  $ sudo docker start galaxy-instance
+  ``` 
+13. Clean the old container and image
+    
 
 ## Enabling Interactive Environments in Galaxy <a name="Enabling-Interactive-Environments-in-Galaxy" /> [[toc]](#toc)
 
