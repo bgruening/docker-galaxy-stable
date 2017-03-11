@@ -232,7 +232,7 @@ file_path = /export/galaxy-central/database/files
 
 ## Personalize your Galaxy <a name="Personalize-your-Galaxy" /> [[toc]](#toc)
 
-The Galaxy welcome screen can be changed by providing a `welcome.html` page in `/home/user/galaxy_storage/`. All files starting with `welcome` will be copied during starup and served as indroduction page. If you want to include images or other media, name them `welcome_*` and link them relative to your `welcome.html` ([example](`https://github.com/bgruening/docker-galaxy-stable/blob/master/galaxy/welcome.html`)).
+The Galaxy welcome screen can be changed by providing a `welcome.html` page in `/home/user/galaxy_storage/`. All files starting with `welcome` will be copied during startup and served as introduction page. If you want to include images or other media, name them `welcome_*` and link them relative to your `welcome.html` ([example](`https://github.com/bgruening/docker-galaxy-stable/blob/master/galaxy/welcome.html`)).
 
 
 ## Deactivating services <a name="Deactivating-services" /> [[toc]](#toc)
