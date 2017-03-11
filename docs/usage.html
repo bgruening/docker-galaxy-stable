@@ -157,7 +157,7 @@ GALAXY_CONFIG_BRAND="Galaxy Docker Build"
 file_path = /export/galaxy-central/database/files
 </code></pre>
 <h2>Personalize your Galaxy <a name="user-content-Personalize-your-Galaxy"> </a></h2>
-<p>The Galaxy welcome screen can be changed by providing a <code>welcome.html</code> page in <code>/home/user/galaxy_storage/</code>. All files starting with <code>welcome</code> will be copied during starup and served as indroduction page. If you want to include images or other media, name them <code>welcome_*</code> and link them relative to your <code>welcome.html</code> (example).</p>
+<p>The Galaxy welcome screen can be changed by providing a <code>welcome.html</code> page in <code>/home/user/galaxy_storage/</code>. All files starting with <code>welcome</code> will be copied during startup and served as introduction page. If you want to include images or other media, name them <code>welcome_*</code> and link them relative to your <code>welcome.html</code> (example).</p>
 <h2>Deactivating services <a name="user-content-Deactivating-services"> </a></h2>
 <p>Non-essential services can be deactivated during startup. Set the environment variable <code>NONUSE</code> to a comma separated list of services. Currently, <code>nodejs</code>, <code>postgres</code>, <code>proftp</code>, <code>reports</code>, <code>slurmd</code> and <code>slurmctld</code> are supported.</p>
 <div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 9002:9002 \
