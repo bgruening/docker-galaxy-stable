@@ -13,7 +13,7 @@ playbookvars=('proftpd_db_connection' \
 'proftpd_masquerade_address')
 
 # Generate override argument for ansible playbook
-playbookargs=""
+playbookargs="--extra-vars proftpd_generate_ssh_key=\"false\""
 for var in "${playbookvars[@]}"
 do
   if ! [ -z ${!var+x} ]
@@ -22,6 +22,7 @@ do
     echo "Overriding $var=${!var}"
   fi
 done
+
 
 # Run playbook to generate config, etc.
 ansible-playbook /ansible/provision.yml \

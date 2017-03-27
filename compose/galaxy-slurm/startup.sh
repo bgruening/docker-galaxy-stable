@@ -19,6 +19,7 @@ if [ ! -f "$SLURM_CONF_PATH" ]
     python /usr/local/bin/configure_slurm.py
     cp /etc/slurm-llnl/slurm.conf "$SLURM_CONF_PATH"
 fi
+mkdir -p /tmp/slurm
 chown $SLURM_USER_NAME /tmp/slurm
 ln -sf "$GALAXY_DIR" "$SYMLINK_TARGET"
 ln -sf "$SLURM_CONF_PATH" /etc/slurm-llnl/slurm.conf

@@ -13,10 +13,10 @@ docker logs -f dumpsql_postgres &
 until docker run --rm --link dumpsql_postgres:pg $POSTGRES pg_isready -U postgres -h pg >/dev/null; do sleep 1; done
 pg_end=`date +%s`
 init_start=`date +%s`
-docker run -i --rm --name "dumpsql_galaxy_installdb" -e "GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@db/$POSTGRES_DB?client_encoding=utf8" --link "dumpsql_postgres:db" quay.io/bgruening/galaxy:compose install_db.sh
+docker run -i --rm --name "dumpsql_galaxy_installdb" -e "GALAXY_CONFIG_FILE=/galaxy-export/config/galaxy.ini.sample" -e "GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@db/$POSTGRES_DB?client_encoding=utf8" --link "dumpsql_postgres:db" quay.io/bgruening/galaxy-init:compose install_db.sh
 init_end=`date +%s`
 dump_start=`date +%s`
-docker exec "dumpsql_postgres" pg_dump --no-tablespace --no-acl --no-owner -U postgres galaxy > postgres-galaxy/init-galaxy-db.sql.in
+docker exec "dumpsql_postgres" pg_dump --no-tablespace --no-acl --no-owner -U postgres galaxy > galaxy-postgres/init-galaxy-db.sql.in
 dump_end=`date +%s`
 docker rm -f dumpsql_postgres
 echo "Stats:"
