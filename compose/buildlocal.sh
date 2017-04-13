@@ -1,8 +1,10 @@
 #!/bin/bash
 set -x
 
-ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ANSIBLE_RELEASE=53880c97d9650e0006216a100090ef916af2690d
+#ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
+#ANSIBLE_RELEASE=53880c97d9650e0006216a100090ef916af2690d
+ANSIBLE_REPO=voegtlel/ansible-galaxy-extras
+ANSIBLE_RELEASE=13f78462a0d37a90de4eb63f6e30620569d6fab1
 
 GALAXY_RELEASE=release_17.01
 GALAXY_REPO=galaxyproject/galaxy
@@ -21,5 +23,9 @@ docker build -t quay.io/galaxy/postgres ./galaxy-postgres
 docker tag quay.io/galaxy/postgres quay.io/galaxy/postgres:compose
 docker build -t quay.io/galaxy/slurm ./galaxy-slurm
 docker tag quay.io/galaxy/slurm quay.io/galaxy/slurm:compose
+docker build -t quay.io/bgruening/galaxy-htcondor ./galaxy-htcondor
+docker tag quay.io/bgruening/galaxy-htcondor quay.io/bgruening/galaxy-htcondor:compose
+docker build -t quay.io/bgruening/galaxy-htcondor-executor ./galaxy-htcondor-executor
+docker tag quay.io/bgruening/galaxy-htcondor-executor quay.io/bgruening/galaxy-htcondor-executor:compose
 
 docker tag quay.io/bgruening/galaxy-web quay.io/bgruening/galaxy

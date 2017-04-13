@@ -65,6 +65,23 @@ services:
         # on your host system
         - ./galaxy-storage/:/export/
 
+  galaxy-htcondor:
+    image: quay.io/bgruening/galaxy-htcondor:compose
+    container_name: galaxy-htcondor
+    hostname: galaxy-htcondor
+    volumes:
+        - ./galaxy-storage/:/export/
+
+  galaxy-htcondor-executor:
+    image: quay.io/bgruening/galaxy-htcondor-executor:compose
+    container_name: galaxy-htcondor-executor
+    hostname: galaxy-htcondor-executor
+    environment:
+        - CONDOR_HOST=galaxy-htcondor
+    volumes:
+        - ./galaxy-storage/:/export/
+        - /var/run/docker.sock:/var/run/docker.sock
+
   # Messagequeue for better performance
   rabbitmq:
     image: rabbitmq:alpine
@@ -98,6 +115,11 @@ services:
         - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
         - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
         - GALAXY_CONFIG_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy 
+        # Condor
+        - GALAXY_DESTINATIONS_DEFAULT=condor_cluster
+        - ENABLE_CONDOR=true
+        - CONDOR_HOST=galaxy-htcondor
+        - GALAXY_CONDOR_UNIVERSE=vanilla
     container_name: galaxy-web
     hostname: galaxy
     ports:
