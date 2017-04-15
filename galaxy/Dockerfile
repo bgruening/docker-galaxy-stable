@@ -183,7 +183,8 @@ RUN ./scripts/common_startup.sh && \
     wget https://repo.continuum.io/miniconda/Miniconda3-4.0.5-Linux-x86_64.sh && \
     bash Miniconda3-4.0.5-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
     rm Miniconda3-4.0.5-Linux-x86_64.sh && \
-    $GALAXY_CONDA_PREFIX/bin/conda install -y conda==3.19.3
+    $GALAXY_CONDA_PREFIX/bin/conda install -y conda==3.19.3 && \
+    rm -rf $GALAXY_HOME/.cache/ $GALAXY_HOME/.npm/
 
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
