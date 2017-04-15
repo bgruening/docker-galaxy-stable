@@ -17,6 +17,7 @@ git:
   submodules: false
 
 before_install:
+  - set -e
   - export GALAXY_HOME=/home/galaxy
   - export GALAXY_USER=admin@galaxy.org
   - export GALAXY_USER_EMAIL=admin@galaxy.org
@@ -98,6 +99,7 @@ before_install:
   - docker ps
 
 script:
+  - set -e
   # Test submitting jobs to an external slurm cluster
   - |
       if ! [ "${COMPOSE}" ]
