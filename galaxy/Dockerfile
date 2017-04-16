@@ -17,7 +17,8 @@ ARG GALAXY_REPO
 ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
-GALAXY_CONFIG_DIR=/etc/galaxy
+GALAXY_CONFIG_DIR=/etc/galaxy \
+DEBIAN_FRONTEND=noninteractive
 
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
@@ -69,10 +70,10 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y mercurial python-psycopg2 postgresql-9.3 sudo samtools python-virtualenv \
-    nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 uwsgi uwsgi-plugin-python supervisor lxc-docker-1.9.1 slurm-llnl slurm-llnl-torque libswitch-perl \
+    apt-get install --no-install-recommends -y postgresql-9.3 sudo python-virtualenv \
+    nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor docker-ce slurm-llnl slurm-llnl-torque \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
-    nano nmap lynx vim curl python-crypto python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
+    nano vim curl python-crypto python-pip python-psutil condor python-ldap \
     gridengine-common gridengine-drmaa1.0 rabbitmq-server && \
     pip install --upgrade pip && \
     pip install ephemeris && \
@@ -94,7 +95,9 @@ RUN mkdir $GALAXY_ROOT && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT && \
     # Setup Galaxy configuration files.
     mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && \
-    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR && \
+    $GALAXY_VIRTUAL_ENV/bin/pip2 install pip --upgrade && \
+    $GALAXY_VIRTUAL_ENV/bin/pip2 install --extra-index-url https://wheels.galaxyproject.org/ uwsgi -v --pre
 
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.ini.sample $GALAXY_CONFIG_FILE"
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
@@ -103,6 +106,7 @@ ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
 ADD roles/ /ansible/roles
 ADD provision.yml /ansible/provision.yml
 ADD postgresql_provision.yml /ansible/postgresql_provision.yml
+
 RUN ansible-playbook /ansible/postgresql_provision.yml && \
     ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
