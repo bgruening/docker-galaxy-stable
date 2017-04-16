@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM toolshed/requirements
+FROM ubuntu:14.04
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
