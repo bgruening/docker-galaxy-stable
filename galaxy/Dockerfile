@@ -63,16 +63,10 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
 
 RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common wget && \
     apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
-<<<<<<< HEAD
-    sh -c "echo deb http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib > /etc/apt/sources.list.d/htcondor.list" && \
-    sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \
-    sh -c "wget -qO - https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -" && \
-=======
     sh -c "wget -qO - https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -" && \
     sh -c "echo deb http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib > /etc/apt/sources.list.d/htcondor.list" && \
     sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
->>>>>>> dev
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     sh -c "wget -qO - https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -" && \
@@ -93,7 +87,6 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
     gpasswd -a $GALAXY_USER docker && \
     adduser condor docker
-
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Download latest stable release of Galaxy.
