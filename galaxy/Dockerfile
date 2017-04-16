@@ -175,17 +175,6 @@ GALAXY_CONFIG_OVERRIDE_DEBUG=False \
 HOME=$GALAXY_HOME \
 GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
-# prefetch Python wheels
-RUN ./scripts/common_startup.sh && \
-    # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
-    npm install && \
-    wget https://repo.continuum.io/miniconda/Miniconda3-4.0.5-Linux-x86_64.sh && \
-    bash Miniconda3-4.0.5-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
-    rm Miniconda3-4.0.5-Linux-x86_64.sh && \
-    $GALAXY_CONDA_PREFIX/bin/conda install -y conda==3.19.3 && \
-    rm -rf $GALAXY_HOME/.cache/ $GALAXY_HOME/.npm/
-
 # Container Style
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
 ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
@@ -204,10 +193,14 @@ ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
 RUN rm $PG_DATA_DIR_DEFAULT -rf && \
     python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT && \
     service postgresql start && \
+    bash ./scripts/common_startup.sh && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
-    sh create_db.sh -c $GALAXY_CONFIG_FILE && \
+    sh create_db.sh -c "$GALAXY_CONFIG_FILE" && \
+    python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
-    service postgresql stop
+    service postgresql stop && \
+    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
+    npm install
 
 # Activate additional Tool Sheds
 # Activate the Test Tool Shed during runtime, useful for testing repositories.
