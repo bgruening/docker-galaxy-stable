@@ -62,20 +62,19 @@ RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
     adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y curl apt-transport-https software-properties-common wget && \
+RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common wget && \
     apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D && \
     sh -c "echo deb http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib > /etc/apt/sources.list.d/htcondor.list" && \
     sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \
     sh -c "wget -qO - https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -" && \
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y docker-ce sudo python-virtualenv \
+    apt-get install --no-install-recommends -y docker-ce postgresql-9.3 sudo python-virtualenv \
     nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor slurm-llnl slurm-llnl-torque \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql nodejs-legacy npm ansible \
-    nano python-pip  python-psutil condor python-ldap \
+    nano python-pip python-psutil condor python-ldap \
     gridengine-common gridengine-drmaa1.0 rabbitmq-server && \
     pip install --upgrade pip && \
     pip install ephemeris && \
