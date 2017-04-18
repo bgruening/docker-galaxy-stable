@@ -686,3 +686,5 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
 
 You can file an [github issue](https://github.com/bgruening/docker-galaxy-stable/issues) or ask
 us on the [Galaxy development list](http://lists.bx.psu.edu/listinfo/galaxy-dev).
+
+If you like this service please fill out this survey: https://www.surveymonkey.de/r/denbi-service?sc=rbc&tool=galaxy-docker
