@@ -98,7 +98,7 @@ before_install:
     fi
   - docker ps
   # setup minikube to test against it
-  - sudo apt install virtualbox --no-install-recommends -y
+  - sudo apt install virtualbox linux-headers-generic -y
   - curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.18.0/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
   - curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.6.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
   - minikube start
