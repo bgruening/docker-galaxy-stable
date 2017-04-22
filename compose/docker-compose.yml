@@ -26,10 +26,10 @@ services:
         - "30000-30010:30000-30010"
     restart: always
 
+  # Using the official postgres image. This needs to be populated by calling
+  # docker-compose run galaxy install_db.sh
+  # on first run
   postgres:
-# Using the official postgres image. This needs to be populated by calling
-#  docker-compose run galaxy install_db.sh
-# on first run
 #    image: postgres
 # This comes with an initialization to quickly populate the database on first start
 #    build: galaxy-postgres
@@ -42,6 +42,19 @@ services:
         - POSTGRES_DB=galaxy
     volumes:
         - ./postgres-storage:/var/lib/postgresql/data
+
+  # Postgres Admin Site
+  pgadmin4:
+    image: thajeztah/pgadmin4
+    container_name: pgadmin4
+    ports:
+        - "5050:5050"
+    links:
+        - postgres
+    volumes:
+        - ./pgadmin:/pgadmin
+    restart: unless-stopped
+
 
   # slurm container
   slurm:
