@@ -26,7 +26,12 @@ before_install:
 
   - sudo apt-get update -qq
   - sudo apt-get install docker-engine --no-install-recommends -y -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
-  - sudo apt-get install sshpass --no-install-recommends -y
+  # xvfb is needed for selenium
+  - sudo apt-get install xvfb sshpass --no-install-recommends -y
+  # selenium headless mode
+  - pip install pyvirtualdisplay
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.16.0/geckodriver-v0.16.0-linux64.tar.gz
+  - tar -xzf geckodriver-v0.16.0-linux64.tar.gz && sudo mv geckodriver /usr/bin/geckodriver && sudo chmod a+x /usr/bin/geckodriver
 
   - docker --version
   - docker info
@@ -157,7 +162,10 @@ script:
   # Selenium UI tests
   - docker_exec docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-chrome:3.0.1-aluminum
   - sleep 60s
-  - docker_exec bash -c 'GALAXY_TEST_SELENIUM_REMOTE=1 ./run_tests.sh -selenium test/selenium_tests/test_stock_tours.py:TestStockToursTestCase.test_core_history'
+  - wget https://raw.githubusercontent.com/galaxyproject/galaxy/dev/config/plugins/tours/core.galaxy_ui.yaml
+  - ./scripts/dump_tour.py -o selenium_img --selenium-headless --selenium-browser FIREFOX --galaxy_url http://localhost:8080 core.galaxy_ui.yaml
+  - ls -l selenium_img
+
   # Check if the database image matches the current galaxy version
   - |
       if [ "${COMPOSE}" ]
