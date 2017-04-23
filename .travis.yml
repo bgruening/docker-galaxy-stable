@@ -166,7 +166,7 @@ script:
   - wget -q -O - https://github.com/galaxyproject/galaxy/archive/release_17.01.tar.gz | tar xzf - --strip-components=1 -C ./selenium_galaxy/
   - wget https://raw.githubusercontent.com/galaxyproject/galaxy/dev/config/plugins/tours/core.galaxy_ui.yaml
   - ls -l ./selenium_galaxy/
-  - ./selenium_galaxy/galaxy/scripts/dump_tour.py -o selenium_img --selenium-headless --selenium-browser FIREFOX --galaxy_url http://localhost:8080 core.galaxy_ui.yaml
+  - ./selenium_galaxy/scripts/dump_tour.py -o selenium_img --selenium-headless --selenium-browser FIREFOX --galaxy_url http://localhost:8080 core.galaxy_ui.yaml
   - ls -l selenium_img
 
   # Check if the database image matches the current galaxy version
