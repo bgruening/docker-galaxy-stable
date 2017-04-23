@@ -29,7 +29,7 @@ before_install:
   # xvfb is needed for selenium
   - sudo apt-get install xvfb sshpass --no-install-recommends -y
   # selenium headless mode
-  - pip install pyvirtualdisplay selenium requests
+  - pip install pyvirtualdisplay selenium requests pyyaml
   - wget https://github.com/mozilla/geckodriver/releases/download/v0.16.0/geckodriver-v0.16.0-linux64.tar.gz
   - tar -xzf geckodriver-v0.16.0-linux64.tar.gz && sudo mv geckodriver /usr/bin/geckodriver && sudo chmod a+x /usr/bin/geckodriver
 
