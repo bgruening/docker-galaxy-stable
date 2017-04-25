@@ -595,7 +595,9 @@ git submodule update --init --recursive
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
  - 16.10:
-  - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
+   - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
+ - 17.05:
+   - add PROXY_PREFIX variable to enable automatic configuration of Galaxy running under some prefix (@abretaud)
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
