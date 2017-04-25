@@ -27,6 +27,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Using Parent docker](#Using-Parent-docker)
   - [Galaxy Report Webapp](#Galaxy-Report-Webapp)
   - [Galaxy's config settings](#Galaxys-config-settings)
+  - [Configuring Galaxy's behind a proxy](#Galaxy-behind-proxy)
   - [Personalize your Galaxy](#Personalize-your-Galaxy)
   - [Deactivating services](#Deactivating-services)
   - [Restarting Galaxy](#Restarting-Galaxy)
@@ -224,6 +225,22 @@ Note that if you would like to run any of the [cleanup scripts](https://wiki.gal
 ```
 database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy
 file_path = /export/galaxy-central/database/files
+```
+
+## Configuring Galaxy's behind a proxy <a name="Galaxy-behind-proxy" /> [[toc]](#toc)
+
+If your Galaxy docker instance is running behind an HTTP proxy server, and if you're accessing it with a specific path prefix (e.g. http://www.example.org/some/prefix/), you need to make Galaxy aware of it. There is an environment variable available to do so:
+
+```
+PROXY_PREFIX=/some/prefix
+```
+
+You can and should overwrite these during launching your container:
+
+```sh
+docker run -p 8080:80 \
+    -e "PROXY_PREFIX=/some/prefix" \
+    bgruening/galaxy-stable
 ```
 
 ## Personalize your Galaxy <a name="Personalize-your-Galaxy" /> [[toc]](#toc)
