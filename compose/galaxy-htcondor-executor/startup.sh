@@ -13,6 +13,12 @@ BASE_CGROUP=
 #ALLOW_OWNER = \$(FULL_HOSTNAME), \$(ALLOW_ADMINISTRATOR)
 ALLOW_READ = *
 ALLOW_WRITE = *
-#ALLOW_CLIENT = *" > /etc/condor/condor_config.local
+ALLOW_CLIENT = *
+SCHED_NAME = $CONDOR_HOST
+" > /etc/condor/condor_config.local
+
+sudo -u condor touch /var/log/condor/StartLog
+sudo -u condor touch /var/log/condor/StarterLog
+tail -f -n 1000 /var/log/condor/StartLog /var/log/condor/StarterLog &
 
 /usr/sbin/condor_master -pidfile /var/run/condor/condor.pid -f -t

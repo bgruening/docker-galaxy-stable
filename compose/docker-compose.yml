@@ -71,16 +71,22 @@ services:
     hostname: galaxy-htcondor
     volumes:
         - ./galaxy-storage/:/export/
+    links:
+        - galaxy-web
 
   galaxy-htcondor-executor:
     image: quay.io/bgruening/galaxy-htcondor-executor:compose
     container_name: galaxy-htcondor-executor
     hostname: galaxy-htcondor-executor
+    privileged: true
     environment:
         - CONDOR_HOST=galaxy-htcondor
     volumes:
         - ./galaxy-storage/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
+    links:
+        - galaxy-web
+        - galaxy-htcondor
 
   # Messagequeue for better performance
   rabbitmq:
