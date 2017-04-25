@@ -67,7 +67,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y mercurial libpq-dev python-psycopg2 sudo samtools python-virtualenv \
     uwsgi uwsgi-plugin-python supervisor \
-    docker-ce linux-image-extra-`uname -r` \
+    docker-ce linux-image-extra-virtual \
     slurm-llnl slurm-llnl-torque libswitch-perl \
     slurm-drmaa-dev libyaml-dev nodejs-legacy npm ansible pbs-drmaa-dev \
     nano nmap lynx vim curl python-crypto python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
