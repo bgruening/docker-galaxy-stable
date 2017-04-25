@@ -24,7 +24,11 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
     gpasswd -a $GALAXY_USER docker && \
-    adduser condor docker
+    adduser condor docker && \
+    mkdir /root/.docker && \
+    chown root:docker /root/.docker && \
+    chmod 750 /root/.docker && \
+    chmod +rx /root
 
 ADD startup.sh /usr/bin/startup.sh
 RUN chmod +x /usr/bin/startup.sh

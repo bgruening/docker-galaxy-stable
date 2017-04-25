@@ -21,4 +21,7 @@ sudo -u condor touch /var/log/condor/StartLog
 sudo -u condor touch /var/log/condor/StarterLog
 tail -f -n 1000 /var/log/condor/StartLog /var/log/condor/StarterLog &
 
+# Mysterious bug? Docker doesn't output its version as condor user if this is not executed before
+docker -v
+
 /usr/sbin/condor_master -pidfile /var/run/condor/condor.pid -f -t
