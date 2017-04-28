@@ -17,10 +17,11 @@ COMPOSE_TARGET = os.path.abspath(os.path.join(DIRECTORY, "..", "docker-compose.y
 KOMPOSE_TARGET = os.path.join(DIRECTORY, "docker-compose-for-kompose.yml")
 
 
+
 def main():
     with open(COMPOSE_TARGET, "r") as f:
         raw_compose_def = yaml.load(f)
-    
+
     _hack_for_kompose(raw_compose_def)
     with open(KOMPOSE_TARGET, "w") as f:
         yaml.dump(raw_compose_def, f)
@@ -34,6 +35,10 @@ def _hack_for_kompose(raw_compose_def):
     for i in range(10):
         # Replace "30000-30010:30000-30010" with individual entries.
         ftp_ports.append("%d:%d" % (30000 + i, 30000 + i))
+
+    # pgadmin can run without volumes and gets permission errors if not started this way in
+    # minikube.
+    del raw_compose_def["services"]["pgadmin4"]["volumes"]
 
 
 if __name__ == "__main__":
