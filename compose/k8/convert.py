@@ -17,7 +17,6 @@ COMPOSE_TARGET = os.path.abspath(os.path.join(DIRECTORY, "..", "docker-compose.y
 KOMPOSE_TARGET = os.path.join(DIRECTORY, "docker-compose-for-kompose.yml")
 
 
-
 def main():
     with open(COMPOSE_TARGET, "r") as f:
         raw_compose_def = yaml.load(f)
@@ -39,6 +38,17 @@ def _hack_for_kompose(raw_compose_def):
     # pgadmin can run without volumes and gets permission errors if not started this way in
     # minikube.
     del raw_compose_def["services"]["pgadmin4"]["volumes"]
+
+    services = raw_compose_def["services"]
+    for service_name in list(services.keys()):
+        service_def = services[service_name]
+        if "hostname" in service_def:
+            hostname = service_def["hostname"]
+            # These need to be same for Kompose it seems
+            if hostname != service_name:
+                raw_compose_def[hostname] = service_def
+                del services[service_name]
+        del service_def["hostname"]
 
 
 if __name__ == "__main__":
