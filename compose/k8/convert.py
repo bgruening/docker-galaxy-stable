@@ -29,7 +29,7 @@ def main():
 
 
 def _hack_for_kompose(raw_compose_def):
-    ftp_ports = raw_compose_def["services"]["proftpd"]["ports"]
+    ftp_ports = raw_compose_def["services"]["galaxy-proftpd"]["ports"]
     del ftp_ports[2]
     for i in range(10):
         # Replace "30000-30010:30000-30010" with individual entries.
