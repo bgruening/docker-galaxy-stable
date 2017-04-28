@@ -1,7 +1,7 @@
 version: '2'
 services:
   # proftpd container
-  proftpd:
+  galaxy-proftpd:
 #    build: galaxy-proftpd
     image: quay.io/galaxy/proftpd:compose
     environment:
@@ -31,7 +31,7 @@ services:
   # Using the official postgres image. This needs to be populated by calling
   # docker-compose run galaxy install_db.sh
   # on first run
-  postgres:
+  galaxy-postgres:
 #    image: postgres
 # This comes with an initialization to quickly populate the database on first start
 #    build: galaxy-postgres
@@ -52,7 +52,7 @@ services:
     ports:
         - "5050:5050"
     links:
-        - postgres
+        - galaxy-postgres
     volumes:
         - ./pgadmin:/pgadmin
     restart: unless-stopped
@@ -61,7 +61,7 @@ services:
 
 
   # slurm container
-  slurm:
+  galaxy-slurm:
 #    build: galaxy-slurm
     image: quay.io/galaxy/slurm:compose
     environment: {}
@@ -101,7 +101,6 @@ services:
         - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
         - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
     container_name: galaxy-web
-    hostname: galaxy
     ports:
         - "8080:80" # nginx
     volumes:

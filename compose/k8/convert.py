@@ -46,9 +46,15 @@ def _hack_for_kompose(raw_compose_def):
             hostname = service_def["hostname"]
             # These need to be same for Kompose it seems
             if hostname != service_name:
-                raw_compose_def[hostname] = service_def
+                services[hostname] = service_def
                 del services[service_name]
-        del service_def["hostname"]
+            for service in services.values():
+                links = service.get("links", [])
+                if service_name in links:
+                    links.remove(service_name)
+                    links.append(hostname)
+
+            del service_def["hostname"]
 
 
 if __name__ == "__main__":
