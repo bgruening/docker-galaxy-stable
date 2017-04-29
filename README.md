@@ -443,9 +443,7 @@ If the desired tools are already included in the Tool Shed, building your own pe
 5. Run your container with `docker run -p 8080:80 my-docker-test`
 6. Open your web browser on `http://localhost:8080`
 
-For a working example, have a look at the  or the  Dockerfile's.
-- [deepTools](http://deeptools.github.io/) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile)
-- [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile)
+For a working example, have a look at the [Dockerfile's](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile) of [deepTools](http://deeptools.github.io/) 
 
 ```
 # Galaxy - deepTools
@@ -482,6 +480,37 @@ EXPOSE :8800
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
 ```
+
+or the [RNA-workbench](https://github.com/bgruening/galaxy-rna-workbench/blob/master/Dockerfile).
+The RNA-workbench has advanced examples about:
+
+- populating Galaxy data-libararies
+
+  ```bash
+    setup-data-libraries -i $GALAXY_ROOT/library_data.yaml -g http://localhost:8080 
+        -u $GALAXY_DEFAULT_ADMIN_USER -p $GALAXY_DEFAULT_ADMIN_PASSWORD
+  ```
+
+The actual data is references in a YAML file similar this [one](https://github.com/bgruening/galaxy-rna-workbench/blob/master/library_data.yaml).
+
+- installing workflows
+
+  ```bash
+      workflow-install --workflow_path $GALAXY_HOME/workflows/ -g http://localhost:8080 
+          -u $GALAXY_DEFAULT_ADMIN_USER -p $GALAXY_DEFAULT_ADMIN_PASSWORD
+  ```
+
+Where all Galaxy workflows needs to be in one directory, here the `$GALAXY_HOME/workflows/`.
+
+- running Galaxy data-managers to create indices or download data
+
+  ```bash
+      run-data-managers -u admin@galaxy.org -p admin -g http://localhost:8080
+          --config data_manager_rna_seq.yaml
+  ```
+
+The data-managers can be configured and specified in a YAML file similar to this [one](https://github.com/galaxyproject/training-material/blob/master/RNA-Seq/docker/data_manager_rna_seq.yaml).
+
 
 If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:
 https://github.com/bgruening/galaxy-flavor-testing
