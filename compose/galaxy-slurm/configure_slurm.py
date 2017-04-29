@@ -76,7 +76,7 @@ SlurmctldDebug=3
 #SlurmctldLogFile=
 SlurmdDebug=3
 #SlurmdLogFile=
-NodeName=$node_name NodeAddr=$hostname CPUs=$cpus RealMemory=$memory State=UNKNOWN
+NodeName=$node_name NodeAddr=$hostname NodeHostname=$hostname CPUs=$cpus RealMemory=$memory State=UNKNOWN
 PartitionName=$partition_name Nodes=$nodes Default=YES MaxTime=INFINITE State=UP Shared=YES
 '''
 
@@ -107,6 +107,7 @@ def main():
     control_addr = environ.get('SLURM_CONTROL_ADDR', None)
     if control_addr:
         config_contents = config_contents.replace("#ControlAddr=", "ControlAddr=%s" % control_addr)
+    # TODO: NodeAddr should probably galaxy-slurm in the Kubernetes case.
     open("/etc/slurm-llnl/slurm.conf", "w").write(config_contents)
 
 if __name__ == "__main__":
