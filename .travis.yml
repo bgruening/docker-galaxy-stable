@@ -41,13 +41,10 @@ before_install:
   - sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/gofmt /usr/bin/gofmt
   - sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/go /usr/bin/go
   - go version
-  - curl -L  https://github.com/coreos/etcd/releases/download/v2.0.9/etcd-v2.0.9-linux-amd64.tar.gz -o etcd-v2.0.9-linux-amd64.tar.gz
-  - tar xzvf etcd-v2.0.9-linux-amd64.tar.gz
-  - sudo cp ./etcd-v2.0.9-linux-amd64/etcd /usr/bin/etcd
-  - sudo cp ./etcd-v2.0.9-linux-amd64/etcdctl /usr/bin/etcdctl
   - mkdir kubernetes
   - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
   - cd kubernetes
+  - ./hack/install-etcd.sh
   # this needs to run in backgroud later, for now try to see the output
   - sudo ./hack/local-up-cluster.sh
 
