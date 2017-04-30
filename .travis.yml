@@ -36,21 +36,13 @@ before_install:
   - docker info
 
   # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
-  - sudo add-apt-repository -y ppa:jonathonf/golang-1.8
-  - sudo apt-get update
-  - sudo apt-get install --no-install-recommends -y golang-1.8
+  - gimme 1.8
+  - source ~/.gimme/envs/go1.8.env
+  - go version
   - curl -L  https://github.com/coreos/etcd/releases/download/v2.0.9/etcd-v2.0.9-linux-amd64.tar.gz -o etcd-v2.0.9-linux-amd64.tar.gz
   - tar xzvf etcd-v2.0.9-linux-amd64.tar.gz
   - sudo cp ./etcd-v2.0.9-linux-amd64/etcd /usr/bin/etcd
   - sudo cp ./etcd-v2.0.9-linux-amd64/etcdctl /usr/bin/etcdctl
-  - sudo ln -s /usr/lib/go-1.8/bin/gofmt /usr/bin/gofmt
-  - sudo ln -s /usr/lib/go-1.8/bin/go /usr/bin/go
-  - /usr/lib/go-1.8/bin/go version
-  - gimme 1.8
-  - source ~/.gimme/envs/go1.8.env
-  - ls /home/travis/.gimme/versions/
-  - go version
-  - which go
   - mkdir kubernetes
   - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
   - cd kubernetes
