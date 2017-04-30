@@ -46,6 +46,8 @@ before_install:
   - sudo ln -s /usr/lib/go-1.8/bin/gofmt /usr/bin/gofmt
   - sudo ln -s /usr/lib/go-1.8/bin/go /usr/bin/go
   - /usr/lib/go-1.8/bin/go version
+  - ls /home/travis/.gimme/versions/
+  - rm /home/travis/.gimme/versions/go1.7.linux.amd64/ -rf
   - go version
   - which go
   - mkdir kubernetes
