@@ -38,6 +38,8 @@ before_install:
   # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
   - gimme 1.8
   - source ~/.gimme/envs/go1.8.env
+  - sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/gofmt /usr/bin/gofmt
+  - sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/go /usr/bin/go
   - go version
   - curl -L  https://github.com/coreos/etcd/releases/download/v2.0.9/etcd-v2.0.9-linux-amd64.tar.gz -o etcd-v2.0.9-linux-amd64.tar.gz
   - tar xzvf etcd-v2.0.9-linux-amd64.tar.gz
