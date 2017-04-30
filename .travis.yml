@@ -97,11 +97,18 @@ before_install:
 
     fi
   - docker ps
-  # setup minikube to test against it
-  - sudo apt install virtualbox linux-headers-generic -y
-  - curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.18.0/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
-  - curl -Lo kubectl https://storage.googleapis.com/kubernetes-release/release/v1.6.0/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-  - minikube start
+  # setup k8s
+  - sudo add-apt-repository ppa:longsleep/golang-backports
+  - sudo apt-get update
+  - sudo apt-get install --no-install-recommends -y golang-1.8-go etcd
+  - sudo systemctl stop etcd
+  - sudo ln -s /usr/lib/go-1.8/bin/gofmt /usr/bin/gofmt
+  - sudo ln -s /usr/lib/go-1.8/bin/go /usr/bin/go
+  - mkdir kubernetes
+  - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
+  - cd kubernetes
+  # this needs to run in backgroud later, for now try to see the output
+  - sudo ./hack/local-up-cluster.sh
 
 script:
   - set -e
