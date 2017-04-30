@@ -42,7 +42,9 @@ before_install:
   - sudo cp ./etcd-v2.0.9-linux-amd64/etcdctl /usr/bin/etcdctl
   - sudo ln -s /usr/lib/go-1.8/bin/gofmt /usr/bin/gofmt
   - sudo ln -s /usr/lib/go-1.8/bin/go /usr/bin/go
+  - /usr/lib/go-1.8/bin/go version
   - go version
+  - which go
   - mkdir kubernetes
   - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
   - cd kubernetes
