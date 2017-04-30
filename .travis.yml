@@ -35,8 +35,12 @@ before_install:
   # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
   - sudo add-apt-repository -y ppa:jonathonf/golang-1.8
   - sudo apt-get update
-  - sudo apt-get install --no-install-recommends -y golang-1.8 etcd
-  - sudo systemctl stop etcd
+  - sudo apt-get install --no-install-recommends -y golang-1.8
+  - curl -L  https://github.com/coreos/etcd/releases/download/v2.0.9/etcd-v2.0.9-linux-amd64.tar.gz -o etcd-v2.0.9-linux-amd64.tar.gz
+  - tar xzvf etcd-v2.0.9-linux-amd64.tar.gz
+  - suod cp ./etcd-v2.0.9-linux-amd64/etcd /usr/bin/etcd
+  - suod cp ./etcd-v2.0.9-linux-amd64/etcdctl /usr/bin/etcdctl
+  
   - sudo ln -s /usr/lib/go-1.8/bin/gofmt /usr/bin/gofmt
   - sudo ln -s /usr/lib/go-1.8/bin/go /usr/bin/go
   - mkdir kubernetes
