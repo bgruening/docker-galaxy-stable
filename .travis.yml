@@ -33,7 +33,7 @@ before_install:
   - docker info
 
   # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
-  - sudo add-apt-repository ppa:longsleep/golang-backports
+  - sudo add-apt-repository -y ppa:longsleep/golang-backports
   - sudo apt-get update
   - sudo apt-get install --no-install-recommends -y golang-1.8-go etcd
   - sudo systemctl stop etcd
