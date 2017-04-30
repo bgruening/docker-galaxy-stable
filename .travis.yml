@@ -42,6 +42,8 @@ before_install:
   - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
   - cd kubernetes
   - ./hack/install-etcd.sh
+  - sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
+  - sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
   # this needs to run in backgroud later, for now try to see the output
   - sudo ./hack/local-up-cluster.sh
 
