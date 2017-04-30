@@ -6,9 +6,6 @@ python: 2.7
 services:
   - docker
 
-go:
-  - 1.8.x
-
 env:
   matrix:
     - TOX_ENV=py27
