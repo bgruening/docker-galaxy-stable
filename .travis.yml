@@ -32,6 +32,20 @@ before_install:
   - docker --version
   - docker info
 
+  # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
+  - sudo add-apt-repository ppa:longsleep/golang-backports
+  - sudo apt-get update
+  - sudo apt-get install --no-install-recommends -y golang-1.8-go etcd
+  - sudo systemctl stop etcd
+  - sudo ln -s /usr/lib/go-1.8/bin/gofmt /usr/bin/gofmt
+  - sudo ln -s /usr/lib/go-1.8/bin/go /usr/bin/go
+  - mkdir kubernetes
+  - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
+  - cd kubernetes
+  # this needs to run in backgroud later, for now try to see the output
+  - sudo ./hack/local-up-cluster.sh
+
+  # start building this repo
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
@@ -97,18 +111,6 @@ before_install:
 
     fi
   - docker ps
-  # setup k8s
-  - sudo add-apt-repository ppa:longsleep/golang-backports
-  - sudo apt-get update
-  - sudo apt-get install --no-install-recommends -y golang-1.8-go etcd
-  - sudo systemctl stop etcd
-  - sudo ln -s /usr/lib/go-1.8/bin/gofmt /usr/bin/gofmt
-  - sudo ln -s /usr/lib/go-1.8/bin/go /usr/bin/go
-  - mkdir kubernetes
-  - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
-  - cd kubernetes
-  # this needs to run in backgroud later, for now try to see the output
-  - sudo ./hack/local-up-cluster.sh
 
 script:
   - set -e
