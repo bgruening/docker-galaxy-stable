@@ -41,6 +41,8 @@ before_install:
   - mkdir ../kubernetes
   - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
   - cd ../kubernetes
+  # k8s API port is running by default on 8080 as Galaxy, can this to 8000
+  - export API_PORT=8000
   - ./hack/install-etcd.sh
   - sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
   - sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
