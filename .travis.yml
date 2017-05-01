@@ -38,15 +38,15 @@ before_install:
   - sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/gofmt /usr/bin/gofmt
   - sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/go /usr/bin/go
   - go version
-  - mkdir kubernetes
-  - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C kubernetes
-  - cd kubernetes
+  - mkdir ../kubernetes
+  - wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
+  - cd ../kubernetes
   - ./hack/install-etcd.sh
   - sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
   - sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
   # this needs to run in backgroud later, for now try to see the output
   - sudo ./hack/local-up-cluster.sh &
-  - cd ..
+  - cd ../docker-galaxy-stable
 
   # start building this repo
   - git submodule update --init --recursive
