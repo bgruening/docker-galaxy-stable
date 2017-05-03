@@ -1,10 +1,8 @@
 #!/bin/bash
 set -x
 
-#ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-#ANSIBLE_RELEASE=53880c97d9650e0006216a100090ef916af2690d
-ANSIBLE_REPO=voegtlel/ansible-galaxy-extras
-ANSIBLE_RELEASE=13f78462a0d37a90de4eb63f6e30620569d6fab1
+ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
+ANSIBLE_RELEASE=78a4509c77ae4e25417cdcb49f7827f328b8c3cb
 
 GALAXY_RELEASE=release_17.01
 GALAXY_REPO=galaxyproject/galaxy

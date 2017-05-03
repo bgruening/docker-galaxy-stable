@@ -36,7 +36,6 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_postgres=False \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
-    --extra-vars galaxy_extras_config_condor_env=True \
     --extra-vars galaxy_extras_config_rabbitmq=False \
     --extra-vars galaxy_extras_config_slurm=False \
     --extra-vars galaxy_extras_config_proftpd=False \
