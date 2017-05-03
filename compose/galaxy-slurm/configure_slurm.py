@@ -76,7 +76,7 @@ SlurmctldDebug=3
 #SlurmctldLogFile=
 SlurmdDebug=3
 #SlurmdLogFile=
-NodeName=$hostname CPUs=$cpus RealMemory=$memory State=UNKNOWN
+NodeName=$node_name NodeAddr=$hostname CPUs=$cpus RealMemory=$memory State=UNKNOWN
 PartitionName=$partition_name Nodes=$nodes Default=YES MaxTime=INFINITE State=UP Shared=YES
 '''
 
@@ -91,9 +91,11 @@ except:
 
 def main():
     hostname = gethostname()
+    node_name = environ.get('SLURM_NODE_NAME', hostname)
     template_params = {
         "hostname": hostname,
-        "nodes": ",".join(environ.get('SLURM_NODES', hostname).split(',')),
+        "node_name": node_name,
+        "nodes": ",".join(environ.get('SLURM_NODES', node_name).split(',')),
         "cluster_name": environ.get('SLURM_CLUSTER_NAME', 'Cluster'),
         "control_machine": environ.get('SLURM_CONTROL_MACHINE', hostname),
         "user": environ.get('SLURM_USER_NAME', '{{ galaxy_user_name }}'),
@@ -102,6 +104,9 @@ def main():
         "memory": environ.get("SLURM_MEMORY", int(mem / (1024 * 1024)))
     }
     config_contents = Template(SLURM_CONFIG_TEMPLATE).substitute(template_params)
+    control_addr = environ.get('SLURM_CONTROL_ADDR', None)
+    if control_addr:
+        config_contents = config_contents.replace("#ControlAddr=", "ControlAddr=%s" % control_addr)
     open("/etc/slurm-llnl/slurm.conf", "w").write(config_contents)
 
 if __name__ == "__main__":

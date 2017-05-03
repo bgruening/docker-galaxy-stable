@@ -1,7 +1,7 @@
 version: '2'
 services:
   # proftpd container
-  proftpd:
+  galaxy-proftpd:
 #    build: galaxy-proftpd
     image: quay.io/galaxy/proftpd:compose
     environment:
@@ -15,8 +15,8 @@ services:
         - proftpd_passive_port_high=30010
     container_name: galaxy-proftpd
     hostname: galaxy-proftpd
-    volumes:
-        - ./galaxy-storage/ftp:/export/ftp
+    volumes_from:
+        - galaxy-web
     expose:
         - 21
         - 22
@@ -25,11 +25,13 @@ services:
         - "8022:22"
         - "30000-30010:30000-30010"
     restart: always
+    labels: 
+        kompose.service.type: nodeport
 
   # Using the official postgres image. This needs to be populated by calling
   # docker-compose run galaxy install_db.sh
   # on first run
-  postgres:
+  galaxy-postgres:
 #    image: postgres
 # This comes with an initialization to quickly populate the database on first start
 #    build: galaxy-postgres
@@ -50,21 +52,23 @@ services:
     ports:
         - "5050:5050"
     links:
-        - postgres
+        - galaxy-postgres
     volumes:
         - ./pgadmin:/pgadmin
     restart: unless-stopped
+    labels: 
+        kompose.service.type: nodeport
 
 
   # slurm container
-  slurm:
+  galaxy-slurm:
 #    build: galaxy-slurm
     image: quay.io/galaxy/slurm:compose
     environment: {}
     container_name: galaxy-slurm
     hostname: galaxy-slurm
-    volumes:
-        - ./galaxy-storage/:/export
+    volumes_from:
+        - galaxy-web
     restart: always
 
   # This container initializes the galaxy export.
@@ -73,10 +77,8 @@ services:
     image: quay.io/bgruening/galaxy-init:compose
     container_name: galaxy-init
     hostname: galaxy-init
-    volumes:
-        # This is the directory where all your files from Galaxy will be stored
-        # on your host system
-        - ./galaxy-storage/:/export/
+    volumes_from:
+        - galaxy-web
 
   galaxy-htcondor:
     image: quay.io/bgruening/galaxy-htcondor:compose
@@ -135,7 +137,6 @@ services:
         - CONDOR_HOST=galaxy-htcondor
         - GALAXY_CONDOR_UNIVERSE=vanilla
     container_name: galaxy-web
-    hostname: galaxy
     ports:
         - "8080:80" # nginx
     volumes:
@@ -143,6 +144,8 @@ services:
         # on your host system
         - ./galaxy-storage/:/export/
     privileged: True
+    labels: 
+        kompose.service.type: nodeport
 
   # Use the monolith galaxy container instead
 #  galaxy:
