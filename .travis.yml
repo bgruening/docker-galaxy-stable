@@ -85,6 +85,10 @@ before_install:
           cd $WORKING_DIR
           docker-compose run "$@"
         }
+        
+    elif [ "${KUBE}" ]
+        sleep 600
+        docker ps
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
         export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
