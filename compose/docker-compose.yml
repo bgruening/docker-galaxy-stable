@@ -142,7 +142,7 @@ services:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
         - ./galaxy-storage/:/export/
-    privileged: True
+    #privileged: True
 
   # Use the monolith galaxy container instead
 #  galaxy:
