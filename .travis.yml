@@ -115,7 +115,9 @@ before_install:
         docker_run() {
           cd $WORKING_DIR
           docker-compose run "$@"
-        }        docker ps
+        }
+
+        docker ps
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
         export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
