@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "${COMPOSE}" ]
+if [ "${COMPOSE}" ] || [ "${KUBE}" ]
 then
     docker_exec bash -c 'cd /home/galaxy ;
     . /galaxy_venv/bin/activate ;
