@@ -143,6 +143,7 @@ services:
         - GALAXY_CONDOR_UNIVERSE=vanilla
     container_name: galaxy-web
     hostname: galaxy
+    privileged: True
     ports:
         - "8080:80" # nginx
     volumes:
@@ -150,7 +151,6 @@ services:
         # on your host system
         - ./galaxy-storage/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
-    privileged: True
 
   # Use the monolith galaxy container instead
 #  galaxy:
