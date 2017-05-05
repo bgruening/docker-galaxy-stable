@@ -22,6 +22,7 @@ We are aiming to fill this matrix step by step.
 | IE             | x             | x        |-     |-     |
 | Conda resolver | x             | x        |-     |-     |
 | TS resolver    | x             | -        |-     |-     |
+| pgadmin        | -             | x        |-     |-     |
 
 
 
