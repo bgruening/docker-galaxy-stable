@@ -4,6 +4,28 @@
 [![Gitter](https://badges.gitter.im/bgruening/docker-galaxy-stable.svg)](https://gitter.im/bgruening/docker-galaxy-stable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 ![docker pulls](https://img.shields.io/docker/pulls/bgruening/galaxy-stable.svg) ![docker stars](https://img.shields.io/docker/stars/bgruening/galaxy-stable.svg)
 
+
+Capability matrix
+=================
+
+Galaxy is a powerful framework with sheer endless possibilities of deployment methods and features.
+This is often overwhelming and makes the choise for the correct deployment harder.
+In the following matrix we will try to give you an overview about the feature we do
+offer with the Galaxy Docker project, which features are constantly tested under different deployments.
+Please note this can only cover a small spectrum but is actually possible with Galaxy.
+We are aiming to fill this matrix step by step.
+
+| Feature        | Monolithic    | [Compose](https://docs.docker.com/compose)  | [Kubernetes](https://kubernetes.io)* | [SWARM](https://docs.docker.com/engine/swarm) |
+| -------------- |:-------------:| :-------:|:----:|:----:|
+| SLURM          | x             | x        |-     |-     |
+| HT-Condor      | x             | x        |-     |-     |
+| IE             | x             | x        |-     |-     |
+| Conda resolver | x             | x        |-     |-     |
+| TS resolver    | x             | -        |-     |-     |
+
+
+
+
 Galaxy Docker Image
 ===================
 
