@@ -51,8 +51,8 @@ services:
         - "5050:5050"
     links:
         - postgres
-    volumes:
-        - ./pgadmin:/pgadmin
+  #  volumes:
+  #      - ./pgadmin:/pgadmin
     restart: unless-stopped
 
 
@@ -84,8 +84,8 @@ services:
     hostname: galaxy-htcondor
     volumes:
         - ./galaxy-storage/:/export/
-    links:
-        - galaxy-web
+    #links:
+    #    - galaxy-web
 
 
   galaxy-htcondor-executor:
@@ -98,9 +98,9 @@ services:
     volumes:
         - ./galaxy-storage/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
-    links:
-        - galaxy-web
-        - galaxy-htcondor
+    #links:
+    #    - galaxy-web
+    #    - galaxy-htcondor
 
 
   # Messagequeue for better performance
