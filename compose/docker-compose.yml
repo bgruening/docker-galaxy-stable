@@ -100,6 +100,15 @@ services:
         # Configurate admin and master api key. Can be overridden in galaxy.ini
         - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
         - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
+        - GALAXY_CONFIG_DATABASE_AUTO_MIGRATE=True
+        - GALAXY_DESTINATIONS_DEFAULT=docker_dispatch
+        - GALAXY_DESTINATIONS_DOCKER_DEFAULT=k8_default
+        - GALAXY_DESTINATIONS_NO_DOCKER_DEFAULT=local_no_container
+        - GALAXY_CONFIG_CONTAINERS_RESOLVERS_CONFIG_FILE=/export/config/container_resolvers_conf.xml
+        # Hack for pykube - https://github.com/kelproject/pykube/issues/29
+        - PYKUBE_KUBERNETES_SERVICE_HOST=kubernetes
+        # Just for testing...
+        - GALAXY_CONFIG_OVERRIDE_TOOL_CONFIG_FILE=/export/galaxy-central/test/functional/tools/samples_tool_conf.xml
     container_name: galaxy-web
     ports:
         - "8080:80" # nginx
