@@ -58,10 +58,6 @@ RUN rm -f /usr/bin/startup && \
 
 RUN chmod +x /usr/bin/startup
 
-RUN  mkdir /var/lib/condor/log && chown condor:condor /var/lib/condor/log
-
-RUN mkdir -p /tmp/condorinstall0/sbin/ && ln -s  /usr/lib/condor/libexec/ /tmp/condorinstall0/ && ln -s  /usr/sbin/condor_* /tmp/condorinstall0/sbin/
-
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/var/lib/docker"]
 
