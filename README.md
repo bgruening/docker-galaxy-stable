@@ -15,14 +15,15 @@ offer with the Galaxy Docker project, which features are constantly tested under
 Please note this can only cover a small spectrum but is actually possible with Galaxy.
 We are aiming to fill this matrix step by step.
 
-| Feature        | Monolithic    | [Compose](https://docs.docker.com/compose)  | [Kubernetes](https://kubernetes.io)* | [SWARM](https://docs.docker.com/engine/swarm) |
-| -------------- |:-------------:| :-------:|:----:|:----:|
-| SLURM          | x             | x        |-     |-     |
-| HT-Condor      | x             | x        |-     |-     |
-| IE             | x             | x        |-     |-     |
-| Conda resolver | x             | x        |-     |-     |
-| TS resolver    | x             | -        |-     |-     |
-| pgadmin        | -             | x        |-     |-     |
+| Feature             | Monolithic    | [Compose](https://docs.docker.com/compose)  | [Kubernetes](https://kubernetes.io)* | [SWARM](https://docs.docker.com/engine/swarm) |
+| ------------------- |:-------------:| :-------:|:----:|:----:|
+| SLURM               | x             | x        |-     |-     |
+| HT-Condor           | x             | x        |-     |-     |
+| HT-Condor + Docker  | -             | x        |-     |-     |
+| IE                  | x             | x        |-     |-     |
+| Conda resolver      | x             | x        |-     |-     |
+| TS resolver         | x             | -        |-     |-     |
+| pgadmin             | -             | x        |-     |-     |
 
 
 
