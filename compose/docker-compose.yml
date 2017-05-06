@@ -16,7 +16,7 @@ services:
     container_name: galaxy-proftpd
     hostname: galaxy-proftpd
     volumes:
-        - ./galaxy-storage/ftp:/export/ftp
+        - /export/ftp:/export/ftp
     expose:
         - 21
         - 22
@@ -64,7 +64,7 @@ services:
     container_name: galaxy-slurm
     hostname: galaxy-slurm
     volumes:
-        - ./galaxy-storage/:/export
+        - /export/:/export
     restart: always
 
   # This container initializes the galaxy export.
@@ -76,14 +76,14 @@ services:
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
-        - ./galaxy-storage/:/export/
+        - /export/:/export/
 
   galaxy-htcondor:
     image: quay.io/bgruening/galaxy-htcondor:compose
     container_name: galaxy-htcondor
     hostname: galaxy-htcondor
     volumes:
-        - ./galaxy-storage/:/export/
+        - /export/:/export/
     #links:
     #    - galaxy-web
 
@@ -96,7 +96,7 @@ services:
     environment:
         - CONDOR_HOST=galaxy-htcondor
     volumes:
-        - ./galaxy-storage/:/export/
+        - /export/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
     #links:
     #    - galaxy-web
@@ -113,7 +113,7 @@ services:
         - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
         - RABBITMQ_DEFAULT_VHOST=galaxy
     volumes:
-        - ./galaxy-storage/rabbitmq:/var/lib/rabbitmq
+        - /export/rabbitmq:/var/lib/rabbitmq
 
   # This container provides the galaxy uwsgi webhandlers, job handlers, nginx
   galaxy-web:
@@ -140,7 +140,10 @@ services:
         - GALAXY_DESTINATIONS_DEFAULT=condor_cluster
         - ENABLE_CONDOR=true
         - CONDOR_HOST=galaxy-htcondor
-        - GALAXY_CONDOR_UNIVERSE=vanilla
+        - GALAXY_CONDOR_UNIVERSE=docker
+        - GALAXY_DOCKER_ENABLED=true
+        - GALAXY_CONFIG_CLEANUP_JOB=onsuccess
+        - GALAXY_DOCKER_VOLUMES_FROM=$$defaults,$$job_directory/pbs/:rw,/export/galaxy-central/database/pbs/:rw,/export/:rw
     container_name: galaxy-web
     hostname: galaxy
     privileged: True
@@ -149,7 +152,7 @@ services:
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
-        - ./galaxy-storage/:/export/
+        - /export/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
 
   # Use the monolith galaxy container instead
@@ -177,6 +180,6 @@ services:
 #    volumes:
 #        # This is the directory where all your files from Galaxy will be stored
 #        # on your host system
-#        - ./galaxy-storage/:/export/
+#        - /export/:/export/
 #    hostname: galaxy
 #    privileged: True

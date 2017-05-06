@@ -22,6 +22,20 @@ ALLOW_WRITE_STARTD    = *
 ALLOW_READ_COLLECTOR  = *
 ALLOW_READ_STARTD     = *
 UID_DOMAIN = galaxy
+
+
+
+DOCKER_VOLUMES = DOCKER_IN
+
+#Define a mount point for each volume:
+DOCKER_VOLUME_DIR_DOCKER_IN = /export:/export/:rw
+#DOCKER_VOLUME_DIR_DOCKER_OUT = /export:/export:rw
+
+#Configure those volumes to be mounted on each Docker container:
+DOCKER_MOUNT_VOLUMES = DOCKER_IN
+
+
+
 SCHED_NAME = $CONDOR_HOST
 " > /etc/condor/condor_config.local
 
