@@ -10,6 +10,8 @@ env:
   matrix:
     - TOX_ENV=py27
     - COMPOSE=True
+    # Compose version with Condor submitting Docker jobs
+    - COMPOSE_CONDOR_DOCKER=True
     - KUBE=True
   global:
     - secure: "PgEA6vDYZWAIZ3KyUTeA9SNSNR+eJU3kBkoEIsTnmnkyta0Z0VbIv98B9ApYeiC0VHpVzY1gblimmkXSY5+4oD9tUxpA630cUhE9iLNuo5o3MpRFun8nf8H6Jz2Y/PaPw3VPLKsH49LJYgJXeqgzoV7FHrpUP9Q3/5dycWybV2I="
@@ -54,6 +56,18 @@ before_install:
       cd ../docker-galaxy-stable
     fi
 
+  - if [ "${COMPOSE_CONDOR_DOCKER}" ]
+    then
+      # The compose file recognises ENV vars to change the defaul behavior
+      export GALAXY_DOCKER_ENABLED=true
+      # Galaxy needs to a full path for the the jobs, in- and outputs.
+      # Do we want to run each job in it's own container and this container uses the host
+      # container engine (not Docker in Docker) then the path to all files inside and outside
+      # of the container needs to be the same.
+      sudo mkdir /export
+      sudo chmod 666 /export
+      export EXPORT_DIR=/export
+    fi
 
   # start building this repo
   - git submodule update --init --recursive
