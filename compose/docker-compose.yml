@@ -1,4 +1,4 @@
-version: '2'
+version: '2.1'
 services:
   # proftpd container
   proftpd:
@@ -8,7 +8,7 @@ services:
         - proftpd_db_connection=galaxy@galaxy-postgres
         - proftpd_db_username=galaxy
         - proftpd_db_password=chaopagoosaequuashie
-        - proftpd_files_dir=/export/ftp
+        - proftpd_files_dir=${EXPORT_DIR:-/export/}ftp
         - proftpd_use_sftp=True
         - proftpd_generate_ssh_key=False
         - proftpd_passive_port_low=30000
@@ -16,7 +16,7 @@ services:
     container_name: galaxy-proftpd
     hostname: galaxy-proftpd
     volumes:
-        - /export/ftp:/export/ftp
+        - ${EXPORT_DIR:-/export}/ftp:/export/ftp
     expose:
         - 21
         - 22
@@ -64,7 +64,7 @@ services:
     container_name: galaxy-slurm
     hostname: galaxy-slurm
     volumes:
-        - /export/:/export
+        - ${EXPORT_DIR:-/export}/:/export
     restart: always
 
   # This container initializes the galaxy export.
@@ -76,14 +76,14 @@ services:
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
-        - /export/:/export/
+        - ${EXPORT_DIR:-/export}/:/export/
 
   galaxy-htcondor:
     image: quay.io/bgruening/galaxy-htcondor:compose
     container_name: galaxy-htcondor
     hostname: galaxy-htcondor
     volumes:
-        - /export/:/export/
+        - ${EXPORT_DIR:-/export}/:/export/
     #links:
     #    - galaxy-web
 
@@ -96,7 +96,7 @@ services:
     environment:
         - CONDOR_HOST=galaxy-htcondor
     volumes:
-        - /export/:/export/
+        - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
     #links:
     #    - galaxy-web
@@ -113,7 +113,7 @@ services:
         - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
         - RABBITMQ_DEFAULT_VHOST=galaxy
     volumes:
-        - /export/rabbitmq:/var/lib/rabbitmq
+        - ${EXPORT_DIR:-/export}/rabbitmq:/var/lib/rabbitmq
 
   # This container provides the galaxy uwsgi webhandlers, job handlers, nginx
   galaxy-web:
@@ -140,19 +140,18 @@ services:
         - GALAXY_DESTINATIONS_DEFAULT=condor_cluster
         - ENABLE_CONDOR=true
         - CONDOR_HOST=galaxy-htcondor
-        - GALAXY_CONDOR_UNIVERSE=docker
+        - GALAXY_CONDOR_UNIVERSE=vanilla
         - GALAXY_DOCKER_ENABLED=true
-        - GALAXY_CONFIG_CLEANUP_JOB=onsuccess
-        - GALAXY_DOCKER_VOLUMES_FROM=$$defaults,$$job_directory/pbs/:rw,/export/galaxy-central/database/pbs/:rw,/export/:rw
+        - GALAXY_CONFIG_CLEANUP_JOB=${GALAXY_CONFIG_CLEANUP_JOB:-onsuccess}
     container_name: galaxy-web
     hostname: galaxy
     privileged: True
     ports:
-        - "8080:80" # nginx
+        - "${GALAXY_PORT:-8080}:80" # nginx
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
-        - /export/:/export/
+        - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
 
   # Use the monolith galaxy container instead
