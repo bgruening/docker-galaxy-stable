@@ -204,15 +204,12 @@ RUN rm $PG_DATA_DIR_DEFAULT -rf && \
 # Activate additional Tool Sheds
 # Activate the Test Tool Shed during runtime, useful for testing repositories.
 ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
-# Activate arbritrary Tool Sheds during build-time by manipulating the original tool_sheds_conf.xml file
-ADD ./add_tool_shed.py /usr/bin/add-tool-shed
 
-ADD ./startup_lite.sh /usr/bin/startup_lite
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
 ADD install_tools_wrapper.sh /usr/bin/install-tools
 # script to install BioJS visualizations
 ADD install_biojs_vis.sh /usr/bin/install-biojs
-RUN chmod +x /usr/bin/install-tools /usr/bin/startup /usr/bin/startup_lite /usr/bin/install-biojs /usr/bin/add-tool-shed
+RUN chmod +x /usr/bin/install-tools /usr/bin/install-biojs
 
 RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local && \
     echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
