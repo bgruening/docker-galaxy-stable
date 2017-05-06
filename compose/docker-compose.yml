@@ -141,7 +141,7 @@ services:
         - ENABLE_CONDOR=true
         - CONDOR_HOST=galaxy-htcondor
         - GALAXY_CONDOR_UNIVERSE=vanilla
-        - GALAXY_DOCKER_ENABLED=${GALAXY_DOCKER_ENABLED:-true}
+        - GALAXY_DOCKER_ENABLED=${GALAXY_DOCKER_ENABLED:-false}
         - GALAXY_CONFIG_CLEANUP_JOB=${GALAXY_CONFIG_CLEANUP_JOB:-onsuccess}
     container_name: galaxy-web
     hostname: galaxy
