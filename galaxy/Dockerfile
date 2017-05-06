@@ -18,12 +18,13 @@ ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
+EXPORT_DIR=/export \
 DEBIAN_FRONTEND=noninteractive
 
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
-GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/export/tool_deps \
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=$EXPORT_DIR/tool_deps \
 GALAXY_VIRTUAL_ENV=/galaxy_venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -39,12 +40,11 @@ GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 # Define the default postgresql database path
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
 PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
-PG_DATA_DIR_HOST=/export/postgresql/9.3/main/ \
-EXPORT_DIR=/export \
+PG_DATA_DIR_HOST=/$EXPORT_DIR/postgresql/9.3/main/ \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
-# Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
+# Set HTTPS to use a self-signed certificate (or your own certificate in $EXPORT_DIR/{server.key,server.crt})
 USE_HTTPS=False \
 # Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to a domain that is reachable to get a letsencrypt certificate
 USE_HTTPS_LETSENCRYPT=False \
@@ -58,7 +58,7 @@ LANG=en_US.UTF-8
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
 
-# Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing /export/postgresql with non-Linux hosts
+# Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
     adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres
 
@@ -122,9 +122,9 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars galaxy_extras_config_rabbitmq=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
-    --extra-vars proftpd_files_dir=/export/ftp \
+    --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
     --extra-vars proftpd_use_sftp=True \
-    --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
+    --extra-vars nginx_upload_store_path=$EXPORT_DIR/nginx_upload_store \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
@@ -132,9 +132,9 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
-    mkdir /export/ftp/ && chown $GALAXY_USER:$GALAXY_USER /export/ftp && \
+    mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp && \
     mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps && \
-    ln -s /tool_deps/ /export/tool_deps && chown $GALAXY_USER:$GALAXY_USER /export/tool_deps # Configure Galaxy to use the Tool Shed
+    ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as User galaxy
 USER galaxy
@@ -149,18 +149,18 @@ GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
 GALAXY_CONFIG_STATIC_ENABLED=False \
-GALAXY_CONFIG_JOB_WORKING_DIRECTORY=/export/galaxy-central/database/job_working_directory \
-GALAXY_CONFIG_FILE_PATH=/export/galaxy-central/database/files \
-GALAXY_CONFIG_NEW_FILE_PATH=/export/galaxy-central/database/files \
-GALAXY_CONFIG_TEMPLATE_CACHE_PATH=/export/galaxy-central/database/compiled_templates \
-GALAXY_CONFIG_CITATION_CACHE_DATA_DIR=/export/galaxy-central/database/citations/data \
-GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY=/export/galaxy-central/database/pbs \
-GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp \
+GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$EXPORT_DIR/galaxy-central/database/job_working_directory \
+GALAXY_CONFIG_FILE_PATH=$EXPORT_DIR/galaxy-central/database/files \
+GALAXY_CONFIG_NEW_FILE_PATH=$EXPORT_DIR/galaxy-central/database/files \
+GALAXY_CONFIG_TEMPLATE_CACHE_PATH=$EXPORT_DIR/galaxy-central/database/compiled_templates \
+GALAXY_CONFIG_CITATION_CACHE_DATA_DIR=$EXPORT_DIR/galaxy-central/database/citations/data \
+GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY=$EXPORT_DIR/galaxy-central/database/pbs \
+GALAXY_CONFIG_FTP_UPLOAD_DIR=$EXPORT_DIR/ftp \
 GALAXY_CONFIG_FTP_UPLOAD_SITE=galaxy.docker.org \
 GALAXY_CONFIG_USE_PBKDF2=False \
 GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=/_x_accel_redirect \
 GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE=/_x_accel_redirect \
-GALAXY_CONFIG_NGINX_UPLOAD_STORE=/export/nginx_upload_store \
+GALAXY_CONFIG_NGINX_UPLOAD_STORE=$EXPORT_DIR/nginx_upload_store \
 GALAXY_CONFIG_NGINX_UPLOAD_PATH=/_upload \
 GALAXY_CONFIG_DYNAMIC_PROXY_MANAGE=False \
 GALAXY_CONFIG_VISUALIZATION_PLUGINS_DIRECTORY=config/plugins/visualizations \
@@ -219,7 +219,7 @@ RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
-ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG /export/galaxy-central/integrated_tool_panel.xml
+ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG $EXPORT_DIR/galaxy-central/integrated_tool_panel.xml
 
 # Expose port 80, 443 (webserver), 21 (FTP server), 8800 (Proxy), 9002 (supvisord web app)
 EXPOSE :21
