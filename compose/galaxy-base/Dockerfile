@@ -68,7 +68,6 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y sudo python-virtualenv \
     supervisor linux-image-extra-virtual munge \
-    #slurm-llnl slurm-llnl-torque \
     nodejs-legacy npm ansible nano python-pip condor \
     gridengine-drmaa1.0 && \
     pip install --upgrade pip && \
