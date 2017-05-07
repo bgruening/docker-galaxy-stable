@@ -49,7 +49,7 @@ services:
     ports:
         - "5050:5050"
     links:
-        - postgres
+        - galaxy-postgres
     # ToDO, not sure why this is failing
     #volumes:
         #- ./pgadmin:/pgadmin
