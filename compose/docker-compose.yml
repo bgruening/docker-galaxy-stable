@@ -3,7 +3,7 @@ services:
   # proftpd container
   galaxy-proftpd:
     # build: galaxy-proftpd
-    image: quay.io/galaxy/proftpd:compose
+    image: quay.io/galaxy/proftpd
     environment:
         - proftpd_db_connection=galaxy@galaxy-postgres
         - proftpd_db_username=galaxy
@@ -32,7 +32,7 @@ services:
     # on first run
     # image: postgres
     # build: galaxy-postgres
-    image: quay.io/galaxy/postgres:compose
+    image: quay.io/galaxy/postgres
     container_name: galaxy-postgres
     hostname: galaxy-postgres
     environment:
@@ -58,7 +58,7 @@ services:
   # SLURM container - this is your compute cluster :)
   galaxy-slurm:
     # build: galaxy-slurm
-    image: quay.io/galaxy/slurm:compose
+    image: quay.io/galaxy/slurm
     environment: {}
     container_name: galaxy-slurm
     hostname: galaxy-slurm
@@ -69,7 +69,7 @@ services:
   # This container initializes the galaxy export.
   galaxy-init:
     # build: galaxy-init
-    image: quay.io/bgruening/galaxy-init:compose
+    image: quay.io/bgruening/galaxy-init
     container_name: galaxy-init
     hostname: galaxy-init
     volumes:
@@ -78,14 +78,14 @@ services:
         - ${EXPORT_DIR:-/export}/:/export/
 
   galaxy-htcondor:
-    image: quay.io/bgruening/galaxy-htcondor:compose
+    image: quay.io/bgruening/galaxy-htcondor
     container_name: galaxy-htcondor
     hostname: galaxy-htcondor
     volumes_from:
         - galaxy-web
 
   galaxy-htcondor-executor:
-    image: quay.io/bgruening/galaxy-htcondor-executor:compose
+    image: quay.io/bgruening/galaxy-htcondor-executor
     container_name: galaxy-htcondor-executor
     hostname: galaxy-htcondor-executor
     # privileged is needed to run Docker jobs, moreover HTCondor wants
@@ -113,7 +113,7 @@ services:
   # This container provides the galaxy uwsgi webhandlers, job handlers, nginx
   galaxy-web:
     # build: galaxy-web
-    image: quay.io/bgruening/galaxy-web:compose
+    image: quay.io/bgruening/galaxy-web
     environment:
         # In case the galaxy-init container is not used, you need to include "sleeplock" to NONUSE
         - NONUSE=proftpd,postgres,slurmd,slurmctld
