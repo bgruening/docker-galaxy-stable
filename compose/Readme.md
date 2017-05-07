@@ -14,13 +14,19 @@ Galaxy Docker Compose
   - [slurm](#slurm)
     - [Configuration](#slurm-Configuration)
 
-# Usage <a name="Usage" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+# Usage <a name="Usage" />
 
 At first you need to install docker with compose.
 - [docker](https://docs.docker.com/installation/)
 - [docker-compose](https://docs.docker.com/compose/install/)
 
-# Build <a name="Build" /> [[toc]](#toc)
+If you want to run Galaxy under Kubernetes you need to install [kompose](https://github.com/kubernetes-incubator/kompose#installation) as well.
+
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+# Build <a name="Build" />
 
 Checkout the repository:
 ```
@@ -37,15 +43,18 @@ After successful installation you can run the compose file:
 docker-compose up -d
 ```
 
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-# Roadmap <a name="Roadmap" /> [[toc]](#toc)
+# Roadmap <a name="Roadmap" />
 
 We wish to split the monolithic container into its components, i.e. postgres, proftpd, slurm, nginx (more?)
 So far postgres and proftpd are working.
 
-# Advanced <a name="Advanced" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-## postgres <a name="postgres" /> [[toc]](#toc)
+# Advanced <a name="Advanced" />
+
+## postgres <a name="postgres" />
 You can theoretically use any external database. The included postgres build is based on the [official postgres container](https://hub.docker.com/_/postgres/) and adds an initialization script which loads a vanilla dump of the initial database state on first startup.
 
 In case you want to generate an initial database dump yourself:
@@ -66,14 +75,20 @@ To update the database to a new migration level, run
 docker-compose run galaxy install_db.sh
 ```
 
-### Configuration <a name="postgres-Configuration" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+### Configuration <a name="postgres-Configuration" />
 See [official postgres container](https://hub.docker.com/_/postgres/).
 
-## proftpd <a name="proftpd" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+## proftpd <a name="proftpd" />
 
 Proftpd uses the [ansible galaxy extras project](https://github.com/galaxyproject/ansible-galaxy-extras) to configurate proftpd.
 
-### Configuration <a name="proftpd-Configuration" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+### Configuration <a name="proftpd-Configuration" />
 
 - *proftpd\_db\_connection*=_database@host_: Configurates the database name and hostname. Hostname can be a linked database container.
 - *proftpd\_db\_username*=_dbuser_: User in the database.
@@ -86,11 +101,15 @@ Proftpd uses the [ansible galaxy extras project](https://github.com/galaxyprojec
 - *proftpd\_nat\_masquerade*=_false_: Set masquearade to true if host is NAT'ed.
 - *proftpd\_masquerade\_address*=_ip_: Refers to the ip that clients use to establish an ftp connection. Can be a command that returns an IP or an IP address and applies only if proftpd\_nat\_masquerade is true. `\`ec2metadata --public-ipv4\`` returns the public ip for amazon's ec2 service.
 
-## slurm <a name="slurm" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+## slurm <a name="slurm" /> 
 
 The slurm container is an example of how to use an external slurm cluster. The container is set up with a pre-installed virtual python environment ready for galaxy. The default galaxy job_conf.xml is compatible with this container, but will require change for your own external cluster or a more advanced setup.
 
 As of now the container contains one runner, but in future the runners might be split off.
 
-### Configuration <a name="slurm-Configuration" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+### Configuration <a name="slurm-Configuration" />
 See [Running jobs outside of the container](https://github.com/bgruening/docker-galaxy-stable/blob/master/docs/Running_jobs_outside_of_the_container.md) and [Using an external Slurm cluster](https://github.com/bgruening/docker-galaxy-stable#using-an-external-slurm-cluster--toc).
