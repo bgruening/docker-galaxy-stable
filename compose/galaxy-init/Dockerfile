@@ -25,6 +25,7 @@ RUN mkdir -p /export /galaxy-export && \
     # Download latest stable release of Galaxy.
     wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/$GALAXY_RELEASE | tar xz --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
+    . $GALAXY_VIRTUAL_ENV/bin/activate && pip install pip --upgrade && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV/* && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT/*
 
