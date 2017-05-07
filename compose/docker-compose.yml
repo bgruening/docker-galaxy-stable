@@ -15,8 +15,8 @@ services:
         - proftpd_passive_port_high=30010
     container_name: galaxy-proftpd
     hostname: galaxy-proftpd
-    volumes:
-        - ${EXPORT_DIR:-/export}/ftp:/export/ftp
+    volumes_from:
+        - galaxy-web
     expose:
         - 21
         - 22
@@ -63,8 +63,8 @@ services:
     environment: {}
     container_name: galaxy-slurm
     hostname: galaxy-slurm
-    volumes:
-        - ${EXPORT_DIR:-/export}/:/export
+    volumes_from:
+        - galaxy-web
     restart: always
 
   # This container initializes the galaxy export.
@@ -82,11 +82,8 @@ services:
     image: quay.io/bgruening/galaxy-htcondor:compose
     container_name: galaxy-htcondor
     hostname: galaxy-htcondor
-    volumes:
-        - ${EXPORT_DIR:-/export}/:/export/
-    #links:
-    #    - galaxy-web
-
+    volumes_from:
+        - galaxy-web
 
   galaxy-htcondor-executor:
     image: quay.io/bgruening/galaxy-htcondor-executor:compose
@@ -95,13 +92,10 @@ services:
     privileged: True # HTCondor wants a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     environment:
         - CONDOR_HOST=galaxy-htcondor
+    volumes_from:
+        - galaxy-web
     volumes:
-        - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
-    #links:
-    #    - galaxy-web
-    #    - galaxy-htcondor
-
 
   # Messagequeue for better performance
   rabbitmq:
