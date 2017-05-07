@@ -18,13 +18,17 @@ GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=localhost \
 # Set the number of Galaxy handlers
 GALAXY_HANDLER_NUMPROCS=2
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
+    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
     echo "deb [arch=amd64] http://ppa.launchpad.net/galaxyproject/nginx/ubuntu trusty main" > /etc/apt/sources.list.d/nginx.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9735427B && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y \
-    nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    slurm-drmaa-dev nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor && \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    groupadd --gid 999 docker && \
+    gpasswd -a $GALAXY_USER docker
 
 RUN rm -f /usr/bin/startup && \
     ansible-playbook /ansible/provision.yml \
