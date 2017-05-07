@@ -2,14 +2,15 @@
 #
 # VERSION       Galaxy-central
 
-FROM toolshed/requirements
+FROM ubuntu:14.04
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=4b6344450ccd50d0b26806f3e0c1ed39b45aaeee
+ARG ANSIBLE_RELEASE=ef50faa6b820353571a8ce7bf85258ec74584ebc
 
-ENV GALAXY_USER=galaxy \
+ENV DEBIAN_FRONTEND=noninteractive \
+GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
 GALAXY_HOME=/home/galaxy \
@@ -55,22 +56,19 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$GALAXY_ROOT/database/job_working_directory 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
 
-RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
-
-RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common wget && \
+RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
+    apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common wget && \
     sh -c "wget -qO- - https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -" && \
     add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu trusty stable" && \
-#    echo deb https://apt.dockerproject.org/repo ubuntu-trusty main > /etc/apt/sources.list.d/docker.list && \
-    sh -c "echo deb http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib > /etc/apt/sources.list.d/htcondor.list" && \
-    sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \
+    echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list && \
+    wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add - && \
     apt-add-repository -y ppa:ansible/ansible && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y mercurial libpq-dev python-psycopg2 sudo samtools python-virtualenv \
+    apt-get install --no-install-recommends -y sudo python-virtualenv \
     uwsgi uwsgi-plugin-python supervisor \
     docker-ce linux-image-extra-virtual \
-    slurm-llnl slurm-llnl-torque libswitch-perl \
-    slurm-drmaa-dev libyaml-dev nodejs-legacy npm ansible pbs-drmaa-dev \
-    nano nmap lynx vim curl python-crypto python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
+    slurm-llnl slurm-llnl-torque \
+    nodejs-legacy npm ansible nano python-crypto python-pip python-psutil condor \
     gridengine-common gridengine-drmaa1.0 && \
     pip install --upgrade pip && \
     pip install ephemeris && \
@@ -112,7 +110,6 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG=/export/galaxy-central/integrated
 # TODO: Is this even required?
 RUN ln -s -f /export/shed_tools /shed_tools && \
     ln -s -f /export/tool_deps /tool_deps && \
-#    ln -s -f /export/var/lib/docker /var/lib/docker && \
     ln -s -f /export/galaxy-central /galaxy-central && \
     ln -s -f /export/venv /galaxy_venv && \
     mkdir /etc/galaxy && ln -s -f /export/welcome /etc/galaxy/web

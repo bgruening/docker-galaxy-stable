@@ -9,7 +9,6 @@ ENV GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
 GALAXY_GID=1450
 
-
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
@@ -23,7 +22,9 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
 
 ADD ansible /ansible
 ADD ansible_path.py /usr/bin/ansible_path.py
-RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && cd /ansible/galaxyprojectdotorg.galaxyextras && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
+RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && \
+    cd /ansible/galaxyprojectdotorg.galaxyextras && \
+    wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
 
 # Generate ssh keys, all other config will be overwritte upon startup
 RUN ansible-playbook /ansible/provision.yml \
