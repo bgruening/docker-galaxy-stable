@@ -56,7 +56,8 @@ before_install:
       cd ../docker-galaxy-stable
     fi
 
-  - if [ "${COMPOSE_CONDOR_DOCKER}" ]
+  - |
+    if [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # The compose file recognises ENV vars to change the defaul behavior
       export GALAXY_DOCKER_ENABLED=true
