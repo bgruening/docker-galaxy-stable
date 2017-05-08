@@ -19,7 +19,6 @@ GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=localhost \
 GALAXY_HANDLER_NUMPROCS=2
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
     echo "deb [arch=amd64] http://ppa.launchpad.net/galaxyproject/nginx/ubuntu trusty main" > /etc/apt/sources.list.d/nginx.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9735427B && \

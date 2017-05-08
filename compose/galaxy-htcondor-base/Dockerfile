@@ -3,7 +3,6 @@ FROM ubuntu:14.04
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout && \
     echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
     locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \

@@ -9,7 +9,6 @@ GALAXY_GID=1450
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -m -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
     apt-get update -qq && apt-get install -y --no-install-recommends apt-transport-https \
