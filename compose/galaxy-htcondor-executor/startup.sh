@@ -6,6 +6,10 @@ DAEMON_LIST = MASTER, STARTD
 DISCARD_SESSION_KEYRING_ON_STARTUP=False
 TRUST_UID_DOMAIN=true
 
+NUM_SLOTS=1
+NUM_SLOTS_TYPE_1=1
+SLOT_TYPE_1=Cpu=${CONDOR_CPUS},mem=${CONDOR_MEMORY}
+
 # Disable cgroup support by defining the base cgroup as an empty string
 BASE_CGROUP=
 

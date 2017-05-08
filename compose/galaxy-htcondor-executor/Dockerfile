@@ -30,6 +30,9 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     chmod 750 /root/.docker && \
     chmod +rx /root
 
+ENV CONDOR_CPUS=1 \
+    CONDOR_MEMORY=1024
+
 ADD startup.sh /usr/bin/startup.sh
 RUN chmod +x /usr/bin/startup.sh
 CMD ["/usr/bin/startup.sh"]
