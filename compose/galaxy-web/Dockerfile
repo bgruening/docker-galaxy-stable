@@ -28,6 +28,8 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     slurm-drmaa-dev nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     groupadd --gid 999 docker && \
+    # this can be optimised I think, we should get the SLURM client only and update it
+    slurm-llnl && \
     gpasswd -a $GALAXY_USER docker
 
 RUN rm -f /usr/bin/startup && \
@@ -64,7 +66,6 @@ RUN chmod +x /usr/bin/startup
 
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/var/lib/docker"]
-
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
