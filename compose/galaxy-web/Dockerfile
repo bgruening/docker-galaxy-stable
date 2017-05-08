@@ -25,7 +25,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 9735427B && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y \
-    slurm-drmaa-dev nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor && \
+    slurm-drmaa-dev nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor \
     slurm-llnl && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     groupadd --gid 999 docker && \

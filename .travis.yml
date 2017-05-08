@@ -9,7 +9,7 @@ services:
 env:
   matrix:
     - TOX_ENV=py27
-    - COMPOSE=True
+    - COMPOSE_SLURM=True
     # Compose version with Condor submitting Docker jobs
     - COMPOSE_CONDOR_DOCKER=True
     - KUBE=True
@@ -27,6 +27,7 @@ before_install:
   - export GALAXY_USER_PASSWD=admin
   - export BIOBLEND_GALAXY_API_KEY=admin
   - export BIOBLEND_GALAXY_URL=http://localhost:8080
+  - export COMPOSE_DIR="${TRAVIS_BUILD_DIR}/compose"
 
   - sudo apt-get update -qq
   - sudo apt-get install docker-engine --no-install-recommends -y -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
@@ -34,6 +35,7 @@ before_install:
 
   - docker --version
   - docker info
+  # Build a k8s cluster
   - |
     if [ "${KUBE}" ]
     then
@@ -56,25 +58,38 @@ before_install:
       cd ../docker-galaxy-stable
     fi
 
+
+  # load all configurations needed for SLURM testing
   - |
     if [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # The compose file recognises ENV vars to change the defaul behavior
-      export GALAXY_DOCKER_ENABLED=true
+      cd ${COMPOSE_DIR}
+      ln -sf .env_slurm .env
+    fi
+
+
+  # load all configurations needed for Condor and Docker
+  - |
+    if [ "${COMPOSE_CONDOR_DOCKER}" ]
+    then
+      # The compose file recognises ENV vars to change the defaul behavior
+      cd ${COMPOSE_DIR}
+      ln -sf .env_htcondor_docker .env
+
       # Galaxy needs to a full path for the the jobs, in- and outputs.
       # Do we want to run each job in it's own container and this container uses the host
       # container engine (not Docker in Docker) then the path to all files inside and outside
       # of the container needs to be the same.
       sudo mkdir /export
       sudo chmod 666 /export
-      export EXPORT_DIR=/export
     fi
 
   # start building this repo
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
-    if [ "${COMPOSE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
         pip install docker-compose
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
@@ -174,14 +189,14 @@ script:
   - set -e
   # Test submitting jobs to an external slurm cluster
   - |
-      if [ ! "${COMPOSE}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
+      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
       then
         # For compose slurm is already included and thus tested
         cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $WORKING_DIR
       fi
   # Test submitting jobs to an external gridengine cluster
   - |
-      if [ ! "${COMPOSE}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
+      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
       then
         # This test is not testing compose, thus disabled
         cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
@@ -208,7 +223,7 @@ script:
   # Test the 'old' tool installation script
   - docker_exec_run bash -c "install-repository $INSTALL_REPO_ARG '--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'"
   - |
-    if [ "$COMPOSE" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # Test without install-repository wrapper
       docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --tool-deps --repository-deps --url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'
@@ -216,7 +231,7 @@ script:
   # Test the 'new' tool installation script
 #  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
   - |
-    if [ "$COMPOSE" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # Compose uses the online installer (uses the running instance)
       docker_exec_run shed-install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
@@ -229,7 +244,7 @@ script:
   - docker_exec docker info
   # Check if the database image matches the current galaxy version
   - |
-      if [ "$COMPOSE" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+      if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
       then
         cd $WORKING_DIR && bash ./dumpsql.sh
         git diff --exit-code $WORKING_DIR/galaxy-postgres/init-galaxy-db.sql.in || ( echo "Database dump does not equal dump in repository" && false )
