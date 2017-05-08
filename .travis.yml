@@ -61,7 +61,7 @@ before_install:
 
   # load all configurations needed for SLURM testing
   - |
-    if [ "${COMPOSE_CONDOR_DOCKER}" ]
+    if [ "${COMPOSE_SLURM}" ]
     then
       # The compose file recognises ENV vars to change the defaul behavior
       cd ${COMPOSE_DIR}
