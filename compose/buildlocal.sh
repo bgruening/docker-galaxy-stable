@@ -15,6 +15,9 @@ docker build -t quay.io/bgruening/galaxy-web ./galaxy-web/
 
 docker build --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/galaxy/proftpd ./galaxy-proftpd
 
+# Build the postgres container
+docker build -t quay.io/galaxy/postgres ./galaxy-postgres
+
 # The SLURM cluster
 docker build -t quay.io/galaxy/slurm ./galaxy-slurm
 
