@@ -90,18 +90,23 @@ services:
 
   galaxy-htcondor-executor:
     image: quay.io/bgruening/galaxy-htcondor-executor:compose
-    container_name: galaxy-htcondor-executor
-    hostname: galaxy-htcondor-executor
     privileged: True # HTCondor wants a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     environment:
         - CONDOR_HOST=galaxy-htcondor
     volumes:
         - ./galaxy-storage/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
-    #links:
-    #    - galaxy-web
-    #    - galaxy-htcondor
 
+  galaxy-htcondor-executor-big:
+    image: quay.io/bgruening/galaxy-htcondor-executor:compose
+    privileged: True # HTCondor wants a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
+    environment:
+        - CONDOR_HOST=galaxy-htcondor
+        - CONDOR_CPUS=2
+        - CONDOR_MEMORY=2048
+    volumes:
+        - ./galaxy-storage/:/export/
+        - /var/run/docker.sock:/var/run/docker.sock
 
   # Messagequeue for better performance
   rabbitmq:
