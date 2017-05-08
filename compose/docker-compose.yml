@@ -97,7 +97,7 @@ services:
         - /var/run/docker.sock:/var/run/docker.sock
 
   galaxy-htcondor-executor-big:
-    image: quay.io/bgruening/galaxy-htcondor-executor:compose
+    image: quay.io/bgruening/galaxy-htcondor-executor
     privileged: True # HTCondor wants a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     environment:
         - CONDOR_HOST=galaxy-htcondor
