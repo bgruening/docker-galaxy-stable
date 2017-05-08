@@ -27,4 +27,10 @@ RUN mkdir -p /tmp/download && \
     #chmod +rx /root && \
     chmod +x /usr/bin/startup.sh
 
+ENV CONDOR_CPUS=1 \
+    CONDOR_MEMORY=1024
+
+ADD startup.sh /usr/bin/startup.sh
+RUN chmod +x /usr/bin/startup.sh
+
 CMD ["/usr/bin/startup.sh"]
