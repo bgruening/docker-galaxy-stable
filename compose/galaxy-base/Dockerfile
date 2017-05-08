@@ -59,6 +59,8 @@ HOME=$GALAXY_HOME
 # not to call sync() after package extraction and deactivate apt cache
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout && \
+    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
     locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
     echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list && \
