@@ -90,9 +90,6 @@ ADD condor_config.local /etc/condor/condor_config.local
 RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && cd /ansible/galaxyprojectdotorg.galaxyextras && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
 ADD provision.yml /ansible/provision.yml
 
-# Activate arbritrary Tool Sheds during build-time by manipulating the original tool_sheds_conf.xml file
-ADD ./add_tool_shed.py /usr/bin/add-tool-shed
-
 # Install database script
 ADD ./install_db.sh /usr/bin/install_db.sh
 
@@ -102,7 +99,7 @@ ADD install_biojs_vis.sh /usr/bin/install-biojs
 ADD startup.sh /usr/bin/startup
 
 # Make scripts runnable
-RUN chmod +x /usr/bin/install_db.sh /usr/bin/startup /usr/bin/install-biojs /usr/bin/add-tool-shed
+RUN chmod +x /usr/bin/install_db.sh /usr/bin/startup /usr/bin/install-biojs
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
