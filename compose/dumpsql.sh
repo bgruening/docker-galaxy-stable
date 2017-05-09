@@ -24,7 +24,7 @@ init_start=`date +%s`
 docker run -i --rm --name "dumpsql_galaxy_installdb" \
     -e "GALAXY_CONFIG_FILE=/galaxy-export/config/galaxy.ini.sample" \
     -e "GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@db/$POSTGRES_DB?client_encoding=utf8" \
-    --link "dumpsql_postgres:db" quay.io/bgruening/galaxy-init:compose install_db.sh
+    --link "dumpsql_postgres:db" quay.io/bgruening/galaxy-init install_db.sh
 
 init_end=`date +%s`
 dump_start=`date +%s`
