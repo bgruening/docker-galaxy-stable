@@ -100,7 +100,13 @@ before_install:
         ./buildlocal.sh
         export COMPOSE_PROJECT_NAME=galaxy_compose
         docker-compose up -d
-        sleep 260
+
+        until docker-compose exec galaxy-web ps -fC uwsgi
+        do
+          echo "sleeping for 2 seconds"
+          sleep 2
+        done
+        sleep 30
         docker-compose logs
         # Define start functions
         docker_exec() {
