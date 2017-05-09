@@ -3,7 +3,7 @@ if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
 then
     docker_exec bash -c 'cd /home/galaxy ;
     . /galaxy_venv/bin/activate ;
-    wget -q https://github.com/bgruening/bioblend/archive/master.tar.gz && tar xfz master.tar.gz ;
+    wget https://github.com/galaxyproject/bioblend/archive/master.tar.gz && tar xfz master.tar.gz ;
     cd bioblend-master ;
     pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" ;
     python setup.py install ;
