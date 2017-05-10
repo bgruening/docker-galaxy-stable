@@ -208,12 +208,12 @@ script:
 
   # Test SFTP Server
   - sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
+
   # Test self-signed HTTPS
-  - |
-     docker_run -d --name httpstest -p 443:443 -e "USE_HTTPS=True" $DOCKER_RUN_CONTAINER
-     sleep 60s && curl -v -k --fail https://127.0.0.1:443/api/version
-     echo | openssl s_client -connect 127.0.0.1:443 2>/dev/null | openssl x509 -issuer -noout| grep selfsigned
-     docker logs httpstest && docker stop httpstest && docker rm httpstest
+  - docker_run -d --name httpstest -p 443:443 -e "USE_HTTPS=True" $DOCKER_RUN_CONTAINER
+  - sleep 90s && curl -v -k --fail https://127.0.0.1:443/api/version
+  - echo | openssl s_client -connect 127.0.0.1:443 2>/dev/null | openssl x509 -issuer -noout| grep selfsigned
+  - docker logs httpstest && docker stop httpstest && docker rm httpstest
 
   - cd $TRAVIS_BUILD_DIR/test/bioblend/ && . ./test.sh && cd $WORKING_DIR/
 
@@ -223,7 +223,7 @@ script:
     if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # Test without install-repository wrapper
-      docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --tool-deps --repository-deps --url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'
+      docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --url https://toolshed.g2.bx.psu.edu -o devteam --name cut_columns --panel-section-name BEDTools'
     fi
   # Test the 'new' tool installation script
 #  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
