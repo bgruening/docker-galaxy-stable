@@ -99,7 +99,7 @@ before_install:
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" || [ "${KUBE}" ] ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ]
     then
         pip install docker-compose
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
