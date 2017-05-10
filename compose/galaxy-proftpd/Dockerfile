@@ -3,7 +3,7 @@
 FROM ubuntu:14.04
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=4b6344450ccd50d0b26806f3e0c1ed39b45aaeee
+ARG ANSIBLE_RELEASE=1e07cc8a56cd18821a9f20129c400a242d25d1a0
 
 ENV GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -21,7 +21,6 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ADD ansible /ansible
-ADD ansible_path.py /usr/bin/ansible_path.py
 RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && \
     cd /ansible/galaxyprojectdotorg.galaxyextras && \
     wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
@@ -39,4 +38,3 @@ EXPOSE 21 22
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/run.sh"]
-#CMD ["proftpd","--nodaemon"]
