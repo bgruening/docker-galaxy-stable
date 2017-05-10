@@ -7,8 +7,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
     locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
     apt-get update -qq && apt-get install -y --no-install-recommends \
-    apt-transport-https wget supervisor
-RUN sleep 1 && \
+    apt-transport-https wget supervisor && \
     # Condor mirror is really unreliable and times out too often, using a copy of the deb from cargo port
     #echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list
     #echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list
