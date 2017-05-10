@@ -202,6 +202,9 @@ script:
   - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
 
   # Test FTP Server upload
+  - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
+  - docker-compose logs
+  - sleep 60
   - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   # Test FTP Server get
   - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
