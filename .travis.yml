@@ -104,7 +104,7 @@ before_install:
         pip install docker-compose
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
         export DOCKER_RUN_CONTAINER="galaxy-web"
-        INSTALL_REPO_ARG="--galaxy-url http://localhost:8080"
+        INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
         SAMPLE_TOOLS=/export/config/sample_tool_list.yaml
         cd "$WORKING_DIR"
         ./buildlocal.sh
@@ -223,7 +223,7 @@ script:
     if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # Test without install-repository wrapper
-      docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:8080 --tool-deps --repository-deps --url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'
+      docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --tool-deps --repository-deps --url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'
     fi
   # Test the 'new' tool installation script
 #  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
@@ -231,7 +231,7 @@ script:
     if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # Compose uses the online installer (uses the running instance)
-      docker_exec_run shed-install -g "http://localhost:8080" -a admin -t "$SAMPLE_TOOLS"
+      docker_exec_run shed-install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
     else
       docker_exec_run install-tools "$SAMPLE_TOOLS"
     fi
