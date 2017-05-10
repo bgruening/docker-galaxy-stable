@@ -201,14 +201,6 @@ script:
   # Test Web api
   - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
 
-  # Test FTP Server upload
-  - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
-  - docker-compose logs
-  - sleep 60
-  - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
-  # Test FTP Server get
-  - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
-
   # Test SFTP Server
   - sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
 
@@ -218,6 +210,12 @@ script:
   - echo | openssl s_client -connect 127.0.0.1:443 2>/dev/null | openssl x509 -issuer -noout| grep selfsigned
   - docker logs httpstest && docker stop httpstest && docker rm httpstest
 
+  # Test FTP Server upload
+  - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
+  # Test FTP Server get
+  - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
+
+  # Run a ton of BioBlend test against our servers.
   - cd $TRAVIS_BUILD_DIR/test/bioblend/ && . ./test.sh && cd $WORKING_DIR/
 
   # Test the 'old' tool installation script
