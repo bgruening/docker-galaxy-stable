@@ -144,7 +144,7 @@ services:
         - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
         - GALAXY_CONFIG_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy 
         # Condor
-        - GALAXY_DESTINATIONS_DEFAULT=${GALAXY_DESTINATIONS_DEFAULT:-condor_cluster}
+        - GALAXY_DESTINATIONS_DEFAULT=${GALAXY_DESTINATIONS_DEFAULT:-slurm_cluster}
         - ENABLE_CONDOR=true
         - CONDOR_HOST=galaxy-htcondor
         - GALAXY_CONDOR_UNIVERSE=vanilla
