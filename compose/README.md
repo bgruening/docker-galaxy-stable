@@ -1,10 +1,17 @@
+[![DOI](https://zenodo.org/badge/5466/bgruening/docker-galaxy-stable.svg)](https://zenodo.org/badge/latestdoi/5466/bgruening/docker-galaxy-stable)
+[![Build Status](https://travis-ci.org/bgruening/docker-galaxy-stable.svg?branch=master)](https://travis-ci.org/bgruening/docker-galaxy-stable)
+[![Docker Repository on Quay](https://quay.io/repository/bgruening/galaxy/status "Docker Repository on Quay")](https://quay.io/repository/bgruening/galaxy)
+[![Gitter](https://badges.gitter.im/bgruening/docker-galaxy-stable.svg)](https://gitter.im/bgruening/docker-galaxy-stable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+![docker pulls](https://img.shields.io/docker/pulls/bgruening/galaxy-stable.svg) ![docker stars](https://img.shields.io/docker/stars/bgruening/galaxy-stable.svg)
+
 Galaxy Docker Compose
 =====================
 
 # Table of Contents <a name="toc" />
 
 - [Usage](#Usage)
-- [Build](#Build)
+    - [Build](#Build)
+    - [Start Container](#Start)
 - [Advanced](#Advanced)
   - [postgres](#postgres)
     - [Configuration](#postgres-Configuration)
@@ -15,13 +22,17 @@ Galaxy Docker Compose
   - [galaxy-init](#galaxy-init)
     - [Configuration](#galaxy-init-Configuration)
 
-# Usage <a name="Usage" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+# Usage <a name="Usage" />
 
 At first you need to install docker with [compose](https://docs.docker.com/compose).
 - [docker](https://docs.docker.com/installation/)
 - [docker-compose](https://docs.docker.com/compose/install/)
 
-# Build <a name="Build" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+## Build <a name="Build" />
 
 Checkout the repository:
 ```
@@ -33,6 +44,10 @@ Build the compose containers:
 ```sh
 ./buildlocal.sh
 ```
+
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+## Start Container <a name="Start" />
 
 After successful installation you can start your composed Galaxy version with:
 ```sh
@@ -92,10 +107,11 @@ An important feature of the compose version is that you can orchestrates and sch
 More documentation will follow. Contributions welcome!
 
 
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-# Advanced <a name="Advanced" /> [[toc]](#toc)
+# Advanced <a name="Advanced" />
 
-## postgres <a name="postgres" /> [[toc]](#toc)
+## postgres <a name="postgres" />
 You can theoretically use any external database. The included postgres build is based on the [official postgres container](https://hub.docker.com/_/postgres/) and adds an initialization script which loads a vanilla dump of the initial database state on first startup which is faster than initializing by the migration script.
 
 In case you want to generate an initial database dump yourself:
@@ -115,15 +131,17 @@ To update the database to a new migration level, run
 ```sh
 docker-compose run galaxy-web install_db.sh
 ```
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-### Configuration <a name="postgres-Configuration" /> [[toc]](#toc)
+### Configuration <a name="postgres-Configuration" />
 See [official postgres container](https://hub.docker.com/_/postgres/).
 
-## proftpd <a name="proftpd" /> [[toc]](#toc)
+## proftpd <a name="proftpd" />
 
 Proftpd uses the [ansible galaxy extras project](https://github.com/galaxyproject/ansible-galaxy-extras) to configurate proftpd. Remark: The proftp server is configured to only allow uploads of new files, as it is not supposed to be used as a file sharing server.
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-### Configuration <a name="proftpd-Configuration" /> [[toc]](#toc)
+### Configuration <a name="proftpd-Configuration" />
 
 - *proftpd\_db\_connection*=_database@host_: Configurates the database name and hostname. Hostname can be a linked database container.
 - *proftpd\_db\_username*=_dbuser_: User in the database.
