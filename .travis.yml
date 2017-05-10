@@ -222,16 +222,18 @@ script:
   - |
     if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
-      # Test without install-repository wrapper
-      docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --url https://toolshed.g2.bx.psu.edu -o devteam --name cut_columns --panel-section-name BEDTools'
+        # Test without install-repository wrapper
+        sleep 10
+        docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --url https://toolshed.g2.bx.psu.edu -o devteam --name cut_columns --panel-section-name BEDTools'
     fi
   # Test the 'new' tool installation script
 #  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
   - |
     if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
-      # Compose uses the online installer (uses the running instance)
-      docker_exec_run shed-install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
+        # Compose uses the online installer (uses the running instance)
+        sleep 10
+        docker_exec_run shed-install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
     else
       docker_exec_run install-tools "$SAMPLE_TOOLS"
     fi
