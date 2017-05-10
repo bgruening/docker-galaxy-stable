@@ -109,6 +109,18 @@ before_install:
           docker-compose logs
         done
 
+        if [ "${COMPOSE_CONDOR_DOCKER}" ]
+        then
+            # turn down the slurm service
+            docker-compose stop galaxy-slurm
+        fi
+        
+        if [ "${COMPOSE_SLURM}" ]
+        then
+            # turn down the htcondor services
+            docker-compose stop galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big
+        fi
+
         sleep 30
         docker-compose logs
         # Define start functions
