@@ -488,7 +488,9 @@ When you execute the tool again, Galaxy will pull the image from Biocontainers (
 | `GALAXY_DOCKER_ENABLED` | Enable Galaxy to use Docker containers if annotated in tools (`GALAXY_DOCKER_ENABLED=False`) |
 | `GALAXY_DOCKER_VOLUMES` | Specify volumes that should be mounted into tool containers (`GALAXY_DOCKER_VOLUMES=""`) |
 | `GALAXY_HANDLER_NUMPROCS` | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
-
+| `USE_HTTPS` | Set `USE_HTTPS=True` to set up HTTPS via self-signed certificates. If you have your own certificates, copy them to `/export/{server.key,server.crt}`. |
+| `USE_HTTPS_LETSENCRYPT` | Set `USE_HTTPS_LETSENCRYPT=True` to automatically set up HTTPS using Letsencrypt as a certificate authority. (Requires you to also set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL`) Note: only set one of `USE_HTTPS` and `USE_HTTPS_LETSENCRYPT` to true. |
+| `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL` | Set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=<your_domain>` so that Letsencrypt can test your that you own the domain you claim to own in order to issue you your HTTPS cert. |
 
 
 # Lite Mode <a name="Lite-Mode" /> [[toc]](#toc)
