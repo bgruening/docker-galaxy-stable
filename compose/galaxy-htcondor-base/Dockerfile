@@ -10,7 +10,6 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-transport-https wget supervisor && \
     # Condor mirror is really unreliable and times out too often, using a copy of the deb from cargo port
     #echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list
-    echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list
     wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
     dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \
     rm condor_8.6.3_linux_all.deb && \
