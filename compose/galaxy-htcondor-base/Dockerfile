@@ -7,8 +7,11 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
     locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
     apt-get update -qq && apt-get install -y --no-install-recommends \
-    apt-transport-https wget supervisor && \
-    echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list && \
-    wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add - && \
-    apt-get update -qq && apt-get install -y condor && \
+    apt-transport-https wget supervisor
+RUN sleep 1 && \
+    # Condor mirror is really unreliable and times out too often, using a copy of the deb from cargo port
+    #echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list
+    #echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list
+    wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
+    dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \
     rm -rf /var/lib/apt/lists/*

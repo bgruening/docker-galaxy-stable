@@ -62,15 +62,18 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
     locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
-    echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list && \
-    echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list && \
+    # Condor mirror is really unreliable and times out too often, using a copy of the deb from cargo port
+    #echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list && \
+    #echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list && \
     wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add - && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y sudo python-virtualenv \
     supervisor linux-image-extra-virtual munge \
-    nodejs-legacy npm ansible nano python-pip condor \
+    nodejs-legacy npm ansible nano python-pip \
     gridengine-drmaa1.0 && \
+    wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
+    dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \
     pip install --upgrade pip && \
     pip install ephemeris && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
