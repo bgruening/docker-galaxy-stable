@@ -1,29 +1,28 @@
 #!/bin/bash
-set -x
+set -x -e
 
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ANSIBLE_RELEASE=42daac749224ee6b102a37a3a6d2311c0df2d9ec
+ANSIBLE_RELEASE=1e07cc8a56cd18821a9f20129c400a242d25d1a0
 
-GALAXY_RELEASE=release_17.01
+GALAXY_RELEASE=release_17.05
 GALAXY_REPO=galaxyproject/galaxy
 
-#docker build -t quay.io/bgruening/galaxy ../galaxy/
-#docker tag quay.io/bgruening/galaxy quay.io/bgruening/galaxy:compose
 docker build --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/bgruening/galaxy-base ./galaxy-base/
-docker tag quay.io/bgruening/galaxy-base quay.io/bgruening/galaxy-base:compose
 docker build --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE -t quay.io/bgruening/galaxy-init ./galaxy-init/
-docker tag quay.io/bgruening/galaxy-init quay.io/bgruening/galaxy-init:compose
-docker build -t quay.io/bgruening/galaxy-web ./galaxy-web/
-docker tag quay.io/bgruening/galaxy-web quay.io/bgruening/galaxy-web:compose
-docker build --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/galaxy/proftpd ./galaxy-proftpd
-docker tag quay.io/galaxy/proftpd quay.io/galaxy/proftpd:compose
-docker build -t quay.io/galaxy/postgres ./galaxy-postgres
-docker tag quay.io/galaxy/postgres quay.io/galaxy/postgres:compose
-docker build -t quay.io/galaxy/slurm ./galaxy-slurm
-docker tag quay.io/galaxy/slurm quay.io/galaxy/slurm:compose
-docker build -t quay.io/bgruening/galaxy-htcondor ./galaxy-htcondor
-docker tag quay.io/bgruening/galaxy-htcondor quay.io/bgruening/galaxy-htcondor:compose
-docker build -t quay.io/bgruening/galaxy-htcondor-executor ./galaxy-htcondor-executor
-docker tag quay.io/bgruening/galaxy-htcondor-executor quay.io/bgruening/galaxy-htcondor-executor:compose
 
-docker tag quay.io/bgruening/galaxy-web quay.io/bgruening/galaxy
+# Build the Galaxy web-application container
+docker build -t quay.io/bgruening/galaxy-web ./galaxy-web/
+
+docker build --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/galaxy/proftpd ./galaxy-proftpd
+
+# Build the postgres container
+docker build -t quay.io/galaxy/postgres ./galaxy-postgres
+
+# The SLURM cluster
+docker build -t quay.io/galaxy/slurm ./galaxy-slurm
+
+# we build a common HTCondor and derive from that laster
+docker build -t quay.io/bgruening/galaxy-htcondor-base ./galaxy-htcondor-base
+docker build -t quay.io/bgruening/galaxy-htcondor ./galaxy-htcondor
+docker build -t quay.io/bgruening/galaxy-htcondor-executor ./galaxy-htcondor-executor
+

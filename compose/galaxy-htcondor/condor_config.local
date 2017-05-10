@@ -107,6 +107,9 @@ ALLOW_READ_COLLECTOR  = *
 ALLOW_READ_STARTD     = *
 ALLOW_CLIENT = *
 
+# The number of most recently used Docker images that will be kept on the local machine. The default value is 20.
+DOCKER_IMAGE_CACHE_SIZE = 20
+
 UID_DOMAIN = galaxy
 
 #ENABLE_USERLOG_LOCKING = False

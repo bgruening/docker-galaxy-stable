@@ -2,14 +2,15 @@
 #
 # VERSION       Galaxy-central
 
-FROM toolshed/requirements
+FROM ubuntu:14.04
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=4b6344450ccd50d0b26806f3e0c1ed39b45aaeee
+ARG ANSIBLE_RELEASE=04f94c15eb78ba292c12f6f29726e941137146fa
 
-ENV GALAXY_USER=galaxy \
+ENV DEBIAN_FRONTEND=noninteractive \
+GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
 GALAXY_HOME=/home/galaxy \
@@ -55,33 +56,37 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$GALAXY_ROOT/database/job_working_directory 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
 
-RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
-
-RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common wget && \
-    sh -c "wget -qO- - https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -" && \
-    add-apt-repository -y "deb [arch=amd64] https://download.docker.com/linux/ubuntu trusty stable" && \
-#    echo deb https://apt.dockerproject.org/repo ubuntu-trusty main > /etc/apt/sources.list.d/docker.list && \
-    sh -c "echo deb http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib > /etc/apt/sources.list.d/htcondor.list" && \
-    sh -c "wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add -" && \
-    apt-add-repository -y ppa:ansible/ansible && \
+# not to call sync() after package extraction and deactivate apt cache
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
+    echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout && \
+    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
+    locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
+    apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
+    # Condor mirror is really unreliable and times out too often, using a copy of the deb from cargo port
+    #echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list
+    #wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add - && \
+    echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y mercurial libpq-dev python-psycopg2 sudo samtools python-virtualenv \
-    uwsgi uwsgi-plugin-python supervisor \
-    docker-ce linux-image-extra-virtual \
-    slurm-llnl slurm-llnl-torque libswitch-perl \
-    slurm-drmaa-dev libyaml-dev nodejs-legacy npm ansible pbs-drmaa-dev \
-    nano nmap lynx vim curl python-crypto python-pip python-gnuplot python-rpy2 python-psutil condor python-ldap \
-    gridengine-common gridengine-drmaa1.0 && \
+    apt-get install --no-install-recommends -y sudo python-virtualenv \
+    supervisor linux-image-extra-virtual munge \
+    nodejs-legacy npm ansible nano python-pip \
+    gridengine-drmaa1.0 && \
+    wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
+    dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \
+    rm condor_8.6.3_linux_all.deb && \
     pip install --upgrade pip && \
     pip install ephemeris && \
-    apt-get purge -y software-properties-common && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    mkdir -p /tmp/download && \
+    wget -qO - https://get.docker.com/builds/Linux/x86_64/docker-17.05.0-ce.tgz | tar -xz -C /tmp/download && \
+    mv /tmp/download/docker/docker /usr/bin/ && \
+    rm -rf /tmp/download && \
+    rm -rf ~/.cache/
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
-    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_LOGS_DIR $EXPORT_DIR && \
-    gpasswd -a $GALAXY_USER docker && \
-    adduser condor docker
+    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_LOGS_DIR $EXPORT_DIR
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Container Style
@@ -109,7 +114,6 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG=/export/galaxy-central/integrated
 # TODO: Is this even required?
 RUN ln -s -f /export/shed_tools /shed_tools && \
     ln -s -f /export/tool_deps /tool_deps && \
-#    ln -s -f /export/var/lib/docker /var/lib/docker && \
     ln -s -f /export/galaxy-central /galaxy-central && \
     ln -s -f /export/venv /galaxy_venv && \
     mkdir /etc/galaxy && ln -s -f /export/welcome /etc/galaxy/web

@@ -6,7 +6,7 @@ FROM quay.io/bgruening/galaxy-base
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE=release_17.01
+ARG GALAXY_RELEASE=release_17.05
 ARG GALAXY_REPO=galaxyproject/galaxy
 
 # Create these folders and link to target directory for installation
@@ -24,8 +24,8 @@ RUN mkdir -p /export /galaxy-export && \
     chown -R $GALAXY_USER:$GALAXY_USER /galaxy-export /export && \
     # Download latest stable release of Galaxy.
     wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/$GALAXY_RELEASE | tar xz --strip-components=1 -C $GALAXY_ROOT && \
-#    wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
+    . $GALAXY_VIRTUAL_ENV/bin/activate && pip install pip --upgrade && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV/* && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT/*
 

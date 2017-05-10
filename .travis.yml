@@ -9,7 +9,9 @@ services:
 env:
   matrix:
     - TOX_ENV=py27
-    - COMPOSE=True
+    - COMPOSE_SLURM=True
+    # Compose version with Condor submitting Docker jobs
+    - COMPOSE_CONDOR_DOCKER=True
     - KUBE=True
   global:
     - secure: "PgEA6vDYZWAIZ3KyUTeA9SNSNR+eJU3kBkoEIsTnmnkyta0Z0VbIv98B9ApYeiC0VHpVzY1gblimmkXSY5+4oD9tUxpA630cUhE9iLNuo5o3MpRFun8nf8H6Jz2Y/PaPw3VPLKsH49LJYgJXeqgzoV7FHrpUP9Q3/5dycWybV2I="
@@ -25,6 +27,7 @@ before_install:
   - export GALAXY_USER_PASSWD=admin
   - export BIOBLEND_GALAXY_API_KEY=admin
   - export BIOBLEND_GALAXY_URL=http://localhost:8080
+  - export COMPOSE_DIR="${TRAVIS_BUILD_DIR}/compose"
 
   - sudo apt-get update -qq
   - sudo apt-get install docker-engine --no-install-recommends -y -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
@@ -32,6 +35,7 @@ before_install:
 
   - docker --version
   - docker info
+  # Build a k8s cluster
   - |
     if [ "${KUBE}" ]
     then
@@ -55,43 +59,48 @@ before_install:
     fi
 
 
-  # start building this repo
-  - git submodule update --init --recursive
-  - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
+  # load all configurations needed for SLURM testing
   - |
-    if [ "${COMPOSE}" ]
+    if [ "${COMPOSE_SLURM}" ]
     then
-        pip install docker-compose
-        export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
-        export DOCKER_RUN_CONTAINER="galaxy-web"
-        INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
-        SAMPLE_TOOLS=/export/config/sample_tool_list.yaml
-        cd "$WORKING_DIR"
-        ./buildlocal.sh
-        export COMPOSE_PROJECT_NAME=galaxy_compose
-        docker-compose up -d
-        sleep 120
-        docker-compose logs
-        # Define start functions
-        docker_exec() {
-          cd $WORKING_DIR
-          docker-compose exec galaxy-web "$@"
-        }
-        docker_exec_run() {
-          cd $WORKING_DIR
-          docker-compose exec galaxy-web "$@"
-        }
-        docker_run() {
-          cd $WORKING_DIR
-          docker-compose run "$@"
-        }
-        
-    elif [ "${KUBE}" ]
+      # The compose file recognises ENV vars to change the defaul behavior
+      cd ${COMPOSE_DIR}
+      ln -sf .env_slurm .env
+    fi
+
+
+  # load all configurations needed for Condor and Docker
+  - |
+    if [ "${COMPOSE_CONDOR_DOCKER}" ]
+    then
+      # The compose file recognises ENV vars to change the defaul behavior
+      cd ${COMPOSE_DIR}
+      ln -sf .env_htcondor_docker .env
+
+      # Galaxy needs to a full path for the the jobs, in- and outputs.
+      # Do we want to run each job in it's own container and this container uses the host
+      # container engine (not Docker in Docker) then the path to all files inside and outside
+      # of the container needs to be the same.
+      sudo mkdir /export
+      sudo chmod 777 /export
+      sudo chown 1450:1450 /export
+    fi
+
+  # Installing kompose to convert the docker-compose YAML file
+  - |
+    if [ "${KUBE}" ]
     then
         curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-linux-amd64 -o kompose
         chmod +x kompose
         sudo mv ./kompose /usr/bin/kompose
+    fi
 
+  # start building this repo
+  - git submodule update --init --recursive
+  - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
+  - |
+    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" || [ "${KUBE}" ] ]
+    then
         pip install docker-compose
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
         export DOCKER_RUN_CONTAINER="galaxy-web"
@@ -101,7 +110,27 @@ before_install:
         ./buildlocal.sh
         export COMPOSE_PROJECT_NAME=galaxy_compose
         docker-compose up -d
-        sleep 120
+
+        until docker-compose exec galaxy-web ps -fC uwsgi
+        do
+          echo "sleeping for 10 seconds"
+          sleep 10
+          docker-compose logs
+        done
+
+        if [ "${COMPOSE_CONDOR_DOCKER}" ]
+        then
+            # turn down the slurm service
+            docker-compose stop galaxy-slurm
+        fi
+        
+        if [ "${COMPOSE_SLURM}" ]
+        then
+            # turn down the htcondor services
+            docker-compose stop galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big
+        fi
+
+        sleep 30
         docker-compose logs
         # Define start functions
         docker_exec() {
@@ -116,8 +145,6 @@ before_install:
           cd $WORKING_DIR
           docker-compose run "$@"
         }
-
-        docker ps
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
         export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
@@ -159,14 +186,14 @@ script:
   - set -e
   # Test submitting jobs to an external slurm cluster
   - |
-      if [ ! "${COMPOSE}" ] && [ ! "${KUBE}" ]
+      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
       then
         # For compose slurm is already included and thus tested
         cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $WORKING_DIR
       fi
   # Test submitting jobs to an external gridengine cluster
   - |
-      if [ ! "${COMPOSE}" ] && [ ! "${KUBE}" ]
+      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
       then
         # This test is not testing compose, thus disabled
         cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
@@ -181,27 +208,27 @@ script:
 
   # Test SFTP Server
   - sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
+
   # Test self-signed HTTPS
-  - |
-     docker_run -d --name httpstest -p 443:443 -e "USE_HTTPS=True" $DOCKER_RUN_CONTAINER
-     sleep 60s && curl -v -k --fail https://127.0.0.1:443/api/version
-     echo | openssl s_client -connect 127.0.0.1:443 2>/dev/null | openssl x509 -issuer -noout| grep selfsigned
-     docker logs httpstest && docker stop httpstest && docker rm httpstest
+  - docker_run -d --name httpstest -p 443:443 -e "USE_HTTPS=True" $DOCKER_RUN_CONTAINER
+  - sleep 90s && curl -v -k --fail https://127.0.0.1:443/api/version
+  - echo | openssl s_client -connect 127.0.0.1:443 2>/dev/null | openssl x509 -issuer -noout| grep selfsigned
+  - docker logs httpstest && docker stop httpstest && docker rm httpstest
 
   - cd $TRAVIS_BUILD_DIR/test/bioblend/ && . ./test.sh && cd $WORKING_DIR/
 
   # Test the 'old' tool installation script
   - docker_exec_run bash -c "install-repository $INSTALL_REPO_ARG '--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'"
   - |
-    if [ "$COMPOSE" ] || [ "${KUBE}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # Test without install-repository wrapper
-      docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --tool-deps --repository-deps --url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'
+      docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --url https://toolshed.g2.bx.psu.edu -o devteam --name cut_columns --panel-section-name BEDTools'
     fi
   # Test the 'new' tool installation script
 #  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
   - |
-    if [ "$COMPOSE" ] || [ "${KUBE}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
       # Compose uses the online installer (uses the running instance)
       docker_exec_run shed-install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
@@ -214,7 +241,7 @@ script:
   - docker_exec docker info
   # Check if the database image matches the current galaxy version
   - |
-      if [ "$COMPOSE" ] || [ "${KUBE}" ]
+      if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
       then
         cd $WORKING_DIR && bash ./dumpsql.sh
         git diff --exit-code $WORKING_DIR/galaxy-postgres/init-galaxy-db.sql.in || ( echo "Database dump does not equal dump in repository" && false )
