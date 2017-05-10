@@ -82,7 +82,8 @@ before_install:
       # container engine (not Docker in Docker) then the path to all files inside and outside
       # of the container needs to be the same.
       sudo mkdir /export
-      sudo chmod 666 /export
+      sudo chmod 777 /export
+      sudo chown 1450:1450 /export
     fi
 
   # start building this repo
@@ -103,8 +104,9 @@ before_install:
 
         until docker-compose exec galaxy-web ps -fC uwsgi
         do
-          echo "sleeping for 2 seconds"
-          sleep 2
+          echo "sleeping for 10 seconds"
+          sleep 10
+          docker-compose logs
         done
 
         sleep 30
