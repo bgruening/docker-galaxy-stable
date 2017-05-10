@@ -87,7 +87,8 @@ before_install:
     fi
 
   # Installing kompose to convert the docker-compose YAML file
-  - if [ "${KUBE}" ]
+  - |
+    if [ "${KUBE}" ]
     then
         curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-linux-amd64 -o kompose
         chmod +x kompose
