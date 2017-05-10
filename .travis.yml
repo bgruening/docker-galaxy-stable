@@ -106,6 +106,7 @@ before_install:
           echo "sleeping for 2 seconds"
           sleep 2
         done
+
         sleep 30
         docker-compose logs
         # Define start functions
