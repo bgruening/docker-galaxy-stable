@@ -154,30 +154,37 @@ Proftpd uses the [ansible galaxy extras project](https://github.com/galaxyprojec
 - *proftpd\_nat\_masquerade*=_false_: Set masquearade to true if host is NAT'ed.
 - *proftpd\_masquerade\_address*=_ip_: Refers to the ip that clients use to establish an ftp connection. Can be a command that returns an IP or an IP address and applies only if proftpd\_nat\_masquerade is true. `\`ec2metadata --public-ipv4\`` returns the public ip for amazon's ec2 service.
 
-## slurm <a name="slurm" /> [[toc]](#toc)
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+## slurm <a name="slurm" />
 
 The slurm container is an example of how to use an external slurm cluster. The container is set up with a pre-installed virtual python environment ready for galaxy. The default galaxy job_conf.xml is compatible with this container, but will require change for your own external cluster or a more advanced setup.
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-### Configuration <a name="slurm-Configuration" /> [[toc]](#toc)
+### Configuration <a name="slurm-Configuration" /> 
 See [Running jobs outside of the container](https://github.com/bgruening/docker-galaxy-stable/blob/master/docs/Running_jobs_outside_of_the_container.md) and [Using an external Slurm cluster](https://github.com/bgruening/docker-galaxy-stable#using-an-external-slurm-cluster--toc).
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-## galaxy-init <a name="galaxy-init" /> [[toc]](#toc)
+## galaxy-init <a name="galaxy-init" /> 
 
 This container is required to initialize the /export directory structure of the galaxy worker.
 On startup, this container will copy all missing directories to /export. In order to update galaxy, simply delete /export/galaxy-central and it will be reinitialized with the current version.
 When initialization is complete, this container notifies the galaxy handlers to start up by locking /export/.initdone. You can disable this mechanism by setting DISABLE_SLEEPLOCK=true.
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-### Configuration <a name="galaxy-init-Configuration" /> [[toc]](#toc)
+### Configuration <a name="galaxy-init-Configuration" />
 - *DISABLE\_SLEEPLOCK*="": Disable sleeplock mechanism.
 
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-## galaxy-web <a name="galaxy-web" /> [[toc]](#toc)
+## galaxy-web <a name="galaxy-web" />
 
 This container runs the actual webhandler.
 As of now, this container also runs nginx, job handlers, cron, docker.
 This container will wait until it is notified via the lock on /export/.initdone. You can disable this mechanism by setting NONUSE=sleeplock.
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
-### Configuration <a name="galaxy-web-Configuration" /> [[toc]](#toc)
+### Configuration <a name="galaxy-web-Configuration" />
 
 `/export/` directory structure:
 - `galaxy-central/`: Main directory containing the galaxy installation. Configurations and data are symlinked to their export directories.
