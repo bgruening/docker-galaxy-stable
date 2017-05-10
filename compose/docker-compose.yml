@@ -8,7 +8,7 @@ services:
         - proftpd_db_connection=galaxy@galaxy-postgres
         - proftpd_db_username=galaxy
         - proftpd_db_password=chaopagoosaequuashie
-        - proftpd_files_dir=${EXPORT_DIR:-/export/}ftp
+        - proftpd_files_dir=${EXPORT_DIR:-/export}/ftp/
         - proftpd_use_sftp=True
         - proftpd_generate_ssh_key=False
         - proftpd_passive_port_low=30000
@@ -64,7 +64,7 @@ services:
     hostname: galaxy-slurm
     volumes_from:
         - galaxy-web
-    restart: always
+    restart: unless-stopped
 
   # This container initializes the galaxy export.
   galaxy-init:
@@ -83,6 +83,7 @@ services:
     hostname: galaxy-htcondor
     volumes_from:
         - galaxy-web
+    restart: unless-stopped
 
   galaxy-htcondor-executor:
     image: quay.io/bgruening/galaxy-htcondor-executor
@@ -95,6 +96,7 @@ services:
         - galaxy-web
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
 
   galaxy-htcondor-executor-big:
     image: quay.io/bgruening/galaxy-htcondor-executor
@@ -106,6 +108,7 @@ services:
     volumes:
         - ./galaxy-storage/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
 
   # Message queue for better performance
   rabbitmq:
