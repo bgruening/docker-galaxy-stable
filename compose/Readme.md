@@ -5,7 +5,6 @@ Galaxy Docker Compose
 
 - [Usage](#Usage)
 - [Build](#Build)
-- [Roadmap](#Roadmap)
 - [Advanced](#Advanced)
   - [postgres](#postgres)
     - [Configuration](#postgres-Configuration)
@@ -18,7 +17,7 @@ Galaxy Docker Compose
 
 # Usage <a name="Usage" /> [[toc]](#toc)
 
-At first you need to install docker with compose.
+At first you need to install docker with [compose](https://docs.docker.com/compose).
 - [docker](https://docs.docker.com/installation/)
 - [docker-compose](https://docs.docker.com/compose/install/)
 
@@ -34,16 +33,65 @@ Build the compose containers:
 ```sh
 ./buildlocal.sh
 ```
-After successful installation you can run the compose file:
+
+After successful installation you can start your composed Galaxy version with:
 ```sh
 docker-compose up -d
 ```
 
+This will start a bunch of different containers, everyone with a special function.
+For example `docker-compose ps` will show you something similar than this:
 
-# Roadmap <a name="Roadmap" /> [[toc]](#toc)
+```
+quay.io/galaxy/slurm                       "/usr/bin/startup.sh"  galaxy-slurm
+thajeztah/pgadmin4                         "python ./usr/loca..." pgadmin4
+quay.io/galaxy/proftpd                     "/usr/bin/run.sh"      galaxy-proftpd
+quay.io/bgruening/galaxy-htcondor          "/usr/bin/supervisord" galaxy-htcondor
+quay.io/bgruening/galaxy-htcondor-executor "/usr/bin/startup.sh"  compose_galaxy-htcondor-executor_1
+quay.io/bgruening/galaxy-htcondor-executor "/usr/bin/startup.sh"  compose_galaxy-htcondor-executor-big_1
+quay.io/bgruening/galaxy-init              "/usr/bin/startup"     galaxy-init
+rabbitmq:alpine                            "docker-entrypoint..." galaxy-rabbitmq
+quay.io/bgruening/galaxy-web               "/usr/bin/startup"     galaxy-web
+quay.io/galaxy/postgres                    "docker-entrypoint..." galaxy-postgres
+```
 
-We wish to split the monolithic container into its components, i.e. postgres, proftpd, slurm, nginx (more?)
-So far postgres and proftpd are working.
+As you can see we have started a PostgreSQL and a ProFTP container for you. But also a pgadmin container for administrators that which to inspect the Galaxy database or for Admin trainings. The `galaxy-web` container contains
+main Galaxy application and the `nginx` webserver. It is also connected to the an external volume to store all data
+that Galaxy genarates and all it's configuration - pretty much like the Monolithic Galaxy Docker Image.
+
+SLURM and HTCondor is also started for you and Galaxy can make use of these schedulers. By default Galaxy will use
+SLURM as scheduler and will resolve your tool dependencies with Conda. This is all defined in the docker-compose.yml file.
+To change the default behavior you can simply export a few environment variables and completely change the behavior of
+your composed deployment. For your convinience we will maintain a few recommend deyployments as predefinded
+environment files, e.g. `.env_htcondor_docker` or `.env_slurm`.
+Simply create a symlink to `.env`
+
+```sh
+   ln -sf .env_htcondor_docker .env
+```
+
+and start your composed Galaxy as you are used to with:
+
+```sh
+docker-compose up -d
+
+```
+
+If you have `.env_htcondor_docker` enabled this means Galaxy will use HTCondor as scheduler by default and
+even better Galaxy will resolve tool dependencies via BioContainers, so every job on it's own will run in a container.
+
+You want to scale-up your environment and add new workers? Simply start new HTCondor clients with:
+
+```sh
+docker-compose scale galaxy-htcondor-executor=5
+```
+
+
+An important feature of the compose version is that you can orchestrates and schedule this entire infrastructure via [Swarm](https://docs.docker.com/engine/swarm), [Kubernetes](https://kubernetes.io) or [Rancher](http://rancher.com/rancher-os).
+
+More documentation will follow. Contributions welcome!
+
+
 
 # Advanced <a name="Advanced" /> [[toc]](#toc)
 
@@ -135,3 +183,4 @@ This container will wait until it is notified via the lock on /export/.initdone.
 - `slurm.conf`: Configuration for slurm
 
 TODO: Configuration Variables
+
