@@ -12,7 +12,12 @@ then
     export BIOBLEND_GALAXY_API_KEY=admin ;
     export BIOBLEND_GALAXY_URL=http://galaxy ;
     cd /home/galaxy/bioblend-master ;
-    tox -e $TOX_ENV -- -e "test_download_dataset|test_upload_from_galaxy_filesystem|test_get_datasets|test_datasets_from_fs|test_existing_history|test_new_history|test_params|test_dataset_delete|test_dataset_delete"'
+    tox -e $TOX_ENV -- -e "test_download_dataset|test_upload_from_galaxy_filesystem|test_get_datasets|test_datasets_from_fs|test_existing_history|test_new_history|test_params|test_dataset_delete|test_dataset_delete|test_dataset_download"'
+
+    #TODO: test_dataset_delete|test_dataset_delete|test_dataset_download are failing only on htcondor with
+    #/var/lib/condor/execute/dir_293/condor_exec.exe: line 25: /export/venv/bin/activate: No such file or directory
+    #/var/lib/condor/execute/dir_293/condor_exec.exe: line 31: /export/galaxy-central/database/job_working_directory/000/45/__instrument_core_galaxy
+
 else
     docker build -t bioblend_test .
     docker run -it --link galaxy -v /tmp/:/tmp/ bioblend_test
