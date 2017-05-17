@@ -3,3 +3,6 @@
   roles:
       - role: galaxyprojectdotorg.galaxyextras
         tags: galaxyextras
+
+
+      - { role: galaxy-globus-playbook, when: "{{ galaxy_use_globus }}" }
