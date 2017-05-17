@@ -627,6 +627,9 @@ git submodule update --init --recursive
    - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
  - 17.05:
    - add PROXY_PREFIX variable to enable automatic configuration of Galaxy running under some prefix (@abretaud)
+   - enable quota by default (just the funtionality, not any specific value)
+   - HT-Condor is now supported in compose with semi-autoscaling and BioContainers
+   - Galaxy Docker Compose is completely under Travis testing and available with SLURM and HT-Condor
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
