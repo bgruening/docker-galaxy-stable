@@ -17,15 +17,15 @@ We are aiming to fill this matrix step by step.
 
 | Feature                 | Monolithic    | [Compose](https://docs.docker.com/compose)  | [Kubernetes](https://kubernetes.io):hatching_chick: | [Swarm](https://docs.docker.com/engine/swarm) | [Rancher](http://rancher.com/rancher-os) |
 | ----------------------- |:-------------:| :-------:|:----:|:----:|:----:|
-| SLURM Job Runner (JR)   | x             | x        |-     |-     |+     |
-| HT-Condor JR            | x             | x        |-     |-     |+     |
-| HT-Condor JR + Docker   | -             | x        |-     |-     |+     |
-| Kubernetes JR           | -             | x        |-     |-     |+     |
-| Interactive Environments|               | x             | x        |-     |-     |+     |
-| Conda resolver          | x             | x        |-     |-     |+     |
+| SLURM Job Runner (JR)   | x             | x        |-     |-     |x     |
+| HT-Condor JR            | x             | x        |-     |-     |x     |
+| HT-Condor JR + Docker   | -             | x        |-     |-     |x     |
+| Kubernetes JR           | -             | x        |-     |-     |x     |
+| Interactive Environments| x             | x        |-     |-     |x     |
+| Conda resolver          | x             | x        |-     |-     |x     |
 | TS resolver :koala:     | x             | -        |-     |-     |-     |
-| compute auto scale      | -             | +        |-     |-     |+     |
-| pgadmin4 support        | -             | x        |-     |-     |+     |
+| compute auto scale      | -             | +        |-     |-     |x     |
+| pgadmin4 support        | -             | x        |-     |-     |x     |
 
 :koala: For the composed versions, the Tool Shed (TS) resolver were left out on purpose to keep the image sizes small.
 It simply means that we do not ship the [requirements](https://galaxyproject.org/toolshed/package-recipes/) needed to compile traditional TS dependencies. This feature can be enabled by simply installing all requirements into the galaxy-web container. However, we recommend to use [Conda packages](https://docs.galaxyproject.org/en/master/admin/conda_faq.html).
