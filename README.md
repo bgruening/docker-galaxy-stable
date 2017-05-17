@@ -20,7 +20,10 @@ We are aiming to fill this matrix step by step.
 | SLURM Job Runner (JR)   | ✔             | ✔        |-     |-     |✔     |
 | HT-Condor JR            | ✔             | ✔        |-     |-     |✔     |
 | HT-Condor JR + Docker   | -             | ✔        |-     |-     |✔     |
-| Kubernetes JR           | -             | ✔        |-     |-     |✔     |
+| Kubernetes JR           | -             | -        |-     |-     |-     |
+| Kubernetes JR           | -             | -        |-     |-     |-     |
+| Chronos JR              | -             | -        |-     |-     |-     |
+| Pulsar JR               | -             | -        |-     |-     |-     |
 | Interactive Environments| ✔             | ✔        |-     |-     |✔     |
 | Conda resolver          | ✔             | ✔        |-     |-     |✔     |
 | TS resolver :koala:     | ✔             | -        |-     |-     |-     |
