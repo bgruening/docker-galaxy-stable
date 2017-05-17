@@ -5,35 +5,6 @@
 ![docker pulls](https://img.shields.io/docker/pulls/bgruening/galaxy-stable.svg) ![docker stars](https://img.shields.io/docker/stars/bgruening/galaxy-stable.svg)
 
 
-Capability matrix
-=================
-
-Galaxy is a powerful framework with sheer endless possibilities of deployment methods and features.
-This is often overwhelming and makes the choise for the correct deployment harder.
-In the following matrix we will try to give you an overview about the feature we do
-offer with the Galaxy Docker project and which features are constantly tested under different deployments.
-Please note this can only cover a small spectrum what is actually possible with Galaxy.
-We are aiming to fill this matrix step by step.
-
-| Feature                 | Monolithic    | [Compose](https://docs.docker.com/compose)  | [Kubernetes](https://kubernetes.io):hatching_chick: | [Swarm](https://docs.docker.com/engine/swarm) | [Rancher](http://rancher.com/rancher-os) |
-| ----------------------- |:-------------:| :-------:|:----:|:----:|:----:|
-| SLURM Job Runner (JR)   | ✔             | ✔        |-     |-     |✔     |
-| HT-Condor JR            | ✔             | ✔        |-     |-     |✔     |
-| HT-Condor JR + Docker   | -             | ✔        |-     |-     |✔     |
-| Kubernetes JR           | -             | -        |-     |-     |-     |
-| Chronos JR              | -             | -        |-     |-     |-     |
-| Pulsar JR               | -             | -        |-     |-     |-     |
-| Interactive Environments| ✔             | ✔        |-     |-     |✔     |
-| Conda resolver          | ✔             | ✔        |-     |-     |✔     |
-| TS resolver :koala:     | ✔             | -        |-     |-     |-     |
-| compute auto scale      | -             | ✔        |-     |-     |✔     |
-| pgadmin4 support        | -             | ✔        |-     |-     |✔     |
-
-:koala: For the composed versions, the Tool Shed (TS) resolver were left out on purpose to keep the image sizes small.
-It simply means that we do not ship the [requirements](https://galaxyproject.org/toolshed/package-recipes/) needed to compile traditional TS dependencies. This feature can be enabled by simply installing all requirements into the galaxy-web container. However, we recommend to use [Conda packages](https://docs.galaxyproject.org/en/master/admin/conda_faq.html).
-
-:hatching_chick: The kubernetes (k8s) setup is based on [kompose](https://github.com/kubernetes-incubator/kompose) to convert the needed YAML files.
-
 Galaxy Docker Image
 ===================
 
@@ -50,6 +21,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 # Table of Contents <a name="toc" />
 
+- [Capability matrix](#cap_matrix)
 - [Usage](#Usage)
   - [Upgrading images](#Upgrading-images)
   - [Enabling Interactive Environments in Galaxy](#Enabling-Interactive-Environments-in-Galaxy)
@@ -75,6 +47,35 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 - [Requirements](#Requirements)
 - [History](#History)
 - [Support & Bug Reports](#Support-Bug-Reports)
+
+
+# Capability matrix <a name="cap_matrix" />  [[toc]](#toc)
+
+Galaxy is a powerful framework with sheer endless possibilities of deployment methods and features.
+This is often overwhelming and makes the choise for the correct deployment harder.
+In the following matrix we will try to give you an overview about the feature we do
+offer with the Galaxy Docker project and which features are constantly tested under different deployments.
+Please note this can only cover a small spectrum what is actually possible with Galaxy.
+We are aiming to fill this matrix step by step, get in [contact](https://gitter.im/bgruening/docker-galaxy-stable) if you want to help!
+
+| Feature                 | Monolithic    | [Compose](https://docs.docker.com/compose)  | [Kubernetes](https://kubernetes.io):hatching_chick: | [Swarm](https://docs.docker.com/engine/swarm) | [Rancher](http://rancher.com/rancher-os) |
+| ----------------------- |:-------------:| :-------:|:----:|:----:|:----:|
+| SLURM Job Runner (JR)   | ✔             | ✔        |-     |-     |✔     |
+| HT-Condor JR            | ✔             | ✔        |-     |-     |✔     |
+| HT-Condor JR + Docker   | -             | ✔        |-     |-     |✔     |
+| Kubernetes JR           | -             | -        |-     |-     |-     |
+| Chronos JR              | -             | -        |-     |-     |-     |
+| Pulsar JR               | -             | -        |-     |-     |-     |
+| Interactive Environments| ✔             | ✔        |-     |-     |✔     |
+| Conda resolver          | ✔             | ✔        |-     |-     |✔     |
+| TS resolver :koala:     | ✔             | -        |-     |-     |-     |
+| compute auto scale      | -             | ✔        |-     |-     |✔     |
+| pgadmin4 support        | -             | ✔        |-     |-     |✔     |
+
+:koala: For the composed versions, the Tool Shed (TS) resolver were left out on purpose to keep the image sizes small.
+It simply means that we do not ship the [requirements](https://galaxyproject.org/toolshed/package-recipes/) needed to compile traditional TS dependencies. This feature can be enabled by simply installing all requirements into the galaxy-web container. However, we recommend to use [Conda packages](https://docs.galaxyproject.org/en/master/admin/conda_faq.html).
+
+:hatching_chick: The kubernetes (k8s) setup is based on [kompose](https://github.com/kubernetes-incubator/kompose) to convert the needed YAML files.
 
 
 # Usage <a name="Usage" /> [[toc]](#toc)
