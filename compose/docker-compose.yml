@@ -100,13 +100,16 @@ services:
 
   galaxy-htcondor-executor-big:
     image: quay.io/bgruening/galaxy-htcondor-executor
-    privileged: True # HTCondor wants a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
+    # privileged is needed to run Docker jobs, moreover HTCondor wants
+    # a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
+    privileged: True
     environment:
         - CONDOR_HOST=galaxy-htcondor
         - CONDOR_CPUS=2
         - CONDOR_MEMORY=2048
+    volumes_from:
+        - galaxy-web
     volumes:
-        - ./galaxy-storage/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 
