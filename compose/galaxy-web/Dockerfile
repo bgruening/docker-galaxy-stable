@@ -47,6 +47,7 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars nginx_upload_store_path=$GALAXY_CONFIG_NGINX_UPLOAD_STORE \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
     --extra-vars nginx_welcome_path=$NGINX_WELCOME_PATH \
+    --extra-vars nginx_galaxy_location=\${PROXY_PREFIX} \
     --extra-vars startup_sleeplock=True \
     --extra-vars startup_export_user_files=False \
     --extra-vars supervisor_manage_slurm=False \
