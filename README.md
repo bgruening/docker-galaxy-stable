@@ -35,6 +35,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
   - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
   - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
+- [Enable Galaxy to use BioContainers (Docker)](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
 - [Lite Mode](#Lite-Mode)
 - [Extending the Docker Image](#Extending-the-Docker-Image)
@@ -120,17 +121,85 @@ This also allows for data separation, but keeps everything encapsulated within t
 
 ## Upgrading images <a name="Upgrading-images" /> [[toc]](#toc)
 
-We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you:
+We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you. Please, take in account that upgrading may vary depending on your Galaxy installation, and the changes in new versions. Use this example carefully!
 
 * Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.
 * New unmodified configuration files are always stored in a hidden directory called `.distribution_config`. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.
-* Start your container in interactive mode with an attached terminal and upgrade your database.
-    1. `docker run -i -t bgruening/galaxy-stable /bin/bash`
-    2. `startup` to startup all processes
-    3. `Ctrl+C` to abort the log messages
-    4. `sh manage_db.sh upgrade` will upgrade your database to the most recent version
-    5. logout from the container
-    6. start your container as usual: `docker run -i -t bgruening/galaxy-stable`
+* Note that copying database and datasets can be expensive if you have many GB of data.
+
+1. Download newer version of the Galaxy image
+
+  ```
+  $ sudo docker pull bgruening/galaxy-stable
+  ```
+2. Stop and rename the current galaxy container
+  
+  ```
+  $ sudo docker stop galaxy-instance
+  $ sudo docker rename galaxy-instance galaxy-instance-old
+  ```
+3. Rename the data directory (the one that is mounted to /export in the docker)
+
+  ```
+  $ sudo mv /data/galaxy-data /data/galaxy-data-old
+  ```
+4. Run a new Galaxy container using newer image and wait while Galaxy generates the default content for /export
+
+  ```
+  $ sudo run -p 8080:80 -v /data/galaxy-data:/export --name galaxy-instance bgruening/galaxy-stable
+  ```
+5. Stop the Galaxy container
+
+  ```
+  $ sudo docker stop galaxy-instance
+  ```
+6. Replace the content of the postgres database by the old db data
+
+  ```
+  $ sudo rm -r /data/galaxy-data/postgresql/
+  $ sudo rsync -var /data/galaxy-data-old/postgresql/  /data/galaxy-data/postgresql/
+  ```
+7. Use diff to find changes in the config files (only if you changed any config file). 
+
+  ```
+  $ cd /data/galaxy-data/.distribution_config
+  $ for f in *; do echo $f; diff $f ../../galaxy-data-old/galaxy-central/config/$f; read; done
+  ```
+8. Copy all the users' datasets to the new instance
+
+  ```
+  $ sudo rsync -var /data/galaxy-data-old/galaxy-central/database/files/* /data/galaxy-data/galaxy-central/da
+  tabase/files/
+  ```
+9. Copy all the installed tools 
+
+  ```
+  $ sudo rsync -var /data/galaxy-data-old/tool_deps/* /data/galaxy-data/tool_deps/
+  $ sudo rsync -var /data/galaxy-data-old/shed_tools/* /data/galaxy-data/shed_tools/
+  ```
+10. Copy the welcome page and all its files.
+
+  ```
+  $ sudo rsync -var /data/galaxy-data-old/welcome* /data/galaxy-data/
+  ```
+11. Create a auxiliar docker in interactive mode and upgrade the database.
+
+  ```
+  $ sudo docker run -it --rm -v /data/galaxy-data:/export bgruening/galaxy-stable /bin/bash
+  # Startup all processes
+  > startup &
+  #Upgrade the database to the most recent version
+  > sh manage_db.sh upgrade
+  #Logout
+  > exit
+  ``` 
+12. Start the docker and test
+
+  ``` 
+  $ sudo docker start galaxy-instance
+  ``` 
+13. Clean the old container and image
+    
 
 ## Enabling Interactive Environments in Galaxy <a name="Enabling-Interactive-Environments-in-Galaxy" /> [[toc]](#toc)
 
@@ -202,7 +271,11 @@ docker run -p 8080:80 \
 
 ## Galaxy's config settings <a name="Galaxys-config-settings" /> [[toc]](#toc)
 
-Every Galaxy configuration setting can be overwritten by a given environment variable during startup. For example by default the `admin_users`, `master_api_key` and the `brand` variable it set to:
+Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
+`GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters* 
+For example, you can set the Galaxy session timeout to 5 mintues by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
+
+*by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
 
 ```
 GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
@@ -245,7 +318,7 @@ docker run -p 8080:80 \
 
 ## Personalize your Galaxy <a name="Personalize-your-Galaxy" /> [[toc]](#toc)
 
-The Galaxy welcome screen can be changed by providing a `welcome.html` page in `/home/user/galaxy_storage/`. All files starting with `welcome` will be copied during starup and served as indroduction page. If you want to include images or other media, name them `welcome_*` and link them relative to your `welcome.html` ([example](`https://github.com/bgruening/docker-galaxy-stable/blob/master/galaxy/welcome.html`)).
+The Galaxy welcome screen can be changed by providing a `welcome.html` page in `/home/user/galaxy_storage/`. All files starting with `welcome` will be copied during startup and served as introduction page. If you want to include images or other media, name them `welcome_*` and link them relative to your `welcome.html` ([example](`https://github.com/bgruening/docker-galaxy-stable/blob/master/galaxy/welcome.html`)).
 
 
 ## Deactivating services <a name="Deactivating-services" /> [[toc]](#toc)
@@ -404,6 +477,21 @@ a line such as this to each job destination:
 ```
 <env file="/path/to/shared/galaxy/venv" />
 ```
+# Enable Galaxy to use BioContainers (Docker) <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
+This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using [mulled](https://github.com/mulled). To test, install the [IUC bedtools](https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&changeset_revision=7b3aaff0d78c) from the toolshed. When you try to execute *ClusterBed* for example. You may get a missing dependancy error for *bedtools*. But bedtools has an associated docker image on [quay.io](https://quay.io/).  Now configure Galaxy as follows:
+
+- Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True` 
+- In `job_conf.xml` configure a Docker enabled destination as follows:
+
+```xml
+<destination id="docker_local" runner="local">
+    <param id="docker_enabled">true</param>
+    <param id="docker_volumes">$galaxy_root:ro,$galaxy_root/database/tmp:rw,$tool_directory:ro,$job_directory:ro,$working_directory:rw,$default_file_path:rw</param>
+    <param id="docker_sudo">false</param>
+</destination>
+```
+
+When you execute the tool again, Galaxy will pull the image from Biocontainers ([quay.io/biocontainers](https://quay.io/organization/biocontainers)), run the tool inside of this container to produce the desired output.
 
 # Magic Environment variables <a name="Magic-Environment-variables"/> [[toc]](#toc)
 
@@ -443,7 +531,9 @@ If the desired tools are already included in the Tool Shed, building your own pe
 5. Run your container with `docker run -p 8080:80 my-docker-test`
 6. Open your web browser on `http://localhost:8080`
 
-For a working example, have a look at the [Dockerfile's](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile) of [deepTools](http://deeptools.github.io/) 
+For a working example, have a look at the  or the  Dockerfile's.
+- [deepTools](http://deeptools.github.io/) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile)
+- [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile)
 
 ```
 # Galaxy - deepTools
@@ -530,8 +620,12 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [Galaxy with the Language Application Grid tools](https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid)
 - [RNAcommender](https://github.com/gianlucacorrado/galaxy-RNAcommender)
 - [OpenMoleculeGenerator](https://github.com/bgruening/galaxy-open-molecule-generator)
-- [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-vm)
+- [Workflow4Metabolomics](https://github.com/workflow4metabolomics/w4m-docker)
 - [HiC-Explorer](https://github.com/maxplanck-ie/docker-galaxy-hicexplorer)
+- [SNVPhyl](https://github.com/phac-nml/snvphyl-galaxy)
+- [GraphClust](https://github.com/BackofenLab/docker-galaxy-graphclust)
+- [RNA workbench](https://github.com/bgruening/galaxy-rna-workbench)
+- [Cancer Genomics Toolkit](https://github.com/morinlab/tools-morinlab/tree/master/docker)
 
 # Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
@@ -580,6 +674,13 @@ Updating already existing submodules is possible with:
 git submodule update --init --recursive
 ```
 
+If you simply want to change the Galaxy repository and/or the Galaxy branch, from which the container is build you can do this with Docker `--build-arg` during the `docker build` step. For example you can use these parameters during container build:
+
+```
+ --build-arg GALAXY_RELEASE=install_workflow_and_tools
+ --build-arg GALAXY_REPO=https://github.com/manabuishii/galaxy
+```
+
 # Requirements <a name="Requirements" /> [[toc]](#toc)
 
 - [Docker](https://www.docker.io/gettingstarted/#h_installation)
@@ -623,15 +724,22 @@ git submodule update --init --recursive
   - documentation and tests updates for SLURM integration by @mvdbeek
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
- - 16.10:
+- 16.10:
    - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
- - 17.05:
+- 17.01:
+  - enable Conda dependency resultion by deault
+  - [new Galaxy version](https://docs.galaxyproject.org/en/master/releases/17.01_announce.html)
+  - more compose work (slurm, postgresql)
+- 17.05:
    - add PROXY_PREFIX variable to enable automatic configuration of Galaxy running under some prefix (@abretaud)
    - enable quota by default (just the funtionality, not any specific value)
    - HT-Condor is now supported in compose with semi-autoscaling and BioContainers
    - Galaxy Docker Compose is completely under Travis testing and available with SLURM and HT-Condor
+   - using Docker `build-arg`s for GALAXY_RELEASE and GALAXY_REPO
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
 You can file an [github issue](https://github.com/bgruening/docker-galaxy-stable/issues) or ask
 us on the [Galaxy development list](http://lists.bx.psu.edu/listinfo/galaxy-dev).
+
+If you like this service please fill out this survey: https://www.surveymonkey.de/r/denbi-service?sc=rbc&tool=galaxy-docker

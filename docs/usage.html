@@ -22,6 +22,7 @@
   <ul>
     <li><a href="index.html">Global description</a>  </li>
     <li><a href="usage.html">Usage </a>  </li>
+    <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
@@ -88,25 +89,91 @@
  bgruening/galaxy-stable</pre></div>
 <p>This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your <code>$HOME/.docker</code> folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the problems with permissions <a href="https://github.com/bgruening/docker-galaxy-stable/issues/68">reported</a> for data export on non-Linux hosts.</p>
 <h2>Upgrading images <a name="user-content-Upgrading-images"> </a></h2>
-<p>We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you:</p>
+<p>We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you. Please, take in account that that upgrading may vary depending on your Galaxy installation, and the changes in new versions. Use this example carefully!</p>
 <ul>
 <li>Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.</li>
 <li>New unmodified configuration files are always stored in a hidden directory called <code>.distribution_config</code>. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.</li>
-<li>Start your container in interactive mode with an attached terminal and upgrade your database.</li>
+<li>Note that copying database and datasets can be expensive if you have many GB of data.</li>
 </ul>
 <ol>
-<li><code>docker run -i -t bgruening/galaxy-stable /bin/bash</code></li>
-<li><code>startup</code> to startup all processes</li>
-<li><code>Ctrl+C</code> to abort the log messages</li>
-<li><code>sh manage_db.sh upgrade</code> will upgrade your database to the most recent version</li>
-<li>logout from the container</li>
-<li>start your container as usual: <code>docker run -i -t bgruening/galaxy-stable</code></li>
+<li>Download newer version of the Galaxy image</li>
+</ol>
+<pre><code>$ sudo docker pull bgruening/galaxy-stable
+</code></pre>
+<ol start="2">
+<li>Stop and rename the current galaxy container</li>
+</ol>
+<pre><code>$ sudo docker stop galaxy-instance
+$ sudo docker rename galaxy-instance galaxy-instance-old
+</code></pre>
+<ol start="3">
+<li>Rename the data directory (the one that is mounted to /export in the docker)</li>
+</ol>
+<pre><code>$ sudo mv /data/galaxy-data /data/galaxy-data-old
+</code></pre>
+<ol start="4">
+<li>Run a new Galaxy container using newer image and wait while Galaxy generates the default content for /export</li>
+</ol>
+<pre><code>$ sudo run -p 8080:80 -v /data/galaxy-data:/export --name galaxy-instance bgruening/galaxy-stable
+</code></pre>
+<ol start="5">
+<li>Stop the Galaxy container</li>
+</ol>
+<pre><code>$ sudo docker stop galaxy-instance
+</code></pre>
+<ol start="6">
+<li>Replace the content of the postgres database by the old db data</li>
+</ol>
+<pre><code>$ sudo rm -r /data/galaxy-data/postgresql/
+$ sudo rsync -var /data/galaxy-data-old/postgresql/ /data/galaxy-data/postgresql/
+</code></pre>
+<ol start="7">
+<li>Use diff to find changes in the config files (only if you changed any config file).</li>
+</ol>
+<pre><code>$ cd /data/galaxy-data/.distribution_config
+$ for f in *; do echo $f; diff $f ../../galaxy-data-old/galaxy-central/config/$f; read; done
+</code></pre>
+<ol start="8">
+<li>Copy all the users' datasets to the new instance</li>
+</ol>
+<pre><code>$ sudo rsync -var /data/galaxy-data-old/galaxy-central/database/files/* /data/galaxy-data/galaxy-central/da
+tabase/files/
+</code></pre>
+<ol start="9">
+<li>Copy all the installed tools</li>
+</ol>
+<pre><code>$ sudo rsync -var /data/galaxy-data-old/tool_deps/* /data/galaxy-data/tool_deps/
+$ sudo rsync -var /data/galaxy-data-old/shed_tools/* /data/galaxy-data/shed_tools/
+</code></pre>
+<ol start="10">
+<li>Copy the welcome page and all its files.</li>
+</ol>
+<pre><code>$ sudo rsync -var /data/galaxy-data-old/welcome* /data/galaxy-data/
+</code></pre>
+<ol start="11">
+<li>Create a auxiliar docker in interactive mode and upgrade the database.</li>
+</ol>
+<pre><code>$ sudo docker run -it --rm -v /data/galaxy-data:/export bgruening/galaxy-stable /bin/bash
+# Startup all processes
+&gt; startup &amp;
+#Upgrade the database to the most recent version
+&gt; sh manage_db.sh upgrade
+#Logout
+&gt; exit
+</code></pre>
+<ol start="12">
+<li>Start the docker and test</li>
+</ol>
+<pre><code>$ sudo docker start galaxy-instance
+</code></pre>
+<ol start="13">
+<li>Clean the old container and image</li>
 </ol>
 <h2>Enabling Interactive Environments in Galaxy <a name="user-content-Enabling-Interactive-Environments-in-Galaxy"> </a></h2>
 <p>Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like <a href="http://jupyter.org/">Jupyter</a>, in a secure and reproducible way.</p>
 <p>For this we need to be able to launch Docker containers inside our Galaxy Docker container. At least docker 1.3 is needed on the host system.</p>
 <div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 8021:21 -p 8800:8800 \
- --privileged=<span class="pl-c1">true</span> \
+ --privileged=true \
  -v /home/user/galaxy_storage/:/export/ \
  bgruening/galaxy-stable</pre></div>
 <p>The port 8800 is the proxy port that is used to handle Interactive Environments. <code>--privileged</code> is needed to start docker containers inside docker. If your IE does not open, please make sure you open your Galaxy instance with your hostname or a <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name">FQDN</a>, but not with localhost or 127.0.0.1.</p>
@@ -126,7 +193,7 @@
 <h2>Using Parent docker <a name="user-content-Using-Parent-docker"> </a></h2>
 <p>On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable <code>DOCKER_PARENT</code></p>
 <div class="highlight highlight-source-shell"><pre>docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
- --privileged=<span class="pl-c1">true</span> -e DOCKER_PARENT=True \
+ --privileged=true -e DOCKER_PARENT=True \
  -v /var/run/docker.sock:/var/run/docker.sock \
  -v /home/user/galaxy_storage/:/export/ \
  bgruening/galaxy-stable</pre></div>
@@ -137,7 +204,10 @@
  -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=reports<span class="pl-pds">"</span></span> \
  bgruening/galaxy-stable</pre></div>
 <h2>Galaxy's config settings <a name="user-content-Galaxys-config-settings"> </a></h2>
-<p>Every Galaxy configuration setting can be overwritten by a given environment variable during startup. For example by default the <code>admin_users</code>, <code>master_api_key</code> and the <code>brand</code> variable it set to:</p>
+<p>Every Galaxy configuration parameter in <code>config/galaxy.ini</code> can be overwritten by passing an environment variable to the <code>docker run</code> command during startup. The name of the environment variable has to be:<br>
+<code>GALAXY_CONFIG</code>+ <em>the_original_parameter_name_in_capital_letters</em><br>
+For example, you can set the Galaxy session timeout to 5 mintues by adding <code>-e "GALAXY_CONFIG_SESSION_DURATION=5"</code> to the <code>docker run command</code></p>
+<p><em>by default</em> the <code>admin_users</code>, <code>master_api_key</code> and the <code>brand</code> variable it set to:</p>
 <pre><code>GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
 GALAXY_CONFIG_BRAND="Galaxy Docker Build"
@@ -153,9 +223,9 @@ GALAXY_CONFIG_BRAND="Galaxy Docker Build"
 file_path = /export/galaxy-central/database/files
 </code></pre>
 <h2>Personalize your Galaxy <a name="user-content-Personalize-your-Galaxy"> </a></h2>
-<p>The Galaxy welcome screen can be changed by providing a <code>welcome.html</code> page in <code>/home/user/galaxy_storage/</code>. All files starting with <code>welcome</code> will be copied during starup and served as indroduction page. If you want to include images or other media, name them <code>welcome_*</code> and link them relative to your <code>welcome.html</code> (example).</p>
+<p>The Galaxy welcome screen can be changed by providing a <code>welcome.html</code> page in <code>/home/user/galaxy_storage/</code>. All files starting with <code>welcome</code> will be copied during startup and served as introduction page. If you want to include images or other media, name them <code>welcome_*</code> and link them relative to your <code>welcome.html</code> (example).</p>
 <h2>Deactivating services <a name="user-content-Deactivating-services"> </a></h2>
-<p>Non-essential services can be deactivated during startup. Set the environment variable <code>NONUSE</code> to a comma separated list of services. Currently, <code>nodejs</code>, <code>proftp</code>, <code>reports</code>, <code>slurmd</code> and <code>slurmctld</code> are supported.</p>
+<p>Non-essential services can be deactivated during startup. Set the environment variable <code>NONUSE</code> to a comma separated list of services. Currently, <code>nodejs</code>, <code>postgres</code>, <code>proftp</code>, <code>reports</code>, <code>slurmd</code> and <code>slurmctld</code> are supported.</p>
 <div class="highlight highlight-source-shell"><pre>docker run -d -p 8080:80 -p 9002:9002 \
  -e <span class="pl-s"><span class="pl-pds">"</span>NONUSE=nodejs,proftp,reports,slurmd,slurmctld<span class="pl-pds">"</span></span> \
  bgruening/galaxy-stable</pre></div>
@@ -163,7 +233,7 @@ file_path = /export/galaxy-central/database/files
 <h2>Restarting Galaxy <a name="user-content-Restarting-Galaxy"> </a></h2>
 <p>If you want to restart Galaxy without restarting the entire Galaxy container you can use <code>docker exec</code> (docker &gt; 1.3).</p>
 <div class="highlight highlight-source-shell"><pre>docker <span class="pl-c1">exec</span> <span class="pl-k">&lt;</span>container name<span class="pl-k">&gt;</span> supervisorctl restart galaxy:</pre></div>
-<p>In addition you start/stop every supersisord process using a webinterface on port <code>9002</code>. Start your container with:</p>
+<p>In addition you start/stop every supervisord process using a webinterface on port <code>9002</code>. Start your container with:</p>
 <div class="highlight highlight-source-shell"><pre>docker run -p 9002:9002 bgruening/galaxy-stable</pre></div>
 <h2>Advanced Logging <a name="user-content-Advanced-Logging"> </a></h2>
 <p>You can set the environment variable $GALAXY_LOGGING to FULL to access all logs from supervisor. For example start your container with:</p>
@@ -179,7 +249,7 @@ file_path = /export/galaxy-central/database/files
 <p>Once connected to the container, log files are available in <code>/home/galaxy/logs</code>.</p>
 <p>A volume can also be used to map this directory to one external to the container - for instance if logs need to be persisted for auditing reasons (security, debugging, performance testing, etc...).:</p>
 <div class="highlight highlight-source-shell"><pre>mkdir gx_logs
-docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_LOGGING=full<span class="pl-pds">"</span></span> -v <span class="pl-s"><span class="pl-pds">`</span><span class="pl-c1">pwd</span><span class="pl-pds">`</span></span>/gx_logs:/home/galaxy/logs bgruening/galaxy-stable</pre></div>
+docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"</span>GALAXY_LOGGING=full<span class="pl-pds">"</span></span> -v <span class="pl-s"><span class="pl-pds">`</span>pwd<span class="pl-pds">`</span></span>/gx_logs:/home/galaxy/logs bgruening/galaxy-stable</pre></div>
 <h2>Using an external Slurm cluster <a name="user-content-Using-an-external-Slurm-cluster"> </a></h2>
 <p>It is often convenient to configure Galaxy to use a high-performance cluster for running jobs. To do so, two files are required:</p>
 <ol>
@@ -198,7 +268,7 @@ docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"
 <li><code>/export</code> → <code>/data/galaxy</code></li>
 <li><code>/galaxy-central</code> → <code>/data/galaxy/galaxy-central</code></li>
 </ol>
-<p>A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Unbuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.</p>
+<p>A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Ubuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.</p>
 <p>The following is an example for how to specify a destination in <code>job_conf.xml</code> that uses a custom partition ("work", rather than "debug") and 4 cores rather than 1:</p>
 <pre><code>&lt;destination id="slurm4threads" runner="slurm"&gt;
  &lt;param id="embed_metadata_in_job"&gt;False&lt;/param&gt;
@@ -217,7 +287,7 @@ docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"
 <pre><code>-e SGE_ROOT=/var/lib/gridengine
 -v $PWD/act_qmaster:/var/lib/gridengine/default/common/act_qmaster
 </code></pre>
-<p>In <strong><em>act_qmaster</em></strong> is something like this.</p>
+<p>In <em><strong>act_qmaster</strong></em> is something like this.</p>
 <pre><code>YOUR_GRIDENGINE_MASTER_HOST
 </code></pre>
 <p>Your Grid Engine needs to accept job submissions from inside the container.</p>
@@ -226,7 +296,7 @@ docker run -d -p 8080:80 -p 8021:21 -e <span class="pl-s"><span class="pl-pds">"
 <p>In its default state Galaxy assumes both the Galaxy source code and<br>
 various temporary files are available on shared file systems across the<br>
 cluster. When using Condor or SLURM (as described above) to run jobs outside<br>
-of the Docker container one can take steps to mitegate these assumptions.</p>
+of the Docker container one can take steps to mitigate these assumptions.</p>
 <p>The <code>embed_metadata_in_job</code> option on job destinations in <code>job_conf.xml</code><br>
 forces Galaxy collect metadata inside the container instead of on the<br>
 cluster:</p>
@@ -236,7 +306,7 @@ cluster:</p>
 these calculations on the remote cluster - but this should not be a problem<br>
 for most Galaxy instances.</p>
 <p>Additionally, many framework tools depend on Galaxy's Python virtual<br>
-environment being avaiable. This should be created outside of the container<br>
+environment being available. This should be created outside of the container<br>
 on a shared filesystem available to your cluster using the instructions<br>
 <a href="https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#managing-dependencies-manually">here</a>. Job destinations<br>
 can then source these virtual environments using the instructions outlined<br>
