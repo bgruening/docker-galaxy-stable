@@ -2,8 +2,8 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 9.6.0
--- Dumped by pg_dump version 9.6.0
+-- Dumped from database version 9.6.3
+-- Dumped by pg_dump version 9.6.3
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -1087,8 +1087,8 @@ CREATE TABLE galaxy_user (
     username character varying(255),
     form_values_id integer,
     disk_usage numeric(15,0),
-    active boolean,
     activation_token character varying(64),
+    active boolean,
     last_password_change timestamp without time zone
 );
 
@@ -6745,7 +6745,7 @@ SELECT pg_catalog.setval('galaxy_session_to_history_id_seq', 1, false);
 -- Data for Name: galaxy_user; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY galaxy_user (id, create_time, update_time, email, password, external, deleted, purged, username, form_values_id, disk_usage, active, activation_token, last_password_change) FROM stdin;
+COPY galaxy_user (id, create_time, update_time, email, password, external, deleted, purged, username, form_values_id, disk_usage, activation_token, active, last_password_change) FROM stdin;
 \.
 
 
@@ -7550,7 +7550,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	133
+Galaxy	lib/galaxy/model/migrate	134
 \.
 
 
