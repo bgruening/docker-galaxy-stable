@@ -4,7 +4,7 @@ set -x -e
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
 ANSIBLE_RELEASE=1e07cc8a56cd18821a9f20129c400a242d25d1a0
 
-GALAXY_RELEASE=release_17.05
+GALAXY_RELEASE=dev
 GALAXY_REPO=galaxyproject/galaxy
 
 docker build --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/bgruening/galaxy-base ./galaxy-base/
