@@ -255,6 +255,7 @@ after_success:
   - |
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ]
     then
+      cd ${TRAVIS_BUILD_DIR}
       echo "Generate and deploy html documentation"
       ./docs/bin/deploy_docs
     fi
