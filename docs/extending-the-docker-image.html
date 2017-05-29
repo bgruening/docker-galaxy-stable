@@ -93,6 +93,26 @@ EXPOSE :8800
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
 </code></pre>
+<p>or the <a href="https://github.com/bgruening/galaxy-rna-workbench/blob/master/Dockerfile">RNA-workbench</a>.<br>
+The RNA-workbench has advanced examples about:</p>
+<ul>
+<li>populating Galaxy data-libararies</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre>setup-data-libraries -i <span class="pl-smi">$GALAXY_ROOT</span>/library_data.yaml -g http://localhost:8080 
+-u <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_USER</span> -p <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_PASSWORD</span></pre></div>
+<p>The actual data is references in a YAML file similar this <a href="https://github.com/bgruening/galaxy-rna-workbench/blob/master/library_data.yaml">one</a>.</p>
+<ul>
+<li>installing workflows</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre>workflow-install --workflow_path <span class="pl-smi">$GALAXY_HOME</span>/workflows/ -g http://localhost:8080 
+-u <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_USER</span> -p <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_PASSWORD</span></pre></div>
+<p>Where all Galaxy workflows needs to be in one directory, here the <code>$GALAXY_HOME/workflows/</code>.</p>
+<ul>
+<li>running Galaxy data-managers to create indices or download data</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre>run-data-managers -u admin@galaxy.org -p admin -g http://localhost:8080
+--config data_manager_rna_seq.yaml</pre></div>
+<p>The data-managers can be configured and specified in a YAML file similar to this <a href="https://github.com/galaxyproject/training-material/blob/master/RNA-Seq/docker/data_manager_rna_seq.yaml">one</a>.</p>
 <p>If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:<br>
 <a href="https://github.com/bgruening/galaxy-flavor-testing">https://github.com/bgruening/galaxy-flavor-testing</a></p>
 <h2>List of Galaxy flavours <a name="user-content-List-of-Galaxy-flavours"> </a></h2>

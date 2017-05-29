@@ -89,7 +89,7 @@
  bgruening/galaxy-stable</pre></div>
 <p>This also allows for data separation, but keeps everything encapsulated within the docker engine (e.g. on OS X within your <code>$HOME/.docker</code> folder - easy to backup, archive and restore. This approach, albeit at the expense of disk space, avoids the problems with permissions <a href="https://github.com/bgruening/docker-galaxy-stable/issues/68">reported</a> for data export on non-Linux hosts.</p>
 <h2>Upgrading images <a name="user-content-Upgrading-images"> </a></h2>
-<p>We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you. Please, take in account that that upgrading may vary depending on your Galaxy installation, and the changes in new versions. Use this example carefully!</p>
+<p>We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you. Please, take in account that upgrading may vary depending on your Galaxy installation, and the changes in new versions. Use this example carefully!</p>
 <ul>
 <li>Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.</li>
 <li>New unmodified configuration files are always stored in a hidden directory called <code>.distribution_config</code>. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.</li>
@@ -222,6 +222,14 @@ GALAXY_CONFIG_BRAND="Galaxy Docker Build"
 <pre><code>database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy
 file_path = /export/galaxy-central/database/files
 </code></pre>
+<h2>Configuring Galaxy's behind a proxy <a name="user-content-Galaxy-behind-proxy"> </a></h2>
+<p>If your Galaxy docker instance is running behind an HTTP proxy server, and if you're accessing it with a specific path prefix (e.g. <a href="http://www.example.org/some/prefix/">http://www.example.org/some/prefix/</a>), you need to make Galaxy aware of it. There is an environment variable available to do so:</p>
+<pre><code>PROXY_PREFIX=/some/prefix
+</code></pre>
+<p>You can and should overwrite these during launching your container:</p>
+<div class="highlight highlight-source-shell"><pre>docker run -p 8080:80 \
+ -e <span class="pl-s"><span class="pl-pds">"</span>PROXY_PREFIX=/some/prefix<span class="pl-pds">"</span></span> \
+ bgruening/galaxy-stable</pre></div>
 <h2>Personalize your Galaxy <a name="user-content-Personalize-your-Galaxy"> </a></h2>
 <p>The Galaxy welcome screen can be changed by providing a <code>welcome.html</code> page in <code>/home/user/galaxy_storage/</code>. All files starting with <code>welcome</code> will be copied during startup and served as introduction page. If you want to include images or other media, name them <code>welcome_*</code> and link them relative to your <code>welcome.html</code> (example).</p>
 <h2>Deactivating services <a name="user-content-Deactivating-services"> </a></h2>
