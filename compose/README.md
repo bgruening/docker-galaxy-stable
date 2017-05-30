@@ -72,12 +72,12 @@ quay.io/galaxy/postgres                    "docker-entrypoint..." galaxy-postgre
 
 As you can see we have started a PostgreSQL and a ProFTP container for you. But also a pgadmin container for administrators that which to inspect the Galaxy database or for Admin trainings. The `galaxy-web` container contains
 main Galaxy application and the `nginx` webserver. It is also connected to the an external volume to store all data
-that Galaxy genarates and all it's configuration - pretty much like the Monolithic Galaxy Docker Image.
+that Galaxy generates and all it's configuration - pretty much like the Monolithic Galaxy Docker Image.
 
 SLURM and HTCondor is also started for you and Galaxy can make use of these schedulers. By default Galaxy will use
 SLURM as scheduler and will resolve your tool dependencies with Conda. This is all defined in the docker-compose.yml file.
 To change the default behavior you can simply export a few environment variables and completely change the behavior of
-your composed deployment. For your convinience we will maintain a few recommend deyployments as predefinded
+your composed deployment. For your convenience we will maintain a few recommend deployments as predefinded
 environment files, e.g. `.env_htcondor_docker` or `.env_slurm`.
 Simply create a symlink to `.env`
 
