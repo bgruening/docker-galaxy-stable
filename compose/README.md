@@ -34,9 +34,9 @@ At first you need to install docker with [compose](https://docs.docker.com/compo
 
 ## Build <a name="Build" />
 
-Checkout the repository:
+Clone the repository:
 ```
-git checkout https://github.com/bgruening/docker-galaxy-stable.git
+git clone https://github.com/bgruening/docker-galaxy-stable.git
 cd docker-galaxy-stable/compose
 ```
 
