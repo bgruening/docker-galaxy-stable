@@ -183,6 +183,8 @@ ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
 ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
 
 RUN ./scripts/common_startup.sh && \
+    . $GALAXY_VIRTUAL_ENV/bin/activate && \
+    python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install
@@ -202,7 +204,6 @@ RUN rm $PG_DATA_DIR_DEFAULT -rf && \
     python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT && \
     service postgresql start && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
-    python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     sh create_db.sh -c "$GALAXY_CONFIG_FILE" && \
     python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
     service postgresql stop
