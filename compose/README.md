@@ -106,6 +106,16 @@ An important feature of the compose version is that you can orchestrates and sch
 
 More documentation will follow. Contributions welcome!
 
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+## Stop Container <a name="Stop" />
+
+You want to stop your environment with:
+
+```sh
+docker-compose stop
+```
+
 
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
