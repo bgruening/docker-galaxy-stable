@@ -528,10 +528,11 @@ If the desired tools are already included in the Tool Shed, building your own pe
 2. Include `FROM bgruening/galaxy-stable` at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.
 3. Supply the list of desired tools in a file (`my_tool_list.yml` below). See [this page](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample) for the file format requirements.
 4. Execute `docker build -t my-docker-test .`
+4a. (if behind proxy). Add the ENV http_proxy and https_proxy variables as IPs (to avoid nameserver resolution problems) as in the example below.
 5. Run your container with `docker run -p 8080:80 my-docker-test`
 6. Open your web browser on `http://localhost:8080`
 
-For a working example, have a look at the  or the  Dockerfile's.
+For a working example, have a look at these  Dockerfiles.
 - [deepTools](http://deeptools.github.io/) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile)
 - [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile)
 
@@ -545,6 +546,8 @@ FROM bgruening/galaxy-stable
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ENV GALAXY_CONFIG_BRAND deepTools
+ENV http_proxy 'http://yourproxyIP:8080'
+ENV https_proxy 'http://yourproxyIP:8080'
 
 WORKDIR /galaxy-central
 
@@ -604,6 +607,7 @@ The data-managers can be configured and specified in a YAML file similar to this
 
 If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:
 https://github.com/bgruening/galaxy-flavor-testing
+
 
 
 ## List of Galaxy flavours <a name="List-of-Galaxy-flavours" /> [[toc]](#toc)
