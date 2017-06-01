@@ -546,6 +546,8 @@ FROM bgruening/galaxy-stable
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ENV GALAXY_CONFIG_BRAND deepTools
+# The following two lines are optional and can be given during runtime
+# with the -e http_proxy='http://yourproxyIP:8080' parameter
 ENV http_proxy 'http://yourproxyIP:8080'
 ENV https_proxy 'http://yourproxyIP:8080'
 
