@@ -13,6 +13,7 @@ env:
     # Compose version with Condor submitting Docker jobs
     - COMPOSE_CONDOR_DOCKER=True
     - KUBE=True
+    - SWARM=True
   global:
     - secure: "SEjcKJQ0NGXdpFxFhLVlyJmiBvgiLtR5Uufg90Vm3owKlMy0NSfIrOR+2dwNniqOp7QI3eVepnqjid/Ka0QStzVqMCe55OLkJ/TbTHnMLpbtY63mpGfogVRvxMMAVpzLpcQqtJFORZmO/MIWSLlBiXMMzOg3+tbXvQXmL17Rbmw="
 git:
@@ -57,6 +58,22 @@ before_install:
       cd ../docker-galaxy-stable
     fi
 
+  - |
+    if [ "${SWARM}" ]
+    then
+      # setup the Swarm to deploy Galaxy later
+      docker swarm init
+      # get join token
+      export SWARM_TOKEN=$(docker swarm join-token -q worker)
+      # get Swarm master IP
+      export SWARM_MASTER=$(docker info | grep -w 'Node Address' | awk '{print $3}')
+      export NUM_WORKERS=2
+      for i in $(seq "${NUM_WORKERS}"); do
+        docker run -d --privileged --name worker-${i} --hostname=worker-${i} -p ${i}2375:2375 docker:1.12.1-dind
+        docker --host=localhost:${i}2375 swarm join --token ${SWARM_TOKEN} ${SWARM_MASTER}:2377
+      done
+    fi
+
 
   # load all configurations needed for SLURM testing
   - |
@@ -98,7 +115,7 @@ before_install:
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${SWARM}" ]
     then
         pip install docker-compose
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
@@ -108,42 +125,54 @@ before_install:
         cd "$WORKING_DIR"
         ./buildlocal.sh
         export COMPOSE_PROJECT_NAME=galaxy_compose
-        docker-compose up -d
 
-        until docker-compose exec galaxy-web ps -fC uwsgi
-        do
-          echo "sleeping for 10 seconds"
-          sleep 10
-          docker-compose logs
-        done
+        if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ]
+          then
+              docker-compose up -d
 
-        if [ "${COMPOSE_CONDOR_DOCKER}" ]
-        then
-            # turn down the slurm service
-            docker-compose stop galaxy-slurm
+              until docker-compose exec galaxy-web ps -fC uwsgi
+              do
+                echo "sleeping for 10 seconds"
+                sleep 10
+                docker-compose logs
+              done
+
+              if [ "${COMPOSE_CONDOR_DOCKER}" ]
+              then
+                  # turn down the slurm service which is not needed in CONDOR Docker
+                  docker-compose stop galaxy-slurm
+              fi
+
+              if [ "${COMPOSE_SLURM}" ]
+              then
+                  # turn down the htcondor services which are
+                  docker-compose stop galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big
+              fi
+
+              sleep 30
+              docker-compose logs
+              # Define start functions
+              docker_exec() {
+                cd $WORKING_DIR
+                docker-compose exec galaxy-web "$@"
+              }
+              docker_exec_run() {
+                cd $WORKING_DIR
+                docker-compose exec galaxy-web "$@"
+              }
+              docker_run() {
+                cd $WORKING_DIR
+                docker-compose run "$@"
+              }
         fi
-        
-        if [ "${COMPOSE_SLURM}" ]
-        then
-            # turn down the htcondor services
-            docker-compose stop galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big
-        fi
 
-        sleep 30
-        docker-compose logs
-        # Define start functions
-        docker_exec() {
-          cd $WORKING_DIR
-          docker-compose exec galaxy-web "$@"
-        }
-        docker_exec_run() {
-          cd $WORKING_DIR
-          docker-compose exec galaxy-web "$@"
-        }
-        docker_run() {
-          cd $WORKING_DIR
-          docker-compose run "$@"
-        }
+        if [ "${SWARM}" ]
+          then
+            docker stack deploy --compose-file docker-compose.yml FOO
+            sleep 10
+            docker service ls
+            docker service ps FOO_galaxy-web
+        fi
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
         export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"

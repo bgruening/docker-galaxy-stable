@@ -13,6 +13,7 @@ Galaxy Docker Compose
     - [Build](#Build)
     - [Start Container](#Start)
 - [Advanced](#Advanced)
+  - [Docker Swarm](#swarm)
   - [postgres](#postgres)
     - [Configuration](#postgres-Configuration)
   - [proftpd](#proftpd)
@@ -120,6 +121,35 @@ docker-compose stop
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
 # Advanced <a name="Advanced" />
+
+## Docker Swarm <a name="swarm" />
+
+```sh
+# join a swarm
+docker swarm init
+
+# get join token
+export SWARM_TOKEN=$(docker swarm join-token -q worker)
+# get Swarm master IP (Docker for Mac xhyve VM IP)
+export SWARM_MASTER=$(docker info | grep -w 'Node Address' | awk '{print $3}')
+
+# start workers
+export NUM_WORKERS=3
+for i in $(seq "${NUM_WORKERS}"); do
+    docker rm worker-${i} --force
+    docker run -d --privileged --name worker-${i} --rm --hostname=worker-${i} -v /export/:/export/ -v /var/run/docker.sock:/var/run/docker.sock -p ${i}2375:2375 docker:17.03.1-ce-dind  dockerd  --host=tcp://0.0.0.0:2375 --storage-driver=aufs
+    sleep 2
+    docker --host=localhost:${i}2375 swarm join --token ${SWARM_TOKEN} ${SWARM_MASTER}:2377
+done
+
+# deploy the Stack
+docker stack deploy --compose-file docker-compose.yml FOO
+
+# optionally run a visualizer of your Swarm deployment
+docker run -i -t -p 5000:8080 -v /var/run/docker.sock:/var/run/docker.sock dockersamples/visualizer
+
+```
+
 
 ## postgres <a name="postgres" />
 You can theoretically use any external database. The included postgres build is based on the [official postgres container](https://hub.docker.com/_/postgres/) and adds an initialization script which loads a vanilla dump of the initial database state on first startup which is faster than initializing by the migration script.
