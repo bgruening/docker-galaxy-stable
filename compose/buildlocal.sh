@@ -2,7 +2,7 @@
 set -x -e
 
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ANSIBLE_RELEASE=1e07cc8a56cd18821a9f20129c400a242d25d1a0
+ANSIBLE_RELEASE=master
 
 GALAXY_RELEASE=dev
 GALAXY_REPO=galaxyproject/galaxy
