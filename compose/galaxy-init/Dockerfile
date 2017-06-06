@@ -40,7 +40,7 @@ RUN ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
-    #--extra-vars galaxy_extras_config_k8_jobs=True \
+    --extra-vars galaxy_extras_config_k8_jobs=True \
     --extra-vars galaxy_extras_config_rabbitmq=False \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
