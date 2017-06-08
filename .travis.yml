@@ -15,6 +15,11 @@ env:
     - KUBE=True
   global:
     - secure: "SEjcKJQ0NGXdpFxFhLVlyJmiBvgiLtR5Uufg90Vm3owKlMy0NSfIrOR+2dwNniqOp7QI3eVepnqjid/Ka0QStzVqMCe55OLkJ/TbTHnMLpbtY63mpGfogVRvxMMAVpzLpcQqtJFORZmO/MIWSLlBiXMMzOg3+tbXvQXmL17Rbmw="
+
+matrix:
+  allow_failures:
+    - env: KUBE=True
+
 git:
   submodules: false
 

@@ -25,6 +25,8 @@ services:
         - "8022:22"
         - "30000-30010:30000-30010"
     restart: always
+    labels: 
+        kompose.service.type: nodeport
 
   galaxy-postgres:
     # If you are using the official postgres image, it needs to be populated by calling
@@ -54,6 +56,8 @@ services:
     #volumes:
         #- ./pgadmin:/pgadmin
     restart: unless-stopped
+    labels: 
+        kompose.service.type: nodeport
 
   # SLURM container - this is your compute cluster :)
   galaxy-slurm:
@@ -72,10 +76,8 @@ services:
     image: quay.io/bgruening/galaxy-init
     container_name: galaxy-init
     hostname: galaxy-init
-    volumes:
-        # This is the directory where all your files from Galaxy will be stored
-        # on your host system. By default this is 'export' in your current working dir
-        - ${EXPORT_DIR:-/export}/:/export/
+    volumes_from:
+        - galaxy-web
 
   galaxy-htcondor:
     image: quay.io/bgruening/galaxy-htcondor
@@ -145,14 +147,26 @@ services:
         # Configurate admin and master api key. Can be overridden in galaxy.ini
         - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
         - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
+        - GALAXY_CONFIG_DATABASE_AUTO_MIGRATE=${GALAXY_CONFIG_DATABASE_AUTO_MIGRATE:-false}
         - GALAXY_CONFIG_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy 
         # Condor
         - GALAXY_DESTINATIONS_DEFAULT=${GALAXY_DESTINATIONS_DEFAULT:-slurm_cluster}
+        - GALAXY_RUNNERS_ENABLE_CONDOR=${GALAXY_RUNNERS_ENABLE_CONDOR:-False}
+        - GALAXY_RUNNERS_ENABLE_SLURM=${GALAXY_RUNNERS_ENABLE_SLURM:-False}
+        - GALAXY_RUNNERS_ENABLE_K8=${GALAXY_RUNNERS_ENABLE_K8:-False}
         - ENABLE_CONDOR=true
         - CONDOR_HOST=galaxy-htcondor
         - GALAXY_CONDOR_UNIVERSE=vanilla
         - GALAXY_DOCKER_ENABLED=${GALAXY_DOCKER_ENABLED:-false}
         - GALAXY_CONFIG_CLEANUP_JOB=${GALAXY_CONFIG_CLEANUP_JOB:-onsuccess}
+        # k8s
+        #- GALAXY_DESTINATIONS_DOCKER_DEFAULT=${GALAXY_DESTINATIONS_DOCKER_DEFAULT:-slurm_cluster}
+        #- GALAXY_DESTINATIONS_NO_DOCKER_DEFAULT=${GALAXY_DESTINATIONS_NO_DOCKER_DEFAULT:-slurm_cluster}
+        #- GALAXY_CONFIG_CONTAINERS_RESOLVERS_CONFIG_FILE=${GALAXY_CONFIG_CONTAINERS_RESOLVERS_CONFIG_FILE:-None}
+        # Hack for pykube - https://github.com/kelproject/pykube/issues/29
+        - PYKUBE_KUBERNETES_SERVICE_HOST=kubernetes
+        # Just for testing...
+        #- GALAXY_CONFIG_OVERRIDE_TOOL_CONFIG_FILE=/export/galaxy-central/test/functional/tools/samples_tool_conf.xml
     container_name: galaxy-web
     hostname: galaxy
     privileged: True
@@ -163,4 +177,6 @@ services:
         # on your host system
         - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
+    labels: 
+        kompose.service.type: nodeport
 

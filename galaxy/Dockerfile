@@ -37,6 +37,8 @@ GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
+GALAXY_RUNNERS_ENABLE_SLURM=True \
+GALAXY_RUNNERS_ENABLE_CONDOR=False \
 # Define the default postgresql database path
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
 PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
@@ -127,6 +129,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
     --extra-vars proftpd_use_sftp=True \
+    --extra-vars galaxy_minimum_version=17.09 \
     --extra-vars nginx_upload_store_path=$EXPORT_DIR/nginx_upload_store \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
