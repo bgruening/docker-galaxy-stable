@@ -17,10 +17,6 @@ env:
   global:
     - secure: "SEjcKJQ0NGXdpFxFhLVlyJmiBvgiLtR5Uufg90Vm3owKlMy0NSfIrOR+2dwNniqOp7QI3eVepnqjid/Ka0QStzVqMCe55OLkJ/TbTHnMLpbtY63mpGfogVRvxMMAVpzLpcQqtJFORZmO/MIWSLlBiXMMzOg3+tbXvQXmL17Rbmw="
 
-matrix:
-  allow_failures:
-    - env: KUBE=True
-
 git:
   submodules: false
 
@@ -112,7 +108,7 @@ before_install:
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
         pip install docker-compose galaxy-parsec
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
@@ -185,6 +181,22 @@ before_install:
           cd $WORKING_DIR
           docker-compose run "$@"
         }
+    elif [ "${KUBE}" ]
+    then
+        export WORKING_DIR="$TRAVIS_BUILD_DIR/compose/k8"
+
+        INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
+        SAMPLE_TOOLS=/export/config/sample_tool_list.yaml
+        cd "$WORKING_DIR/.."
+        ./buildlocal.sh
+        cd "$WORKING_DIR"
+
+        make convert
+        make up
+
+        # TODO: Print kompose logs...
+        # TODO: Setup required functions defined for other set ups.
+
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
         export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
