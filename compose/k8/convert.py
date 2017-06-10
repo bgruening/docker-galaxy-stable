@@ -37,7 +37,8 @@ def _hack_for_kompose(raw_compose_def):
 
     # pgadmin can run without volumes and gets permission errors if not started this way in
     # minikube.
-    del raw_compose_def["services"]["pgadmin4"]["volumes"]
+    if raw_compose_def["services"]["pgadmin4"].get("volumes"):
+        del raw_compose_def["services"]["pgadmin4"]["volumes"]
 
     services = raw_compose_def["services"]
     for service_name in list(services.keys()):
