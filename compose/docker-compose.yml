@@ -85,6 +85,8 @@ services:
   galaxy-slurm:
     # build: galaxy-slurm
     image: quay.io/galaxy/slurm:${TAG:-latest}
+    privileged: True
+    #${PRIVILEGED_SLURM_CONTAINER:-False}
     environment: {}
     container_name: galaxy-slurm
     hostname: galaxy-slurm
@@ -138,6 +140,7 @@ services:
     # privileged is needed to run Docker jobs, moreover HTCondor wants
     # a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     privileged: True
+    #${PRIVILEGED_CONDOR_CONTAINER:-False}
     environment:
         - CONDOR_HOST=galaxy-htcondor
     volumes:
@@ -158,6 +161,7 @@ services:
     # privileged is needed to run Docker jobs, moreover HTCondor wants
     # a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     privileged: True
+    #${PRIVILEGED_CONDOR_CONTAINER:-False}
     environment:
         - CONDOR_HOST=galaxy-htcondor
         - CONDOR_CPUS=2
@@ -225,8 +229,12 @@ services:
         - ENABLE_CONDOR=true
         - CONDOR_HOST=galaxy-htcondor
         - GALAXY_CONDOR_UNIVERSE=vanilla
-        - GALAXY_DOCKER_ENABLED=${GALAXY_DOCKER_ENABLED:-false}
+        - GALAXY_DOCKER_ENABLED=${GALAXY_DOCKER_ENABLED:-False}
         - GALAXY_CONFIG_CLEANUP_JOB=${GALAXY_CONFIG_CLEANUP_JOB:-onsuccess}
+        - GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=${GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS:-False}
+        - GALAXY_CONFIG_TOOL_CONFIG_FILE=${GALAXY_CONFIG_TOOL_CONFIG_FILE:-config/tool_conf.xml,config/shed_tool_conf.xml}
+        - GALAXY_SINGULARITY_VOLUMES=${GALAXY_SINGULARITY_VOLUMES:-\$tool_directory:ro,\$working_directory:rw,\$default_file_path:rw}
+
         # Proxy Prefix settings
         #- PROXY_PREFIX=${PROXY_PREFIX:-""}
         #- GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=${GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE:-""}
