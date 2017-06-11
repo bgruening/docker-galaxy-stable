@@ -142,7 +142,6 @@ services:
         - CONDOR_HOST=galaxy-htcondor
     volumes:
         - ${EXPORT_DIR:-/export}/:/export
-    volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     networks:
@@ -164,7 +163,7 @@ services:
         - CONDOR_CPUS=2
         - CONDOR_MEMORY=2048
     volumes:
-        - ./galaxy-storage/:/export/
+        - ${EXPORT_DIR:-/export}/:/export
         - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
     networks:
