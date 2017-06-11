@@ -232,7 +232,7 @@ services:
         - GALAXY_DOCKER_ENABLED=${GALAXY_DOCKER_ENABLED:-False}
         - GALAXY_CONFIG_CLEANUP_JOB=${GALAXY_CONFIG_CLEANUP_JOB:-onsuccess}
         - GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=${GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS:-False}
-        - GALAXY_CONFIG_TOOL_CONFIG_FILE=${GALAXY_CONFIG_TOOL_CONFIG_FILE:-config/tool_conf.xml,config/shed_tool_conf.xml}
+        - GALAXY_CONFIG_TOOL_CONFIG_FILE=${GALAXY_CONFIG_TOOL_CONFIG_FILE:-config/tool_conf.xml.sample,config/shed_tool_conf.xml}
         - GALAXY_SINGULARITY_VOLUMES=${GALAXY_SINGULARITY_VOLUMES:-\$tool_directory:ro,\$working_directory:rw,\$default_file_path:rw}
 
         # Proxy Prefix settings
