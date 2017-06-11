@@ -1,9 +1,9 @@
-version: '2.1'
+version: '3'
 services:
   # proftpd container
   galaxy-proftpd:
     # build: galaxy-proftpd
-    image: quay.io/galaxy/proftpd
+    image: quay.io/galaxy/proftpd:${TAG:-latest}
     environment:
         - proftpd_db_connection=galaxy@galaxy-postgres
         - proftpd_db_username=galaxy
@@ -15,8 +15,8 @@ services:
         - proftpd_passive_port_high=30010
     container_name: galaxy-proftpd
     hostname: galaxy-proftpd
-    volumes_from:
-        - galaxy-web
+    volumes:
+        - ${EXPORT_DIR:-/export}/:/export
     expose:
         - 21
         - 22
@@ -25,6 +25,15 @@ services:
         - "8022:22"
         - "30000-30010:30000-30010"
     restart: always
+    depends_on:
+      - galaxy-postgres
+    networks:
+      - galaxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
     labels: 
         kompose.service.type: nodeport
 
@@ -32,9 +41,7 @@ services:
     # If you are using the official postgres image, it needs to be populated by calling
     # docker-compose run galaxy install_db.sh
     # on first run
-    # image: postgres
-    # build: galaxy-postgres
-    image: quay.io/galaxy/postgres
+    image: quay.io/galaxy/postgres:${TAG:-latest}
     container_name: galaxy-postgres
     hostname: galaxy-postgres
     environment:
@@ -43,6 +50,16 @@ services:
         - POSTGRES_DB=galaxy
     volumes:
         - ./postgres-storage:/var/lib/postgresql/data
+    depends_on:
+      - galaxy-init
+    networks:
+      - galaxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == manager]
+
 
   # PostgreSQL admin suite
   pgadmin4:
@@ -56,49 +73,86 @@ services:
     #volumes:
         #- ./pgadmin:/pgadmin
     restart: unless-stopped
+    networks:
+      - galaxy
+    deploy:
+      placement:
+        constraints: [node.role == manager]
     labels: 
         kompose.service.type: nodeport
 
   # SLURM container - this is your compute cluster :)
   galaxy-slurm:
     # build: galaxy-slurm
-    image: quay.io/galaxy/slurm
+    image: quay.io/galaxy/slurm:${TAG:-latest}
     environment: {}
     container_name: galaxy-slurm
     hostname: galaxy-slurm
-    volumes_from:
-        - galaxy-web
+    volumes:
+        - ${EXPORT_DIR:-/export}/:/export
     restart: unless-stopped
+    networks:
+      - galaxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+
 
   # This container initializes the galaxy export.
   galaxy-init:
     # build: galaxy-init
-    image: quay.io/bgruening/galaxy-init
+    image: quay.io/bgruening/galaxy-init:${TAG:-latest}
     container_name: galaxy-init
     hostname: galaxy-init
-    volumes_from:
-        - galaxy-web
+    volumes:
+        # This is the directory where all your files from Galaxy will be stored
+        # on your host system. By default this is 'export' in your current working dir
+        - ${EXPORT_DIR:-/export}/:/export/
+    networks:
+      - galaxy
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+
 
   galaxy-htcondor:
-    image: quay.io/bgruening/galaxy-htcondor
+    image: quay.io/bgruening/galaxy-htcondor:${TAG:-latest}
     container_name: galaxy-htcondor
     hostname: galaxy-htcondor
-    volumes_from:
-        - galaxy-web
+    volumes:
+        - ${EXPORT_DIR:-/export}/:/export
     restart: unless-stopped
+    networks:
+      - galaxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+
 
   galaxy-htcondor-executor:
-    image: quay.io/bgruening/galaxy-htcondor-executor
+    image: quay.io/bgruening/galaxy-htcondor-executor:${TAG:-latest}
     # privileged is needed to run Docker jobs, moreover HTCondor wants
     # a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     privileged: True
     environment:
         - CONDOR_HOST=galaxy-htcondor
-    volumes_from:
-        - galaxy-web
+    volumes:
+        - ${EXPORT_DIR:-/export}/:/export
     volumes:
         - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
+    networks:
+      - galaxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+
 
   galaxy-htcondor-executor-big:
     image: quay.io/bgruening/galaxy-htcondor-executor
@@ -109,11 +163,18 @@ services:
         - CONDOR_HOST=galaxy-htcondor
         - CONDOR_CPUS=2
         - CONDOR_MEMORY=2048
-    volumes_from:
-        - galaxy-web
     volumes:
+        - ./galaxy-storage/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
+    networks:
+      - galaxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+
 
   # Message queue for better performance
   rabbitmq:
@@ -126,11 +187,19 @@ services:
         - RABBITMQ_DEFAULT_VHOST=galaxy
     volumes:
         - ${EXPORT_DIR:-/export}/rabbitmq:/var/lib/rabbitmq
+    networks:
+      - galaxy
+    deploy:
+      mode: replicated
+      replicas: 1
+      placement:
+        constraints: [node.role == worker]
+
 
   # This container provides the galaxy uwsgi webhandlers, job handlers, nginx
   galaxy-web:
     # build: galaxy-web
-    image: quay.io/bgruening/galaxy-web
+    image: quay.io/bgruening/galaxy-web:${TAG:-latest}
     environment:
         # In case the galaxy-init container is not used, you need to include "sleeplock" to NONUSE
         - NONUSE=proftpd,postgres,slurmd,slurmctld
@@ -159,6 +228,11 @@ services:
         - GALAXY_CONDOR_UNIVERSE=vanilla
         - GALAXY_DOCKER_ENABLED=${GALAXY_DOCKER_ENABLED:-false}
         - GALAXY_CONFIG_CLEANUP_JOB=${GALAXY_CONFIG_CLEANUP_JOB:-onsuccess}
+        # Proxy Prefix settings
+        - PROXY_PREFIX=${PROXY_PREFIX:-""}
+        - GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=${GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE:-""}
+        - GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE=${GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE:-""}
+        - GALAXY_CONFIG_NGINX_UPLOAD_PATH=${GALAXY_CONFIG_NGINX_UPLOAD_PATH:-""}
         # k8s
         #- GALAXY_DESTINATIONS_DOCKER_DEFAULT=${GALAXY_DESTINATIONS_DOCKER_DEFAULT:-slurm_cluster}
         #- GALAXY_DESTINATIONS_NO_DOCKER_DEFAULT=${GALAXY_DESTINATIONS_NO_DOCKER_DEFAULT:-slurm_cluster}
@@ -170,6 +244,8 @@ services:
     container_name: galaxy-web
     hostname: galaxy
     privileged: True
+    networks:
+      - galaxy
     ports:
         - "${GALAXY_PORT:-8080}:80" # nginx
     volumes:
@@ -177,6 +253,17 @@ services:
         # on your host system
         - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - galaxy-init
+      - galaxy-postgres
+      - rabbitmq
+    deploy:
+      placement:
+        constraints: [node.role == manager]
     labels: 
         kompose.service.type: nodeport
+
+networks:
+    galaxy:
+
 
