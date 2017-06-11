@@ -152,7 +152,7 @@ before_install:
             # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
             # script will not work as it detects something in /export/
             docker-compose down
-            sudo wget /home/bag/projects/code/singularity-galaxy-tests/samtools:1.4.1--0 -P /export/database/container_images/singularity/mulled/
+            sudo wget https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0 -P /export/database/container_images/singularity/mulled/
             sudo wget https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml /export/
             sudo wget https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml /export/
             docker-compose up
