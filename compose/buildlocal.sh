@@ -2,10 +2,10 @@
 set -x -e
 
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ANSIBLE_RELEASE=condor_decompose
+ANSIBLE_RELEASE=master
 
-GALAXY_RELEASE=singularity_mulled_cached
-GALAXY_REPO=jmchilton/galaxy
+GALAXY_RELEASE=dev
+GALAXY_REPO=galaxyproject/galaxy
 
 docker build --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/bgruening/galaxy-base ./galaxy-base/
 docker build --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE -t quay.io/bgruening/galaxy-init ./galaxy-init/
