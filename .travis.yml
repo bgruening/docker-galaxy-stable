@@ -157,7 +157,7 @@ before_install:
             sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
             sudo curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
 
-            docker-compose up
+            docker-compose up -d
             sleep 60
 
             parsec init --api_key admin --url localhost:8080
