@@ -157,12 +157,14 @@ before_install:
             sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
             sudo curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
 
+            docker-compose up
+            sleep 60
+
             parsec init --api_key admin --url localhost:8080
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
             DATASET_ID=$(parsec tools paste_content 'asdf' $HISTORY_ID | jq '.outputs[0].id' -r)
-            parsec tools run_tool $HISTORY_ID cat1 '{"input1": {"src": "hda", "id": "'$DATASET_ID'"}}'
-            docker-compose up
-            sleep 30
+            parsec tools run_tool $HISTORY_ID cat '{"input1": {"src": "hda", "id": "'$DATASET_ID'"}}'
+
         fi
         
         docker-compose logs
