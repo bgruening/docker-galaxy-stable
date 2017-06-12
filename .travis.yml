@@ -164,6 +164,7 @@ before_install:
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
             DATASET_ID=$(parsec tools paste_content 'asdf' $HISTORY_ID | jq '.outputs[0].id' -r)
             OUTPUT_ID=parsec tools run_tool $HISTORY_ID cat '{"input1": {"src": "hda", "id": "'$DATASET_ID'"}}' | jq '.outputs | .[0].id -r'
+            sleep 15
             # we are lucky that the out test image has a small bug and always prints a warning. We use this to grep if the tool was running with SINGULARITY
             # WARNING Bind file destination does not exist in container /usr/local/var/singularity/mnt/overlay/final/etc/...
             parsec datasets show_dataset $OUTPUT_ID | jq .misc_info | grep singularity
