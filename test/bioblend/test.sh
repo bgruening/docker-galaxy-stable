@@ -1,5 +1,5 @@
 #!/bin/bash
-if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
 then
     docker_exec bash -c 'cd /home/galaxy ;
     . /galaxy_venv/bin/activate ;

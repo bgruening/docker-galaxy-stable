@@ -10,6 +10,7 @@ env:
   matrix:
     - TOX_ENV=py27
     - COMPOSE_SLURM=True
+    - COMPOSE_SLURM_SINGULARITY=True
     # Compose version with Condor submitting Docker jobs
     - COMPOSE_CONDOR_DOCKER=True
     - KUBE=True
@@ -72,6 +73,14 @@ before_install:
       ln -sf .env_slurm .env
     fi
 
+  # load all configurations needed for SLURM testing
+  - |
+    if [ "${COMPOSE_SLURM_SINGULARITY}" ]
+    then
+      # The compose file recognises ENV vars to change the defaul behavior
+      cd ${COMPOSE_DIR}
+      ln -sf .env_slurm_singularity .env
+    fi
 
   # load all configurations needed for Condor and Docker
   - |
@@ -103,9 +112,9 @@ before_install:
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
-        pip install docker-compose
+        pip install docker-compose galaxy-parsec
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
         export DOCKER_RUN_CONTAINER="galaxy-web"
         INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
@@ -128,13 +137,40 @@ before_install:
             docker-compose stop galaxy-slurm
         fi
         
-        if [ "${COMPOSE_SLURM}" ]
+        if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
         then
             # turn down the htcondor services
             docker-compose stop galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big
         fi
 
         sleep 30
+        
+        if [ "${COMPOSE_SLURM_SINGULARITY}" ]
+        then
+            # docker-compose is already started and has pre-populated the /export dir
+            # we now turn it down again and copy in an example tool with tool_conf.xml and 
+            # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
+            # script will not work as it detects something in /export/
+            docker-compose down
+            sudo mkdir -p /export/database/container_images/singularity/mulled/
+            sudo curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
+            sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
+            sudo curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
+
+            docker-compose up -d
+            sleep 60
+
+            parsec init --api_key admin --url localhost:8080
+            HISTORY_ID=$(parsec histories create_history | jq .id -r)
+            DATASET_ID=$(parsec tools paste_content 'asdf' $HISTORY_ID | jq '.outputs[0].id' -r)
+            OUTPUT_ID=$(parsec tools run_tool $HISTORY_ID cat '{"input1": {"src": "hda", "id": "'$DATASET_ID'"}}' | jq '.outputs | .[0].id' -r)
+            sleep 15
+            # we are lucky that the out test image has a small bug and always prints a warning. We use this to grep if the tool was running with SINGULARITY
+            # WARNING Bind file destination does not exist in container /usr/local/var/singularity/mnt/overlay/final/etc/...
+            parsec datasets show_dataset $OUTPUT_ID | jq .misc_info | grep singularity
+
+        fi
+        
         docker-compose logs
         # Define start functions
         docker_exec() {
@@ -190,14 +226,14 @@ script:
   - set -e
   # Test submitting jobs to an external slurm cluster
   - |
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
+      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
       then
         # For compose slurm is already included and thus tested
         cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $WORKING_DIR
       fi
   # Test submitting jobs to an external gridengine cluster
   - |
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
+      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
       then
         # This test is not testing compose, thus disabled
         cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
@@ -225,7 +261,7 @@ script:
   # Test the 'old' tool installation script
   - docker_exec_run bash -c "install-repository $INSTALL_REPO_ARG '--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'"
   - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
         # Test without install-repository wrapper
         sleep 10
@@ -234,7 +270,7 @@ script:
   # Test the 'new' tool installation script
 #  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
   - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
         # Compose uses the online installer (uses the running instance)
         sleep 10
@@ -248,7 +284,7 @@ script:
   - docker_exec docker info
   # Check if the database image matches the current galaxy version
   - |
-      if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ]
+      if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
       then
         cd $WORKING_DIR && bash ./dumpsql.sh
         git diff --exit-code $WORKING_DIR/galaxy-postgres/init-galaxy-db.sql.in || ( echo "Database dump does not equal dump in repository" && false )
@@ -259,7 +295,7 @@ after_success:
   - |
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ]
     then
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ]
+      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
       then
         cd ${TRAVIS_BUILD_DIR}
         echo "Generate and deploy html documentation"
