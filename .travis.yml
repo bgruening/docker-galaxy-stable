@@ -49,6 +49,7 @@ before_install:
       mkdir ../kubernetes
       wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
       cd ../kubernetes
+      export KUBERNETES_ROOT=`pwd`
       # k8s API port is running by default on 8080 as Galaxy, can this to 8000
       export API_PORT=8000
       ./hack/install-etcd.sh
@@ -100,10 +101,13 @@ before_install:
     if [ "${KUBE}" ]
     then
         pip install pyyaml
+        # For compose v3 support 0.7.0 isn't quite good enough...
         #curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
         #chmod +x kompose
         #sudo mv ./kompose /usr/bin/kompose
+
         go get -u github.com/kubernetes-incubator/kompose
+
     fi
 
   # start building this repo
@@ -198,6 +202,9 @@ before_install:
 
         # TODO: Print kompose logs...
         # TODO: Setup required functions defined for other set ups.
+
+        sleep 60
+        kubectl get all
 
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
