@@ -204,6 +204,8 @@ before_install:
         # TODO: Setup required functions defined for other set ups.
 
         sleep 60
+        which kubectl
+        # May have to use a hack/ variant of this - some of the scripts do.
         kubectl get all
 
     else
