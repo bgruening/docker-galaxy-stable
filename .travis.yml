@@ -8,11 +8,11 @@ services:
 
 env:
   matrix:
-    - TOX_ENV=py27
-    - COMPOSE_SLURM=True
-    - COMPOSE_SLURM_SINGULARITY=True
+    #- TOX_ENV=py27
+    #- COMPOSE_SLURM=True
+    #- COMPOSE_SLURM_SINGULARITY=True
     # Compose version with Condor submitting Docker jobs
-    - COMPOSE_CONDOR_DOCKER=True
+    #- COMPOSE_CONDOR_DOCKER=True
     - KUBE=True
   global:
     - secure: "SEjcKJQ0NGXdpFxFhLVlyJmiBvgiLtR5Uufg90Vm3owKlMy0NSfIrOR+2dwNniqOp7QI3eVepnqjid/Ka0QStzVqMCe55OLkJ/TbTHnMLpbtY63mpGfogVRvxMMAVpzLpcQqtJFORZmO/MIWSLlBiXMMzOg3+tbXvQXmL17Rbmw="
