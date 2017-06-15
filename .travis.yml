@@ -100,9 +100,10 @@ before_install:
     if [ "${KUBE}" ]
     then
         pip install pyyaml
-        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
-        chmod +x kompose
-        sudo mv ./kompose /usr/bin/kompose
+        #curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
+        #chmod +x kompose
+        #sudo mv ./kompose /usr/bin/kompose
+        go get -u github.com/kubernetes-incubator/kompose
     fi
 
   # start building this repo
