@@ -50,6 +50,11 @@ before_install:
       wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
       cd ../kubernetes
       export KUBERNETES_ROOT=`pwd`
+
+      # Needed in local-up-cluster for privilaged docker-in-docker setup I think... -John
+      # without this "galaxy" is invalid: spec.template.spec.containers[0].securityContext.privileged: Forbidden: disallowed by cluster policy
+      export ALLOW_PRIVILEGED=True
+
       # k8s API port is running by default on 8080 as Galaxy, can this to 8000
       # export API_PORT=8000
       ./hack/install-etcd.sh
