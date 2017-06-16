@@ -57,8 +57,9 @@ before_install:
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
       sudo ./hack/local-up-cluster.sh &
-      sleep 60 
+      sleep 120 
       ls /tmp
+      cat /tmp/hosts_127_0_0_1
       cat /tmp/kube-apiserver.log
       cd ../docker-galaxy-stable
     fi
