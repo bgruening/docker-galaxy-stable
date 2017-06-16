@@ -53,7 +53,9 @@ before_install:
 
       # Needed in local-up-cluster for privilaged docker-in-docker setup I think... -John
       # without this "galaxy" is invalid: spec.template.spec.containers[0].securityContext.privileged: Forbidden: disallowed by cluster policy
-      export ALLOW_PRIVILEGED=True
+      # with this K8S dies in testing and I cannot figure out why - for now I'm trying to hack the compose definition to remove this
+      # flag.
+      #export ALLOW_PRIVILEGED=True
 
       LOG_DIR="/tmp"
       KUBE_APISERVER_LOG="$LOG_DIR/kube-apiserver.log"
