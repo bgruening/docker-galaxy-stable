@@ -55,23 +55,26 @@ before_install:
       # without this "galaxy" is invalid: spec.template.spec.containers[0].securityContext.privileged: Forbidden: disallowed by cluster policy
       export ALLOW_PRIVILEGED=True
 
+      LOG_DIR="/tmp"
+      KUBE_APISERVER_LOG="$LOG_DIR/kube-apiserver.log"
+
+
       # k8s API port is running by default on 8080 as Galaxy, can this to 8000
       # export API_PORT=8000
       ./hack/install-etcd.sh
       sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
-      sudo ./hack/local-up-cluster.sh &
+      sudo bash -c './hack/local-up-cluster.sh & touch /tmp/kube-died' &
 
-      while [ ! -f /tmp/kube-apiserver.log ]
+      while [ ! -f "$KUBE_APISERVER_LOG" ]
       do
         sleep 10
         date +"%T"
       done
 
       ls /tmp
-      cat /tmp/hosts_127_0_0_1
-      cat /tmp/kube-apiserver.log
+      cat $KUBE_APISERVER_LOG
       cd ../docker-galaxy-stable
     fi
 
@@ -211,6 +214,13 @@ before_install:
         cd "$WORKING_DIR/.."
         ./buildlocal.sh
         cd "$WORKING_DIR"
+
+        if [ -f /tmp/kube-died ];
+        then
+            echo "It appears the Kubernetes cluster failed to start."
+            cat "$KUBE_APISERVER_LOG"
+            exit 1
+        fi
 
         make convert
         make up
