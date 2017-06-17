@@ -246,6 +246,16 @@ before_install:
         done
         kubectl get pods
 
+        docker_exec() {
+          cd $WORKING_DIR
+          kubectl exec -t -i `kubectl get -o json pods | jq '.items[].metadata.name ' -r | head -n 1` "$@"
+        }
+        docker_exec_run() {
+          cd $WORKING_DIR
+          kubectl exec -t -i `kubectl get -o json pods | jq '.items[].metadata.name ' -r | head -n 1` "$@"
+        }
+
+
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
         export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
