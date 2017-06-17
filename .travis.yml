@@ -221,7 +221,7 @@ before_install:
         then
             echo "It appears the Kubernetes cluster failed to start."
             cat "$KUBE_APISERVER_LOG"
-            cat /tmp/kube*
+            # cat /tmp/kube*
             exit 1
         fi
 
