@@ -67,7 +67,7 @@ before_install:
       sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
-      sudo bash -c './hack/local-up-cluster.sh' &
+      sudo ALLOW_PRIVILEGED=true ALLOW_ANY_TOKEN=true KUBERNETES_ROOT=`pwd` ./hack/local-up-cluster.sh &
 
       while [ ! -f "$KUBE_APISERVER_LOG" ]
       do
@@ -226,12 +226,13 @@ before_install:
         fi
         echo "Convert docker-compose.yaml file via kompose to a k8s configuration."
         make convert
-        echo "Starting up the services."
-        make up
+        echo "Starting up the services with empty non PV volumes"
+        make up_wo_pv
         sleep 120
         # TODO: Print kompose logs...
         # TODO: Setup required functions defined for other set ups.
         echo "Get informations about the k8s status."
+        sudo updatedb
         locate kubectl
         #kubectl get all
 
