@@ -67,7 +67,7 @@ before_install:
       sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
-      sudo bash -c './hack/local-up-cluster.sh & touch /tmp/kube-died' &
+      sudo bash -c './hack/local-up-cluster.sh' &
 
       while [ ! -f "$KUBE_APISERVER_LOG" ]
       do
