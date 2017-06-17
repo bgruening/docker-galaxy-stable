@@ -58,7 +58,7 @@ def _hack_for_kompose(raw_compose_def):
             del service_def["hostname"]
         
         if "privileged" in service_def:
-            del service_dir["privileged"]
+            del service_def["privileged"]
 
 if __name__ == "__main__":
     main()
