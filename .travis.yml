@@ -50,7 +50,7 @@ before_install:
       wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
       cd ../kubernetes
       export KUBERNETES_ROOT=`pwd`
-
+      export PATH=$KUBERNETES_ROOT/_output/local/bin/linux/amd64/:$PATH
       # Needed in local-up-cluster for privilaged docker-in-docker setup I think... -John
       # without this "galaxy" is invalid: spec.template.spec.containers[0].securityContext.privileged: Forbidden: disallowed by cluster policy
       # with this K8S dies in testing and I cannot figure out why - for now I'm trying to hack the compose definition to remove this
@@ -232,9 +232,8 @@ before_install:
         # TODO: Print kompose logs...
         # TODO: Setup required functions defined for other set ups.
         echo "Get informations about the k8s status."
-        sudo updatedb
-        locate kubectl
-        #kubectl get all
+        kubectl get all
+        kubectl get pods
 
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
