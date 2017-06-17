@@ -216,11 +216,12 @@ before_install:
         cd "$WORKING_DIR/.."
         ./buildlocal.sh
         cd "$WORKING_DIR"
-
+        ls -l /tmp
         if [ -f /tmp/kube-died ];
         then
             echo "It appears the Kubernetes cluster failed to start."
             cat "$KUBE_APISERVER_LOG"
+            cat /tmp/kube*
             exit 1
         fi
 
