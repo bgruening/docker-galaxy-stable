@@ -224,16 +224,14 @@ before_install:
             # cat /tmp/kube*
             exit 1
         fi
-
+        echo "Convert docker-compose.yaml file via kompose to a k8s configuration."
         make convert
+        echo "Starting up the services."
         make up
 
         # TODO: Print kompose logs...
         # TODO: Setup required functions defined for other set ups.
-
-        sleep 60
-        which kubectl
-        # May have to use a hack/ variant of this - some of the scripts do.
+        echo "Get informations about the k8s status."
         kubectl get all
 
     else
