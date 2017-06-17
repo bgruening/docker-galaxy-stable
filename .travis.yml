@@ -233,6 +233,17 @@ before_install:
         # TODO: Setup required functions defined for other set ups.
         echo "Get informations about the k8s status."
         kubectl get all
+        # Waiting until all 10 services are in "Running" state.
+        while true;
+        do
+          if [ $(kubectl get pods | grep Running | wc -l) -ne 10 ];
+            then 
+              echo "Sleep for 5 seconds";
+              sleep 5;
+          else
+            break;
+          fi;
+        done
         kubectl get pods
 
     else
