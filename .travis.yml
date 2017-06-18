@@ -68,7 +68,6 @@ before_install:
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
       sudo ALLOW_PRIVILEGED=true ALLOW_ANY_TOKEN=true KUBERNETES_ROOT=`pwd` ./hack/local-up-cluster.sh &
-      sudo chown $USER $HOME/.kube/ -R
 
       while [ ! -f "$KUBE_APISERVER_LOG" ]
       do
@@ -225,6 +224,8 @@ before_install:
             # cat /tmp/kube*
             exit 1
         fi
+        sudo chown $USER $HOME/.kube/ -R
+
         echo "Convert docker-compose.yaml file via kompose to a k8s configuration."
         make convert
         echo "Get informations about the k8s status (before Galaxy deployment)."
