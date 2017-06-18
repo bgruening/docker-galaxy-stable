@@ -226,6 +226,8 @@ before_install:
         fi
         echo "Convert docker-compose.yaml file via kompose to a k8s configuration."
         make convert
+        echo "Get informations about the k8s status (before Galaxy deployment)."
+        kubectl get all
         echo "Starting up the services"
         make up
         sleep 120
