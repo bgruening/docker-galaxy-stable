@@ -192,6 +192,10 @@ RUN ./scripts/common_startup.sh && \
 # Switch back to User root
 USER root
 
+# Copy error pages and make the permissions right for NGINX to access them
+ADD ./500.html /root/500.html
+RUN chmod o+x / && chmod o+x /root && chmod o+x /root/500.html
+
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
 
