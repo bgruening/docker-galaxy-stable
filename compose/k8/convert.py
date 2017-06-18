@@ -68,10 +68,12 @@ def _hack_for_kompose(raw_compose_def):
                     continue
                 if "/var/lib/postgresql/data" in volume:
                     named_volumes.append("postgres:/var/lib/postgres/data")
-                if "/var/lib/rabbitmq" in volume:
+                elif "/var/lib/rabbitmq" in volume:
                     named_volumes.append("rabbitmq:/var/lib/rabbitmq")
-                if "/export" in volume:
+                elif "/export" in volume:
                     named_volumes.append("export:/export")
+                else:
+                    print "Unhandled volume %s" % volume
             service_def["volumes"] = named_volumes
 
     raw_compose_def["volumes"] = {"export": {}, "postgres": {}, "rabbitmq": {}}
