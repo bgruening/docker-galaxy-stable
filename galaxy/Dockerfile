@@ -131,6 +131,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
+    --extra-vars galaxy_errordocs_dest="/root/errors" \
     --tags=galaxyextras -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
@@ -193,8 +194,10 @@ RUN ./scripts/common_startup.sh && \
 USER root
 
 # Copy error pages and make the permissions right for NGINX to access them
-ADD ./500.html /root/500.html
-RUN chmod o+x / && chmod o+x /root && chmod o+x /root/500.html
+RUN mkdir /root/errors && mkdir /root/errors/500
+ADD ./500.html /root/errors/500/index.html
+RUN chmod o+x / && chmod o+x /root && chmod o+x /root/errors && chmod o+x /root/errors/500 && \
+    chmod o+x /root/errors/500/index.html
 
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
