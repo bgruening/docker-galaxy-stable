@@ -226,8 +226,8 @@ before_install:
         fi
         echo "Convert docker-compose.yaml file via kompose to a k8s configuration."
         make convert
-        echo "Starting up the services with empty non PV volumes"
-        make up_wo_pv
+        echo "Starting up the services"
+        make up
         sleep 120
         # TODO: Print kompose logs...
         # TODO: Setup required functions defined for other set ups.
