@@ -68,6 +68,7 @@ before_install:
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
       sudo ALLOW_PRIVILEGED=true ALLOW_ANY_TOKEN=true KUBERNETES_ROOT=`pwd` ./hack/local-up-cluster.sh &
+      sudo chmod $USER $HOME/.kube/ -R
 
       while [ ! -f "$KUBE_APISERVER_LOG" ]
       do
