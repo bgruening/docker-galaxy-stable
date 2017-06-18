@@ -241,6 +241,7 @@ before_install:
           if [ $(kubectl get pods | grep Running | wc -l) -ne 10 ];
             then 
               echo "Sleep for 5 seconds";
+              kubectl get pods;
               sleep 5;
           else
             break;
