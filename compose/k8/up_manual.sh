@@ -26,5 +26,5 @@ declare -a DEFS=(
 
 for def in "${DEFS[@]}"
 do
-	kubectl create -f $def
+	kubectl create --validate=false -f $def
 done
