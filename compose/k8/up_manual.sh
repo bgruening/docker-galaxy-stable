@@ -24,7 +24,12 @@ declare -a DEFS=(
     "rabbitmq-deployment.yaml"
 )
 
+# manually created PV defintions (this is needed on hosts without dynamic storage provisioning )
+# "PersistentVolumeClaim: export of size 100Mi. If your cluster has dynamic storage provisioning, you don't have to do anything. Otherwise you have to create PersistentVolume to make PVC work "
+
+kubectl create -f export-pv.yaml -f rabbitmq-pv.yaml -f postgresql-pv.yaml
+
 for def in "${DEFS[@]}"
 do
-	kubectl create --validate=false -f $def
+	kubectl create -f $def
 done
