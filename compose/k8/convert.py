@@ -60,5 +60,21 @@ def _hack_for_kompose(raw_compose_def):
         if "privileged" in service_def:
             del service_def["privileged"]
 
+        # Convert per-service volumes configuration to use Global volume defs.
+        if "volumes" in service_def:
+            named_volumes = []
+            for volume in service_def["volumes"]:
+                if "/var/run/docker.sock" in volume:
+                    continue
+                if "/var/lib/postgresql/data" in volume:
+                    named_volumes.append("postgres:/var/lib/postgres/data")
+                if "/var/lib/rabbitmq" in volume:
+                    named_volumes.append("rabbitmq:/var/lib/rabbitmq")
+                if "/export" in volume:
+                    named_volumes.append("export:/export")
+            service_def["volumes"] = named_volumes
+
+    raw_compose_def["volumes"] = {"export": {}, "postgres": {}, "rabbitmq": {}}
+
 if __name__ == "__main__":
     main()
