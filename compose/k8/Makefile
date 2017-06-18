@@ -20,10 +20,11 @@ minikube-start: .cmd-minikube
 
 minikube-build: .cmd-minikube
 	minikube status
-	eval \$(minikube docker-env) && cd .. && ./buildlocal.sh
+	eval \$(minikube docker-env) && cd .. && TAG=k8 ./buildlocal.sh
 
 convert: .cmd-kompose
 	python convert.py
+	sed -i'.o'  's/\:latest/\:k8/' *.yaml
 
 down: .cmd-kompose
 	kompose -f docker-compose-for-kompose.yml down
