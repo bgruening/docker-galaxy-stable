@@ -248,6 +248,9 @@ before_install:
         done
         kubectl get pods
 
+        galaxy_port=`kubectl describe service galaxy | grep NodePort: | awk '{ print $3 }' | awk -F'/' '{ print $1 }'`
+        export BIOBLEND_GALAXY_URL="http://localhost:$galaxy_port"
+
         docker_exec() {
           cd $WORKING_DIR
           kubectl exec -t -i `kubectl get -o json pods | jq '.items[].metadata.name ' -r | head -n 1` "$@"
