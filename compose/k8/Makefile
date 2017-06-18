@@ -29,7 +29,8 @@ down: .cmd-kompose
 	kompose -f docker-compose-for-kompose.yml down
 
 up: .cmd-kompose
-	kompose -f docker-compose-for-kompose.yml up
+	#kompose -f docker-compose-for-kompose.yml up
+	bash up_manual.sh
 
 up_wo_pv:
 	kompose -f docker-compose-for-kompose.yml up --emptyvols
