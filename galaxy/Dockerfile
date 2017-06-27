@@ -59,9 +59,6 @@ LANG=en_US.UTF-8
 
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
-# Enable unattended upgrades
-RUN apt-get update && apt-get install -y unattended-upgrades
-
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
     adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres
@@ -81,7 +78,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor docker-ce slurm-llnl slurm-llnl-torque \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
     nano vim curl python-crypto python-pip python-psutil condor python-ldap \
-    gridengine-common gridengine-drmaa1.0 rabbitmq-server && \
+    gridengine-common gridengine-drmaa1.0 rabbitmq-server unattended-upgrades && \
     pip install --upgrade pip && \
     pip install ephemeris && \
     apt-get purge -y software-properties-common && \
