@@ -57,6 +57,9 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$GALAXY_ROOT/database/job_working_directory 
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
 
+# Enable unattended upgrades
+RUN apt-get update && apt-get install -y unattended-upgrades
+
 # not to call sync() after package extraction and deactivate apt cache
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout && \
