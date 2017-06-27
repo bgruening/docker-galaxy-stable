@@ -59,6 +59,8 @@ LANG=en_US.UTF-8
 
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
+# Enable unattended upgrades
+RUN apt-get update && apt-get install -y unattended-upgrades
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
