@@ -14,7 +14,8 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
     apt-get -qq update && \
-    apt-get install --no-install-recommends -y software-properties-common wget && \
+    apt-get install --no-install-recommends -y software-properties-common \
+    unattended-upgrades wget && \
     apt-add-repository ppa:ansible/ansible && \
     apt-get -qq update && \
     apt-get install --no-install-recommends -y ansible openssh-client proftpd proftpd-mod-pgsql && \
