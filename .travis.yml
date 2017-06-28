@@ -212,6 +212,7 @@ script:
   - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
   
   # Test CVMFS
+  - docker_exec_run bash -c "service autofs start"
   - docker_exec_run bash -c "cvmfs_config chksetup"
   - docker_exec_run bash -c "ls /cvmfs/data.galaxyproject.org/byhand"
 
