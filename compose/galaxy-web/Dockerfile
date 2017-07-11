@@ -59,7 +59,7 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=supervisor,startup,scripts,nginx -c local && \
+    --tags=supervisor,startup,scripts,nginx,cvmfs -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chmod +x /usr/bin/startup
