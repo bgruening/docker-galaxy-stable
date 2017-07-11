@@ -128,6 +128,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
     --extra-vars proftpd_use_sftp=True \
+    --extra-vars galaxy_extras_docker_legacy=False \
     --extra-vars galaxy_minimum_version=17.09 \
     --extra-vars nginx_upload_store_path=$EXPORT_DIR/nginx_upload_store \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
