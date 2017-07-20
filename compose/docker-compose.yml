@@ -72,6 +72,8 @@ services:
     image: quay.io/bgruening/galaxy-init
     container_name: galaxy-init
     hostname: galaxy-init
+    environment:
+        - GALAXY_CONFIG_TOOL_DATA_TABLE_CONFIG_PATH=/etc/galaxy/tool_data_table.xml
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system. By default this is 'export' in your current working dir
