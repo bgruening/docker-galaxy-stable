@@ -128,7 +128,7 @@ $ sudo docker rename galaxy-instance galaxy-instance-old
 $ sudo rsync -var /data/galaxy-data-old/postgresql/ /data/galaxy-data/postgresql/
 </code></pre>
 <ol start="7">
-<li>Use diff to find changes in the config files (only if you changed any config file).</li>
+<li>Use diff to find changes in the config files.</li>
 </ol>
 <pre><code>$ cd /data/galaxy-data/.distribution_config
 $ for f in *; do echo $f; diff $f ../../galaxy-data-old/galaxy-central/config/$f; read; done
