@@ -159,7 +159,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo rm -r /data/galaxy-data/postgresql/
   $ sudo rsync -var /data/galaxy-data-old/postgresql/  /data/galaxy-data/postgresql/
   ```
-7. Use diff to find changes in the config files (only if you changed any config file). 
+7. Use diff to find changes in the config files. 
 
   ```
   $ cd /data/galaxy-data/.distribution_config
