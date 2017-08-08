@@ -128,7 +128,7 @@ before_install:
         do
           echo "sleeping for 90 seconds"
           sleep 90
-          docker-compose logs
+          docker-compose logs --tail 50
         done
 
         if [ "${COMPOSE_CONDOR_DOCKER}" ]
@@ -171,7 +171,7 @@ before_install:
 
         fi
         
-        docker-compose logs
+        docker-compose logs --tail 50
         # Define start functions
         docker_exec() {
           cd $WORKING_DIR
