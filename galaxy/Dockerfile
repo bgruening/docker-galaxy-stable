@@ -76,7 +76,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get install --no-install-recommends -y postgresql-9.3 sudo python-virtualenv \
     nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor docker-ce=17.03.2~ce-0~ubuntu-trusty slurm-llnl slurm-llnl-torque \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
-    nano vim curl python-crypto python-pip python-psutil condor python-ldap \
+    nano vim curl python-crypto python-pip python-psutil condor python-ldap autofs \
     gridengine-common gridengine-drmaa1.0 rabbitmq-server libswitch-perl && \
     pip install --upgrade pip && \
     pip install ephemeris && \
@@ -124,6 +124,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars galaxy_extras_config_rabbitmq=True \
+    --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
     --extra-vars proftpd_use_sftp=True \
@@ -131,7 +132,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
-    --tags=galaxyextras -c local && \
+    --tags=galaxyextras,cvmfs -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \

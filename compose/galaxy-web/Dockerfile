@@ -25,7 +25,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y \
     slurm-drmaa-dev nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor \
-    slurm-llnl && \
+    slurm-llnl autofs && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     groupadd --gid 999 docker && \
     # this can be optimised I think, we should get the SLURM client only and update it
@@ -44,6 +44,7 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_rabbitmq=False \
     --extra-vars galaxy_extras_config_slurm=False \
     --extra-vars galaxy_extras_config_proftpd=False \
+    --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars nginx_upload_store_path=$GALAXY_CONFIG_NGINX_UPLOAD_STORE \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
     --extra-vars nginx_welcome_path=$NGINX_WELCOME_PATH \
@@ -58,7 +59,7 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=supervisor,startup,scripts,nginx -c local && \
+    --tags=supervisor,startup,scripts,nginx,cvmfs -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chmod +x /usr/bin/startup
