@@ -44,7 +44,6 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_rabbitmq=False \
     --extra-vars galaxy_extras_config_slurm=False \
     --extra-vars galaxy_extras_config_proftpd=False \
-    --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars nginx_upload_store_path=$GALAXY_CONFIG_NGINX_UPLOAD_STORE \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
     --extra-vars nginx_welcome_path=$NGINX_WELCOME_PATH \
@@ -59,7 +58,7 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=supervisor,startup,scripts,nginx,cvmfs -c local && \
+    --tags=supervisor,startup,scripts,nginx -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chmod +x /usr/bin/startup

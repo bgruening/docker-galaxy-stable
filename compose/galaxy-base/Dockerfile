@@ -15,7 +15,7 @@ GALAXY_UID=1450 \
 GALAXY_GID=1450 \
 GALAXY_HOME=/home/galaxy \
 GALAXY_LOGS_DIR=/home/galaxy/logs \
-GALAXY_ROOT=/galaxy-central \
+GALAXY_ROOT=/export/galaxy-central \
 GALAXY_VIRTUAL_ENV=/export/venv \
 EXPORT_DIR=/export \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
