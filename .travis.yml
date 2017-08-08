@@ -126,8 +126,8 @@ before_install:
 
         until docker-compose exec galaxy-web ps -fC uwsgi
         do
-          echo "sleeping for 40 seconds"
-          sleep 40
+          echo "sleeping for 90 seconds"
+          sleep 90
           docker-compose logs
         done
 
