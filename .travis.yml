@@ -126,25 +126,27 @@ before_install:
 
         until docker-compose exec galaxy-web ps -fC uwsgi
         do
-          echo "sleeping for 90 seconds"
-          sleep 90
-          docker-compose logs --tail 50
+          echo "sleeping for 20 seconds"
+          sleep 20
+          docker-compose logs --tail 10
         done
 
         if [ "${COMPOSE_CONDOR_DOCKER}" ]
         then
             # turn down the slurm service
+            echo "Stopping SLURM container"
             docker-compose stop galaxy-slurm
+            sleep 30
         fi
         
         if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
         then
             # turn down the htcondor services
+            echo "Stopping HT-Condor containers"
             docker-compose stop galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big
+            sleep 30
         fi
 
-        sleep 30
-        
         if [ "${COMPOSE_SLURM_SINGULARITY}" ]
         then
             # docker-compose is already started and has pre-populated the /export dir
@@ -152,6 +154,8 @@ before_install:
             # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
             # script will not work as it detects something in /export/
             docker-compose down
+            sleep 10
+            echo "Downloading Singularity test files and images."
             sudo mkdir -p /export/database/container_images/singularity/mulled/
             sudo curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
             sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
