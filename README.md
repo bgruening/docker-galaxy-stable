@@ -28,6 +28,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Galaxy Report Webapp](#Galaxy-Report-Webapp)
   - [Galaxy's config settings](#Galaxys-config-settings)
   - [Configuring Galaxy's behind a proxy](#Galaxy-behind-proxy)
+  - [On-demand reference data with CVMFS](#cvmfs)
   - [Personalize your Galaxy](#Personalize-your-Galaxy)
   - [Deactivating services](#Deactivating-services)
   - [Restarting Galaxy](#Restarting-Galaxy)
@@ -315,6 +316,10 @@ docker run -p 8080:80 \
     -e "PROXY_PREFIX=/some/prefix" \
     bgruening/galaxy-stable
 ```
+
+## On-demand reference data with CVMFS <a name="cvmfs" /> [[toc]](#toc)
+By default, Galaxy instances launched with this image will have on-demand access to approximately 3TB of reference genomes and indexes. These are the same reference data available on the main Galaxy server. This is achieved by connecting to Galaxy's CernVM filesystem (CVMFS) server at `data.galaxyproject.org`.
+
 
 ## Personalize your Galaxy <a name="Personalize-your-Galaxy" /> [[toc]](#toc)
 
