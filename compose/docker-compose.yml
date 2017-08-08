@@ -108,6 +108,8 @@ services:
     image: quay.io/bgruening/galaxy-init:${TAG:-latest}
     container_name: galaxy-init
     hostname: galaxy-init
+    environment:
+        - GALAXY_CONFIG_TOOL_DATA_TABLE_CONFIG_PATH=/etc/galaxy/tool_data_table.xml
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system. By default this is 'export' in your current working dir
@@ -216,6 +218,7 @@ services:
         - GALAXY_CONFIG_ENABLE_USER_DELETION=True
         - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
         - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@galaxy-postgres/galaxy?client_encoding=utf8
+        - GALAXY_CONFIG_TOOL_DATA_TABLE_CONFIG_PATH=/etc/galaxy/tool_data_table.xml
         # Configurate admin and master api key. Can be overridden in galaxy.ini
         - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
         - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3

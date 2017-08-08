@@ -251,6 +251,11 @@ script:
   - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
   # Test FTP Server get
   - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
+  
+  # Test CVMFS
+  - docker_exec bash -c "service autofs start"
+  - docker_exec bash -c "cvmfs_config chksetup"
+  - docker_exec bash -c "ls /cvmfs/data.galaxyproject.org/byhand"
 
   # Test SFTP Server
   - sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
