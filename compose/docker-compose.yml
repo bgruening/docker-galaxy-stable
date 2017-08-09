@@ -3,7 +3,7 @@ services:
   # proftpd container
   galaxy-proftpd:
     # build: galaxy-proftpd
-    image: quay.io/galaxy/proftpd:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-proftpd:${TAG:-latest}
     environment:
         - proftpd_db_connection=galaxy@galaxy-postgres
         - proftpd_db_username=galaxy
@@ -41,7 +41,7 @@ services:
     # If you are using the official postgres image, it needs to be populated by calling
     # docker-compose run galaxy install_db.sh
     # on first run
-    image: quay.io/galaxy/postgres:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-postgres:${TAG:-latest}
     container_name: galaxy-postgres
     hostname: galaxy-postgres
     environment:
@@ -84,7 +84,7 @@ services:
   # SLURM container - this is your compute cluster :)
   galaxy-slurm:
     # build: galaxy-slurm
-    image: quay.io/galaxy/slurm:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-slurm:${TAG:-latest}
     privileged: True
     #${PRIVILEGED_SLURM_CONTAINER:-False}
     environment: {}

@@ -37,7 +37,8 @@ def _hack_for_kompose(raw_compose_def):
 
     # pgadmin can run without volumes and gets permission errors if not started this way in
     # minikube.
-    del raw_compose_def["services"]["pgadmin4"]["volumes"]
+    if raw_compose_def["services"]["pgadmin4"].get("volumes"):
+        del raw_compose_def["services"]["pgadmin4"]["volumes"]
 
     services = raw_compose_def["services"]
     for service_name in list(services.keys()):
@@ -55,7 +56,27 @@ def _hack_for_kompose(raw_compose_def):
                     links.append(hostname)
 
             del service_def["hostname"]
+        
+        if "privileged" in service_def:
+            del service_def["privileged"]
 
+        # Convert per-service volumes configuration to use Global volume defs.
+        if "volumes" in service_def:
+            named_volumes = []
+            for volume in service_def["volumes"]:
+                if "/var/run/docker.sock" in volume:
+                    continue
+                if "/var/lib/postgresql/data" in volume:
+                    named_volumes.append("postgres:/var/lib/postgres/data")
+                elif "/var/lib/rabbitmq" in volume:
+                    named_volumes.append("rabbitmq:/var/lib/rabbitmq")
+                elif "/export" in volume:
+                    named_volumes.append("export:/export")
+                else:
+                    print "Unhandled volume %s" % volume
+            service_def["volumes"] = named_volumes
+
+    raw_compose_def["volumes"] = {"export": {}, "postgres": {}, "rabbitmq": {}}
 
 if __name__ == "__main__":
     main()

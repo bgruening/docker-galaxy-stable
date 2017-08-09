@@ -8,18 +8,14 @@ services:
 
 env:
   matrix:
-    - TOX_ENV=py27
-    - COMPOSE_SLURM=True
-    - COMPOSE_SLURM_SINGULARITY=True
+    #- TOX_ENV=py27
+    #- COMPOSE_SLURM=True
+    #- COMPOSE_SLURM_SINGULARITY=True
     # Compose version with Condor submitting Docker jobs
-    - COMPOSE_CONDOR_DOCKER=True
+    #- COMPOSE_CONDOR_DOCKER=True
     - KUBE=True
   global:
     - secure: "SEjcKJQ0NGXdpFxFhLVlyJmiBvgiLtR5Uufg90Vm3owKlMy0NSfIrOR+2dwNniqOp7QI3eVepnqjid/Ka0QStzVqMCe55OLkJ/TbTHnMLpbtY63mpGfogVRvxMMAVpzLpcQqtJFORZmO/MIWSLlBiXMMzOg3+tbXvQXmL17Rbmw="
-
-matrix:
-  allow_failures:
-    - env: KUBE=True
 
 git:
   submodules: false
@@ -53,13 +49,35 @@ before_install:
       mkdir ../kubernetes
       wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
       cd ../kubernetes
+      export KUBERNETES_ROOT=`pwd`
+      export PATH=$KUBERNETES_ROOT/_output/local/bin/linux/amd64/:$PATH
+      # Needed in local-up-cluster for privilaged docker-in-docker setup I think... -John
+      # without this "galaxy" is invalid: spec.template.spec.containers[0].securityContext.privileged: Forbidden: disallowed by cluster policy
+      # with this K8S dies in testing and I cannot figure out why - for now I'm trying to hack the compose definition to remove this
+      # flag.
+      #export ALLOW_PRIVILEGED=True
+
+      LOG_DIR="/tmp"
+      KUBE_APISERVER_LOG="$LOG_DIR/kube-apiserver.log"
+
+
       # k8s API port is running by default on 8080 as Galaxy, can this to 8000
-      export API_PORT=8000
+      # export API_PORT=8000
       ./hack/install-etcd.sh
       sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
-      sudo ./hack/local-up-cluster.sh &
+      sudo ALLOW_PRIVILEGED=true ALLOW_ANY_TOKEN=true KUBERNETES_ROOT=`pwd` ./hack/local-up-cluster.sh &
+      sudo chown $USER $HOME/.kube/ -R
+
+      while [ ! -f "$KUBE_APISERVER_LOG" ]
+      do
+        sleep 10
+        date +"%T"
+      done
+
+      ls /tmp
+      cat $KUBE_APISERVER_LOG
       cd ../docker-galaxy-stable
     fi
 
@@ -103,16 +121,21 @@ before_install:
   - |
     if [ "${KUBE}" ]
     then
-        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-linux-amd64 -o kompose
-        chmod +x kompose
-        sudo mv ./kompose /usr/bin/kompose
+        pip install pyyaml
+        # For compose v3 support 0.7.0 isn't quite good enough...
+        #curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.7.0/kompose-linux-amd64 -o kompose
+        #chmod +x kompose
+        #sudo mv ./kompose /usr/bin/kompose
+
+        go get -u github.com/kubernetes-incubator/kompose
+
     fi
 
   # start building this repo
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
+    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
         pip install docker-compose galaxy-parsec
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
@@ -189,6 +212,61 @@ before_install:
           cd $WORKING_DIR
           docker-compose run "$@"
         }
+    elif [ "${KUBE}" ]
+    then
+        export WORKING_DIR="$TRAVIS_BUILD_DIR/compose/k8"
+
+        INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
+        SAMPLE_TOOLS=/export/config/sample_tool_list.yaml
+        cd "$WORKING_DIR/.."
+        TAG_SUFFIX=:k8 ./buildlocal.sh
+        cd "$WORKING_DIR"
+        ls -l /tmp
+        if [ -f /tmp/kube-died ];
+        then
+            echo "It appears the Kubernetes cluster failed to start."
+            cat "$KUBE_APISERVER_LOG"
+            # cat /tmp/kube*
+            exit 1
+        fi
+        echo "Convert docker-compose.yaml file via kompose to a k8s configuration."
+        make convert
+        echo "Get informations about the k8s status (before Galaxy deployment)."
+        for i in {1..30}; do kubectl get all && break || sleep 5; done
+        echo "Starting up the services"
+        make up
+        sleep 120
+        # TODO: Print kompose logs...
+        # TODO: Setup required functions defined for other set ups.
+        echo "Get informations about the k8s status."
+        kubectl get all
+        # Waiting until all 10 services are in "Running" state.
+        while true;
+        do
+          if [ $(kubectl get pods | grep Running | wc -l) -ne 10 ];
+            then 
+              echo "Sleep for 5 seconds";
+              kubectl get pods;
+              sleep 5;
+          else
+            break;
+          fi;
+        done
+        kubectl get pods
+
+        galaxy_port=`kubectl describe service galaxy | grep NodePort: | awk '{ print $3 }' | awk -F'/' '{ print $1 }'`
+        export BIOBLEND_GALAXY_URL="http://localhost:$galaxy_port"
+
+        docker_exec() {
+          cd $WORKING_DIR
+          kubectl exec -t -i `kubectl get -o json pods | jq '.items[].metadata.name ' -r | head -n 1` "$@"
+        }
+        docker_exec_run() {
+          cd $WORKING_DIR
+          kubectl exec -t -i `kubectl get -o json pods | jq '.items[].metadata.name ' -r | head -n 1` "$@"
+        }
+
+
     else
         export WORKING_DIR="$TRAVIS_BUILD_DIR"
         export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
