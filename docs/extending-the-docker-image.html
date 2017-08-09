@@ -50,11 +50,12 @@
 <li>Create a file named <code>Dockerfile</code></li>
 <li>Include <code>FROM bgruening/galaxy-stable</code> at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.</li>
 <li>Supply the list of desired tools in a file (<code>my_tool_list.yml</code> below). See <a href="https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample">this page</a> for the file format requirements.</li>
-<li>Execute <code>docker build -t my-docker-test .</code></li>
+<li>Execute <code>docker build -t my-docker-test .</code><br>
+4a. (if behind proxy). Add the ENV http_proxy and https_proxy variables as IPs (to avoid nameserver resolution problems) as in the example below.</li>
 <li>Run your container with <code>docker run -p 8080:80 my-docker-test</code></li>
 <li>Open your web browser on <code>http://localhost:8080</code></li>
 </ol>
-<p>For a working example, have a look at the or the Dockerfile's.</p>
+<p>For a working example, have a look at these Dockerfiles.</p>
 <ul>
 <li><a href="http://deeptools.github.io/">deepTools</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile">Dockerfile</a></li>
 <li><a href="https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox">ChemicalToolBox</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile">Dockerfile</a></li>
@@ -68,6 +69,10 @@ FROM bgruening/galaxy-stable
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ENV GALAXY_CONFIG_BRAND deepTools
+# The following two lines are optional and can be given during runtime
+# with the -e http_proxy='http://yourproxyIP:8080' parameter
+ENV http_proxy 'http://yourproxyIP:8080'
+ENV https_proxy 'http://yourproxyIP:8080'
 
 WORKDIR /galaxy-central
 
