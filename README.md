@@ -134,7 +134,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo docker pull bgruening/galaxy-stable
   ```
 2. Stop and rename the current galaxy container
-  
+
   ```
   $ sudo docker stop galaxy-instance
   $ sudo docker rename galaxy-instance galaxy-instance-old
@@ -160,7 +160,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo rm -r /data/galaxy-data/postgresql/
   $ sudo rsync -var /data/galaxy-data-old/postgresql/  /data/galaxy-data/postgresql/
   ```
-7. Use diff to find changes in the config files (only if you changed any config file). 
+7. Use diff to find changes in the config files (only if you changed any config file).
 
   ```
   $ cd /data/galaxy-data/.distribution_config
@@ -172,7 +172,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo rsync -var /data/galaxy-data-old/galaxy-central/database/files/* /data/galaxy-data/galaxy-central/da
   tabase/files/
   ```
-9. Copy all the installed tools 
+9. Copy all the installed tools
 
   ```
   $ sudo rsync -var /data/galaxy-data-old/tool_deps/* /data/galaxy-data/tool_deps/
@@ -193,14 +193,14 @@ We will release a new version of this image concurrent with every new Galaxy rel
   > sh manage_db.sh upgrade
   #Logout
   > exit
-  ``` 
+  ```
 12. Start the docker and test
 
-  ``` 
+  ```
   $ sudo docker start galaxy-instance
-  ``` 
+  ```
 13. Clean the old container and image
-    
+
 
 ## Enabling Interactive Environments in Galaxy <a name="Enabling-Interactive-Environments-in-Galaxy" /> [[toc]](#toc)
 
@@ -273,7 +273,7 @@ docker run -p 8080:80 \
 ## Galaxy's config settings <a name="Galaxys-config-settings" /> [[toc]](#toc)
 
 Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
-`GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters* 
+`GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters*
 For example, you can set the Galaxy session timeout to 5 mintues by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
 
 *by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
@@ -389,7 +389,28 @@ mkdir gx_logs
 docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/home/galaxy/logs bgruening/galaxy-stable
 ```
 
-
+## Basic setup for running docker-galaxy-stable with a DRM (cluster)
+```
+GALAXY_CONFIG_CONDA_AUTO_INSTALL: True
+GALAXY_CONFIG_CONDA_AUTO_INIT: True
+GALAXY_CONFIG_USE_CACHED_DEPENDENCY_MANAGER: True
+SGE_ROOT=/sge_root
+DRMAA_LIBRARY_PATH: /usr/lib/gridengine-drmaa/lib/libdrmaa.so.1.0
+GALAXY_CONFIG_OUTPUTS_TO_WORKING_DIRECTORY: True
+GALAXY_CONFIG_RETRY_JOB_OUTPUT_COLLECTION: 5
+GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY: "/exports/galaxy"
+GALAXY_CONFIG_NEW_FILE_PATH: "/exports/galaxy/tmp"
+GALAXY_CONFIG_TOOL_DEPENDENCY_DIR: "{{docker_export_location}}/tool_deps"
+GALAXY_CONFIG_CONDA_PREFIX: "/exports/galaxy/_conda"
+GALAXY_CONDA_PREFIX: "/exports/galaxy/_conda"
+GALAXY_CONFIG_CONDA_COPY_DEPENDENCIES: "False"
+GALAXY_CONFIG_TOOL_DEPENDENCY_CACHE_DIR: "{{docker_export_location}}/tool_deps/_cache"
+GALAXY_CONFIG_JOB_WORKING_DIRECTORY: "{{docker_export_location}}/galaxy-central/database/job_working_directory"
+GALAXY_CONFIG_FILE_PATH: "{{docker_export_location}}/galaxy-central/database/files"
+GALAXY_CONFIG_TOOL_PATH: "{{docker_export_location}}/galaxy-central/tools"
+GALAXY_CONFIG_TOOL_DATA_PATH: "{{docker_export_location}}/galaxy-central/tool-data"
+GALAXY_CONFIG_SHED_TOOL_DATA_PATH: "{{docker_export_location}}/galaxy-central/tool-data"
+```
 ## Using an external Slurm cluster <a name="Using-an-external-Slurm-cluster" /> [[toc]](#toc)
 
 It is often convenient to configure Galaxy to use a high-performance cluster for running jobs. To do so, two files are required:
@@ -487,7 +508,7 @@ a line such as this to each job destination:
 # Enable Galaxy to use BioContainers (Docker) <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
 This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using [mulled](https://github.com/mulled). To test, install the [IUC bedtools](https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&changeset_revision=7b3aaff0d78c) from the toolshed. When you try to execute *ClusterBed* for example. You may get a missing dependancy error for *bedtools*. But bedtools has an associated docker image on [quay.io](https://quay.io/).  Now configure Galaxy as follows:
 
-- Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True` 
+- Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True`
 - In `job_conf.xml` configure a Docker enabled destination as follows:
 
 ```xml
@@ -589,7 +610,7 @@ The RNA-workbench has advanced examples about:
 - populating Galaxy data-libararies
 
   ```bash
-    setup-data-libraries -i $GALAXY_ROOT/library_data.yaml -g http://localhost:8080 
+    setup-data-libraries -i $GALAXY_ROOT/library_data.yaml -g http://localhost:8080
         -u $GALAXY_DEFAULT_ADMIN_USER -p $GALAXY_DEFAULT_ADMIN_PASSWORD
   ```
 
@@ -598,7 +619,7 @@ The actual data is references in a YAML file similar this [one](https://github.c
 - installing workflows
 
   ```bash
-      workflow-install --workflow_path $GALAXY_HOME/workflows/ -g http://localhost:8080 
+      workflow-install --workflow_path $GALAXY_HOME/workflows/ -g http://localhost:8080
           -u $GALAXY_DEFAULT_ADMIN_USER -p $GALAXY_DEFAULT_ADMIN_PASSWORD
   ```
 
