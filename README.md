@@ -33,9 +33,11 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Deactivating services](#Deactivating-services)
   - [Restarting Galaxy](#Restarting-Galaxy)
   - [Advanced Logging](#Advanced-Logging)
-  - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
-  - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
-  - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
+  - [Running on an external cluster (DRM)](#Running-on-an-external-cluster-(DRM))
+    - [Basic setup for the filesystem](#Basic-setup-for-the-filesystem)
+    - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
+    - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
+    - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
 - [Enable Galaxy to use BioContainers (Docker)](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
 - [Lite Mode](#Lite-Mode)
@@ -389,9 +391,9 @@ mkdir gx_logs
 docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/home/galaxy/logs bgruening/galaxy-stable
 ```
 
-## Running on an external cluster (DRM)
+## Running on an external cluster (DRM)  <a name="Running-on-an-external-cluster-(DRM)" />[[toc]](#toc)
 
-### Basic setup for the filesystem
+### Basic setup for the filesystem  <a name="Basic-setup-for-the-filesystem" /> [[toc]](#toc)
 The docker container sets up all its files on the /export directory, but this directory does not exist on the cluster filesystem. This can be solved with symbolic links on the cluster filesystem but it can also be solved within the container itself.
 
 In this example configuration the cluster filesystem has a directory `/cluster_storage/galaxy` which is accessible for the galaxy user in the container (UID 1450) and the user starting the container.
@@ -421,7 +423,7 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY="/cluster_storage/galaxy/galaxy_export/galax
 -e GALAXY_CONFIG_CONDA_AUTO_INSTALL: True \ #When there is no conda, conda will be automatically installed
 -e GALAXY_CONFIG_CONDA_AUTO_INIT: True # When the necessary environment can not be found a new one will automatically be created
 ```
-### Setting up a python virtual environment on the cluster
+### Setting up a python virtual environment on the cluster  <a name="Setting-up-a-python-virtual-environment-on-the-cluster" />[[toc]](#toc)
 The python environment in the container is not accessible from the cluster. So it needs to be created beforehand.
 In this example configuration the python virtual environment is created on  `/cluster_storage/galaxy/galaxy_venv` and the export folder on `/cluster_storage/galaxy/galaxy_export`. To create the virtual environment:
 1. Create the virtual environment `virtualenv /cluster_storage/galaxy/galaxy_venv`
