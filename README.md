@@ -420,7 +420,7 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY="/cluster_storage/galaxy/galaxy_export/galax
 -e GALAXY_CONFIG_CONDA_PREFIX="/cluster_storage/galaxy/_conda" \ # Can be anywhere EXCEPT cluster_storage/galaxy/galaxy_export!
 # Conda uses $PWD to determine where the virtual environment is. If placed in cluster_storage/galaxy/galaxy_export conda will determine
 # Its $PWD to be /export/whatever/something/_conda which does not exist on the cluster!
--e GALAXY_CONFIG_CONDA_AUTO_INSTALL: True \ #When there is no conda, conda will be automatically installed
+-e GALAXY_CONFIG_CONDA_AUTO_INSTALL: True \ # This is the default galaxy setting. When there is no conda, conda will be automatically installed. 
 -e GALAXY_CONFIG_CONDA_AUTO_INIT: True # When the necessary environment can not be found a new one will automatically be created
 ```
 ### Setting up a python virtual environment on the cluster  <a name="Setting-up-a-python-virtual-environment-on-the-cluster" />[[toc]](#toc)
