@@ -147,7 +147,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
 4. Run a new Galaxy container using newer image and wait while Galaxy generates the default content for /export
 
   ```
-  $ sudo run -p 8080:80 -v /data/galaxy-data:/export --name galaxy-instance bgruening/galaxy-stable
+  $ sudo docker run -p 8080:80 -v /data/galaxy-data:/export --name galaxy-instance bgruening/galaxy-stable
   ```
 5. Stop the Galaxy container
 
