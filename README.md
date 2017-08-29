@@ -318,7 +318,12 @@ docker run -p 8080:80 \
 ```
 
 ## On-demand reference data with CVMFS <a name="cvmfs" /> [[toc]](#toc)
-By default, Galaxy instances launched with this image will have on-demand access to approximately 3TB of reference genomes and indexes. These are the same reference data available on the main Galaxy server. This is achieved by connecting to Galaxy's CernVM filesystem (CVMFS) server at `data.galaxyproject.org`. The CVMFS capability doesn't add to the size of the Docker image, but when running, CVMFS maintains a cache to keep the most recently used data on the local disk.
+By default, Galaxy instances launched with this image will have on-demand access to approximately 3TB of
+reference genomes and indexes. These are the same reference data available on the main Galaxy server.
+This is achieved by connecting to Galaxy's CernVM filesystem (CVMFS) at `data.galaxyproject.org` repository,
+which is geographically distributed among numerous servers.
+The CVMFS capability doesn't add to the size of the Docker image, but when running, CVMFS maintains
+a cache to keep the most recently used data on the local disk.
 
 *Note*: for CVMFS directories to be mounted-on-demand with `autofs`, you must launch Docker as `--privileged`
 
