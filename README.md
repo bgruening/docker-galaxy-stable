@@ -394,7 +394,12 @@ docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/h
 ## Running on an external cluster (DRM)  <a name="Running-on-an-external-cluster-(DRM)" />[[toc]](#toc)
 
 ### Basic setup for the filesystem  <a name="Basic-setup-for-the-filesystem" /> [[toc]](#toc)
-The docker container sets up all its files on the /export directory, but this directory does not exist on the cluster filesystem. This can be solved with symbolic links on the cluster filesystem but it can also be solved within the container itself.
+
+#### The easy way
+The easiest way is to create a /export mount point on the cluster and mount the container with /export:/export.
+
+#### Not using the /export mount point on the cluster.
+The docker container sets up all its files on the /export directory, but this directory may not exist on the cluster filesystem. This can be solved with symbolic links on the cluster filesystem but it can also be solved within the container itself.
 
 In this example configuration the cluster filesystem has a directory `/cluster_storage/galaxy` which is accessible for the galaxy user in the container (UID 1450) and the user starting the container.
 
@@ -418,9 +423,8 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY="/cluster_storage/galaxy/galaxy_export/galax
 -e GALAXY_CONFIG_RETRY_JOB_OUTPUT_COLLECTION=5 \ #IF your cluster fs uses nfs this may introduce latency. You can set galaxy to retry if a job output is not yet created.
 # Conda settings. IMPORTANT!
 -e GALAXY_CONFIG_CONDA_PREFIX="/cluster_storage/galaxy/_conda" \ # Can be anywhere EXCEPT cluster_storage/galaxy/galaxy_export!
-# Conda uses $PWD to determine where the virtual environment is. If placed in cluster_storage/galaxy/galaxy_export conda will determine
-# Its $PWD to be /export/whatever/something/_conda which does not exist on the cluster!
--e GALAXY_CONFIG_CONDA_AUTO_INIT: True # When the necessary environment can not be found a new one will automatically be created
+# Conda uses $PWD to determine where the virtual environment is. If placed inside the export directory conda will determine $PWD to be a subirectory of the  /export folder which does not exist on the cluster!
+-e GALAXY_CONFIG_CONDA_AUTO_INIT=True # When the necessary environment can not be found a new one will automatically be created
 ```
 ### Setting up a python virtual environment on the cluster  <a name="Setting-up-a-python-virtual-environment-on-the-cluster" />[[toc]](#toc)
 The python environment in the container is not accessible from the cluster. So it needs to be created beforehand.
@@ -428,6 +432,7 @@ In this example configuration the python virtual environment is created on  `/cl
 1. Create the virtual environment `virtualenv /cluster_storage/galaxy/galaxy_venv`
 2. Activate the virtual environment `source /cluster_storage/galaxy/galaxy_venv/bin/activate`
 3. Install the galaxy requirements `pip install --index-url https://wheels.galaxyproject.org/simple --only-binary all -r /cluster_storage/galaxy/galaxy-central//lib/galaxy/dependencies/pinned-requirements.txt`
+  * Make sure to upgrade the environment with the new requirements when a new version of galaxy is released.
 
 To make the python environment usable for the cluster. Create your custom `job_conf.xml` file and put it in `/cluster_storage/galaxy/galaxy_export/galaxy-central/config`.
 In the destination section the following code should be added:
@@ -489,11 +494,12 @@ To use Grid Engine (Sun Grid Engine, Open Grid Scheduler), one configuration fil
   ```
   -e SGE_ROOT=/var/lib/gridengine
   ```
-3. Make sure that YOUR_GRIDENGINE_MASTER_HOST is in the containers `/etc/hosts`
+3. Make sure that YOUR_GRIDENGINE_MASTER_HOST can be pinged from the docker container. If this is not the case you can put the qmaster's hostname and ip in the containers `/etc/hosts`
+Your Grid Engine needs to accept job submissions from inside the container. If your container is already on a host that can submit jobs, set the hostname of the container to be exactly the same as the host. (The hostname can be changed by using the --hostname flag when starting the container).
 
-Your Grid Engine needs to accept job submissions from inside the container. You can do this by adding the container's hostname (default=galaxy-docker) to the /etc/hosts file on the gridengine head node. And setting the container's hostname as a submit host. (The hostname can be changed by using the --hostname flag when starting the container)
 
-The ports that need to be forwarded are 6444 and 6445 (default).
+ Alternatively, you can add the container's hostname (default=galaxy-docker) to the /etc/hosts file on the gridengine head node. And setting the container's hostname as a submit host.
+
 
 ### Tips for Running Jobs Outside the Container <a name="Tips-for-Running-Jobs-Outside-the-Container"/> [[toc]](#toc)
 
