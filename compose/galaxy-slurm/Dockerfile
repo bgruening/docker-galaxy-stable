@@ -13,7 +13,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     useradd -u $GALAXY_UID -m -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
     apt-get update -qq && apt-get install -y --no-install-recommends apt-transport-https \
         slurm-llnl slurm-llnl-torque slurm-drmaa-dev \
-        python-pip python-psutil supervisor wget && \
+        python-pip python-psutil supervisor wget samtools && \
     /usr/sbin/create-munge-key && \
     touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log && \
     mkdir /tmp/slurm && pip install --upgrade supervisor virtualenv && \
