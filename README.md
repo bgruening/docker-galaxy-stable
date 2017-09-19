@@ -3,6 +3,7 @@
 [![Docker Repository on Quay](https://quay.io/repository/bgruening/galaxy/status "Docker Repository on Quay")](https://quay.io/repository/bgruening/galaxy)
 [![Gitter](https://badges.gitter.im/bgruening/docker-galaxy-stable.svg)](https://gitter.im/bgruening/docker-galaxy-stable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 ![docker pulls](https://img.shields.io/docker/pulls/bgruening/galaxy-stable.svg) ![docker stars](https://img.shields.io/docker/stars/bgruening/galaxy-stable.svg)
+[![docker image stats](https://images.microbadger.com/badges/image/bgruening/galaxy-stable.svg)](https://microbadger.com/images/bgruening/galaxy-stable "Get your own image badge on microbadger.com")
 
 Galaxy Docker Image
 ===================
@@ -27,6 +28,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Using Parent docker](#Using-Parent-docker)
   - [Galaxy Report Webapp](#Galaxy-Report-Webapp)
   - [Galaxy's config settings](#Galaxys-config-settings)
+  - [Configuring Galaxy's behind a proxy](#Galaxy-behind-proxy)
   - [Personalize your Galaxy](#Personalize-your-Galaxy)
   - [Deactivating services](#Deactivating-services)
   - [Restarting Galaxy](#Restarting-Galaxy)
@@ -121,7 +123,7 @@ This also allows for data separation, but keeps everything encapsulated within t
 
 ## Upgrading images <a name="Upgrading-images" /> [[toc]](#toc)
 
-We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you. Please, take in account that that upgrading may vary depending on your Galaxy installation, and the changes in new versions. Use this example carefully!
+We will release a new version of this image concurrent with every new Galaxy release. For upgrading an image to a new version we have assembled a few hints for you. Please, take in account that upgrading may vary depending on your Galaxy installation, and the changes in new versions. Use this example carefully!
 
 * Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.
 * New unmodified configuration files are always stored in a hidden directory called `.distribution_config`. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.
@@ -159,7 +161,8 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo rm -r /data/galaxy-data/postgresql/
   $ sudo rsync -var /data/galaxy-data-old/postgresql/  /data/galaxy-data/postgresql/
   ```
-7. Use diff to find changes in the config files (only if you changed any config file).
+
+7. Use diff to find changes in the config files.
 
   ```
   $ cd /data/galaxy-data/.distribution_config
@@ -292,11 +295,28 @@ docker run -p 8080:80 \
     -e "GALAXY_CONFIG_BRAND='My own Galaxy flavour'" \
     bgruening/galaxy-stable
 ```
+
 Note that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.ini`:
 
 ```
 database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy
 file_path = /export/galaxy-central/database/files
+```
+
+## Configuring Galaxy's behind a proxy <a name="Galaxy-behind-proxy" /> [[toc]](#toc)
+
+If your Galaxy docker instance is running behind an HTTP proxy server, and if you're accessing it with a specific path prefix (e.g. http://www.example.org/some/prefix/), you need to make Galaxy aware of it. There is an environment variable available to do so:
+
+```
+PROXY_PREFIX=/some/prefix
+```
+
+You can and should overwrite these during launching your container:
+
+```sh
+docker run -p 8080:80 \
+    -e "PROXY_PREFIX=/some/prefix" \
+    bgruening/galaxy-stable
 ```
 
 ## Personalize your Galaxy <a name="Personalize-your-Galaxy" /> [[toc]](#toc)
@@ -519,10 +539,11 @@ If the desired tools are already included in the Tool Shed, building your own pe
 2. Include `FROM bgruening/galaxy-stable` at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.
 3. Supply the list of desired tools in a file (`my_tool_list.yml` below). See [this page](https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample) for the file format requirements.
 4. Execute `docker build -t my-docker-test .`
+4a. (if behind proxy). Add the ENV http_proxy and https_proxy variables as IPs (to avoid nameserver resolution problems) as in the example below.
 5. Run your container with `docker run -p 8080:80 my-docker-test`
 6. Open your web browser on `http://localhost:8080`
 
-For a working example, have a look at the  or the  Dockerfile's.
+For a working example, have a look at these  Dockerfiles.
 - [deepTools](http://deeptools.github.io/) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile)
 - [ChemicalToolBox](https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox) [Dockerfile](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile)
 
@@ -536,6 +557,10 @@ FROM bgruening/galaxy-stable
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ENV GALAXY_CONFIG_BRAND deepTools
+# The following two lines are optional and can be given during runtime
+# with the -e http_proxy='http://yourproxyIP:8080' parameter
+ENV http_proxy 'http://yourproxyIP:8080'
+ENV https_proxy 'http://yourproxyIP:8080'
 
 WORKDIR /galaxy-central
 
@@ -562,8 +587,40 @@ EXPOSE :8800
 CMD ["/usr/bin/startup"]
 ```
 
+or the [RNA-workbench](https://github.com/bgruening/galaxy-rna-workbench/blob/master/Dockerfile).
+The RNA-workbench has advanced examples about:
+
+- populating Galaxy data-libararies
+
+  ```bash
+    setup-data-libraries -i $GALAXY_ROOT/library_data.yaml -g http://localhost:8080
+        -u $GALAXY_DEFAULT_ADMIN_USER -p $GALAXY_DEFAULT_ADMIN_PASSWORD
+  ```
+
+The actual data is references in a YAML file similar this [one](https://github.com/bgruening/galaxy-rna-workbench/blob/master/library_data.yaml).
+
+- installing workflows
+
+  ```bash
+      workflow-install --workflow_path $GALAXY_HOME/workflows/ -g http://localhost:8080
+          -u $GALAXY_DEFAULT_ADMIN_USER -p $GALAXY_DEFAULT_ADMIN_PASSWORD
+  ```
+
+Where all Galaxy workflows needs to be in one directory, here the `$GALAXY_HOME/workflows/`.
+
+- running Galaxy data-managers to create indices or download data
+
+  ```bash
+      run-data-managers -u admin@galaxy.org -p admin -g http://localhost:8080
+          --config data_manager_rna_seq.yaml
+  ```
+
+The data-managers can be configured and specified in a YAML file similar to this [one](https://github.com/galaxyproject/training-material/blob/master/RNA-Seq/docker/data_manager_rna_seq.yaml).
+
+
 If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:
 https://github.com/bgruening/galaxy-flavor-testing
+
 
 
 ## List of Galaxy flavours <a name="List-of-Galaxy-flavours" /> [[toc]](#toc)
@@ -685,11 +742,17 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
   - first version with initial Docker compose support (proftpd ✔️)
   - SFTP support by @zfrenchee
 - 16.10:
-  - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
+   - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
 - 17.01:
   - enable Conda dependency resultion by deault
   - [new Galaxy version](https://docs.galaxyproject.org/en/master/releases/17.01_announce.html)
   - more compose work (slurm, postgresql)
+- 17.05:
+   - add PROXY_PREFIX variable to enable automatic configuration of Galaxy running under some prefix (@abretaud)
+   - enable quota by default (just the funtionality, not any specific value)
+   - HT-Condor is now supported in compose with semi-autoscaling and BioContainers
+   - Galaxy Docker Compose is completely under Travis testing and available with SLURM and HT-Condor
+   - using Docker `build-arg`s for GALAXY_RELEASE and GALAXY_REPO
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 

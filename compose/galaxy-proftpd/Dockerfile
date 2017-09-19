@@ -2,11 +2,12 @@
 
 FROM ubuntu:14.04
 
+ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
+ARG ANSIBLE_RELEASE=1e07cc8a56cd18821a9f20129c400a242d25d1a0
+
 ENV GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
-GALAXY_GID=1450 \
-SUBMODULE_BRANCH=dev \
-ANSIBLE_REF=f974903ef764f8ee102b4f2bee4f69528e6e784b
+GALAXY_GID=1450
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -20,9 +21,15 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 ADD ansible /ansible
-ADD ansible_path.py /usr/bin/ansible_path.py
-#RUN (mkdir /tmp/ansiblefetch && cd /tmp/ansiblefetch && wget -pO- $( python3 /usr/bin/ansible_path.py $SUBMODULE_BRANCH ) | tar xvz && mv -v $( ls ) /ansible/galaxyprojectdotorg.galaxyextras) && rm -rf /tmp/*
-RUN (mkdir /tmp/ansiblefetch && cd /tmp/ansiblefetch && wget -pO- https://api.github.com/repos/galaxyproject/ansible-galaxy-extras/tarball/$ANSIBLE_REF | tar xvz && mv -v $( ls ) /ansible/galaxyprojectdotorg.galaxyextras) && rm -rf /tmp/*
+RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && \
+    cd /ansible/galaxyprojectdotorg.galaxyextras && \
+    wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
+
+# Generate ssh keys, all other config will be overwritte upon startup
+RUN ansible-playbook /ansible/provision.yml \
+    --tags=proftpd --skip-tags=proftpd_apt -c local \
+    --extra-vars proftpd_generate_ssh_key="true" \
+    --extra-vars proftpd_use_sftp="true"
 
 ADD run.sh /usr/bin/run.sh
 RUN chown $GALAXY_UID:$GALAXY_GID /usr/bin/run.sh && chmod 755 /usr/bin/run.sh
@@ -31,4 +38,3 @@ EXPOSE 21 22
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/run.sh"]
-#CMD ["proftpd","--nodaemon"]
