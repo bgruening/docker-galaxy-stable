@@ -36,6 +36,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
 - [Enable Galaxy to use BioContainers (Docker)](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
+- [HTTPS Support](#HTTPS-Support)
 - [Lite Mode](#Lite-Mode)
 - [Extending the Docker Image](#Extending-the-Docker-Image)
   - [List of Galaxy flavours](#List-of-Galaxy-flavours)
@@ -132,7 +133,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo docker pull bgruening/galaxy-stable
   ```
 2. Stop and rename the current galaxy container
-  
+
   ```
   $ sudo docker stop galaxy-instance
   $ sudo docker rename galaxy-instance galaxy-instance-old
@@ -158,7 +159,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo rm -r /data/galaxy-data/postgresql/
   $ sudo rsync -var /data/galaxy-data-old/postgresql/  /data/galaxy-data/postgresql/
   ```
-7. Use diff to find changes in the config files (only if you changed any config file). 
+7. Use diff to find changes in the config files (only if you changed any config file).
 
   ```
   $ cd /data/galaxy-data/.distribution_config
@@ -170,7 +171,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo rsync -var /data/galaxy-data-old/galaxy-central/database/files/* /data/galaxy-data/galaxy-central/da
   tabase/files/
   ```
-9. Copy all the installed tools 
+9. Copy all the installed tools
 
   ```
   $ sudo rsync -var /data/galaxy-data-old/tool_deps/* /data/galaxy-data/tool_deps/
@@ -191,14 +192,14 @@ We will release a new version of this image concurrent with every new Galaxy rel
   > sh manage_db.sh upgrade
   #Logout
   > exit
-  ``` 
+  ```
 12. Start the docker and test
 
-  ``` 
+  ```
   $ sudo docker start galaxy-instance
-  ``` 
+  ```
 13. Clean the old container and image
-    
+
 
 ## Enabling Interactive Environments in Galaxy <a name="Enabling-Interactive-Environments-in-Galaxy" /> [[toc]](#toc)
 
@@ -271,7 +272,7 @@ docker run -p 8080:80 \
 ## Galaxy's config settings <a name="Galaxys-config-settings" /> [[toc]](#toc)
 
 Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
-`GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters* 
+`GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters*
 For example, you can set the Galaxy session timeout to 5 mintues by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
 
 *by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
@@ -462,7 +463,7 @@ a line such as this to each job destination:
 # Enable Galaxy to use BioContainers (Docker) <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
 This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using [mulled](https://github.com/mulled). To test, install the [IUC bedtools](https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&changeset_revision=7b3aaff0d78c) from the toolshed. When you try to execute *ClusterBed* for example. You may get a missing dependancy error for *bedtools*. But bedtools has an associated docker image on [quay.io](https://quay.io/).  Now configure Galaxy as follows:
 
-- Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True` 
+- Add this environment variable to `docker run`: `-e GALAXY_CONFIG_ENABLE_BETA_MULLED_CONTAINERS=True`
 - In `job_conf.xml` configure a Docker enabled destination as follows:
 
 ```xml
@@ -488,10 +489,16 @@ When you execute the tool again, Galaxy will pull the image from Biocontainers (
 | `GALAXY_DOCKER_ENABLED` | Enable Galaxy to use Docker containers if annotated in tools (`GALAXY_DOCKER_ENABLED=False`) |
 | `GALAXY_DOCKER_VOLUMES` | Specify volumes that should be mounted into tool containers (`GALAXY_DOCKER_VOLUMES=""`) |
 | `GALAXY_HANDLER_NUMPROCS` | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
+
+# HTTPS Support <a name="HTTPS-Support"/> [[toc]](#toc)
+
+It's possible to automatically configure your container with HTTPS, either with
+certificates of your own or by automatically requesting an HTTPS certificate from
+Letsencrypt with the following environment variables:
+
 | `USE_HTTPS` | Set `USE_HTTPS=True` to set up HTTPS via self-signed certificates. If you have your own certificates, copy them to `/export/{server.key,server.crt}`. |
 | `USE_HTTPS_LETSENCRYPT` | Set `USE_HTTPS_LETSENCRYPT=True` to automatically set up HTTPS using Letsencrypt as a certificate authority. (Requires you to also set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL`) Note: only set one of `USE_HTTPS` and `USE_HTTPS_LETSENCRYPT` to true. |
 | `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL` | Set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=<your_domain>` so that Letsencrypt can test your that you own the domain you claim to own in order to issue you your HTTPS cert. |
-
 
 # Lite Mode <a name="Lite-Mode" /> [[toc]](#toc)
 
