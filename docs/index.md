@@ -371,6 +371,18 @@ Magic Environment variables [[toc]](#toc)
 | UWSGI_THREADS | Set the number of uwsgi threads (`UWSGI_THREADS=4`) |
 | GALAXY_HANDLER_NUMPROCS | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
 
+<a name="HTTPS-Support"/>
+# HTTPS Support [[toc]](#toc)
+
+It's possible to automatically configure your container with HTTPS, either with
+certificates of your own or by automatically requesting an HTTPS certificate from
+Letsencrypt with the following environment variables:
+
+| Name   | Description   |
+|---|---|
+| `USE_HTTPS` | Set `USE_HTTPS=True` to set up HTTPS via self-signed certificates. If you have your own certificates, copy them to `/export/{server.key,server.crt}`. |
+| `USE_HTTPS_LETSENCRYPT` | Set `USE_HTTPS_LETSENCRYPT=True` to automatically set up HTTPS using Letsencrypt as a certificate authority. (Requires you to also set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL`) Note: only set one of `USE_HTTPS` and `USE_HTTPS_LETSENCRYPT` to true. |
+| `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL` | Set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=<your_domain>` so that Letsencrypt can test your that you own the domain you claim to own in order to issue you your HTTPS cert. |
 
 <a name="Lite-Mode" />
 Lite Mode [[toc]](#toc)
