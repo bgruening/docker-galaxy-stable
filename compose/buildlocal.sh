@@ -2,12 +2,14 @@
 set -x -e
 
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ANSIBLE_RELEASE=master
+ANSIBLE_RELEASE=b4079449754bcc57aaad2dfa34e1398c5d05e4b1
 
-GALAXY_RELEASE=dev
+GALAXY_RELEASE=release_17.09
 GALAXY_REPO=galaxyproject/galaxy
 
 DOCKER_ADDITIONAL_BUILD_ARGS="--no-cache"
+
+docker pull postgres
 
 docker build $DOCKER_ADDITIONAL_BUILD_ARGS --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/bgruening/galaxy-base ./galaxy-base/
 docker build $DOCKER_ADDITIONAL_BUILD_ARGS --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE -t quay.io/bgruening/galaxy-init ./galaxy-init/
