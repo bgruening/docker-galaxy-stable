@@ -6,11 +6,6 @@ FROM toolshed/requirements
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-# * Make sure the package repository is up to date
-# * Install all requirements that are recommend by the Galaxy project
-# * Enable the @natefoo magic
-# Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
-
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
@@ -26,6 +21,7 @@ GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
 GALAXY_CONFIG_TOOL_DATA_TABLE_CONFIG_PATH=/etc/galaxy/tool_data_table_conf.xml \
 GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=$EXPORT_DIR/tool_deps \
+GALAXY_CONFIG_TOOL_PATH=$EXPORT_DIR/galaxy-central/tools \
 GALAXY_VIRTUAL_ENV=/galaxy_venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -43,7 +39,7 @@ GALAXY_RUNNERS_ENABLE_CONDOR=False \
 # Define the default postgresql database path
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
 PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
-PG_DATA_DIR_HOST=/$EXPORT_DIR/postgresql/9.3/main/ \
+PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/9.3/main/ \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
