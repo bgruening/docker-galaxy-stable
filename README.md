@@ -397,7 +397,6 @@ docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/h
 
 #### The easy way
 The easiest way is to create a `/export` mount point on the cluster and mount the container with `/export:/export`.
-Also a symbolic link `galaxy-central` pointing to `/export/galaxy-central` needs to be created on the cluster.
 
 #### Not using the /export mount point on the cluster.
 The docker container sets up all its files on the /export directory, but this directory may not exist on the cluster filesystem. This can be solved with symbolic links on the cluster filesystem but it can also be solved within the container itself.
