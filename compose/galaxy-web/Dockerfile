@@ -14,7 +14,7 @@ UWSGI_THREADS=4 \
 USE_HTTPS=False \
 # Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to a domain that is reachable to get a letsencrypt certificate
 USE_HTTPS_LETSENCRYPT=False \
-GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=localhost \
+GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost \
 # Set the number of Galaxy handlers
 GALAXY_HANDLER_NUMPROCS=2
 
