@@ -45,10 +45,30 @@
     </header>
 
     <section>
-    <h1>Lite Mode </h1>
-<p>The lite mode will only start postgresql and a single Galaxy process, without nginx, uwsgi or any other special feature from the normal mode. In particular there is no support for the export folder or any Magic Environment variables.</p>
-<div class="highlight highlight-source-shell"><pre>docker run -i -t -p 8080:8080 bgruening/galaxy-stable startup_lite</pre></div>
-<p>This will also use the standard <code>job_conf.xml.sample_basic</code> shipped by Galaxy. If you want to use the regular one from the normal mode you can pass <code>-j</code> to the <code>startup_lite</code> script.</p>
+    <h1>HTTPS Support </h1>
+<p>It's possible to automatically configure your container with HTTPS, either with<br>
+certificates of your own or by automatically requesting an HTTPS certificate from<br>
+Letsencrypt with the following environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>USE_HTTPS</code></td>
+<td>Set <code>USE_HTTPS=True</code> to set up HTTPS via self-signed certificates. If you have your own certificates, copy them to <code>/export/{server.key,server.crt}</code>.</td>
+</tr>
+<tr>
+<td><code>USE_HTTPS_LETSENCRYPT</code></td>
+<td>Set <code>USE_HTTPS_LETSENCRYPT=True</code> to automatically set up HTTPS using Letsencrypt as a certificate authority. (Requires you to also set <code>GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL</code>) Note: only set one of <code>USE_HTTPS</code> and <code>USE_HTTPS_LETSENCRYPT</code> to true.</td>
+</tr>
+<tr>
+<td><code>GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL</code></td>
+<td>Set <code>GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=&lt;your_domain&gt;</code> so that Letsencrypt can test your that you own the domain you claim to own in order to issue you your HTTPS cert.</td>
+</tr></tbody></table>
 
 
     </section>
