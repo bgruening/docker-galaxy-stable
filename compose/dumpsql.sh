@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Sets the image of postgres to use
-POSTGRES=postgres
+POSTGRES=postgres:9.6.5
 
 # User and password to use.
 POSTGRES_USER=galaxy
