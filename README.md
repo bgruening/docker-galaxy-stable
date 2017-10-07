@@ -34,9 +34,11 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
   - [Deactivating services](#Deactivating-services)
   - [Restarting Galaxy](#Restarting-Galaxy)
   - [Advanced Logging](#Advanced-Logging)
-  - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
-  - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
-  - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
+  - [Running on an external cluster (DRM)](#Running-on-an-external-cluster-(DRM))
+    - [Basic setup for the filesystem](#Basic-setup-for-the-filesystem)
+    - [Using an external Slurm cluster](#Using-an-external-Slurm-cluster)
+    - [Using an external Grid Engine cluster](#Using-an-external-Grid-Engine-cluster)
+    - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
 - [Enable Galaxy to use BioContainers (Docker)](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
 - [HTTPS Support](#HTTPS-Support)
@@ -162,7 +164,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   $ sudo rm -r /data/galaxy-data/postgresql/
   $ sudo rsync -var /data/galaxy-data-old/postgresql/  /data/galaxy-data/postgresql/
   ```
-7. Use diff to find changes in the config files.
+7. Use diff to find changes in the config files (only if you changed any config file).
 
   ```
   $ cd /data/galaxy-data/.distribution_config
@@ -396,30 +398,77 @@ mkdir gx_logs
 docker run -d -p 8080:80 -p 8021:21 -e "GALAXY_LOGGING=full" -v `pwd`/gx_logs:/home/galaxy/logs bgruening/galaxy-stable
 ```
 
+## Running on an external cluster (DRM)  <a name="Running-on-an-external-cluster-(DRM)" />[[toc]](#toc)
 
-## Using an external Slurm cluster <a name="Using-an-external-Slurm-cluster" /> [[toc]](#toc)
+### Basic setup for the filesystem  <a name="Basic-setup-for-the-filesystem" /> [[toc]](#toc)
+
+#### The easy way
+The easiest way is to create a `/export` mount point on the cluster and mount the container with `/export:/export`.
+
+#### Not using the /export mount point on the cluster.
+The docker container sets up all its files on the /export directory, but this directory may not exist on the cluster filesystem. This can be solved with symbolic links on the cluster filesystem but it can also be solved within the container itself.
+
+In this example configuration the cluster filesystem has a directory `/cluster_storage/galaxy` which is accessible for the galaxy user in the container (UID 1450) and the user starting the container.
+
+The container should be started with the following settings configured:
+```bash
+docker run -d -p 8080:80 -p 8021:21 \
+-v /cluster_storage/galaxy/galaxy_export:/export \ # This makes sure all galaxy files are on the cluster filesystem
+-v /cluster_storage/galaxy:/cluster_storage/galaxy \ # This ensures the links within the docker container and on the cluster fs are the same
+# The following settings make sure that each job is configured with the paths on the cluster fs instead of /export
+-e GALAXY_CONFIG_TOOL_DEPENDENCY_DIR="/cluster_storage/galaxy/galaxy_export/tool_deps" \
+-e GALAXY_CONFIG_TOOL_DEPENDENCY_CACHE_DIR="/cluster_storage/galaxy/galaxy_export/tool_deps/_cache" \
+-e GALAXY_CONFIG_FILE_PATH="/cluster_storage/galaxy/galaxy_export/galaxy-central/database/files" \
+-e GALAXY_CONFIG_TOOL_PATH="/cluster_storage/galaxy/galaxy_export/galaxy-central/tools" \
+-e GALAXY_CONFIG_TOOL_DATA_PATH="/cluster_storage/galaxy/galaxy_export/galaxy-central/tool-data" \
+-e GALAXY_CONFIG_SHED_TOOL_DATA_PATH="/cluster_storage/galaxy/galaxy_export/galaxy-central/tool-data" \
+# The following settings are for directories that can be anywhere on the cluster fs.
+GALAXY_CONFIG_JOB_WORKING_DIRECTORY="/cluster_storage/galaxy/galaxy_export/galaxy-central/database/job_working_directory" \ #IMPORTANT: needs to be created manually. Can also be placed elsewhere, but is originally located here
+-e GALAXY_CONFIG_NEW_FILE_PATH="/cluster_storage/galaxy/tmp" \ # IMPORTANT: needs to be created manually. This needs to be writable by UID=1450 and have its flippy bit set (chmod 1777 for world-writable with flippy bit)
+-e GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY="/cluster_storage/galaxy/job_scripts" \ # Job scripts and stdout and stderr will be written here.
+-e GALAXY_CONFIG_OUTPUTS_TO_WORKING_DIRECTORY=False \ # Writes Job scripts, stdout and stderr to job_working_directory.   
+-e GALAXY_CONFIG_RETRY_JOB_OUTPUT_COLLECTION=5 \ #IF your cluster fs uses nfs this may introduce latency. You can set galaxy to retry if a job output is not yet created.
+# Conda settings. IMPORTANT!
+-e GALAXY_CONFIG_CONDA_PREFIX="/cluster_storage/galaxy/_conda" \ # Can be anywhere EXCEPT cluster_storage/galaxy/galaxy_export!
+# Conda uses $PWD to determine where the virtual environment is. If placed inside the export directory conda will determine $PWD to be a subirectory of the  /export folder which does not exist on the cluster!
+-e GALAXY_CONFIG_CONDA_AUTO_INIT=True # When the necessary environment can not be found a new one will automatically be created
+```
+### Setting up a python virtual environment on the cluster  <a name="Setting-up-a-python-virtual-environment-on-the-cluster" />[[toc]](#toc)
+The python environment in the container is not accessible from the cluster. So it needs to be created beforehand.
+In this example configuration the python virtual environment is created on  `/cluster_storage/galaxy/galaxy_venv` and the export folder on `/cluster_storage/galaxy/galaxy_export`. To create the virtual environment:
+1. Create the virtual environment `virtualenv /cluster_storage/galaxy/galaxy_venv`
+2. Activate the virtual environment `source /cluster_storage/galaxy/galaxy_venv/bin/activate`
+3. Install the galaxy requirements `pip install --index-url https://wheels.galaxyproject.org/simple --only-binary all -r /cluster_storage/galaxy/galaxy-central//lib/galaxy/dependencies/pinned-requirements.txt`
+  * Make sure to upgrade the environment with the new requirements when a new version of galaxy is released.
+
+To make the python environment usable for the cluster. Create your custom `job_conf.xml` file and put it in `/cluster_storage/galaxy/galaxy_export/galaxy-central/config`.
+In the destination section the following code should be added:
+```xml
+<destinations default="cluster">
+  <destination id="cluster" runner="your_cluster_runner">
+    <env file="/cluster_storage/galaxy/galaxy_venv/bin/activate"/>
+    <env id="GALAXY_ROOT_DIR">/cluster_storage/galaxy/galaxy_export/galaxy-central</env>
+    <env id="GALAXY_LIB">/cluster_storage/galaxy/galaxy_export/galaxy-central/lib</env>
+    <env id="PYTHONPATH">/cluster_storage/galaxy/galaxy_export/galaxy-central/lib</env>
+    <param id="embed_metadata_in_job">True</param>
+  </destination>
+```
+In this way, python tools on the cluster are able to use the galaxy libraries.
+
+More information can be found [here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#managing-dependencies-manually)
+and
+[here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#galaxy-job-handlers).
+
+### Using an external Slurm cluster <a name="Using-an-external-Slurm-cluster" /> [[toc]](#toc)
 
 It is often convenient to configure Galaxy to use a high-performance cluster for running jobs. To do so, two files are required:
 
 1. munge.key
 2. slurm.conf
 
-These files from the cluster must be copied to the `/export` mount point (i.e., `/data/galaxy` on the host if using below command) accessible to Galaxy before starting the container. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files to `/etc` within the container, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
+These files from the cluster must be copied to the `/export` mount point (i.e., `/cluster_storage/galaxy/galaxy_export/` on the host if using below command) accessible to Galaxy before starting the container. This must be done regardless of which Slurm daemons are running within Docker. At start, symbolic links will be created to these files to `/etc` within the container, allowing the various Slurm functions to communicate properly with your cluster. In such cases, there's no reason to run `slurmctld`, the Slurm controller daemon, from within Docker, so specify `-e "NONUSE=slurmctld"`. Unless you would like to also use Slurm (rather than the local job runner) to run jobs within the Docker container, then alternatively specify `-e "NONUSE=slurmctld,slurmd"`.
 
-Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, each of the execution nodes will need `/export` and `/galaxy-central` directories to point to the appropriate places. Suppose you ran the following command to start the Docker image:
-
-```sh
-docker run -d \
-    -e "NONUSE=slurmd,slurmctld" \
-    -p 80:80 \
-    -v /data/galaxy:/export \
-    bgruening/galaxy-stable
-```
-
-You would then need the following symbolic links on each of the nodes:
-
-1. `/export`  → `/data/galaxy`
-2. `/galaxy-central`  → `/data/galaxy/galaxy-central`
+Importantly, Slurm relies on a shared filesystem between the Docker container and the execution nodes. To allow things to function correctly, checkout the basic filesystem setup above.
 
 A brief note is in order regarding the version of Slurm installed. This Docker image uses Ubuntu 14.04 as its base image. The version of Slurm in the Ubuntu 14.04 repository is 2.6.5 and that is what is installed in this image. If your cluster is using an incompatible version of Slurm then you will likely need to modify this Docker image.
 
@@ -434,34 +483,32 @@ The following is an example for how to specify a destination in `job_conf.xml` t
 
 The usage of `-n` can be confusing. Note that it will specify the number of cores, not the number of tasks (i.e., it's not equivalent to `srun -n 4`).
 
-## Using an external Grid Engine cluster <a name="Using-an-external-Grid-Engine-cluster"/> [[toc]](#toc)
+### Using an external Grid Engine cluster <a name="Using-an-external-Grid-Engine-cluster"/> [[toc]](#toc)
 
-Almost things is as same as Slurm cluster.
-
+Set up the filesystem on the cluster as mentioned above.
 To use Grid Engine (Sun Grid Engine, Open Grid Scheduler), one configuration file and an environment variable are required:
 
-1. set the environment variable `SGE_ROOT`
-2. create `/var/lib/gridengine/default/common/act_qmaster` file
 
-By default
+1. create an `act_qmaster` file in the /export folder.
+  * In ***act_qmaster*** is something like this.
 
-```
--e SGE_ROOT=/var/lib/gridengine
--v $PWD/act_qmaster:/var/lib/gridengine/default/common/act_qmaster
-```
-
-In ***act_qmaster*** is something like this.
-
-```
-YOUR_GRIDENGINE_MASTER_HOST
-```
-
-Your Grid Engine needs to accept job submissions from inside the container.
-
-If Grid Engine accepts job submission from the Docker host, the easiest way to forward all necessary ports is to use the `--net` Docker options in the following way like `--net=host`
+  ```
+  YOUR_GRIDENGINE_MASTER_HOST
+  ```
+  * this file will automatically be installed in the container's `/var/lib/gridengine` folder.
+2. set the environment variable `SGE_ROOT`
+  * By default
+  ```
+  -e SGE_ROOT=/var/lib/gridengine
+  ```
+3. Make sure that YOUR_GRIDENGINE_MASTER_HOST can be pinged from the docker container. If this is not the case you can put the qmaster's hostname and ip in the containers `/etc/hosts`
+Your Grid Engine needs to accept job submissions from inside the container. If your container is already on a host that can submit jobs, set the hostname of the container to be exactly the same as the host. (The hostname can be changed by using the --hostname flag when starting the container).
 
 
-## Tips for Running Jobs Outside the Container <a name="Tips-for-Running-Jobs-Outside-the-Container"/> [[toc]](#toc)
+ Alternatively, you can add the container's hostname (default=galaxy-docker) to the /etc/hosts file on the gridengine head node. And setting the container's hostname as a submit host.
+
+
+### Tips for Running Jobs Outside the Container <a name="Tips-for-Running-Jobs-Outside-the-Container"/> [[toc]](#toc)
 
 In its default state Galaxy assumes both the Galaxy source code and
 various temporary files are available on shared file systems across the
@@ -480,17 +527,6 @@ This has performance implications and may not scale as well as performing
 these calculations on the remote cluster - but this should not be a problem
 for most Galaxy instances.
 
-Additionally, many framework tools depend on Galaxy's Python virtual
-environment being available. This should be created outside of the container
-on a shared filesystem available to your cluster using the instructions
-[here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#managing-dependencies-manually). Job destinations
-can then source these virtual environments using the instructions outlined
-[here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#galaxy-job-handlers). In other words, by adding
-a line such as this to each job destination:
-
-```
-<env file="/path/to/shared/galaxy/venv" />
-```
 # Enable Galaxy to use BioContainers (Docker) <a name="auto-exec-tools-in-docker"/> [[toc]](#toc)
 This is a very cool feature where Galaxy automatically detects that your tool has an associated docker image, pulls it and runs it for you. These images (when available) have been generated using [mulled](https://github.com/mulled). To test, install the [IUC bedtools](https://toolshed.g2.bx.psu.edu/repository?repository_id=8d84903cc667dbe7&changeset_revision=7b3aaff0d78c) from the toolshed. When you try to execute *ClusterBed* for example. You may get a missing dependancy error for *bedtools*. But bedtools has an associated docker image on [quay.io](https://quay.io/).  Now configure Galaxy as follows:
 
