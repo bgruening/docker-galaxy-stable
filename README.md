@@ -3,6 +3,7 @@
 [![Docker Repository on Quay](https://quay.io/repository/bgruening/galaxy/status "Docker Repository on Quay")](https://quay.io/repository/bgruening/galaxy)
 [![Gitter](https://badges.gitter.im/bgruening/docker-galaxy-stable.svg)](https://gitter.im/bgruening/docker-galaxy-stable?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 ![docker pulls](https://img.shields.io/docker/pulls/bgruening/galaxy-stable.svg) ![docker stars](https://img.shields.io/docker/stars/bgruening/galaxy-stable.svg)
+[![docker image stats](https://images.microbadger.com/badges/image/bgruening/galaxy-stable.svg)](https://microbadger.com/images/bgruening/galaxy-stable "Get your own image badge on microbadger.com")
 
 Galaxy Docker Image
 ===================
@@ -40,6 +41,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
     - [Tips for Running Jobs Outside the Container](#Tips-for-Running-Jobs-Outside-the-Container)
 - [Enable Galaxy to use BioContainers (Docker)](#auto-exec-tools-in-docker)
 - [Magic Environment variables](#Magic-Environment-variables)
+- [HTTPS Support](#HTTPS-Support)
 - [Lite Mode](#Lite-Mode)
 - [Extending the Docker Image](#Extending-the-Docker-Image)
   - [List of Galaxy flavours](#List-of-Galaxy-flavours)
@@ -149,7 +151,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
 4. Run a new Galaxy container using newer image and wait while Galaxy generates the default content for /export
 
   ```
-  $ sudo run -p 8080:80 -v /data/galaxy-data:/export --name galaxy-instance bgruening/galaxy-stable
+  $ sudo docker run -p 8080:80 -v /data/galaxy-data:/export --name galaxy-instance bgruening/galaxy-stable
   ```
 5. Stop the Galaxy container
 
@@ -320,7 +322,12 @@ docker run -p 8080:80 \
 ```
 
 ## On-demand reference data with CVMFS <a name="cvmfs" /> [[toc]](#toc)
-By default, Galaxy instances launched with this image will have on-demand access to approximately 3TB of reference genomes and indexes. These are the same reference data available on the main Galaxy server. This is achieved by connecting to Galaxy's CernVM filesystem (CVMFS) server at `data.galaxyproject.org`. The CVMFS capability doesn't add to the size of the Docker image, but when running, CVMFS maintains a cache to keep the most recently used data on the local disk.
+By default, Galaxy instances launched with this image will have on-demand access to approximately 3TB of
+reference genomes and indexes. These are the same reference data available on the main Galaxy server.
+This is achieved by connecting to Galaxy's CernVM filesystem (CVMFS) at `data.galaxyproject.org` repository,
+which is geographically distributed among numerous servers.
+The CVMFS capability doesn't add to the size of the Docker image, but when running, CVMFS maintains
+a cache to keep the most recently used data on the local disk.
 
 *Note*: for CVMFS directories to be mounted-on-demand with `autofs`, you must launch Docker as `--privileged`
 
@@ -550,6 +557,19 @@ When you execute the tool again, Galaxy will pull the image from Biocontainers (
 | `GALAXY_DOCKER_VOLUMES` | Specify volumes that should be mounted into tool containers (`GALAXY_DOCKER_VOLUMES=""`) |
 | `GALAXY_HANDLER_NUMPROCS` | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
 
+
+
+# HTTPS Support <a name="HTTPS-Support"/> [[toc]](#toc)
+
+It's possible to automatically configure your container with HTTPS, either with
+certificates of your own or by automatically requesting an HTTPS certificate from
+Letsencrypt with the following environment variables:
+
+| Name   | Description   |
+|---|---|
+| `USE_HTTPS` | Set `USE_HTTPS=True` to set up HTTPS via self-signed certificates. If you have your own certificates, copy them to `/export/{server.key,server.crt}`. |
+| `USE_HTTPS_LETSENCRYPT` | Set `USE_HTTPS_LETSENCRYPT=True` to automatically set up HTTPS using Letsencrypt as a certificate authority. (Requires you to also set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL`) Note: only set one of `USE_HTTPS` and `USE_HTTPS_LETSENCRYPT` to true. |
+| `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL` | Set `GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=<your_domain>` so that Letsencrypt can test your that you own the domain you claim to own in order to issue you your HTTPS cert. |
 
 
 # Lite Mode <a name="Lite-Mode" /> [[toc]](#toc)

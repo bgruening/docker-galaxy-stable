@@ -24,6 +24,7 @@
     <li><a href="usage.html">Usage </a>  </li>
     <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
+    <li><a href="https-support.html">HTTPS Support </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
     <li><a href="integrating-non-tool-shed-tools-into-the-container.html">Integrating non-Tool Shed tools into the container </a>  </li>
@@ -128,7 +129,7 @@ $ sudo docker rename galaxy-instance galaxy-instance-old
 $ sudo rsync -var /data/galaxy-data-old/postgresql/ /data/galaxy-data/postgresql/
 </code></pre>
 <ol start="7">
-<li>Use diff to find changes in the config files (only if you changed any config file).</li>
+<li>Use diff to find changes in the config files.</li>
 </ol>
 <pre><code>$ cd /data/galaxy-data/.distribution_config
 $ for f in *; do echo $f; diff $f ../../galaxy-data-old/galaxy-central/config/$f; read; done

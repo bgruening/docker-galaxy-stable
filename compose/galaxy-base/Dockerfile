@@ -53,6 +53,7 @@ GALAXY_CONFIG_OVERRIDE_DEBUG=False \
 GALAXY_CONDA_PREFIX=/export/tool_deps/_conda \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
 GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/export/tool_deps \
+GALAXY_CONFIG_TOOL_PATH=$EXPORT_DIR/galaxy-central/tools \
 GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$GALAXY_ROOT/database/job_working_directory \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
