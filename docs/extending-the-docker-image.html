@@ -24,6 +24,7 @@
     <li><a href="usage.html">Usage </a>  </li>
     <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
+    <li><a href="https-support.html">HTTPS Support </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
     <li><a href="integrating-non-tool-shed-tools-into-the-container.html">Integrating non-Tool Shed tools into the container </a>  </li>
@@ -103,13 +104,13 @@ The RNA-workbench has advanced examples about:</p>
 <ul>
 <li>populating Galaxy data-libararies</li>
 </ul>
-<div class="highlight highlight-source-shell"><pre>setup-data-libraries -i <span class="pl-smi">$GALAXY_ROOT</span>/library_data.yaml -g http://localhost:8080 
+<div class="highlight highlight-source-shell"><pre>setup-data-libraries -i <span class="pl-smi">$GALAXY_ROOT</span>/library_data.yaml -g http://localhost:8080
 -u <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_USER</span> -p <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_PASSWORD</span></pre></div>
 <p>The actual data is references in a YAML file similar this <a href="https://github.com/bgruening/galaxy-rna-workbench/blob/master/library_data.yaml">one</a>.</p>
 <ul>
 <li>installing workflows</li>
 </ul>
-<div class="highlight highlight-source-shell"><pre>workflow-install --workflow_path <span class="pl-smi">$GALAXY_HOME</span>/workflows/ -g http://localhost:8080 
+<div class="highlight highlight-source-shell"><pre>workflow-install --workflow_path <span class="pl-smi">$GALAXY_HOME</span>/workflows/ -g http://localhost:8080
 -u <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_USER</span> -p <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_PASSWORD</span></pre></div>
 <p>Where all Galaxy workflows needs to be in one directory, here the <code>$GALAXY_HOME/workflows/</code>.</p>
 <ul>
