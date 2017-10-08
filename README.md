@@ -556,7 +556,8 @@ When you execute the tool again, Galaxy will pull the image from Biocontainers (
 | `GALAXY_DOCKER_ENABLED` | Enable Galaxy to use Docker containers if annotated in tools (`GALAXY_DOCKER_ENABLED=False`) |
 | `GALAXY_DOCKER_VOLUMES` | Specify volumes that should be mounted into tool containers (`GALAXY_DOCKER_VOLUMES=""`) |
 | `GALAXY_HANDLER_NUMPROCS` | Set the number of Galaxy handler (`GALAXY_HANDLER_NUMPROCS=2`) |
-
+| `LOAD_GALAXY_CONDITIONAL_DEPENDENCIES` | Installing optional dependencies into the Galaxy virtual environment |
+| `LOAD_PYTHON_DEV_DEPENDENCIES` | Installation of Galaxy's dev dependencies. Needs `LOAD_GALAXY_CONDITIONAL_DEPENDENCIES` as well |
 
 
 # HTTPS Support <a name="HTTPS-Support"/> [[toc]](#toc)
