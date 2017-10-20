@@ -190,7 +190,7 @@ $ sudo rsync -var /data/galaxy-data-old/shed_tools/* /data/galaxy-data/shed_tool
  -v /home/user/galaxy_storage/:/export/ \
  bgruening/galaxy-stable</pre></div>
 <p>And use for example <a href="https://filezilla-project.org/">Filezilla</a> or the <code>sftp</code> program to transfer data:</p>
-<div class="highlight highlight-source-shell"><pre>sftp -v -P 8022 -o User=admin@galaxy.org localhost <span class="pl-k">&lt;&lt;&lt;</span> <span class="pl-s"><span class="pl-pds">$'</span>put &lt;YOUR FILE HERE&gt;<span class="pl-pds">'</span></span></pre></div>
+<div class="highlight highlight-source-shell"><pre>sftp -v -P 8022 -o User=admin@galaxy.org localhost <span class="pl-k">&lt;&lt;&lt;</span> <span class="pl-s"><span class="pl-s"><span class="pl-pds">$'</span>put</span></span> <span class="pl-k">&lt;</span>YOUR FILE HERE<span class="pl-k">&gt;</span><span class="pl-s"><span class="pl-pds">'</span></span></pre></div>
 <h2>Using Parent docker <a name="user-content-Using-Parent-docker"> </a></h2>
 <p>On some linux distributions, Docker-In-Docker can run into issues (such as running out of loopback interfaces). If this is an issue, you can use a 'legacy' mode that use a docker socket for the parent docker installation mounted inside the container. To engage, set the environmental variable <code>DOCKER_PARENT</code></p>
 <div class="highlight highlight-source-shell"><pre>docker run -p 8080:80 -p 8021:21 -p 8800:8800 \
