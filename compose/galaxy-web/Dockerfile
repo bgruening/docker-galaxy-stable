@@ -28,7 +28,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     slurm-llnl autofs && \
     # install and remove supervisor, so get the service config file
     apt-get -qq remove -y supervisor && \
-    mkdir -p /etc/supervisor/conf.d/ && \
+    mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
     pip install --upgrade pip && \
     pip install ephemeris supervisor meld3 && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord && \
