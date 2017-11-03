@@ -187,7 +187,7 @@ We will release a new version of this image concurrent with every new Galaxy rel
   ```
   $ sudo rsync -var /data/galaxy-data-old/welcome* /data/galaxy-data/
   ```
-11. Create a auxiliar docker in interactive mode and upgrade the database.
+11. Create an auxiliary docker in interactive mode and upgrade the database.
 
   ```
   $ sudo docker run -it --rm -v /data/galaxy-data:/export bgruening/galaxy-stable /bin/bash
@@ -278,7 +278,7 @@ docker run -p 8080:80 \
 
 Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
 `GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters*
-For example, you can set the Galaxy session timeout to 5 mintues by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
+For example, you can set the Galaxy session timeout to 5 minutes by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
 
 *by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
 
@@ -358,7 +358,7 @@ If you want to restart Galaxy without restarting the entire Galaxy container you
 docker exec <container name> supervisorctl restart galaxy:
 ```
 
-In addition you start/stop every supervisord process using a webinterface on port `9002`. Start your container with:
+In addition you can start/stop every supervisord process using a web interface on port `9002`. Start your container with:
 
 ```sh
 docker run -p 9002:9002 bgruening/galaxy-stable
@@ -408,7 +408,7 @@ The easiest way is to create a `/export` mount point on the cluster and mount th
 #### Not using the /export mount point on the cluster.
 The docker container sets up all its files on the /export directory, but this directory may not exist on the cluster filesystem. This can be solved with symbolic links on the cluster filesystem but it can also be solved within the container itself.
 
-In this example configuration the cluster filesystem has a directory `/cluster_storage/galaxy` which is accessible for the galaxy user in the container (UID 1450) and the user starting the container.
+In this example configuration the cluster file system has a directory `/cluster_storage/galaxy` which is accessible for the galaxy user in the container (UID 1450) and the user starting the container.
 
 The container should be started with the following settings configured:
 ```bash
@@ -725,7 +725,7 @@ If you want to create new users, please make sure to use the `/export/` volume. 
 The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the
 docker container in production, please do not forget to change the user credentials in `/etc/proftpd/proftpd.conf` too.
 
-The Galaxy Report Webapp is `htpasswd` protected with username and password st to `admin`.
+The Galaxy Report Webapp is `htpasswd` protected with username and password set to `admin`.
 
 
 # Development <a name="Development" /> [[toc]](#toc)
@@ -768,7 +768,7 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
 - 0.4:
    - base the image on toolshed/requirements with all required Galaxy dependencies
    - use Ansible roles to build large parts of the image
-   - export the supervisord webinterface on port 9002
+   - export the supervisord web interface on port 9002
    - enable Galaxy reports webapp
 - 15.07:
   - `install-biojs` can install BioJS visualisations into Galaxy
@@ -797,7 +797,7 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
 - 16.10:
    - [HTTPS support](https://github.com/bgruening/docker-galaxy-stable/pull/240 ) by @zfrenchee and @mvdbeek
 - 17.01:
-  - enable Conda dependency resultion by deault
+  - enable Conda dependency resolution by default
   - [new Galaxy version](https://docs.galaxyproject.org/en/master/releases/17.01_announce.html)
   - more compose work (slurm, postgresql)
 - 17.05:
