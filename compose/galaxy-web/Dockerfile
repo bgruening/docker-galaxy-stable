@@ -30,7 +30,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get -qq remove -y supervisor && \
     mkdir -p /etc/supervisor/conf.d/ && \
     pip install --upgrade pip && \
-    pip install ephemeris supervisor && \
+    pip install ephemeris supervisor meld3 && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     groupadd --gid 999 docker && \
