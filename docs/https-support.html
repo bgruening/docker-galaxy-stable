@@ -45,13 +45,30 @@
     </header>
 
     <section>
-    <h1>Users &amp; Passwords </h1>
-<p>The Galaxy Admin User has the username <code>admin@galaxy.org</code> and the password <code>admin</code>.<br>
-The PostgreSQL username is <code>galaxy</code>, the password is <code>galaxy</code> and the database name is <code>galaxy</code> (I know I was really creative ;)).<br>
-If you want to create new users, please make sure to use the <code>/export/</code> volume. Otherwise your user will be removed after your docker session is finished.</p>
-<p>The proftpd server is configured to use the main galaxy PostgreSQL user to access the database and select the username and password. If you want to run the<br>
-docker container in production, please do not forget to change the user credentials in <code>/etc/proftpd/proftpd.conf</code> too.</p>
-<p>The Galaxy Report Webapp is <code>htpasswd</code> protected with username and password set to <code>admin</code>.</p>
+    <h1>HTTPS Support </h1>
+<p>It's possible to automatically configure your container with HTTPS, either with<br>
+certificates of your own or by automatically requesting an HTTPS certificate from<br>
+Letsencrypt with the following environment variables:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>USE_HTTPS</code></td>
+<td>Set <code>USE_HTTPS=True</code> to set up HTTPS via self-signed certificates. If you have your own certificates, copy them to <code>/export/{server.key,server.crt}</code>.</td>
+</tr>
+<tr>
+<td><code>USE_HTTPS_LETSENCRYPT</code></td>
+<td>Set <code>USE_HTTPS_LETSENCRYPT=True</code> to automatically set up HTTPS using Letsencrypt as a certificate authority. (Requires you to also set <code>GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL</code>) Note: only set one of <code>USE_HTTPS</code> and <code>USE_HTTPS_LETSENCRYPT</code> to true.</td>
+</tr>
+<tr>
+<td><code>GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL</code></td>
+<td>Set <code>GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=&lt;your_domain&gt;</code> so that Letsencrypt can test your that you own the domain you claim to own in order to issue you your HTTPS cert.</td>
+</tr></tbody></table>
 
 
     </section>

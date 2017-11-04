@@ -2,7 +2,7 @@
 
 git config user.name "Travis-CI"
 git config user.email "noreply@travis-ci.org"
-git remote rm origin && git remote add origin https://bebatut:${GH_TOKEN}@github.com/bgruening/docker-galaxy-stable
+git remote rm origin && git remote add origin https://bgruening:${GH_TOKEN}@github.com/bgruening/docker-galaxy-stable
 git fetch origin
 git checkout master
 ./docs/bin/gfm2html README.md docs/

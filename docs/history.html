@@ -22,7 +22,9 @@
   <ul>
     <li><a href="index.html">Global description</a>  </li>
     <li><a href="usage.html">Usage </a>  </li>
+    <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
+    <li><a href="https-support.html">HTTPS Support </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
     <li><a href="integrating-non-tool-shed-tools-into-the-container.html">Integrating non-Tool Shed tools into the container </a>  </li>
@@ -55,7 +57,7 @@
 <li>0.4:</li>
 <li>base the image on toolshed/requirements with all required Galaxy dependencies</li>
 <li>use Ansible roles to build large parts of the image</li>
-<li>export the supervisord webinterface on port 9002</li>
+<li>export the supervisord web interface on port 9002</li>
 <li>enable Galaxy reports webapp</li>
 <li>15.07:</li>
 <li><code>install-biojs</code> can install BioJS visualisations into Galaxy</li>
@@ -66,7 +68,7 @@
 <li>smarter starting of postgres during Tool installations by <a href="https://github.com/shiltemann" class="user-mention">@shiltemann</a></li>
 <li>15.10:</li>
 <li>new Galaxy 15.10 release</li>
-<li>fix <a href="https://github.com/bgruening/docker-galaxy-stable/issues/94" class="issue-link js-issue-link" data-url="https://github.com/bgruening/docker-galaxy-stable/issues/94" data-id="105346680" data-error-text="Failed to load issue title" data-permission-text="Issue title is private">bgruening/docker-galaxy-stable#94</a></li>
+<li>fix <a href="https://github.com/bgruening/docker-galaxy-stable/issues/94" class="issue-link js-issue-link" data-error-text="Failed to load issue title" data-id="105346680" data-permission-text="Issue title is private" data-url="https://github.com/bgruening/docker-galaxy-stable/issues/94">bgruening/docker-galaxy-stable#94</a></li>
 <li>16.01:</li>
 <li>enable Travis testing for all builds and PR</li>
 <li>offer new <a href="https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample">yaml based tool installations</a></li>
@@ -81,6 +83,18 @@
 <li>documentation and tests updates for SLURM integration by <a href="https://github.com/mvdbeek" class="user-mention">@mvdbeek</a></li>
 <li>first version with initial Docker compose support (proftpd <g-emoji alias="heavy_check_mark" fallback-src="https://assets-cdn.github.com/images/icons/emoji/unicode/2714.png" ios-version="6.0">✔️</g-emoji>)</li>
 <li>SFTP support by <a href="https://github.com/zfrenchee" class="user-mention">@zfrenchee</a></li>
+<li>16.10:</li>
+<li><a href="https://github.com/bgruening/docker-galaxy-stable/pull/240">HTTPS support</a> by <a href="https://github.com/zfrenchee" class="user-mention">@zfrenchee</a> and <a href="https://github.com/mvdbeek" class="user-mention">@mvdbeek</a></li>
+<li>17.01:</li>
+<li>enable Conda dependency resolution by default</li>
+<li><a href="https://docs.galaxyproject.org/en/master/releases/17.01_announce.html">new Galaxy version</a></li>
+<li>more compose work (slurm, postgresql)</li>
+<li>17.05:</li>
+<li>add PROXY_PREFIX variable to enable automatic configuration of Galaxy running under some prefix (<a href="https://github.com/abretaud" class="user-mention">@abretaud</a>)</li>
+<li>enable quota by default (just the funtionality, not any specific value)</li>
+<li>HT-Condor is now supported in compose with semi-autoscaling and BioContainers</li>
+<li>Galaxy Docker Compose is completely under Travis testing and available with SLURM and HT-Condor</li>
+<li>using Docker <code>build-arg</code>s for GALAXY_RELEASE and GALAXY_REPO</li>
 </ul>
 
 

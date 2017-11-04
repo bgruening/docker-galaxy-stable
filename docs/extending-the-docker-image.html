@@ -22,7 +22,9 @@
   <ul>
     <li><a href="index.html">Global description</a>  </li>
     <li><a href="usage.html">Usage </a>  </li>
+    <li><a href="auto-exec-tools-in-docker.html">Enable Galaxy to use BioContainers (Docker) </a>  </li>
     <li><a href="magic-environment-variables.html">Magic Environment variables </a>  </li>
+    <li><a href="https-support.html">HTTPS Support </a>  </li>
     <li><a href="lite-mode.html">Lite Mode </a>  </li>
     <li><a href="extending-the-docker-image.html">Extending the Docker Image </a>  </li>
     <li><a href="integrating-non-tool-shed-tools-into-the-container.html">Integrating non-Tool Shed tools into the container </a>  </li>
@@ -49,11 +51,12 @@
 <li>Create a file named <code>Dockerfile</code></li>
 <li>Include <code>FROM bgruening/galaxy-stable</code> at the top of the file. This means that you use the Galaxy Docker Image as base Image and build your own extensions on top of it.</li>
 <li>Supply the list of desired tools in a file (<code>my_tool_list.yml</code> below). See <a href="https://github.com/galaxyproject/ansible-galaxy-tools/blob/master/files/tool_list.yaml.sample">this page</a> for the file format requirements.</li>
-<li>Execute <code>docker build -t my-docker-test .</code></li>
+<li>Execute <code>docker build -t my-docker-test .</code><br>
+4a. (if behind proxy). Add the ENV http_proxy and https_proxy variables as IPs (to avoid nameserver resolution problems) as in the example below.</li>
 <li>Run your container with <code>docker run -p 8080:80 my-docker-test</code></li>
 <li>Open your web browser on <code>http://localhost:8080</code></li>
 </ol>
-<p>For a working example, have a look at the or the Dockerfile's.</p>
+<p>For a working example, have a look at these Dockerfiles.</p>
 <ul>
 <li><a href="http://deeptools.github.io/">deepTools</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-deeptools/Dockerfile">Dockerfile</a></li>
 <li><a href="https://github.com/bgruening/galaxytools/tree/master/chemicaltoolbox">ChemicalToolBox</a> <a href="https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox/Dockerfile">Dockerfile</a></li>
@@ -67,6 +70,10 @@ FROM bgruening/galaxy-stable
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ENV GALAXY_CONFIG_BRAND deepTools
+# The following two lines are optional and can be given during runtime
+# with the -e http_proxy='http://yourproxyIP:8080' parameter
+ENV http_proxy 'http://yourproxyIP:8080'
+ENV https_proxy 'http://yourproxyIP:8080'
 
 WORKDIR /galaxy-central
 
@@ -92,6 +99,26 @@ EXPOSE :8800
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
 </code></pre>
+<p>or the <a href="https://github.com/bgruening/galaxy-rna-workbench/blob/master/Dockerfile">RNA-workbench</a>.<br>
+The RNA-workbench has advanced examples about:</p>
+<ul>
+<li>populating Galaxy data-libararies</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre>setup-data-libraries -i <span class="pl-smi">$GALAXY_ROOT</span>/library_data.yaml -g http://localhost:8080
+-u <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_USER</span> -p <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_PASSWORD</span></pre></div>
+<p>The actual data is references in a YAML file similar this <a href="https://github.com/bgruening/galaxy-rna-workbench/blob/master/library_data.yaml">one</a>.</p>
+<ul>
+<li>installing workflows</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre>workflow-install --workflow_path <span class="pl-smi">$GALAXY_HOME</span>/workflows/ -g http://localhost:8080
+-u <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_USER</span> -p <span class="pl-smi">$GALAXY_DEFAULT_ADMIN_PASSWORD</span></pre></div>
+<p>Where all Galaxy workflows needs to be in one directory, here the <code>$GALAXY_HOME/workflows/</code>.</p>
+<ul>
+<li>running Galaxy data-managers to create indices or download data</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre>run-data-managers -u admin@galaxy.org -p admin -g http://localhost:8080
+--config data_manager_rna_seq.yaml</pre></div>
+<p>The data-managers can be configured and specified in a YAML file similar to this <a href="https://github.com/galaxyproject/training-material/blob/master/RNA-Seq/docker/data_manager_rna_seq.yaml">one</a>.</p>
 <p>If you host your flavor on GitHub consider to test our build with Travis-CI. This project will help you:<br>
 <a href="https://github.com/bgruening/galaxy-flavor-testing">https://github.com/bgruening/galaxy-flavor-testing</a></p>
 <h2>List of Galaxy flavours <a name="user-content-List-of-Galaxy-flavours"> </a></h2>
@@ -108,8 +135,12 @@ CMD ["/usr/bin/startup"]
 <li><a href="https://github.com/lappsgrid-incubator/docker-galaxy-lappsgrid">Galaxy with the Language Application Grid tools</a></li>
 <li><a href="https://github.com/gianlucacorrado/galaxy-RNAcommender">RNAcommender</a></li>
 <li><a href="https://github.com/bgruening/galaxy-open-molecule-generator">OpenMoleculeGenerator</a></li>
-<li><a href="https://github.com/workflow4metabolomics/w4m-vm">Workflow4Metabolomics</a></li>
+<li><a href="https://github.com/workflow4metabolomics/w4m-docker">Workflow4Metabolomics</a></li>
 <li><a href="https://github.com/maxplanck-ie/docker-galaxy-hicexplorer">HiC-Explorer</a></li>
+<li><a href="https://github.com/phac-nml/snvphyl-galaxy">SNVPhyl</a></li>
+<li><a href="https://github.com/BackofenLab/docker-galaxy-graphclust">GraphClust</a></li>
+<li><a href="https://github.com/bgruening/galaxy-rna-workbench">RNA workbench</a></li>
+<li><a href="https://github.com/morinlab/tools-morinlab/tree/master/docker">Cancer Genomics Toolkit</a></li>
 </ul>
 
 
