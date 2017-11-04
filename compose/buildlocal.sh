@@ -4,7 +4,7 @@ set -x -e
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
 ANSIBLE_RELEASE=86a127ae3aaaea125c8faa0271471106f2a4f889
 
-GALAXY_RELEASE=release_17.09
+GALAXY_RELEASE=dev
 GALAXY_REPO=galaxyproject/galaxy
 
 DOCKER_ADDITIONAL_BUILD_ARGS="--no-cache"
