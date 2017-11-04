@@ -4,7 +4,8 @@ ENV DEBIAN_FRONTEND noninteractive
 
 ENV GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
-GALAXY_GID=1450
+GALAXY_GID=1450 \
+SINGULARITY_VERSION=2.3
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -12,18 +13,30 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -m -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
     apt-get update -qq && apt-get install -y --no-install-recommends apt-transport-https \
-        slurm-llnl slurm-llnl-torque slurm-drmaa-dev \
-        python-pip python-psutil supervisor wget samtools && \
+        slurm-llnl slurm-llnl-torque slurm-drmaa-dev unattended-upgrades \
+        python-pip python-psutil supervisor wget build-essential && \
     /usr/sbin/create-munge-key && \
     touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log && \
     mkdir /tmp/slurm && pip install --upgrade supervisor virtualenv && \
-    apt-get remove -y supervisor && mkdir /var/log/supervisor && \
+
+    wget https://github.com/singularityware/singularity/releases/download/$SINGULARITY_VERSION/singularity-$SINGULARITY_VERSION.tar.gz && \
+    tar xvf singularity-$SINGULARITY_VERSION.tar.gz && \
+    cd singularity-$SINGULARITY_VERSION && \
+    ./configure --prefix=/usr/local --sysconfdir=/etc && \
+    make && \
+    make install && \
+    rm -rf singularity-$SINGULARITY_VERSION singularity-$SINGULARITY_VERSION.tar.gz && \
+
+    apt-get remove -y supervisor build-essential && \
+    mkdir /var/log/supervisor && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /tmp/download && \
     wget -qO - https://get.docker.com/builds/Linux/x86_64/docker-17.05.0-ce.tgz | tar -xz -C /tmp/download && \
     mv /tmp/download/docker/docker /usr/bin/ && \
     rm -rf /tmp/download && \
     rm -rf ~/.cache/
+
+
 
 ADD configure_slurm.py /usr/local/bin/configure_slurm.py
 ADD munge.conf /etc/default/munge
@@ -40,6 +53,8 @@ ENV GALAXY_DIR=/export/galaxy-central \
     SLURM_GID=1450 \
     SLURM_PARTITION_NAME=work \
     SLURM_CLUSTER_NAME=Cluster \
+    SLURM_CONTROL_ADDR=galaxy-slurm \
+    SLURM_NODE_NAME=galaxy-slurm \
     SLURMD_AUTOSTART=True \
     SLURMCTLD_AUTOSTART=True \
     SLURM_CONF_PATH=/export/slurm.conf \
@@ -54,6 +69,7 @@ RUN chown -R $SLURM_UID:$SLURM_GID "$GALAXY_VENV" && \
     pip install galaxy-lib && \
     pip install -r "$GALAXY_VENV"/requirements.txt --index-url https://wheels.galaxyproject.org/simple && \
     rm -rf ~/.cache/
+
 
 VOLUME ["/export/", "/var/lib/docker"]
 CMD ["/usr/bin/startup.sh"]

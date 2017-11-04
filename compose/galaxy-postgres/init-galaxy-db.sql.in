@@ -2572,6 +2572,40 @@ ALTER SEQUENCE library_dataset_dataset_association_permissions_id_seq OWNED BY l
 
 
 --
+-- Name: library_dataset_dataset_association_tag_association; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE library_dataset_dataset_association_tag_association (
+    id integer NOT NULL,
+    library_dataset_dataset_association_id integer,
+    tag_id integer,
+    user_tname character varying(255),
+    value character varying(255),
+    user_value character varying(255),
+    user_id integer
+);
+
+
+--
+-- Name: library_dataset_dataset_association_tag_association_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE library_dataset_dataset_association_tag_association_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: library_dataset_dataset_association_tag_association_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE library_dataset_dataset_association_tag_association_id_seq OWNED BY library_dataset_dataset_association_tag_association.id;
+
+
+--
 -- Name: library_dataset_dataset_info_association; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -5730,6 +5764,13 @@ ALTER TABLE ONLY library_dataset_dataset_association_permissions ALTER COLUMN id
 
 
 --
+-- Name: library_dataset_dataset_association_tag_association id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY library_dataset_dataset_association_tag_association ALTER COLUMN id SET DEFAULT nextval('library_dataset_dataset_association_tag_association_id_seq'::regclass);
+
+
+--
 -- Name: library_dataset_dataset_info_association id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -7403,6 +7444,21 @@ SELECT pg_catalog.setval('library_dataset_dataset_association_permissions_id_seq
 
 
 --
+-- Data for Name: library_dataset_dataset_association_tag_association; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY library_dataset_dataset_association_tag_association (id, library_dataset_dataset_association_id, tag_id, user_tname, value, user_value, user_id) FROM stdin;
+\.
+
+
+--
+-- Name: library_dataset_dataset_association_tag_association_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('library_dataset_dataset_association_tag_association_id_seq', 1, false);
+
+
+--
 -- Data for Name: library_dataset_dataset_info_association; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -7550,7 +7606,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	134
+Galaxy	lib/galaxy/model/migrate	135
 \.
 
 
@@ -9172,6 +9228,14 @@ ALTER TABLE ONLY library_dataset_dataset_association_permissions
 
 ALTER TABLE ONLY library_dataset_dataset_association
     ADD CONSTRAINT library_dataset_dataset_association_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: library_dataset_dataset_association_tag_association library_dataset_dataset_association_tag_association_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY library_dataset_dataset_association_tag_association
+    ADD CONSTRAINT library_dataset_dataset_association_tag_association_pkey PRIMARY KEY (id);
 
 
 --
@@ -11354,6 +11418,48 @@ CREATE INDEX ix_library_dataset_dataset_association_permissions_role_id ON libra
 --
 
 CREATE INDEX ix_library_dataset_dataset_association_state ON library_dataset_dataset_association USING btree (state);
+
+
+--
+-- Name: ix_library_dataset_dataset_association_tag_association__087f; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_library_dataset_dataset_association_tag_association__087f ON library_dataset_dataset_association_tag_association USING btree (user_value);
+
+
+--
+-- Name: ix_library_dataset_dataset_association_tag_association__3501; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_library_dataset_dataset_association_tag_association__3501 ON library_dataset_dataset_association_tag_association USING btree (user_tname);
+
+
+--
+-- Name: ix_library_dataset_dataset_association_tag_association__f6fd; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_library_dataset_dataset_association_tag_association__f6fd ON library_dataset_dataset_association_tag_association USING btree (library_dataset_dataset_association_id);
+
+
+--
+-- Name: ix_library_dataset_dataset_association_tag_association_tag_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_library_dataset_dataset_association_tag_association_tag_id ON library_dataset_dataset_association_tag_association USING btree (tag_id);
+
+
+--
+-- Name: ix_library_dataset_dataset_association_tag_association_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_library_dataset_dataset_association_tag_association_user_id ON library_dataset_dataset_association_tag_association USING btree (user_id);
+
+
+--
+-- Name: ix_library_dataset_dataset_association_tag_association_value; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_library_dataset_dataset_association_tag_association_value ON library_dataset_dataset_association_tag_association USING btree (value);
 
 
 --
@@ -14107,6 +14213,14 @@ ALTER TABLE ONLY library_dataset_collection_tag_association
 
 
 --
+-- Name: library_dataset_dataset_association_tag_association library_dataset_dataset_asso_library_dataset_dataset_asso_fkey1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY library_dataset_dataset_association_tag_association
+    ADD CONSTRAINT library_dataset_dataset_asso_library_dataset_dataset_asso_fkey1 FOREIGN KEY (library_dataset_dataset_association_id) REFERENCES library_dataset_dataset_association(id);
+
+
+--
 -- Name: library_dataset_dataset_association_permissions library_dataset_dataset_assoc_library_dataset_dataset_asso_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14168,6 +14282,22 @@ ALTER TABLE ONLY library_dataset_dataset_association
 
 ALTER TABLE ONLY library_dataset_dataset_association_permissions
     ADD CONSTRAINT library_dataset_dataset_association_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES role(id);
+
+
+--
+-- Name: library_dataset_dataset_association_tag_association library_dataset_dataset_association_tag_associatio_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY library_dataset_dataset_association_tag_association
+    ADD CONSTRAINT library_dataset_dataset_association_tag_associatio_user_id_fkey FOREIGN KEY (user_id) REFERENCES galaxy_user(id);
+
+
+--
+-- Name: library_dataset_dataset_association_tag_association library_dataset_dataset_association_tag_association_tag_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY library_dataset_dataset_association_tag_association
+    ADD CONSTRAINT library_dataset_dataset_association_tag_association_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES tag(id);
 
 
 --

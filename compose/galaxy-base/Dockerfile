@@ -53,6 +53,7 @@ GALAXY_CONFIG_OVERRIDE_DEBUG=False \
 GALAXY_CONDA_PREFIX=/export/tool_deps/_conda \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
 GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/export/tool_deps \
+GALAXY_CONFIG_TOOL_PATH=$EXPORT_DIR/galaxy-central/tools \
 GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$GALAXY_ROOT/database/job_working_directory \
 # We need to set $HOME for some Tool Shed tools (e.g Perl libs with $HOME/.cpan)
 HOME=$GALAXY_HOME
@@ -72,6 +73,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get install --no-install-recommends -y sudo python-virtualenv \
     supervisor linux-image-extra-virtual munge \
     nodejs-legacy npm ansible nano python-pip \
+    unattended-upgrades \
     gridengine-drmaa1.0 && \
     wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
     dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \

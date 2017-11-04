@@ -6,15 +6,10 @@ FROM toolshed/requirements
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-# * Make sure the package repository is up to date
-# * Install all requirements that are recommend by the Galaxy project
-# * Enable the @natefoo magic
-# Web server infrastructure matching usegalaxy.org - supervisor, uwsgi, and nginx.
-
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_17.05} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_17.09} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
@@ -24,7 +19,9 @@ DEBIAN_FRONTEND=noninteractive
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.ini \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
 GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_metrics_conf.xml \
+GALAXY_CONFIG_TOOL_DATA_TABLE_CONFIG_PATH=/etc/galaxy/tool_data_table_conf.xml \
 GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=$EXPORT_DIR/tool_deps \
+GALAXY_CONFIG_TOOL_PATH=$EXPORT_DIR/galaxy-central/tools \
 GALAXY_VIRTUAL_ENV=/galaxy_venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -37,10 +34,12 @@ GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
+GALAXY_RUNNERS_ENABLE_SLURM=True \
+GALAXY_RUNNERS_ENABLE_CONDOR=False \
 # Define the default postgresql database path
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/9.3/main/ \
 PG_CONF_DIR_DEFAULT=/etc/postgresql/9.3/main/ \
-PG_DATA_DIR_HOST=/$EXPORT_DIR/postgresql/9.3/main/ \
+PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/9.3/main/ \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
@@ -48,7 +47,7 @@ UWSGI_THREADS=4 \
 USE_HTTPS=False \
 # Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to a domain that is reachable to get a letsencrypt certificate
 USE_HTTPS_LETSENCRYPT=False \
-GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=localhost \
+GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost \
 # Set the number of Galaxy handlers
 GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
@@ -56,7 +55,6 @@ LC_ALL=en_US.UTF-8 \
 LANG=en_US.UTF-8
 
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
-
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
@@ -74,14 +72,18 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y postgresql-9.3 sudo python-virtualenv \
-    nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 supervisor docker-ce=17.03.2~ce-0~ubuntu-trusty slurm-llnl slurm-llnl-torque \
-    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible \
-    nano vim curl python-crypto python-pip python-psutil condor python-ldap \
-    gridengine-common gridengine-drmaa1.0 rabbitmq-server libswitch-perl && \
-    pip install --upgrade pip && \
-    pip install ephemeris && \
+    nginx-extras=1.4.6-1ubuntu3.4ppa1 nginx-common=1.4.6-1ubuntu3.4ppa1 docker-ce=17.09.0~ce-0~ubuntu slurm-llnl slurm-llnl-torque \
+    slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev nodejs-legacy npm ansible munge libmunge-dev \
+    nano vim curl python-crypto python-pip python-psutil condor python-ldap autofs \
+    gridengine-common gridengine-drmaa1.0 rabbitmq-server libswitch-perl unattended-upgrades supervisor && \
+    # install and remove supervisor, so get the service config file
+    apt-get -qq remove -y supervisor && \
     apt-get purge -y software-properties-common && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ && \
+    mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
+    pip install --upgrade pip && \
+    pip install ephemeris supervisor --upgrade && \
+    ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
@@ -124,14 +126,17 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars galaxy_extras_config_rabbitmq=True \
+    --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars proftpd_db_connection=galaxy@galaxy \
     --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
     --extra-vars proftpd_use_sftp=True \
+    --extra-vars galaxy_extras_docker_legacy=False \
+    --extra-vars galaxy_minimum_version=17.09 \
     --extra-vars nginx_upload_store_path=$EXPORT_DIR/nginx_upload_store \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
-    --tags=galaxyextras -c local && \
+    --tags=galaxyextras,cvmfs -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
@@ -139,8 +144,8 @@ RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
     mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps && \
     ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
 
-# The following commands will be executed as User galaxy
-USER galaxy
+# The following commands will be executed as the galaxy user
+USER $GALAXY_USER
 
 WORKDIR $GALAXY_ROOT
 
