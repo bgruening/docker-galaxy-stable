@@ -36,7 +36,12 @@ before_install:
 
   - sudo apt-get update -qq
   - sudo apt-get install docker-ce --no-install-recommends -y -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
-  - sudo apt-get install sshpass --no-install-recommends -y
+  # xvfb is needed for selenium
+  - sudo apt-get install xvfb sshpass --no-install-recommends -y
+  # selenium headless mode
+  - pip install pyvirtualdisplay selenium requests pyyaml
+  - wget https://github.com/mozilla/geckodriver/releases/download/v0.19.1/geckodriver-v0.19.1-linux64.tar.gz
+  - tar -xzf geckodriver-v0.19.1-linux64.tar.gz && sudo mv geckodriver /usr/bin/geckodriver && sudo chmod a+x /usr/bin/geckodriver
 
   - docker --version
   - docker info
@@ -277,7 +282,7 @@ script:
         docker_exec_run bash -c 'cd $GALAXY_ROOT && python ./scripts/api/install_tool_shed_repositories.py --api admin -l http://localhost:80 --url https://toolshed.g2.bx.psu.edu -o devteam --name cut_columns --panel-section-name BEDTools'
     fi
   # Test the 'new' tool installation script
-#  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
+  #  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
   - |
     if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
@@ -291,6 +296,16 @@ script:
   - docker_exec_run bash -c 'export PATH=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda/bin/:$PATH && conda --version && conda install samtools -c bioconda --yes'
   # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
   - docker_exec docker info
+
+  # Selenium UI tests
+  - docker run -d -p 4444:4444 -v /dev/shm:/dev/shm selenium/standalone-firefox
+  - sleep 30s
+  - mkdir ./selenium_galaxy/
+  - wget -q -O - https://github.com/galaxyproject/galaxy/archive/release_17.01.tar.gz | tar xzf - --strip-components=1 -C ./selenium_galaxy/
+  - wget https://raw.githubusercontent.com/galaxyproject/galaxy/dev/config/plugins/tours/core.galaxy_ui.yaml
+  - ./selenium_galaxy/scripts/dump_tour.py -o selenium_img --selenium-headless --selenium-browser FIREFOX --galaxy_url http://localhost:8080 core.galaxy_ui.yaml
+  - ls -l selenium_img
+
   # Check if the database image matches the current galaxy version
   - |
       if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
