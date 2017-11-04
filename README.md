@@ -806,6 +806,13 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
    - HT-Condor is now supported in compose with semi-autoscaling and BioContainers
    - Galaxy Docker Compose is completely under Travis testing and available with SLURM and HT-Condor
    - using Docker `build-arg`s for GALAXY_RELEASE and GALAXY_REPO
+- 17.09:
+   - much improved documentation about using Galaxy Docker and an external cluster (@rhpvorderman)
+   - CVMFS support - mounting in 4TB of pre-build reference data (@chambm)
+   - Singularity support and tests (compose only)
+   - more work on K8s support and testing (@jmchilton)
+   - using .env files to configure the compose setup for SLURM, Condor, K8s, SLURM-Singularity, Condor-Docker
+
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
