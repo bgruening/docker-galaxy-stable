@@ -30,7 +30,7 @@ GALAXY_POSTGRES_UID=1550 \
 GALAXY_POSTGRES_GID=1550 \
 GALAXY_HOME=/home/galaxy \
 GALAXY_LOGS_DIR=/home/galaxy/logs \
-GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
+GALAXY_DEFAULT_ADMIN_USER=admin@example.org \
 GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
 GALAXY_DEFAULT_ADMIN_KEY=admin \
 GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
@@ -153,7 +153,7 @@ WORKDIR $GALAXY_ROOT
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
 ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8 \
-GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
+GALAXY_CONFIG_ADMIN_USERS=admin@example.org \
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
 GALAXY_CONFIG_STATIC_ENABLED=False \
@@ -164,7 +164,7 @@ GALAXY_CONFIG_TEMPLATE_CACHE_PATH=$EXPORT_DIR/galaxy-central/database/compiled_t
 GALAXY_CONFIG_CITATION_CACHE_DATA_DIR=$EXPORT_DIR/galaxy-central/database/citations/data \
 GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY=$EXPORT_DIR/galaxy-central/database/pbs \
 GALAXY_CONFIG_FTP_UPLOAD_DIR=$EXPORT_DIR/ftp \
-GALAXY_CONFIG_FTP_UPLOAD_SITE=example.com \
+GALAXY_CONFIG_FTP_UPLOAD_SITE=example.org \
 GALAXY_CONFIG_USE_PBKDF2=False \
 GALAXY_CONFIG_NGINX_X_ACCEL_REDIRECT_BASE=/_x_accel_redirect \
 GALAXY_CONFIG_NGINX_X_ARCHIVE_FILES_BASE=/_x_accel_redirect \
@@ -203,7 +203,7 @@ ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
 # Configure PostgreSQL
 # 1. Remove all old configuration
 # 2. Create DB-user 'galaxy' with password 'galaxy' in database 'galaxy'
-# 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
+# 3. Create Galaxy Admin User 'admin@example.org' with password 'admin' and API key 'admin'
 
 RUN rm $PG_DATA_DIR_DEFAULT -rf && \
     python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT && \
