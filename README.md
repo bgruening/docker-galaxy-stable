@@ -246,7 +246,7 @@ docker run -i -t -p 8080:80 -p 8022:22 \
 And use for example [Filezilla](https://filezilla-project.org/) or the `sftp` program to transfer data:
 
 ```sh
-sftp -v -P 8022 -o User=admin@galaxy.org localhost <<< $'put <YOUR FILE HERE>'
+sftp -v -P 8022 -o User=admin@example.org localhost <<< $'put <YOUR FILE HERE>'
 ```
 
 
@@ -283,7 +283,7 @@ For example, you can set the Galaxy session timeout to 5 minutes by adding `-e "
 *by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
 
 ```
-GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
+GALAXY_CONFIG_ADMIN_USERS=admin@example.org
 GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
 GALAXY_CONFIG_BRAND="Galaxy Docker Build"
 ```
@@ -664,7 +664,7 @@ Where all Galaxy workflows needs to be in one directory, here the `$GALAXY_HOME/
 - running Galaxy data-managers to create indices or download data
 
   ```bash
-      run-data-managers -u admin@galaxy.org -p admin -g http://localhost:8080
+      run-data-managers -u admin@example.org -p admin -g http://localhost:8080
           --config data_manager_rna_seq.yaml
   ```
 
@@ -718,7 +718,7 @@ In rare situations where you cannot share your tools but still want to include t
 
 # Users & Passwords <a name="Users-Passwords" /> [[toc]](#toc)
 
-The Galaxy Admin User has the username `admin@galaxy.org` and the password `admin`.
+The Galaxy Admin User has the username `admin@example.org` and the password `admin`.
 The PostgreSQL username is `galaxy`, the password is `galaxy` and the database name is `galaxy` (I know I was really creative ;)).
 If you want to create new users, please make sure to use the `/export/` volume. Otherwise your user will be removed after your docker session is finished.
 
