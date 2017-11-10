@@ -18,6 +18,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 ![Docker hierarchy](https://raw.githubusercontent.com/bgruening/docker-galaxy-stable/master/chart.png)
 
+An [ansible](https://www.ansible.com/) playbook that launches a galaxy production server using this image is available [here](https://github.com/LUMC/galaxy-launcher).
 
 # Table of Contents <a name="toc" />
 
