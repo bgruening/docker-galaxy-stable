@@ -8,7 +8,7 @@
 Galaxy Docker Image
 ===================
 
-The [Galaxy](http://www.galaxyproject.org) [Docker](http://www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features.
+The [Galaxy](http://www.galaxyproject.org) [Docker](http://www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features. An [ansible](https://www.ansible.com/) playbook that launches a galaxy production server using this image is available [here](https://github.com/LUMC/galaxy-launcher).
 
 One of the main goals is to make the access to entire tool suites as easy as possible. Usually,
 this includes the setup of a public available web-service that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server.
@@ -17,8 +17,6 @@ With docker, tool developers can create their own Image with all dependencies an
 The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and all recommended Galaxy requirements are installed. The following chart should illustrate the [Docker](http://www.docker.io) image hierarchy we have build to make is as easy as possible to build on different layers of our stack and create many exciting Galaxy flavors.
 
 ![Docker hierarchy](https://raw.githubusercontent.com/bgruening/docker-galaxy-stable/master/chart.png)
-
-An [ansible](https://www.ansible.com/) playbook that launches a galaxy production server using this image is available [here](https://github.com/LUMC/galaxy-launcher).
 
 # Table of Contents <a name="toc" />
 
