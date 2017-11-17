@@ -6,6 +6,8 @@ FROM quay.io/bgruening/galaxy-base
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
+ARG GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,cvmfs
+
 ENV GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
@@ -66,7 +68,7 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=supervisor,startup,scripts,nginx,cvmfs -c local && \
+    --tags=$GALAXY_ANSIBLE_TAGS -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chmod +x /usr/bin/startup
