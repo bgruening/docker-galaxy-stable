@@ -13,7 +13,7 @@ else
     export PORT=8080
     service postgresql start
     install_log='galaxy_install.log'
-    
+
     # wait for database to finish starting up
     STATUS=$(psql 2>&1)
     while [[ ${STATUS} =~ "starting up" ]]
@@ -22,12 +22,12 @@ else
       STATUS=$(psql 2>&1)
       sleep 1
     done
-    
+
     echo "starting Galaxy"
     sudo -E -u galaxy ./run.sh --daemon --log-file=$install_log --pid-file=galaxy_install.pid
-    
+
     galaxy_install_pid=`cat galaxy_install.pid`
-    
+
     while : ; do
         tail -n 2 $install_log | grep -E -q "Removing PID file galaxy_install.pid|Daemon is already running"
         if [ $? -eq 0 ] ; then
@@ -52,6 +52,10 @@ shed-install -g "http://localhost:$PORT" -a admin -t "$1"
 exit_code=$?
 
 if [ $exit_code != 0 ] ; then
+    if [ "$2" == "-v" ] ; then
+        echo "Installation failed, Galaxy server log:"
+        cat $install_log
+    fi
     exit $exit_code
 fi
 
