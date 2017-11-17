@@ -7,7 +7,7 @@ FROM ubuntu:14.04
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=1e07cc8a56cd18821a9f20129c400a242d25d1a0
+ARG ANSIBLE_RELEASE=1d90fdc073d8a94278366290d20f17caae059fbb
 
 ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_USER=galaxy \
