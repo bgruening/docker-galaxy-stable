@@ -194,6 +194,9 @@ RUN ./scripts/common_startup.sh && \
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install
 
+# the following can be removed with 18.01
+RUN /tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel bioconda --channel conda-forge --channel defaults --channel r --name mulled-v1-eb2018fd3ce0fcbcee48a4bf89c57219add691c16729281b6c46b30f08339397 samtools=1.3.1 bcftools=1.5
+
 # Switch back to User root
 USER root
 
