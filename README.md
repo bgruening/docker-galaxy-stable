@@ -696,6 +696,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [GraphClust](https://github.com/BackofenLab/docker-galaxy-graphclust)
 - [RNA workbench](https://github.com/bgruening/galaxy-rna-workbench)
 - [Cancer Genomics Toolkit](https://github.com/morinlab/tools-morinlab/tree/master/docker)
+- [Clustered Heatmaps for Interactive Exploration of Molecular Profiling Data](http://cancerres.aacrjournals.org/content/77/21/e23)
 
 # Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 
