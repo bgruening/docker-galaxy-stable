@@ -10,7 +10,7 @@ ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
 ENV GALAXY_RELEASE=${GALAXY_RELEASE:-workflow_and_collection_state} \
-GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/jmchilton} \
+GALAXY_REPO=${GALAXY_REPO:-https://github.com/jmchilton/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
 EXPORT_DIR=/export \
