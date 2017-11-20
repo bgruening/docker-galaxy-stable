@@ -40,7 +40,7 @@ RUN ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
-    --extra-vars galaxy_extras_config_k8_jobs=True \
+    --extra-vars galaxy_extras_config_k8s_jobs=True \
     --extra-vars galaxy_minimum_version=17.09 \
     --extra-vars galaxy_extras_config_rabbitmq=False \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
@@ -50,7 +50,7 @@ RUN ansible-playbook /ansible/provision.yml \
     #--extra-vars container_resolution_explicit=True \
     #--extra-vars container_resolution_cached_mulled=False \
     #--extra-vars container_resolution_build_mulled=False \
-    --tags=ie,pbs,slurm,uwsgi,metrics,k8 -c local && \
+    --tags=ie,pbs,slurm,uwsgi,metrics,k8s -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
