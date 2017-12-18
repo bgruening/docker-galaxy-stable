@@ -33,3 +33,4 @@ docker build -t quay.io/bgruening/galaxy-htcondor-base$TAG ./galaxy-htcondor-bas
 docker build -t quay.io/bgruening/galaxy-htcondor$TAG ./galaxy-htcondor
 docker build -t quay.io/bgruening/galaxy-htcondor-executor$TAG ./galaxy-htcondor-executor
 
+docker build -t quay.io/bgruening/galaxy-grafana$TAG ./galaxy-grafana
