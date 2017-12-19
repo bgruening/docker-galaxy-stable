@@ -121,5 +121,17 @@ RUN ln -s -f /export/shed_tools /shed_tools && \
     ln -s -f /export/venv /galaxy_venv && \
     mkdir /etc/galaxy && ln -s -f /export/welcome /etc/galaxy/web
 
+RUN wget https://dl.influxdata.com/telegraf/releases/telegraf-1.5.0_linux_amd64.tar.gz && \
+    cd / && tar xvfz telegraf-1.5.0_linux_amd64.tar.gz && \
+    cp -Rv telegraf/* / && \
+    rm -rf telegraf && \
+    rm telegraf-1.5.0_linux_amd64.tar.gz
+
+ADD telegraf.conf /etc/telegraf/telegraf.conf
+
+ENV GALAXY_CONFIG_STATSD_HOST=localhost \
+    GALAXY_CONFIG_STATSD_PORT=8125 \
+    GALAXY_CONFIG_STATSD_PREFIX=galaxy
+
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]

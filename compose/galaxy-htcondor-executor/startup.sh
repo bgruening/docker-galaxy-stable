@@ -29,6 +29,7 @@ UID_DOMAIN = galaxy
 SCHED_NAME = $CONDOR_HOST
 " > /etc/condor/condor_config.local
 
+/usr/bin/telegraf --config /etc/telegraf/telegraf.conf &
 sudo -u condor touch /var/log/condor/StartLog
 sudo -u condor touch /var/log/condor/StarterLog
 tail -f -n 1000 /var/log/condor/StartLog /var/log/condor/StarterLog &
