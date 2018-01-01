@@ -283,7 +283,7 @@ script:
     then
         # Compose uses the online installer (uses the running instance)
         sleep 10
-        docker_exec_run shed-install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
+        docker_exec_run shed-tools install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
     else
       docker_exec_run install-tools "$SAMPLE_TOOLS"
     fi

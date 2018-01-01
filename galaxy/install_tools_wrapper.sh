@@ -47,7 +47,7 @@ else
     done
 fi
 
-shed-install -g "http://localhost:$PORT" -a admin -t "$1"
+shed-tools install -g "http://localhost:$PORT" -a admin -t "$1"
 
 exit_code=$?
 
