@@ -268,7 +268,7 @@ script:
   - cd $TRAVIS_BUILD_DIR/test/bioblend/ && . ./test.sh && cd $WORKING_DIR/
 
   # Test the 'old' tool installation script
-  - docker_exec_run bash -c "install-repository $INSTALL_REPO_ARG '--url https://toolshed.g2.bx.psu.edu -o iuc --name bedtools --panel-section-name BEDTools'"
+  - docker_exec_run bash -c "install-repository $INSTALL_REPO_ARG '--url https://toolshed.g2.bx.psu.edu -o iuc --name samtools_sort --panel-section-name SAMtools'"
   - |
     if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
