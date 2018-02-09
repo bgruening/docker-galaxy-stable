@@ -32,6 +32,8 @@ RUN mkdir -p /export /galaxy-export && \
 ADD config $GALAXY_ROOT/config
 ADD welcome /galaxy-export/welcome
 
+ARG ISATOOLS_LITE_INSTALL=False
+
 RUN ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_server_dir=$GALAXY_ROOT \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
@@ -46,11 +48,12 @@ RUN ansible-playbook /ansible/provision.yml \
     --extra-vars nginx_upload_store_path=/export/nginx_upload_store \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
     --extra-vars nginx_welcome_path=$NGINX_WELCOME_PATH \
+    --extra-vars isatools_lite_install=$ISATOOLS_LITE_INSTALL \
     #--extra-vars galaxy_extras_config_container_resolution=True \
     #--extra-vars container_resolution_explicit=True \
     #--extra-vars container_resolution_cached_mulled=False \
     #--extra-vars container_resolution_build_mulled=False \
-    --tags=ie,pbs,slurm,uwsgi,metrics,k8s -c local && \
+    --tags=ie,pbs,slurm,uwsgi,metrics,k8s,isatools -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 
