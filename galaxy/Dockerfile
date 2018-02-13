@@ -9,7 +9,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_18.01} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
@@ -131,7 +131,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
     --extra-vars proftpd_use_sftp=True \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --extra-vars galaxy_minimum_version=17.09 \
+    --extra-vars galaxy_minimum_version=18.01 \
     --extra-vars nginx_upload_store_path=$EXPORT_DIR/nginx_upload_store \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
