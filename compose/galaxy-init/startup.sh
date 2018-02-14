@@ -11,6 +11,15 @@ chown $GALAXY_UID:$GALAXY_GID /export
 for export_me in /galaxy-export/*
 do
   export_name=$(basename $export_me)
+  if [ ! "x$GALAXY_INIT_FORCE_COPY" = "x" ]; then
+     # delete so that if can be copied again if in the force-copy env var
+     # Example content for $GALAXY_INIT_FORCE_COPY
+     # GALAXY_INIT_FORCE_COPY = __venv__,__tools__
+     if [[ $GALAXY_INIT_FORCE_COPY = *__"$export_name"__* ]]; then
+       echo "Removing /export/$export_name if present as part of forced copy process."
+       rm -rf /export/$export_name
+     fi
+  fi
   if [ ! -d /export/$export_name ]
   then
     echo "Copying to /export/$export_name"
