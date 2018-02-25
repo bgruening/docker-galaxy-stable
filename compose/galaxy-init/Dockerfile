@@ -6,7 +6,7 @@ FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE=dev
+ARG GALAXY_RELEASE=release_18.01
 ARG GALAXY_REPO=galaxyproject/galaxy
 
 # Create these folders and link to target directory for installation

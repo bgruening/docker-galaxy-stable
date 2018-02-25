@@ -7,7 +7,7 @@ FROM ubuntu:14.04
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=5d9c8be9b496a6890cf04a858ed650f0211baf89
+ARG ANSIBLE_RELEASE=18.01
 
 ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_USER=galaxy \
@@ -72,7 +72,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get update -qq && apt-get upgrade -y && \
     apt-get install --no-install-recommends -y sudo python-virtualenv \
     supervisor linux-image-extra-virtual munge \
-    nodejs-legacy npm ansible nano python-pip \
+    ansible nano python-pip \
     unattended-upgrades \
     gridengine-drmaa1.0 && \
     wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
