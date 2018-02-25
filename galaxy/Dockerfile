@@ -74,14 +74,14 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     nginx-extras=1.4.6-1ubuntu3.8ppa1 nginx-common=1.4.6-1ubuntu3.8ppa1 docker-ce=17.09.0~ce-0~ubuntu slurm-llnl slurm-llnl-torque \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev ansible munge libmunge-dev \
     nano vim curl python-crypto python-pip python-psutil condor python-ldap autofs \
-    gridengine-common gridengine-drmaa1.0 rabbitmq-server libswitch-perl unattended-upgrades supervisor && \
+    gridengine-common gridengine-drmaa1.0 rabbitmq-server libswitch-perl unattended-upgrades supervisor samtools && \
     # install and remove supervisor, so get the service config file
     apt-get -qq remove -y supervisor && \
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
     pip install --upgrade pip && \
-    pip install ephemeris supervisor --upgrade && \
+    pip install "ephemeris<0.8" supervisor --upgrade && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
@@ -101,8 +101,8 @@ RUN mkdir $GALAXY_ROOT && \
     mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR && \
     $GALAXY_VIRTUAL_ENV/bin/pip2 install pip --upgrade && \
-    $GALAXY_VIRTUAL_ENV/bin/pip2 install --extra-index-url https://wheels.galaxyproject.org/ uwsgi -v --pre && \
-    chown galaxy:galaxy -R $GALAXY_VIRTUAL_ENV && \
+    $GALAXY_VIRTUAL_ENV/bin/pip2 install --extra-index-url https://wheels.galaxyproject.org/ uwsgi==2.0.15 -v --pre && \
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
     rm -rf ~/.cache/
 
 RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
@@ -193,6 +193,9 @@ RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install
+
+# the following can be removed with 18.01
+RUN /tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel bioconda --channel conda-forge --channel defaults --channel r --name mulled-v1-eb2018fd3ce0fcbcee48a4bf89c57219add691c16729281b6c46b30f08339397 samtools=1.3.1 bcftools=1.5
 
 # Switch back to User root
 USER root

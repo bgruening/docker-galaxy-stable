@@ -79,7 +79,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \
     rm condor_8.6.3_linux_all.deb && \
     pip install --upgrade pip && \
-    pip install ephemeris && \
+    pip install "ephemeris<0.8" && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /tmp/download && \
     wget -qO - https://get.docker.com/builds/Linux/x86_64/docker-17.05.0-ce.tgz | tar -xz -C /tmp/download && \

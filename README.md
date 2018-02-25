@@ -678,6 +678,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 
 ## List of Galaxy flavours <a name="List-of-Galaxy-flavours" /> [[toc]](#toc)
 
+- [Aurora Galaxy](https://github.com/statonlab/aurora-galaxy-tools)
 - [NCBI-Blast](https://github.com/bgruening/docker-galaxy-blast)
 - [ChemicalToolBox](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox)
 - [ballaxy](https://github.com/anhi/docker-scripts/tree/master/ballaxy)
@@ -696,6 +697,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 - [GraphClust](https://github.com/BackofenLab/docker-galaxy-graphclust)
 - [RNA workbench](https://github.com/bgruening/galaxy-rna-workbench)
 - [Cancer Genomics Toolkit](https://github.com/morinlab/tools-morinlab/tree/master/docker)
+- [Clustered Heatmaps for Interactive Exploration of Molecular Profiling Data](http://cancerres.aacrjournals.org/content/77/21/e23)
 
 # Integrating non-Tool Shed tools into the container <a name="Integrating-non-Tool-Shed-tools-into-the-container" /> [[toc]](#toc)
 

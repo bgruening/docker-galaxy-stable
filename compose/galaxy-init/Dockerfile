@@ -22,7 +22,6 @@ RUN mkdir -p /export /galaxy-export && \
     ln -s -f /galaxy-export/venv /export/venv && \
     ln -s -f /galaxy-export/galaxy-central /export/galaxy-central && \
     chown -R $GALAXY_USER:$GALAXY_USER /galaxy-export /export && \
-    # Download latest stable release of Galaxy.
     wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/$GALAXY_RELEASE | tar xz --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && pip install pip --upgrade && \
@@ -53,6 +52,11 @@ RUN ansible-playbook /ansible/provision.yml \
     --tags=ie,pbs,slurm,uwsgi,metrics,k8s -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
+#--extra-vars galaxy_extras_config_container_resolution=True \
+#--extra-vars container_resolution_explicit=True \
+#--extra-vars container_resolution_cached_mulled=False \
+#--extra-vars container_resolution_build_mulled=False \
+
 
 # The following commands will be executed as User galaxy
 USER galaxy
@@ -65,14 +69,17 @@ WORKDIR $GALAXY_ROOT
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
 # prefetch Python wheels
+# Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN ./scripts/common_startup.sh && \
-    # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
     wget -q https://repo.continuum.io/miniconda/Miniconda3-4.0.5-Linux-x86_64.sh && \
     bash Miniconda3-4.0.5-Linux-x86_64.sh -b -p $GALAXY_CONDA_PREFIX && \
     rm Miniconda3-4.0.5-Linux-x86_64.sh && \
     $GALAXY_CONDA_PREFIX/bin/conda install -y conda==3.19.3
+
+# the following can be removed with 18.01
+RUN /tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel bioconda --channel conda-forge --channel defaults --channel r --name mulled-v1-eb2018fd3ce0fcbcee48a4bf89c57219add691c16729281b6c46b30f08339397 samtools=1.3.1 bcftools=1.5
 
 # Switch back to User root
 USER root

@@ -36,7 +36,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     gpasswd -a $GALAXY_USER docker && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
     pip install --upgrade pip && \
-    pip install ephemeris supervisor --upgrade && \
+    pip install "ephemeris<0.8" supervisor --upgrade && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
 RUN rm -f /usr/bin/startup && \
