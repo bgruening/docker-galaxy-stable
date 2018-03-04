@@ -24,9 +24,11 @@ RUN mkdir -p /export /galaxy-export && \
     chown -R $GALAXY_USER:$GALAXY_USER /galaxy-export /export && \
     wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/release_18.01 | tar xz --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
+    cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && pip install pip --upgrade && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV/* && \
-    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT/*
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT/* && \
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_FILE
 
 ADD config $GALAXY_ROOT/config
 ADD welcome /galaxy-export/welcome

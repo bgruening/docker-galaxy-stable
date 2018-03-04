@@ -34,7 +34,7 @@ services:
       replicas: 1
       placement:
         constraints: [node.role == manager]
-    labels: 
+    labels:
         kompose.service.type: nodeport
 
   galaxy-postgres:
@@ -248,11 +248,11 @@ services:
         - GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True
         - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@galaxy-postgres/galaxy?client_encoding=utf8
         - GALAXY_CONFIG_TOOL_DATA_TABLE_CONFIG_PATH=/etc/galaxy/tool_data_table_conf.xml
-        # Configurate admin and master api key. Can be overridden in galaxy.ini
+        # Configurate admin and master api key. Can be overridden in galaxy.yml
         - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
         - GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
         - GALAXY_CONFIG_DATABASE_AUTO_MIGRATE=${GALAXY_CONFIG_DATABASE_AUTO_MIGRATE:-false}
-        - GALAXY_CONFIG_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy 
+        - GALAXY_CONFIG_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy
         # Condor
         - GALAXY_DESTINATIONS_DEFAULT=${GALAXY_DESTINATIONS_DEFAULT:-slurm_cluster}
         - GALAXY_RUNNERS_ENABLE_CONDOR=${GALAXY_RUNNERS_ENABLE_CONDOR:-False}
@@ -304,5 +304,3 @@ services:
 
 networks:
     galaxy:
-
-
