@@ -24,7 +24,7 @@ else
     done
 
     echo "starting Galaxy"
-    sudo -E -u galaxy ./run.sh --daemon --log-file=$install_log --pid-file=galaxy_install.pid
+    sudo -E -u galaxy ./run.sh -d $install_log --pidfile galaxy_install.pid
 
     galaxy_install_pid=`cat galaxy_install.pid`
 
@@ -62,7 +62,7 @@ fi
 if ! pgrep "supervisord" > /dev/null
 then
     # stop everything
-    sudo -E -u galaxy ./run.sh --stop-daemon --log-file=$install_log --pid-file=galaxy_install.pid
+    sudo -E -u galaxy ./run.sh --stop --pidfile galaxy_install.pid
     rm $install_log
     service postgresql stop
 fi
