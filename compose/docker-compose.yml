@@ -157,7 +157,7 @@ services:
 
 
   galaxy-htcondor-executor-big:
-    image: quay.io/bgruening/galaxy-htcondor-executor
+    image: quay.io/bgruening/galaxy-htcondor-executor:${TAG:-latest}
     # privileged is needed to run Docker jobs, moreover HTCondor wants
     # a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     privileged: True
