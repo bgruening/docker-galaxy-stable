@@ -86,9 +86,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     wget -qO - https://get.docker.com/builds/Linux/x86_64/docker-17.05.0-ce.tgz | tar -xz -C /tmp/download && \
     mv /tmp/download/docker/docker /usr/bin/ && \
     rm -rf /tmp/download && \
-    rm -rf ~/.cache/ && \
-    cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE && \
-    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_FILE
+    rm -rf ~/.cache/
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
