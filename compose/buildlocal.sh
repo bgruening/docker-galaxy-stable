@@ -11,7 +11,7 @@ DOCKER_ADDITIONAL_BUILD_ARGS=""
 #"--no-cache"
 
 # For using latest simply leave this variable empty or set to ":latest". This should be the case on the master branch.
-export TAG=":dev"
+TAG=":dev"
 
 docker pull postgres
 
