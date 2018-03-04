@@ -22,7 +22,7 @@ RUN mkdir -p /export /galaxy-export && \
     ln -s -f /galaxy-export/venv /export/venv && \
     ln -s -f /galaxy-export/galaxy-central /export/galaxy-central && \
     chown -R $GALAXY_USER:$GALAXY_USER /galaxy-export /export && \
-    wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/$GALAXY_RELEASE | tar xz --strip-components=1 -C $GALAXY_ROOT && \
+    wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/release_18.01 | tar xz --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && pip install pip --upgrade && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV/* && \
@@ -70,7 +70,7 @@ WORKDIR $GALAXY_ROOT
 
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-RUN ./scripts/common_startup.sh && \
+RUN ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
