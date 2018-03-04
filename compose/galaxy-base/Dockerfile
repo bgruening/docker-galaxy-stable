@@ -17,13 +17,14 @@ GALAXY_HOME=/home/galaxy \
 GALAXY_LOGS_DIR=/home/galaxy/logs \
 GALAXY_ROOT=/export/galaxy-central \
 GALAXY_VIRTUAL_ENV=/export/venv \
+GALAXY_CONFIG_DIR=/etc/galaxy \
 EXPORT_DIR=/export \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 LC_ALL=en_US.UTF-8 \
 LANG=en_US.UTF-8
 
 ENV \
-GALAXY_CONFIG_FILE=/export/config/galaxy.ini \
+GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml \
 GALAXY_CONFIG_STATIC_ENABLED=False \
 GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://localhost/galaxy?client_encoding=utf8 \
 GALAXY_CONFIG_TEMPLATE_CACHE_PATH=/export/galaxy-central/database/compiled_templates \
