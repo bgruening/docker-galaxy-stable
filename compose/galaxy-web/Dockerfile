@@ -37,7 +37,9 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
     pip install --upgrade pip && \
     pip install "ephemeris<0.8" supervisor --upgrade && \
-    ln -s /usr/local/bin/supervisord /usr/bin/supervisord
+    ln -s /usr/local/bin/supervisord /usr/bin/supervisord && \
+    cp /galaxy-config/config/galaxy.yml.sample $GALAXY_CONFIG_FILE && \
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_FILE
 
 RUN rm -f /usr/bin/startup && \
     ansible-playbook /ansible/provision.yml \
