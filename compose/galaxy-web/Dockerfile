@@ -2,9 +2,11 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base
+FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
+
+ARG GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,cvmfs
 
 ENV GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
@@ -34,7 +36,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     gpasswd -a $GALAXY_USER docker && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
     pip install --upgrade pip && \
-    pip install "ephemeris<0.8" supervisor --upgrade && \
+    pip install ephemeris supervisor --upgrade && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
 RUN rm -f /usr/bin/startup && \
@@ -66,7 +68,7 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=supervisor,startup,scripts,nginx,cvmfs -c local && \
+    --tags=$GALAXY_ANSIBLE_TAGS -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 RUN chmod +x /usr/bin/startup

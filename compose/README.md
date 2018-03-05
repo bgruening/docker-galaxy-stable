@@ -24,6 +24,11 @@ Galaxy Docker Compose
 
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
+# Architectural Overview
+
+![Architectural Overview](./galaxy-compose.svg)
+
+
 # Usage <a name="Usage" />
 
 At first you need to install docker with [compose](https://docs.docker.com/compose).
