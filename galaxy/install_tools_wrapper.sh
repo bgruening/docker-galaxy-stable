@@ -27,7 +27,7 @@ else
     sudo -E -u galaxy ./run.sh -d $install_log --pidfile galaxy_install.pid
 
     galaxy_install_pid=`cat galaxy_install.pid`
-    galaxy-wait -g http://127.0.0.1:8080 -v --timeout 120
+    galaxy-wait -g http://localhost:$PORT -v --timeout 120
 fi
 
 shed-tools install -g "http://localhost:$PORT" -a admin -t "$1"
