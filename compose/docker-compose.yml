@@ -290,6 +290,7 @@ services:
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
+        - ${EXPORT_DIR:-/export}/galaxy-central/config/galaxy.yml.sample:/etc/galaxy/galaxy.yml
         - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
