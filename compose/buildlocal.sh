@@ -24,10 +24,10 @@ docker build $DOCKER_ADDITIONAL_BUILD_ARGS -t quay.io/bgruening/galaxy-web$TAG .
 docker build $DOCKER_ADDITIONAL_BUILD_ARGS --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t quay.io/galaxy/proftpd$TAG ./galaxy-proftpd
 
 # Build the postgres container
-docker build -t quay.io/galaxy/postgres$TAG ./galaxy-postgres
+docker build $DOCKER_ADDITIONAL_BUILD_ARGS -t quay.io/galaxy/postgres$TAG ./galaxy-postgres
 
 # The SLURM cluster
-docker build -t quay.io/galaxy/slurm$TAG ./galaxy-slurm
+docker build $DOCKER_ADDITIONAL_BUILD_ARGS -t quay.io/galaxy/slurm$TAG ./galaxy-slurm
 
 # we build a common HTCondor and derive from that laster
 docker build -t quay.io/bgruening/galaxy-htcondor-base$TAG ./galaxy-htcondor-base

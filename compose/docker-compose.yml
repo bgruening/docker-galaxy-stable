@@ -75,6 +75,8 @@ services:
     restart: unless-stopped
     networks:
       - galaxy
+    depends_on:
+      - galaxy-postgres
     deploy:
       placement:
         constraints: [node.role == manager]
@@ -237,7 +239,8 @@ services:
     environment:
         # In case the galaxy-init container is not used, you need to include "sleeplock" to NONUSE
         - NONUSE=proftpd,postgres,slurmd,slurmctld
-        - GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org
+        - GALAXY_DEFAULT_ADMIN_USER=admin
+        - GALAXY_DEFAULT_ADMIN_EMAIL=admin@galaxy.org
         - GALAXY_DEFAULT_ADMIN_PASSWORD=admin
         - GALAXY_DEFAULT_ADMIN_KEY=admin
         - GALAXY_HANDLER_NUMPROCS=2
