@@ -30,6 +30,7 @@ GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://localhost/galaxy?client_encoding=
 GALAXY_CONFIG_TEMPLATE_CACHE_PATH=/export/galaxy-central/database/compiled_templates \
 GALAXY_CONFIG_CITATION_CACHE_DATA_DIR=/export/galaxy-central/database/citations/data \
 GALAXY_CONFIG_CLUSTER_FILES_DIRECTORY=/export/galaxy-central/database/pbs \
+GALAXY_CONFIG_WATCH_TOOL_DATA_DIR=True \
 GALAXY_CONFIG_FTP_UPLOAD_DIR=/export/ftp \
 GALAXY_CONFIG_FTP_UPLOAD_SITE=galaxy.docker.org \
 GALAXY_CONFIG_USE_PBKDF2=False \
