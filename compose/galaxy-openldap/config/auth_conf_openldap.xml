@@ -1,0 +1,25 @@
+<authenticator>
+  <!-- authentication settings for openldap with auto group generation -->
+  <type>ldap</type>
+  <options>
+    (..)
+    <server>ldap://openldap</server>
+    <ldap-options>OPT_X_TLS_REQUIRE_CERT=OPT_X_TLS_NEVER</ldap-options>
+    <login-use-username>True</login-use-username>
+    <continue-on-failure>False</continue-on-failure>
+    <search-base>dc=example,dc=org</search-base>
+    <search-fields>uid,mail</search-fields>
+    <search-filter>(mail={email})</search-filter>
+    <search-filter>(uid={username})</search-filter>
+    <bind-user>{dn}</bind-user>
+    <bind-password>{password}</bind-password>
+    <auto-register-username>{uid}</auto-register-username>
+    <auto-register-email>{mail}</auto-register-email>
+    <search-user>cn=admin,dc=example,dc=org</search-user>
+    <search-password>admin</search-password>
+    <auto-create-roles>True</auto-create-roles>
+    <auto-create-groups>True</auto-create-groups>
+    <auto-assign-roles-to-groups-only>True</auto-assign-roles-to-groups-only>
+    <auto-register-roles>gidNumber</auto-register-roles>
+  </options>
+</authenticator>

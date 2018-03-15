@@ -306,5 +306,23 @@ services:
     labels:
         kompose.service.type: nodeport
 
+  # OpenLDAP server
+  ldap:
+    image: jelle/galaxy-openldap
+    container_name: openldap
+    ports:
+        - "389:389"
+        - "636:636"
+    networks:
+        - galaxy
+    volumes:
+        - ${EXPORT_DIR:-/export}/:/export
+    restart: unless-stopped
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+    labels:
+        kompose.service.type: nodeport
+
 networks:
     galaxy:
