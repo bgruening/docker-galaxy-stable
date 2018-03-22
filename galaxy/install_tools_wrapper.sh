@@ -24,7 +24,7 @@ else
     done
 
     echo "starting Galaxy"
-    sudo -E -u galaxy ./run.sh -d $install_log --pidfile galaxy_install.pid
+    sudo -E -u galaxy ./run.sh -d $install_log --pidfile galaxy_install.pid --http-timeout 3000
 
     galaxy_install_pid=`cat galaxy_install.pid`
     galaxy-wait -g http://localhost:$PORT -v --timeout 120
