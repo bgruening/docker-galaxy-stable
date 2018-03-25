@@ -18,7 +18,7 @@ docker run -d -e "NONUSE=slurmd,slurmctld" \
    --link slurm --name galaxy-slurm-test -h galaxy \
    -p 80:80 -v "$EXPORT":/export quay.io/bgruening/galaxy
 # We wait for the creation of the /galaxy-central/config/ if it does not exist yet
-sleep 60s
+sleep 120s
 # We restart galaxy
 docker stop galaxy-slurm-test
 docker rm galaxy-slurm-test
