@@ -18,6 +18,7 @@ if [ ! -f "$SLURM_CONF_PATH" ]
   then
     python /usr/local/bin/configure_slurm.py
     cp /etc/slurm-llnl/slurm.conf "$SLURM_CONF_PATH"
+    rm /etc/slurm-llnl/slurm.conf
 fi
 if [ ! -f "$GALAXY_DIR"/.venv ]
   then
