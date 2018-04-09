@@ -12,7 +12,7 @@ then
     export BIOBLEND_GALAXY_API_KEY=admin ;
     export BIOBLEND_GALAXY_URL=http://galaxy ;
     cd /home/galaxy/bioblend-master ;
-    tox -e $TOX_ENV -- -e "test_download_dataset|test_upload_from_galaxy_filesystem|test_get_datasets|test_datasets_from_fs|test_existing_history|test_new_history|test_params"'
+    tox -e $TOX_ENV -- -e "test_download_dataset|test_upload_from_galaxy_filesystem|test_get_datasets|test_datasets_from_fs|test_existing_history|test_new_history|test_params|test_tool_dependency_install"'
 
 else
     docker build -t bioblend_test .
