@@ -17,6 +17,10 @@ RUN mkdir -p /export /galaxy-export && \
     mkdir /galaxy-export/galaxy-central && \
     mkdir /galaxy-export/nginx_upload_store && \
     mkdir /galaxy-export/ftp && \
+    mkdir /galaxy-export/rabbitmq && \
+    mkdir /galaxy-export/influxdb && \
+    mkdir /galaxy-export/grafana && \
+    mkdir /galaxy-export/postgres && \
     ln -s -f /galaxy-export/shed_tools /export/shed_tools && \
     ln -s -f /galaxy-export/tool_deps /export/tool_deps && \
     ln -s -f /galaxy-export/venv /export/venv && \

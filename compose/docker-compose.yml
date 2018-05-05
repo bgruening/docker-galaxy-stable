@@ -3,7 +3,8 @@ services:
   # proftpd container
   galaxy-proftpd:
     # build: galaxy-proftpd
-    image: quay.io/galaxy/proftpd:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-proftpd:${TAG:-latest}
+    env_file: .env
     environment:
         - proftpd_db_connection=galaxy@galaxy-postgres
         - proftpd_db_username=galaxy
@@ -33,7 +34,8 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints:
+            - node.role == ${NODE_ROLE:-manager}
     labels:
         kompose.service.type: nodeport
 
@@ -41,9 +43,10 @@ services:
     # If you are using the official postgres image, it needs to be populated by calling
     # docker-compose run galaxy install_db.sh
     # on first run
-    image: quay.io/galaxy/postgres:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-postgres:${TAG:-latest}
     container_name: galaxy-postgres
     hostname: galaxy-postgres
+    env_file: .env
     environment:
         - POSTGRES_PASSWORD=chaopagoosaequuashie
         - POSTGRES_USER=galaxy
@@ -58,13 +61,15 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.role == ${NODE_ROLE:-manager}
 
 
   # PostgreSQL admin suite
   pgadmin4:
     image: thajeztah/pgadmin4
     container_name: pgadmin4
+    env_file: .env
     ports:
         - "5050:5050"
     links:
@@ -79,15 +84,17 @@ services:
       - galaxy-postgres
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.role == ${NODE_ROLE:-manager}
     labels:
         kompose.service.type: nodeport
 
   # SLURM container - this is your compute cluster :)
   galaxy-slurm:
     # build: galaxy-slurm
-    image: quay.io/galaxy/slurm:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-slurm:${TAG:-latest}
     privileged: True
+    env_file: .env
     #${PRIVILEGED_SLURM_CONTAINER:-False}
     environment: {}
     container_name: galaxy-slurm
@@ -101,7 +108,8 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == worker]
+        constraints:
+          - node.role == ${NODE_ROLE:-worker}
 
 
   # This container initializes the galaxy export.
@@ -110,6 +118,7 @@ services:
     image: quay.io/bgruening/galaxy-init:${TAG:-latest}
     container_name: galaxy-init
     hostname: galaxy-init
+    env_file: .env
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system. By default this is 'export' in your current working dir
@@ -118,13 +127,15 @@ services:
       - galaxy
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+          - node.role == ${NODE_ROLE:-manager}
 
 
   galaxy-htcondor:
     image: quay.io/bgruening/galaxy-htcondor:${TAG:-latest}
     container_name: galaxy-htcondor
     hostname: galaxy-htcondor
+    env_file: .env
     volumes:
         - ${EXPORT_DIR:-/export}/:/export
     restart: unless-stopped
@@ -134,7 +145,8 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == worker]
+        constraints:
+          - node.role == ${NODE_ROLE:-worker}
 
 
   galaxy-htcondor-executor:
@@ -143,6 +155,7 @@ services:
     # a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     privileged: True
     #${PRIVILEGED_CONDOR_CONTAINER:-False}
+    env_file: .env
     environment:
         - CONDOR_HOST=galaxy-htcondor
     volumes:
@@ -155,7 +168,8 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == worker]
+        constraints:
+          - node.role == ${NODE_ROLE:-worker}
 
 
   galaxy-htcondor-executor-big:
@@ -164,6 +178,7 @@ services:
     # a RW cgroups mount. A RO cgroups mount throws an error in ProcD for running jobs.
     privileged: True
     #${PRIVILEGED_CONDOR_CONTAINER:-False}
+    env_file: .env
     environment:
         - CONDOR_HOST=galaxy-htcondor
         - CONDOR_CPUS=2
@@ -178,7 +193,8 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == worker]
+        constraints:
+          - node.role == ${NODE_ROLE:-worker}
 
 
   # Message queue for better performance
@@ -186,6 +202,7 @@ services:
     image: rabbitmq:alpine
     container_name: galaxy-rabbitmq
     hostname: rabbitmq
+    env_file: .env
     environment:
         - RABBITMQ_DEFAULT_USER=galaxy
         - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
@@ -198,12 +215,14 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == worker]
+        constraints:
+          - node.role == ${NODE_ROLE:-worker}
 
 
   # Grafana and InfluxDB for statistics
   influxdb:
     image: influxdb:1.4-alpine
+    env_file: .env
     environment:
         - RABBITMQ_DEFAULT_USER=galaxy
         - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
@@ -216,10 +235,12 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == worker]
+        constraints:
+          - node.role == ${NODE_ROLE:-worker}
 
   grafana:
     image: quay.io/bgruening/galaxy-grafana:${TAG:-latest}
+    env_file: .env
     volumes:
         - ${EXPORT_DIR:-/export}/grafana:/var/lib/grafana
     networks:
@@ -230,12 +251,14 @@ services:
       mode: replicated
       replicas: 1
       placement:
-        constraints: [node.role == worker]
+        constraints:
+            - node.role == ${NODE_ROLE:-worker}
 
   # This container provides the galaxy uwsgi webhandlers, job handlers, nginx
   galaxy-web:
     # build: galaxy-web
     image: quay.io/bgruening/galaxy-web:${TAG:-latest}
+    env_file: .env
     environment:
         # In case the galaxy-init container is not used, you need to include "sleeplock" to NONUSE
         - NONUSE=proftpd,postgres,slurmd,slurmctld
@@ -302,7 +325,8 @@ services:
       - rabbitmq
     deploy:
       placement:
-        constraints: [node.role == manager]
+        constraints:
+            - node.role == ${NODE_ROLE:-manager}
     labels:
         kompose.service.type: nodeport
 
