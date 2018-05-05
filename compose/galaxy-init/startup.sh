@@ -34,17 +34,8 @@ echo "Initialization complete"
 
 if [ "x$DISABLE_SLEEPLOCK" = "x" ]
 then
-SLEEPLOCK_FILE=/export/.initdone
-touch $SLEEPLOCK_FILE
-(
-    if ! flock -w 1 -x 200
-    then
-        echo "Can't lock, failure"
-        exit 1
-    fi
+    SLEEPLOCK_FILE=/export/.initdone
     echo "done">$SLEEPLOCK_FILE
     echo "Init notified, sleeping now"
     sleep infinity
-) 200<$SLEEPLOCK_FILE
-
 fi
