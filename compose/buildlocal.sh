@@ -10,7 +10,7 @@ GALAXY_REPO=galaxyproject/galaxy
 DOCKER_ADDITIONAL_BUILD_ARGS="--no-cache"
 
 # For using latest simply leave this variable empty or set to ":latest". This should be the case on the master branch.
-TAG=":dev"
+TAG=":18.01b"
 
 docker pull postgres
 
