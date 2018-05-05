@@ -80,7 +80,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
     dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \
     rm condor_8.6.3_linux_all.deb && \
-    pip install --upgrade pip && \
+    pip install --upgrade pip setuptools && \
     pip install ephemeris && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /tmp/download && \
