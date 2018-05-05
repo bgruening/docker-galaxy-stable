@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:18.01b
+FROM quay.io/bgruening/galaxy-base:18.01
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 

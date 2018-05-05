@@ -1,4 +1,4 @@
-FROM quay.io/bgruening/galaxy-htcondor-base:18.01b
+FROM quay.io/bgruening/galaxy-htcondor-base:18.01
 
 ENV GALAXY_USER=galaxy \
 GALAXY_UID=1450 \

@@ -1,4 +1,4 @@
-FROM quay.io/bgruening/galaxy-htcondor-base:18.01b
+FROM quay.io/bgruening/galaxy-htcondor-base:18.01
 
 ADD condor_config.local /etc/condor/condor_config.local
 ADD supervisord.conf /etc/supervisord.conf
