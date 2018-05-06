@@ -12,6 +12,8 @@ Galaxy Docker Compose
 - [Usage](#Usage)
     - [Build](#Build)
     - [Start Container](#Start)
+    - [Stop Container](#Stop)
+    - [Docker Swarm](#Swarm)
 - [Advanced](#Advanced)
   - [postgres](#postgres)
     - [Configuration](#postgres-Configuration)
@@ -120,6 +122,31 @@ You want to stop your environment with:
 ```sh
 docker-compose stop
 ```
+
+<p align="right"><a href="#toc">&#x25B2; back to top</a></p>
+
+# Docker Swarm <a name="Swarm" />
+
+Docker swarm does not yet support reading the .env files. But we can use them by starting Docker swarm in the following way:
+
+```sh
+ env $(cat .env | grep ^[A-Z] | xargs) docker stack deploy --compose-file docker-compose.yml galaxy
+```
+
+The `galaxy` at the end is the name of the swarm stack. You will see this reference in the following commands as well, so make sure that if you change it here, you adopt it
+in the following commands as well.
+
+If your containers are starting but are failing internally you can look at the logs with:
+
+```
+docker service logs galaxy_galaxy-web -f
+```
+
+If your container is not starting at all, for example because some bind mounts are missing, you can get an indication what happens with:
+```
+docker stack ps  galaxy --no-trunc
+```
+
 
 
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>

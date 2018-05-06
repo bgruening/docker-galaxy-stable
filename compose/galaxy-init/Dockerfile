@@ -17,12 +17,16 @@ RUN mkdir -p /export /galaxy-export && \
     mkdir /galaxy-export/galaxy-central && \
     mkdir /galaxy-export/nginx_upload_store && \
     mkdir /galaxy-export/ftp && \
+    mkdir /galaxy-export/rabbitmq && \
+    mkdir /galaxy-export/influxdb && \
+    mkdir /galaxy-export/grafana && \
+    mkdir /galaxy-export/postgres && \
     ln -s -f /galaxy-export/shed_tools /export/shed_tools && \
     ln -s -f /galaxy-export/tool_deps /export/tool_deps && \
     ln -s -f /galaxy-export/venv /export/venv && \
     ln -s -f /galaxy-export/galaxy-central /export/galaxy-central && \
     chown -R $GALAXY_USER:$GALAXY_USER /galaxy-export /export && \
-    wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/release_18.01 | tar xz --strip-components=1 -C $GALAXY_ROOT && \
+    wget -q -O - https://api.github.com/repos/$GALAXY_REPO/tarball/$GALAXY_RELEASE | tar xz --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
     cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && pip install pip --upgrade && \
@@ -78,9 +82,6 @@ RUN ./scripts/common_startup.sh --skip-client-build && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install
-
-# the following can be removed with 18.01
-RUN /tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel bioconda --channel conda-forge --channel defaults --channel r --name mulled-v1-eb2018fd3ce0fcbcee48a4bf89c57219add691c16729281b6c46b30f08339397 samtools=1.3.1 bcftools=1.5
 
 # Switch back to User root
 USER root
