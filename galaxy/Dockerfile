@@ -247,7 +247,5 @@ VOLUME ["/export/", "/data/", "/var/lib/docker"]
 ADD install_db.sh /usr/bin/install_db.sh
 RUN chmod +x /usr/bin/install_db.sh
 
-RUN shed-tools install -y "{'owner': 'devteam', 'tool_shed_url': 'https://toolshed.g2.bx.psu.edu', 'tool_panel_section_id':'Assembly', 'name': 'velvet'}" -a "HSNiugRFvgT574F43jZ7N9F3"
-
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
