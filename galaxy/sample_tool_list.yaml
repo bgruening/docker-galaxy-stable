@@ -9,3 +9,7 @@ tools:
   tool_panel_section_label: 'New Converters'
   revisions:
   - '0b4e36026794'  # v1.1.0
+- name: 'velvet'
+  owner: 'devteam'
+  tool_panel_section_label: 'Assembly'
+  
