@@ -250,9 +250,9 @@ RUN chmod +x /usr/bin/install_db.sh
 RUN add-tool-shed --url 'http://toolshed.g2.bx.psu.edu/' --name 'Tool Shed'
 
 # Adding the tool definitions to the container
-ADD sample_tool_list.yml $GALAXY_ROOT/sample_tool_list.yml
+ADD sample_tool_list.yaml $GALAXY_ROOT/sample_tool_list.yaml
 
-RUN install-tools $GALAXY_ROOT/sample_tool_list.yml
+RUN install-tools $GALAXY_ROOT/sample_tool_list.yaml
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
