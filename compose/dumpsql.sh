@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TAG=18.01
+TAG=18.05
 
 # Sets the image of postgres to use
 POSTGRES=postgres:9.6.5

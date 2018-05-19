@@ -2,11 +2,11 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:18.01
+FROM quay.io/bgruening/galaxy-base:18.05
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE=release_18.01
+ARG GALAXY_RELEASE=release_18.05
 ARG GALAXY_REPO=galaxyproject/galaxy
 
 # Create these folders and link to target directory for installation
