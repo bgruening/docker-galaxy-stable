@@ -9,7 +9,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_18.01} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_18.05} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
@@ -81,7 +81,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get purge -y software-properties-common && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
-    pip install --upgrade pip && \
+    pip install --upgrade pip setuptools && \
     pip install ephemeris supervisor --upgrade && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
