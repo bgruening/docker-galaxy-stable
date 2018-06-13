@@ -12,7 +12,7 @@ LANG=en_US.UTF-8
 ADD startup.sh /usr/bin/startup.sh
 
 RUN mkdir -p /tmp/download && \
-    wget --no-check-certificate -qO - https://get.docker.com/builds/Linux/x86_64/docker-17.05.0-ce.tgz | tar -xz -C /tmp/download && \
+    wget --no-check-certificate -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download && \
     mv /tmp/download/docker/docker /usr/bin/ && \
     rm -rf /tmp/download && \
     rm -rf ~/.cache/ && \
