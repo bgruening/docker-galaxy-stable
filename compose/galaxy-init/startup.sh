@@ -1,6 +1,14 @@
 #!/bin/bash
 # This script initializes the export directory if it isn't initialized already
 
+
+function error_trap() {
+  echo "#### Error at line ${BASH_LINENO[0]} running command ${BASH_COMMAND} ####" >&2
+}
+
+trap error_trap ERR
+set -o errexit
+
 echo "Initializing export"
 # Always copy current config to .distribution_config
 echo "Copying to /export/.distribution_config"
@@ -48,3 +56,5 @@ then
     echo "Init notified, sleeping now"
     sleep infinity
 fi
+
+exit 0
