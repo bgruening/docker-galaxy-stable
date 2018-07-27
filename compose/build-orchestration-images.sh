@@ -17,11 +17,9 @@ function log() {
 }
 
 function error {
-
 	local msg=$1
 	local code=$2
 	[[ -z $code ]] && code=1
-
 	log "[ERROR] $msg"
 
 	exit $code
@@ -29,7 +27,6 @@ function error {
 
 
 function debug {
-
     local msg=$1
     local level=$2
     [[ -n $level ]] || level=1
@@ -38,7 +35,6 @@ function debug {
 }
 
 function warning {
-
     local msg=$1
 
     log "[WARNING] ##### $msg #####"
@@ -48,7 +44,7 @@ function print_help {
     (
         echo "Usage: $SCRIPT_NAME [options]"
         echo
-        echo "Build Galaxy docker images for use with k8s."
+        echo "Build Galaxy docker compose images for different purposes."
         echo
         echo "Options:"
         echo "   -g, --debug                    Debug mode. [false]"
@@ -61,7 +57,10 @@ function print_help {
         echo "       --postgres-tag   <tag>     Set the tag for the Galaxy Postgres container image."
         echo "       --proftpd-tag    <tag>     Set the tag for the Galaxy Proftpd container image."
         echo "       --web-tag        <tag>     Set the tag for the Galaxy Web k8s container image."
-        echo "   -u, --container-user <user>    Set the container user. You can also set the environment variable CONTAINER_USER. [pcm32]"
+        echo "       --k8s                      Set settings for Kubernetes usage."
+        echo "       --graphana                 Build graphana container."
+        echo "       --condor                   Build condor containers."
+        echo "   -u, --container-user <user>    Set the container user. You can also set the environment variable CONTAINER_USER."
         echo "   -r, --container-registry <reg> Set the container registry. You can also set the environment variable CONTAINER_REGISTRY."
         echo
     ) >&2
@@ -79,12 +78,15 @@ function read_args {
             -h|--help)               print_help ; exit 0 ;;
             -p|--push)               DOCKER_PUSH_ENABLED=$TRUE ;;
             +p|--no-push)            DOCKER_PUSH_ENABLED=$FALSE ;;
+            --k8s)                   BUILD_FOR_K8S=$TRUE ;;
+            --condor)                BUILD_FOR_CONDOR=$TRUE ;;
+            --graphana)              BUILD_FOR_GRAPHANA=$TRUE ;;
             --push-intermediate)     PUSH_INTERMEDIATE_IMAGES=$TRUE ;;
             --no-cache)              NO_CACHE="--no-cache" ;;
             --postgres-tag)          OVERRIDE_POSTGRES_TAG="$2" ; shift_count=2 ;;
             --proftpd-tag)           OVERRIDE_PROFTPD_TAG="$2" ; shift_count=2 ;;
             --init-tag)              OVERRIDE_GALAXY_INIT_PHENO_FLAVOURED_TAG="$2" ; shift_count=2 ;;
-            --web-tag)               OVERRIDE_GALAXY_WEB_K8S_TAG="$2" ; shift_count=2 ;;
+            --web-tag)               OVERRIDE_GALAXY_WEB_TAG="$2" ; shift_count=2 ;;
             -u|--container-user)     CONTAINER_USER="$2" ; shift_count=2 ;;
             -r|--container-registry) CONTAINER_REGISTRY="$2" ; shift_count=2 ;;
             *) error "Illegal option $1." 98 ;;
@@ -97,14 +99,16 @@ function read_args {
     debug "Argument DEBUG=$DEBUG"
     debug "Argument DOCKER_PUSH_ENABLED=$DOCKER_PUSH_ENABLED"
     debug "Argument DOCKER_USER=$DOCKER_USER"
-    debug "Argument OVERRIDE_GALAXY_INIT_PHENO_FLAVOURED_TAG=$OVERRIDE_GALAXY_INIT_PHENO_FLAVOURED_TAG"
-    debug "Argument OVERRIDE_GALAXY_WEB_K8S_TAG=$OVERRIDE_GALAXY_WEB_K8S_TAG"
+    debug "Argument OVERRIDE_GALAXY_WEB_TAG=$OVERRIDE_GALAXY_WEB_TAG"
     debug "Argument OVERRIDE_POSTGRES_TAG=$OVERRIDE_POSTGRES_TAG"
     debug "Argument OVERRIDE_PROFTPD_TAG=$OVERRIDE_PROFTPD_TAG"
     debug "shift_count=$shift_count"
 }
 
 ### MAIN ###
+BUILD_FOR_K8S=$FALSE
+BUILD_FOR_CONDOR=$FALSE
+BUILD_FOR_GRAPHANA=$FALSE
 
 read_args "$@"
 
@@ -116,9 +120,10 @@ DOCKER_USER=${CONTAINER_USER:-pcm32}
 ANSIBLE_REPO=${ANSIBLE_REPO:-galaxyproject/ansible-galaxy-extras}
 ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-master}
 
-GALAXY_VERSION=18.05
+GALAXY_VERSION=${GALAXY_VERSION:-18.05}
 
 GALAXY_BASE_FROM_TO_REPLACE=${GALAXY_BASE_FROM_TO_REPLACE:-quay.io/bgruening/galaxy-base:$GALAXY_VERSION}
+CONDOR_BASE_FROM_TO_REPLACE=quay.io/bgruening/galaxy-htcondor-base:$GALAXY_VERSION
 
 GALAXY_RELEASE=${GALAXY_RELEASE:-release_$GALAXY_VERSION}
 GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
@@ -128,26 +133,21 @@ GALAXY_VER_FOR_POSTGRES=$GALAXY_VERSION
 #PUSH_INTERMEDIATE_IMAGES=yes
 
 # Set tags
-TAG=v$GALAXY_VERSION
+TAG=${GALAXY_TAG:-v$GALAXY_VERSION}
 
+# TODO This is PhenoMeNal Jenkins specific, should be removed at some point.
 if [[ -n ${CONTAINER_TAG_PREFIX:-} && -n ${BUILD_NUMBER:-} ]]; then
     TAG=${CONTAINER_TAG_PREFIX}.${BUILD_NUMBER}
 fi
-
-GALAXY_BASE_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-base:$TAG
-GALAXY_INIT_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-init:$TAG
-GALAXY_WEB_K8S_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-web-k8s:$TAG
 
 if [[ -n "${DOCKER_REPO}" ]]; then
     # Append slash, avoiding double slash
     DOCKER_REPO="${DOCKER_REPO%/}/"
 fi
 
-if [[ -n "${OVERRIDE_GALAXY_WEB_K8S_TAG:-}" ]]; then
-    GALAXY_WEB_K8S_TAG="${OVERRIDE_GALAXY_WEB_K8S_TAG}"
-else
-    GALAXY_WEB_K8S_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-web-k8s:$TAG
-fi
+GALAXY_BASE_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-base:$TAG
+GALAXY_INIT_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-init:$TAG
+GALAXY_WEB_TAG=${OVERRIDE_GALAXY_WEB_TAG:-$DOCKER_REPO$DOCKER_USER/galaxy-web:$TAG}
 
 if [[ -n "${OVERRIDE_POSTGRES_TAG:-}" ]]; then
     POSTGRES_TAG="${OVERRIDE_POSTGRES_TAG}"
@@ -166,6 +166,10 @@ else
     PROFTPD_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-proftpd:for_galaxy_v$GALAXY_VER_FOR_POSTGRES
 fi
 
+CONDOR_BASE_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor-base:$TAG
+CONDOR_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor:$TAG
+CONDOR_EXEC_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor-executor:$TAG
+GRAPHANA_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-graphana:$TAG
 ### do work
 
 if [ -n $ANSIBLE_REPO ]
@@ -198,48 +202,75 @@ if [ -n $GALAXY_REPO ]
        fi
 fi
 
-# GALAXY_INIT_FLAVOURED_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-init-flavoured:$TAG
-#
-# DOCKERFILE_INIT_FLAVOUR=Dockerfile_init
-# if [ -n $GALAXY_REPO ]
-# then
-# 	echo "Making custom galaxy-init-pheno-flavoured:$TAG starting from galaxy-init-pheno:$TAG"
-# 	sed s+pcm32/galaxy-init$+$GALAXY_INIT_PHENO_TAG+ Dockerfile_init > Dockerfile_init_tagged
-# 	DOCKERFILE_INIT_FLAVOUR=Dockerfile_init_tagged
-# fi
-# docker build $NO_CACHE -t $GALAXY_INIT_FLAVOURED_TAG -f $DOCKERFILE_INIT_FLAVOUR .
-# docker push $GALAXY_INIT_PHENO_FLAVOURED_TAG
-
-
 
 DOCKERFILE_WEB=Dockerfile
 if [ -n $GALAXY_REPO ]
 then
-	echo "Making custom galaxy-web-k8s:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
+	echo "Making custom galaxy-web:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
 	sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-web/Dockerfile > galaxy-web/Dockerfile_web
 	DOCKERFILE_WEB=Dockerfile_web
 fi
-docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,k8,k8s -t $GALAXY_WEB_K8S_TAG -f galaxy-web/$DOCKERFILE_WEB galaxy-web/
-if [[ "${DOCKER_PUSH_ENABLED:-}" = "true" ]]; then
-  docker push $GALAXY_WEB_K8S_TAG
+K8S_ANSIBLE_TAGS=""
+if $BUILD_FOR_K8S;
+  K8S_ANSIBLE_TAGS=,k8,k8s
+fi
+docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx$K8S_ANSIBLE_TAGS -t $GALAXY_WEB_TAG -f galaxy-web/$DOCKERFILE_WEB galaxy-web/
+if $DOCKER_PUSH_ENABLED; then
+  docker push $GALAXY_WEB_TAG
 fi
 
 # Build postgres
 docker build -t $POSTGRES_TAG -f galaxy-postgres/Dockerfile galaxy-postgres/
-if [[ "${DOCKER_PUSH_ENABLED:-}" = "true" ]]; then
+if $DOCKER_PUSH_ENABLED; then
   docker push $POSTGRES_TAG
 fi
 
 # Build proftpd
 docker build -t $PROFTPD_TAG -f galaxy-proftpd/Dockerfile galaxy-proftpd/
-if [[ "${DOCKER_PUSH_ENABLED:-}" = "true" ]]; then
+if $DOCKER_PUSH_ENABLED; then
   docker push $PROFTPD_TAG
 fi
 
+# Build condor
+if $BUILD_FOR_CONDOR; then
+  docker build $NO_CACHE -t $CONDOR_BASE_TAG galaxy-htcondor-base
+  sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor/Dockerfile > galaxy-htcondor/Dockerfile_condor
+  FROM=`grep ^FROM galaxy-htcondor/Dockerfile_condor | awk '{ print $2 }'`
+  log "Using FROM $FROM for condor"
+  docker build $NO_CACHE -t $CONDOR_TAG -f galaxy-htcondor/Docker_condor galaxy-htcondor/
+  sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor-executor/Dockerfile > galaxy-htcondor-executor/Dockerfile_condor
+  FROM=`grep ^FROM galaxy-htcondor-executor/Dockerfile_condor | awk '{ print $2 }'`
+  log "Using FROM $FROM for condor-executor"
+  docker build $NO_CACHE -t $CONDOR_EXEC_TAG -f galaxy-htcondor-executor/Docker_condor galaxy-htcondor-executor/
+  if $DOCKER_PUSH_ENABLED; then
+    docker push $CONDOR_TAG
+    docker push $CONDOR_EXEC_TAG
+  fi
+fi
+
+# Build for graphana
+if $BUILD_FOR_GRAPHANA; then
+  docker build -t $GRAPHANA_TAG ./galaxy-grafana
+fi
+
 log "Relevant containers:"
-log "Web:          $GALAXY_WEB_K8S_TAG"
+log "Web:          $GALAXY_WEB_TAG"
 log "Init:         $GALAXY_INIT_TAG"
 log "Postgres:     $POSTGRES_TAG"
 log "Proftpd:      $PROFTPD_TAG"
+if $BUILD_FOR_CONDOR; then
+  log "Condor:       $CONDOR_TAG"
+  log "Condor-exec:  $CONDOR_EXEC_TAG"
+fi
+if $BUILD_FOR_GRAPHANA; then
+  log "Graphana:     $GRAPHANA_TAG"
+fi
 
-log "Now build your Galaxy own galaxy init container starting from $GALAXY_INIT_TAG"
+log "Now build your own Galaxy init container starting FROM $GALAXY_INIT_TAG to add you own flavour, tools, workflows, etc."
+if $BUILD_FOR_K8S;
+  log ""
+  log "For k8s: Once you have built your own init container use it within the galaxy-stable Helm chart at https://github.com/galaxyproject/galaxy-kubernetes together with:"
+  log " - Web: $GALAXY_WEB_TAG"
+  log " - Postgres: $POSTGRES_TAG"
+  log " - Proftpd: $PROFTPD_TAG"
+fi
