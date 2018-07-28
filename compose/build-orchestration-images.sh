@@ -241,11 +241,11 @@ if $BUILD_FOR_CONDOR; then
   sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor/Dockerfile > galaxy-htcondor/Dockerfile_condor
   FROM=`grep ^FROM galaxy-htcondor/Dockerfile_condor | awk '{ print $2 }'`
   log "Using FROM $FROM for condor"
-  docker build $NO_CACHE -t $CONDOR_TAG -f galaxy-htcondor/Docker_condor galaxy-htcondor/
+  docker build $NO_CACHE -t $CONDOR_TAG -f galaxy-htcondor/Dockerfile_condor galaxy-htcondor/
   sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor-executor/Dockerfile > galaxy-htcondor-executor/Dockerfile_condor
   FROM=`grep ^FROM galaxy-htcondor-executor/Dockerfile_condor | awk '{ print $2 }'`
   log "Using FROM $FROM for condor-executor"
-  docker build $NO_CACHE -t $CONDOR_EXEC_TAG -f galaxy-htcondor-executor/Docker_condor galaxy-htcondor-executor/
+  docker build $NO_CACHE -t $CONDOR_EXEC_TAG -f galaxy-htcondor-executor/Dockerfile_condor galaxy-htcondor-executor/
   if $DOCKER_PUSH_ENABLED; then
     docker push $CONDOR_TAG
     docker push $CONDOR_EXEC_TAG
