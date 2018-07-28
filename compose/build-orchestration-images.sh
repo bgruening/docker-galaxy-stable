@@ -58,7 +58,7 @@ function print_help {
         echo "       --proftpd-tag    <tag>     Set the tag for the Galaxy Proftpd container image."
         echo "       --web-tag        <tag>     Set the tag for the Galaxy Web k8s container image."
         echo "       --k8s                      Set settings for Kubernetes usage."
-        echo "       --graphana                 Build graphana container."
+        echo "       --grafana                  Build grafana container."
         echo "       --condor                   Build condor containers."
         echo "       --slurm                    Build slurm containers."
         echo "   -u, --container-user <user>    Set the container user. You can also set the environment variable CONTAINER_USER."
@@ -82,7 +82,7 @@ function read_args {
             --k8s)                   BUILD_FOR_K8S=$TRUE ;;
             --condor)                BUILD_FOR_CONDOR=$TRUE ;;
             --slurm)                 BUILD_FOR_SLURM=$TRUE ;;
-            --graphana)              BUILD_FOR_GRAPHANA=$TRUE ;;
+            --grafana)               BUILD_FOR_GRAFANA=$TRUE ;;
             --push-intermediate)     PUSH_INTERMEDIATE_IMAGES=$TRUE ;;
             --no-cache)              NO_CACHE="--no-cache" ;;
             --postgres-tag)          OVERRIDE_POSTGRES_TAG="$2" ; shift_count=2 ;;
@@ -110,7 +110,7 @@ function read_args {
 ### MAIN ###
 BUILD_FOR_K8S=$FALSE
 BUILD_FOR_CONDOR=$FALSE
-BUILD_FOR_GRAPHANA=$FALSE
+BUILD_FOR_GRAFANA=$FALSE
 BUILD_FOR_SLURM=$FALSE
 
 read_args "$@"
@@ -172,7 +172,7 @@ fi
 CONDOR_BASE_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor-base:$TAG
 CONDOR_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor:$TAG
 CONDOR_EXEC_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor-executor:$TAG
-GRAPHANA_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-graphana:$TAG
+GRAFANA_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-grafana:$TAG
 SLURM_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-slurm:$TAG
 ### do work
 
@@ -257,9 +257,9 @@ if $BUILD_FOR_SLURM; then
   docker build -t $SLURM_TAG ./galaxy-slurm
 fi
 
-# Build for graphana
-if $BUILD_FOR_GRAPHANA; then
-  docker build -t $GRAPHANA_TAG ./galaxy-grafana
+# Build for grafana
+if $BUILD_FOR_GRAFANA; then
+  docker build -t $GRAFANA_TAG ./galaxy-grafana
 fi
 
 log "Relevant containers:"
@@ -274,8 +274,8 @@ fi
 if $BUILD_FOR_SLURM; then
   log "Slurm:        $SLURM_TAG"
 fi
-if $BUILD_FOR_GRAPHANA; then
-  log "Graphana:     $GRAPHANA_TAG"
+if $BUILD_FOR_GRAFANA; then
+  log "Grafana:     $GRAFANA_TAG"
 fi
 
 log "Now build your own Galaxy init container starting FROM $GALAXY_INIT_TAG to add you own flavour, tools, workflows, etc."

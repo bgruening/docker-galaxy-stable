@@ -123,7 +123,7 @@ before_install:
         # For build script
         export CONTAINER_REGISTRY=quay.io/
         export CONTAINER_USER=bgruening
-        ./build-orchestration-images.sh --no-push --condor --graphana --slurm --k8s
+        ./build-orchestration-images.sh --no-push --condor --grafana --slurm --k8s
         source ./tags-for-compose-to-source.sh
         export COMPOSE_PROJECT_NAME=galaxy_compose
         docker-compose up -d
