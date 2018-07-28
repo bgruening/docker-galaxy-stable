@@ -285,3 +285,9 @@ if $BUILD_FOR_K8S; then
   log " - Postgres: $POSTGRES_TAG"
   log " - Proftpd: $PROFTPD_TAG"
 fi
+
+cat > ./tags-for-compose-to-source.sh <<DELIM
+export TAG=$GALAXY_WEB_TAG
+export TAG_POSTGRES=$POSTGRES_TAG
+export TAG_PROFTPD=$PROFTPD_TAG"
+DELIM
