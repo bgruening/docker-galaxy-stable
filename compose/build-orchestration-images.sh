@@ -211,7 +211,7 @@ then
 	DOCKERFILE_WEB=Dockerfile_web
 fi
 K8S_ANSIBLE_TAGS=""
-if $BUILD_FOR_K8S;
+if $BUILD_FOR_K8S; then
   K8S_ANSIBLE_TAGS=,k8,k8s
 fi
 docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx$K8S_ANSIBLE_TAGS -t $GALAXY_WEB_TAG -f galaxy-web/$DOCKERFILE_WEB galaxy-web/
@@ -267,7 +267,7 @@ if $BUILD_FOR_GRAPHANA; then
 fi
 
 log "Now build your own Galaxy init container starting FROM $GALAXY_INIT_TAG to add you own flavour, tools, workflows, etc."
-if $BUILD_FOR_K8S;
+if $BUILD_FOR_K8S; then
   log ""
   log "For k8s: Once you have built your own init container use it within the galaxy-stable Helm chart at https://github.com/galaxyproject/galaxy-kubernetes together with:"
   log " - Web: $GALAXY_WEB_TAG"
