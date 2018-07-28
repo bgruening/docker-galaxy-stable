@@ -273,6 +273,7 @@ if $BUILD_FOR_CONDOR; then
 fi
 if $BUILD_FOR_SLURM; then
   log "Slurm:        $SLURM_TAG"
+fi
 if $BUILD_FOR_GRAPHANA; then
   log "Graphana:     $GRAPHANA_TAG"
 fi
