@@ -289,5 +289,5 @@ fi
 cat > ./tags-for-compose-to-source.sh <<DELIM
 export TAG=$GALAXY_WEB_TAG
 export TAG_POSTGRES=$POSTGRES_TAG
-export TAG_PROFTPD=$PROFTPD_TAG"
+export TAG_PROFTPD=$PROFTPD_TAG
 DELIM
