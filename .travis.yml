@@ -120,7 +120,12 @@ before_install:
         INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
         SAMPLE_TOOLS=/export/config/sample_tool_list.yaml
         cd "$WORKING_DIR"
-        ./buildlocal.sh
+        # For build script
+        export CONTAINER_REGISTRY=quay.io/
+        export CONTAINER_USER=bgruening
+        ./build-orchestration-images.sh --no-push > image-build.log
+        export TAG_POSTGRES=$(cat image-build.log | grep '^Postgres:' | awk -F':' '{ print $3 }' )
+        export TAG_PROFTPD=$(cat image-build.log | grep '^Proftpd:' | awk -F':' '{ print $3 }' )
         export COMPOSE_PROJECT_NAME=galaxy_compose
         docker-compose up -d
 
@@ -138,7 +143,7 @@ before_install:
             docker-compose stop galaxy-slurm
             sleep 30
         fi
-        
+
         if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
         then
             # turn down the htcondor services
@@ -150,7 +155,7 @@ before_install:
         if [ "${COMPOSE_SLURM_SINGULARITY}" ]
         then
             # docker-compose is already started and has pre-populated the /export dir
-            # we now turn it down again and copy in an example tool with tool_conf.xml and 
+            # we now turn it down again and copy in an example tool with tool_conf.xml and
             # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
             # script will not work as it detects something in /export/
             docker-compose down
@@ -174,7 +179,7 @@ before_install:
             parsec datasets show_dataset $OUTPUT_ID | jq .misc_info | grep singularity
 
         fi
-        
+
         docker-compose logs --tail 50
         # Define start functions
         docker_exec() {
@@ -255,7 +260,7 @@ script:
   - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
   # Test FTP Server get
   - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
-  
+
   # Test CVMFS
   - docker_exec bash -c "service autofs start"
   - docker_exec bash -c "cvmfs_config chksetup"
