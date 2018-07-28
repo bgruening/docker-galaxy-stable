@@ -124,6 +124,7 @@ before_install:
         export CONTAINER_REGISTRY=quay.io/
         export CONTAINER_USER=bgruening
         ./build-orchestration-images.sh --no-push --condor --graphana --slurm --k8s 2> image-build.log
+        cat image-build.log
         export TAG_POSTGRES=$(cat image-build.log | grep '^Postgres:' | awk -F':' '{ print $3 }' )
         export TAG_PROFTPD=$(cat image-build.log | grep '^Proftpd:' | awk -F':' '{ print $3 }' )
         export TAG=$(cat image-build.log | grep '^Web:' | awk -F':' '{ print $3 }' )
