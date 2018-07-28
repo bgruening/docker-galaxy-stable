@@ -286,7 +286,7 @@ if $BUILD_FOR_K8S; then
   log " - Proftpd: $PROFTPD_TAG"
 fi
 
-cat > ./tags-for-compose-to-source.sh <<DELIM
+cat << DELIM > ./tags-for-compose-to-source.sh
 export TAG=$GALAXY_WEB_TAG
 export TAG_POSTGRES=$POSTGRES_TAG
 export TAG_PROFTPD=$PROFTPD_TAG
