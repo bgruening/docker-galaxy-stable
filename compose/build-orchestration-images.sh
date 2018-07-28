@@ -60,6 +60,7 @@ function print_help {
         echo "       --k8s                      Set settings for Kubernetes usage."
         echo "       --graphana                 Build graphana container."
         echo "       --condor                   Build condor containers."
+        echo "       --slurm                    Build slurm containers."
         echo "   -u, --container-user <user>    Set the container user. You can also set the environment variable CONTAINER_USER."
         echo "   -r, --container-registry <reg> Set the container registry. You can also set the environment variable CONTAINER_REGISTRY."
         echo
@@ -80,6 +81,7 @@ function read_args {
             +p|--no-push)            DOCKER_PUSH_ENABLED=$FALSE ;;
             --k8s)                   BUILD_FOR_K8S=$TRUE ;;
             --condor)                BUILD_FOR_CONDOR=$TRUE ;;
+            --slurm)                 BUILD_FOR_SLURM=$TRUE ;;
             --graphana)              BUILD_FOR_GRAPHANA=$TRUE ;;
             --push-intermediate)     PUSH_INTERMEDIATE_IMAGES=$TRUE ;;
             --no-cache)              NO_CACHE="--no-cache" ;;
@@ -109,6 +111,7 @@ function read_args {
 BUILD_FOR_K8S=$FALSE
 BUILD_FOR_CONDOR=$FALSE
 BUILD_FOR_GRAPHANA=$FALSE
+BUILD_FOR_SLURM=$FALSE
 
 read_args "$@"
 
@@ -170,6 +173,7 @@ CONDOR_BASE_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor-base:$TAG
 CONDOR_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor:$TAG
 CONDOR_EXEC_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor-executor:$TAG
 GRAPHANA_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-graphana:$TAG
+SLURM_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-slurm:$TAG
 ### do work
 
 if [ -n $ANSIBLE_REPO ]
@@ -248,6 +252,11 @@ if $BUILD_FOR_CONDOR; then
   fi
 fi
 
+# Build for slurm
+if $BUILD_FOR_SLURM; then
+  docker build -t $SLURM_TAG ./galaxy-slurm
+fi
+
 # Build for graphana
 if $BUILD_FOR_GRAPHANA; then
   docker build -t $GRAPHANA_TAG ./galaxy-grafana
@@ -262,6 +271,8 @@ if $BUILD_FOR_CONDOR; then
   log "Condor:       $CONDOR_TAG"
   log "Condor-exec:  $CONDOR_EXEC_TAG"
 fi
+if $BUILD_FOR_SLURM; then
+  log "Slurm:        $SLURM_TAG"
 if $BUILD_FOR_GRAPHANA; then
   log "Graphana:     $GRAPHANA_TAG"
 fi
