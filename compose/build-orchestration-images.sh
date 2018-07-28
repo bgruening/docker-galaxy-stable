@@ -287,6 +287,6 @@ if $BUILD_FOR_K8S; then
   log " - Proftpd: $PROFTPD_TAG"
 fi
 
-echo "export TAG=$GALAXY_WEB_TAG" > tags-for-compose-to-source.sh
-echo "export TAG_POSTGRES=$POSTGRES_TAG" >> tags-for-compose-to-source.sh
-echo "export TAG_PROFTPD=$PROFTPD_TAG" >> tags-for-compose-to-source.sh
+echo "export TAG="$(echo $GALAXY_WEB_TAG | awk -F':' '{print $2}')  > tags-for-compose-to-source.sh
+echo "export TAG_POSTGRES="$(echo $POSTGRES_TAG | awk -F':' '{print $2}') >> tags-for-compose-to-source.sh
+echo "export TAG_PROFTPD="$(echo $PROFTPD_TAG | awk -F':' '{print $2}') >> tags-for-compose-to-source.sh
