@@ -3038,6 +3038,40 @@ CREATE TABLE migrate_version (
 
 
 --
+-- Name: oidc_user_authnz_tokens; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE oidc_user_authnz_tokens (
+    id integer NOT NULL,
+    user_id integer,
+    uid character varying(255),
+    provider character varying(32),
+    extra_data bytea,
+    lifetime integer,
+    assoc_type character varying(64)
+);
+
+
+--
+-- Name: oidc_user_authnz_tokens_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE oidc_user_authnz_tokens_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: oidc_user_authnz_tokens_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE oidc_user_authnz_tokens_id_seq OWNED BY oidc_user_authnz_tokens.id;
+
+
+--
 -- Name: page; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3304,6 +3338,133 @@ CREATE SEQUENCE post_job_action_id_seq
 --
 
 ALTER SEQUENCE post_job_action_id_seq OWNED BY post_job_action.id;
+
+
+--
+-- Name: psa_association; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE psa_association (
+    id integer NOT NULL,
+    server_url character varying(255),
+    handle character varying(255),
+    secret character varying(255),
+    issued integer,
+    lifetime integer,
+    assoc_type character varying(64)
+);
+
+
+--
+-- Name: psa_association_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE psa_association_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: psa_association_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE psa_association_id_seq OWNED BY psa_association.id;
+
+
+--
+-- Name: psa_code; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE psa_code (
+    id integer NOT NULL,
+    email character varying(200),
+    code character varying(32)
+);
+
+
+--
+-- Name: psa_code_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE psa_code_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: psa_code_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE psa_code_id_seq OWNED BY psa_code.id;
+
+
+--
+-- Name: psa_nonce; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE psa_nonce (
+    id integer NOT NULL,
+    server_url character varying(255),
+    "timestamp" integer,
+    salt character varying(40)
+);
+
+
+--
+-- Name: psa_nonce_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE psa_nonce_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: psa_nonce_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE psa_nonce_id_seq OWNED BY psa_nonce.id;
+
+
+--
+-- Name: psa_partial; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE psa_partial (
+    id integer NOT NULL,
+    token character varying(32),
+    data text,
+    next_step integer,
+    backend character varying(32)
+);
+
+
+--
+-- Name: psa_partial_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE psa_partial_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: psa_partial_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE psa_partial_id_seq OWNED BY psa_partial.id;
 
 
 --
@@ -6078,6 +6239,13 @@ ALTER TABLE ONLY metadata_file ALTER COLUMN id SET DEFAULT nextval('metadata_fil
 
 
 --
+-- Name: oidc_user_authnz_tokens id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY oidc_user_authnz_tokens ALTER COLUMN id SET DEFAULT nextval('oidc_user_authnz_tokens_id_seq'::regclass);
+
+
+--
 -- Name: page id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -6131,6 +6299,34 @@ ALTER TABLE ONLY post_job_action ALTER COLUMN id SET DEFAULT nextval('post_job_a
 --
 
 ALTER TABLE ONLY post_job_action_association ALTER COLUMN id SET DEFAULT nextval('post_job_action_association_id_seq'::regclass);
+
+
+--
+-- Name: psa_association id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_association ALTER COLUMN id SET DEFAULT nextval('psa_association_id_seq'::regclass);
+
+
+--
+-- Name: psa_code id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_code ALTER COLUMN id SET DEFAULT nextval('psa_code_id_seq'::regclass);
+
+
+--
+-- Name: psa_nonce id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_nonce ALTER COLUMN id SET DEFAULT nextval('psa_nonce_id_seq'::regclass);
+
+
+--
+-- Name: psa_partial id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_partial ALTER COLUMN id SET DEFAULT nextval('psa_partial_id_seq'::regclass);
 
 
 --
@@ -7930,8 +8126,23 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	140
+Galaxy	lib/galaxy/model/migrate	141
 \.
+
+
+--
+-- Data for Name: oidc_user_authnz_tokens; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY oidc_user_authnz_tokens (id, user_id, uid, provider, extra_data, lifetime, assoc_type) FROM stdin;
+\.
+
+
+--
+-- Name: oidc_user_authnz_tokens_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('oidc_user_authnz_tokens_id_seq', 1, false);
 
 
 --
@@ -8060,6 +8271,66 @@ SELECT pg_catalog.setval('post_job_action_association_id_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('post_job_action_id_seq', 1, false);
+
+
+--
+-- Data for Name: psa_association; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY psa_association (id, server_url, handle, secret, issued, lifetime, assoc_type) FROM stdin;
+\.
+
+
+--
+-- Name: psa_association_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('psa_association_id_seq', 1, false);
+
+
+--
+-- Data for Name: psa_code; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY psa_code (id, email, code) FROM stdin;
+\.
+
+
+--
+-- Name: psa_code_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('psa_code_id_seq', 1, false);
+
+
+--
+-- Data for Name: psa_nonce; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY psa_nonce (id, server_url, "timestamp", salt) FROM stdin;
+\.
+
+
+--
+-- Name: psa_nonce_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('psa_nonce_id_seq', 1, false);
+
+
+--
+-- Data for Name: psa_partial; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY psa_partial (id, token, data, next_step, backend) FROM stdin;
+\.
+
+
+--
+-- Name: psa_partial_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('psa_partial_id_seq', 1, false);
 
 
 --
@@ -9735,6 +10006,14 @@ ALTER TABLE ONLY migrate_version
 
 
 --
+-- Name: oidc_user_authnz_tokens oidc_user_authnz_tokens_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY oidc_user_authnz_tokens
+    ADD CONSTRAINT oidc_user_authnz_tokens_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: page_annotation_association page_annotation_association_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -9804,6 +10083,38 @@ ALTER TABLE ONLY post_job_action_association
 
 ALTER TABLE ONLY post_job_action
     ADD CONSTRAINT post_job_action_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: psa_association psa_association_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_association
+    ADD CONSTRAINT psa_association_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: psa_code psa_code_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_code
+    ADD CONSTRAINT psa_code_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: psa_nonce psa_nonce_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_nonce
+    ADD CONSTRAINT psa_nonce_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: psa_partial psa_partial_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY psa_partial
+    ADD CONSTRAINT psa_partial_pkey PRIMARY KEY (id);
 
 
 --
@@ -12215,6 +12526,13 @@ CREATE INDEX ix_metadata_file_purged ON metadata_file USING btree (purged);
 --
 
 CREATE INDEX ix_metadata_file_update_time ON metadata_file USING btree (update_time);
+
+
+--
+-- Name: ix_oidc_user_authnz_tokens_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_oidc_user_authnz_tokens_user_id ON oidc_user_authnz_tokens USING btree (user_id);
 
 
 --
@@ -15045,6 +15363,14 @@ ALTER TABLE ONLY metadata_file
 
 ALTER TABLE ONLY metadata_file
     ADD CONSTRAINT metadata_file_lda_id_fkey FOREIGN KEY (lda_id) REFERENCES library_dataset_dataset_association(id);
+
+
+--
+-- Name: oidc_user_authnz_tokens oidc_user_authnz_tokens_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY oidc_user_authnz_tokens
+    ADD CONSTRAINT oidc_user_authnz_tokens_user_id_fkey FOREIGN KEY (user_id) REFERENCES galaxy_user(id);
 
 
 --

@@ -136,6 +136,8 @@ services:
     container_name: galaxy-htcondor
     hostname: galaxy-htcondor
     env_file: .env
+    #fix the multiple IP addresses issue cause by swarm
+    command: bash -c 'echo "NETWORK_INTERFACE = $$(hostname -i | cut --delimiter " " --fields 2)" >> /etc/condor/config.d/fix-network && /usr/bin/supervisord'
     volumes:
         - ${EXPORT_DIR:-/export}/:/export
     restart: unless-stopped
@@ -158,6 +160,8 @@ services:
     env_file: .env
     environment:
         - CONDOR_HOST=galaxy-htcondor
+    #fix the multiple IP addresses issue cause by swarm
+    command: bash -c 'echo "NETWORK_INTERFACE = $$(hostname -i | cut --delimiter " " --fields 2)" >> /etc/condor/config.d/fix-network && /usr/bin/startup.sh'
     volumes:
         - ${EXPORT_DIR:-/export}/:/export
         - /var/run/docker.sock:/var/run/docker.sock
@@ -183,6 +187,8 @@ services:
         - CONDOR_HOST=galaxy-htcondor
         - CONDOR_CPUS=2
         - CONDOR_MEMORY=2048
+    #fix the multiple IP addresses issue cause by swarm
+    command: bash -c 'echo "NETWORK_INTERFACE = $$(hostname -i | cut --delimiter " " --fields 2)" >> /etc/condor/config.d/fix-network && /usr/bin/startup.sh'
     volumes:
         - ${EXPORT_DIR:-/export}/:/export
         - /var/run/docker.sock:/var/run/docker.sock
@@ -309,6 +315,8 @@ services:
     container_name: galaxy-web
     hostname: galaxy
     privileged: True
+    #Fix the multiple ID addresses issue cause by swarm
+    command: bash -c 'echo "NETWORK_INTERFACE = $$(hostname -i | cut --delimiter " " --fields 2)" >> /etc/condor/config.d/fix-network && /usr/bin/startup'
     networks:
       - galaxy
     ports:
