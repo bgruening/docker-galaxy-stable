@@ -276,9 +276,9 @@ docker run -p 8080:80 \
 
 ## Galaxy's config settings <a name="Galaxys-config-settings" /> [[toc]](#toc)
 
-Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
+Every Galaxy configuration parameter is in `config/galaxy.yml.sample`. Configurations can be overwritten by passing an environment variable to the `docker run` command during startup which creates the `config/galaxy.yml.` file with configured settings. The name of the environment variable has to be:
 `GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters*
-For example, you can set the Galaxy session timeout to 5 minutes by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
+For example, you can set the Galaxy session timeout to 5 minutes by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`. The `config/galaxy.yml` can also be created and modified from inside the docker as for any other Galaxy server (see the Galaxy documentation on Galaxy configuration at https://docs.galaxyproject.org for more information).
 
 *by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
 
