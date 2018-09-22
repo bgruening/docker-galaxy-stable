@@ -6,7 +6,7 @@ FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE=dev
+ARG GALAXY_RELEASE=18.09
 ARG GALAXY_REPO=galaxyproject/galaxy
 
 # Create these folders and link to target directory for installation
@@ -81,7 +81,8 @@ RUN ./scripts/common_startup.sh --skip-client-build && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
-    npm install
+    npm install && \
+    rm -rf /home/galaxy/.cache/
 
 # Switch back to User root
 USER root

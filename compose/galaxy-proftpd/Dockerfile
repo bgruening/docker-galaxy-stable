@@ -1,6 +1,6 @@
 # ProFTP Image, used by the Galaxy Docker project
 
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
 ARG ANSIBLE_RELEASE=14c60b66f10326c7d158627b004d58e38ca503e4

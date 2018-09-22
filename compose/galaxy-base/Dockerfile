@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM ubuntu:14.04
+FROM ubuntu:18.04
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -64,24 +64,18 @@ HOME=$GALAXY_HOME
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout && \
     echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
+    apt-get -qq update && apt-get install --no-install-recommends -y locales && \
     locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
-    apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
-    # Condor mirror is really unreliable and times out too often, using a copy of the deb from cargo port
-    #echo "deb [arch=amd64] http://research.cs.wisc.edu/htcondor/ubuntu/stable/ trusty contrib" > /etc/apt/sources.list.d/htcondor.list
-    #wget -qO - http://research.cs.wisc.edu/htcondor/ubuntu/HTCondor-Release.gpg.key | sudo apt-key add - && \
+    apt-get install --no-install-recommends -y apt-transport-https gnupg && \
     echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list && \
     apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y sudo python-virtualenv \
-    supervisor linux-image-extra-virtual munge \
-    ansible nano python-pip \
-    unattended-upgrades \
-    gridengine-drmaa1.0 && \
-    wget -q --no-check-certificate https://depot.galaxyproject.org/software/condor/condor_8.6.3_linux_all.deb && \
-    dpkg -i condor_8.6.3_linux_all.deb ; apt-get install -f -y && \
-    rm condor_8.6.3_linux_all.deb && \
-    pip install --upgrade pip setuptools && \
-    pip install ephemeris && \
+    apt-get install --no-install-recommends -y sudo \
+        supervisor linux-image-extra-virtual munge \
+        ansible nano python-pip wget htcondor \
+        unattended-upgrades \
+        gridengine-drmaa1.0 && \
+    pip install ephemeris virtualenv && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /tmp/download && \
     wget -qO - https://get.docker.com/builds/Linux/x86_64/docker-17.05.0-ce.tgz | tar -xz -C /tmp/download && \
@@ -91,7 +85,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
-    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_LOGS_DIR $EXPORT_DIR
+    mkdir $EXPORT_DIR $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_LOGS_DIR $EXPORT_DIR
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Container Style
