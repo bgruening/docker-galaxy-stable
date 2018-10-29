@@ -247,6 +247,11 @@ script:
         cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
       fi
   # Test Web api
+  - |
+      if [ "${COMPOSE_CONDOR_DOCKER}" ]
+      then
+        docker-compose logs --tail 50
+      fi
   - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
 
   # Test self-signed HTTPS
