@@ -679,6 +679,7 @@ https://github.com/bgruening/galaxy-flavor-testing
 ## List of Galaxy flavours <a name="List-of-Galaxy-flavours" /> [[toc]](#toc)
 
 - [Aurora Galaxy](https://github.com/statonlab/aurora-galaxy-tools)
+- [SNP analysis Workflows on Docker (sniplay)](https://github.com/ValentinMarcon/docker-galaxy-sniplay)
 - [NCBI-Blast](https://github.com/bgruening/docker-galaxy-blast)
 - [ChemicalToolBox](https://github.com/bgruening/docker-recipes/blob/master/galaxy-chemicaltoolbox)
 - [ballaxy](https://github.com/anhi/docker-scripts/tree/master/ballaxy)
