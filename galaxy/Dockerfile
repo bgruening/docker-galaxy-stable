@@ -53,7 +53,8 @@ GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost \
 GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 LC_ALL=en_US.UTF-8 \
-LANG=en_US.UTF-8
+LANG=en_US.UTF-8 \
+GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
 
@@ -114,7 +115,13 @@ ADD roles/ /ansible/roles
 ADD provision.yml /ansible/provision.yml
 ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
-RUN ansible-playbook /ansible/postgresql_provision.yml && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
+    rm ~/miniconda.sh && \
+    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc && \
+    ansible-playbook /ansible/postgresql_provision.yml && \
     ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
@@ -142,7 +149,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
     mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp && \
-    mkdir /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps && \
+    mkdir -p /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER /tool_deps && \
     ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as the galaxy user
@@ -189,6 +196,7 @@ ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
 ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
 
 RUN ./scripts/common_startup.sh && \
+    export PATH=GALAXY_CONDA_PREFIX/bin/:$PATH && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
@@ -196,7 +204,7 @@ RUN ./scripts/common_startup.sh && \
     npm install
 
 # the following can be removed with 18.01
-RUN /tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel bioconda --channel conda-forge --channel defaults --channel r --name mulled-v1-eb2018fd3ce0fcbcee48a4bf89c57219add691c16729281b6c46b30f08339397 samtools=1.3.1 bcftools=1.5
+RUN /tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel conda-forge --channel bioconda --channel defaults --name mulled-v1-eb2018fd3ce0fcbcee48a4bf89c57219add691c16729281b6c46b30f08339397 samtools=1.3.1 bcftools=1.5
 
 # Switch back to User root
 USER root
