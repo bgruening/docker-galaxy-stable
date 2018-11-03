@@ -38,7 +38,7 @@ Markdown==2.6.3
 # BioBlend and dependencies
 bioblend==0.7.0
 boto==2.38.0
-requests==2.8.1
+requests>=2.20.0
 requests-toolbelt==0.4.0
 
 # kombu and dependencies
@@ -63,7 +63,7 @@ pyparsing==2.1.1
 
 # Fabric and dependencies
 Fabric==1.10.2
-paramiko==1.15.2
+paramiko>=2.0.9
 ecdsa==0.13
 
 # Flexible BAM index naming

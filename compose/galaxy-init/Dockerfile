@@ -38,6 +38,7 @@ ADD config $GALAXY_ROOT/config
 ADD welcome /galaxy-export/welcome
 
 RUN ansible-playbook /ansible/provision.yml \
+    --extra-vars galaxy_extras_config_ie_proxy=False \
     --extra-vars galaxy_server_dir=$GALAXY_ROOT \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
