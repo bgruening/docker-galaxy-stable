@@ -82,7 +82,10 @@ WORKDIR $GALAXY_ROOT
 
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-RUN ./scripts/common_startup.sh --skip-client-build && \
+RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
+    . activate galaxy_env && \
+    conda install -c conda-forge npm && \
+    ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
