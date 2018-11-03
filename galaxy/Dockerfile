@@ -72,7 +72,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y postgresql-9.3 sudo python-virtualenv \
+    apt-get install --no-install-recommends -y postgresql-9.3 sudo \
     nginx-extras=1.4.6-1ubuntu3.8ppa1 nginx-common=1.4.6-1ubuntu3.8ppa1 docker-ce=17.09.0~ce-0~ubuntu slurm-llnl slurm-llnl-torque \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev ansible munge libmunge-dev \
     nano vim curl python-crypto python-pip python-psutil condor python-ldap autofs \
@@ -93,8 +93,16 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     adduser condor docker
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
+    rm ~/miniconda.sh && \
+    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc
+
 # Download latest stable release of Galaxy.
 RUN mkdir $GALAXY_ROOT && \
+    conda install virtualenv pip && \
     wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
@@ -115,13 +123,7 @@ ADD roles/ /ansible/roles
 ADD provision.yml /ansible/provision.yml
 ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
-    rm ~/miniconda.sh && \
-    ln -s /opt/conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc && \
-    ansible-playbook /ansible/postgresql_provision.yml && \
+RUN ansible-playbook /ansible/postgresql_provision.yml && \
     ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
