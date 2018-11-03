@@ -9,6 +9,11 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE=18.09
 ARG GALAXY_REPO=galaxyproject/galaxy
 
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
+    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    apt-get -qq update && apt-get install --no-install-recommends -y && \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
+
 # Create these folders and link to target directory for installation
 RUN mkdir -p /export /galaxy-export && \
     mkdir /galaxy-export/shed_tools && \
