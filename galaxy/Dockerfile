@@ -92,17 +92,18 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
     gpasswd -a $GALAXY_USER docker && \
     adduser condor docker
+
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
+# Install miniconda, then virtualenv from conda and then
+# download latest stable release of Galaxy.
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
     ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc
-
-# Download latest stable release of Galaxy.
-RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
+    echo "conda activate base" >> ~/.bashrc && \
+    export PATH=/tool_deps/_conda/bin/:$PATH && \
     mkdir $GALAXY_ROOT && \
     conda install virtualenv pip && \
     conda install conda-canary::conda=4.6.0b0 && \
@@ -116,11 +117,10 @@ RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
     $GALAXY_VIRTUAL_ENV/bin/pip2 install pip --upgrade && \
     $GALAXY_VIRTUAL_ENV/bin/pip2 install --extra-index-url https://wheels.galaxyproject.org/ uwsgi==2.0.15 -v --pre && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/
+    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
+    su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
 
-RUN su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
-
 ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
 ADD roles/ /ansible/roles
 ADD provision.yml /ansible/provision.yml
@@ -209,10 +209,6 @@ RUN ./scripts/common_startup.sh && \
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/
-
-# the following can be removed with 18.01
-RUN /tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel conda-forge --channel bioconda --channel defaults --name mulled-v1-eb2018fd3ce0fcbcee48a4bf89c57219add691c16729281b6c46b30f08339397 samtools=1.3.1 bcftools=1.5 && \
-    /tool_deps/_conda/bin/conda clean --all --yes
 
 # Switch back to User root
 USER root
