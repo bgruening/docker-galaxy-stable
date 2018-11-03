@@ -5,6 +5,7 @@ WORKDIR /home/galaxy
 
 RUN wget https://github.com/galaxyproject/bioblend/archive/master.tar.gz && tar xfz master.tar.gz && \
     cd bioblend-master && \
+    export PATH=/tool_deps/_conda/bin/:$PATH && . activate galaxy_env && \
     pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" && \
     python setup.py install && \
     sed -i.bak "s/commands.*$/commands =/" tox.ini
