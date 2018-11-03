@@ -62,7 +62,8 @@ RUN ansible-playbook /ansible/provision.yml \
     #--extra-vars container_resolution_cached_mulled=False \
     #--extra-vars container_resolution_build_mulled=False \
     --tags=ie,pbs,slurm,uwsgi,metrics,k8s -c local && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
 
 #--extra-vars galaxy_extras_config_container_resolution=True \
 #--extra-vars container_resolution_explicit=True \
@@ -80,18 +81,17 @@ WORKDIR $GALAXY_ROOT
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
+
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
-    ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
     echo "conda activate base" >> ~/.bashrc
 
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
-    conda activate galaxy_env && \
-    conda install -c conda-forge npm && \
+    conda install -c conda-forge nodejs && \
     ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \

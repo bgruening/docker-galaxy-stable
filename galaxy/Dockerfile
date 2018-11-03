@@ -104,6 +104,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
 RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
     mkdir $GALAXY_ROOT && \
     conda install virtualenv pip && \
+    conda install conda-canary::conda=4.6.0b0 && \
     wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
