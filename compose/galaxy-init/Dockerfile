@@ -80,6 +80,13 @@ WORKDIR $GALAXY_ROOT
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
+    rm ~/miniconda.sh && \
+    ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc
+
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
