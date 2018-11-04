@@ -93,6 +93,11 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     gpasswd -a $GALAXY_USER docker && \
     adduser condor docker
 
+RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
+    mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp && \
+    mkdir -p /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps && \
+    ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
+
 USER $GALAXY_USER
 
 ADD ./bashrc $GALAXY_HOME/.bashrc
@@ -107,7 +112,6 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
     echo "conda activate base" >> $GALAXY_HOME/.bashrc && \
     export PATH=/tool_deps/_conda/bin/:$PATH && \
     conda install virtualenv pip && \
-    conda install conda-canary::conda=4.6 && \
     chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh && \
     mkdir $GALAXY_ROOT && \
     wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
@@ -157,11 +161,6 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --tags=galaxyextras,cvmfs -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/
-
-RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
-    mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp && \
-    mkdir -p /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps && \
-    ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as the galaxy user
 USER $GALAXY_USER
