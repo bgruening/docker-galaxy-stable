@@ -5,6 +5,18 @@
 ![docker pulls](https://img.shields.io/docker/pulls/bgruening/galaxy-stable.svg) ![docker stars](https://img.shields.io/docker/stars/bgruening/galaxy-stable.svg)
 [![docker image stats](https://images.microbadger.com/badges/image/bgruening/galaxy-stable.svg)](https://microbadger.com/images/bgruening/galaxy-stable "Get your own image badge on microbadger.com")
 
+
+:information_source: `18.09` will be the last release which is based on `ubuntu:14.04` and
+PostgreSQL 9.3. We will migrate to `ubuntu:18.04` and a newer PostgreSQL version in `19.01`. Furthermore, we will not
+support old Galaxy tool dependencies. These are deprecated since a few years and we think its time to remove support
+for this in the default installation. You can install all needed packages manually to enable support again, though.
+
+In short, with 19.01:
+  * Galaxy tool dependencies will not be supported by default
+  * `ubuntu:18.04` will be the new base image
+  * a new PostgreSQL version means you need to migrate any old database to the new version
+
+
 Galaxy Docker Image
 ===================
 
