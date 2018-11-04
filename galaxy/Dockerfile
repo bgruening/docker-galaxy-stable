@@ -92,7 +92,7 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
 
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
-RUN mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
+RUN mkdir -p $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
     gpasswd -a $GALAXY_USER docker && \
     adduser condor docker
 
