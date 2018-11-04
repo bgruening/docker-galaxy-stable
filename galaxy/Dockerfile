@@ -101,8 +101,8 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
     ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate base" >> ~/.bashrc && \
+    echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc && \
+    echo "conda activate base" >> $GALAXY_HOME/.bashrc && \
     export PATH=/tool_deps/_conda/bin/:$PATH && \
     conda install virtualenv pip && \
     conda install conda-canary::conda=4.6 && \
