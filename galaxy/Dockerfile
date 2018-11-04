@@ -111,12 +111,12 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
     echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc && \
     echo "conda activate base" >> $GALAXY_HOME/.bashrc && \
     export PATH=/tool_deps/_conda/bin/:$PATH && \
-    conda install virtualenv pip && \
-    chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh
+    conda install virtualenv pip
 
 USER root
 
 RUN ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh && \
     mkdir $GALAXY_ROOT && \
     wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
     virtualenv $GALAXY_VIRTUAL_ENV && \
