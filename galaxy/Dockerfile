@@ -93,6 +93,8 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     gpasswd -a $GALAXY_USER docker && \
     adduser condor docker
 
+USER $GALAXY_USER
+
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Install miniconda, then virtualenv from conda and then
@@ -120,6 +122,8 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
     su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
+
+USER root
 
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
