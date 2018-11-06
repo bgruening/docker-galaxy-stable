@@ -88,34 +88,24 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
-    useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER
-
-ADD ./bashrc $GALAXY_HOME/.bashrc
-
-RUN mkdir -p $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
+    useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
+    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
     gpasswd -a $GALAXY_USER docker && \
     adduser condor docker
 
-RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
-    mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp && \
-    mkdir -p /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps && \
-    ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
-
-USER $GALAXY_USER
+ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
+    ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
     echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc && \
     echo "conda activate base" >> $GALAXY_HOME/.bashrc && \
     export PATH=/tool_deps/_conda/bin/:$PATH && \
-    conda install virtualenv pip
-
-USER root
-
-RUN ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
+    conda install virtualenv pip && \
+    conda install conda-canary::conda=4.6 && \
     chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh && \
     mkdir $GALAXY_ROOT && \
     wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
@@ -163,6 +153,11 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --tags=galaxyextras,cvmfs -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/
+
+RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
+    mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp && \
+    mkdir -p /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps && \
+    ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as the galaxy user
 USER $GALAXY_USER
@@ -267,3 +262,4 @@ RUN chmod +x /usr/bin/install_db.sh
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
+
