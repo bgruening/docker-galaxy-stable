@@ -238,7 +238,9 @@ ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
 ADD install_tools_wrapper.sh /usr/bin/install-tools
 # script to install BioJS visualizations
 ADD install_biojs_vis.sh /usr/bin/install-biojs
-RUN chmod +x /usr/bin/install-tools /usr/bin/install-biojs
+RUN chmod +x /usr/bin/install-tools /usr/bin/install-biojs && \
+    cd /usr/bin/ && wget https://git.embl.de/grp-gbcs/galaxy-dir-sync/raw/master/src/galaxy-dir-sync.py && \
+    chmod +x galaxy-dir-sync.py
 
 RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local && \
     echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
