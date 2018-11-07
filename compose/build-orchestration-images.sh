@@ -123,9 +123,10 @@ DOCKER_USER=${CONTAINER_USER:-pcm32}
 ANSIBLE_REPO=${ANSIBLE_REPO:-galaxyproject/ansible-galaxy-extras}
 ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-master}
 
-GALAXY_VERSION=${GALAXY_VERSION:-18.05}
+GALAXY_VERSION=${GALAXY_VERSION:-18.09}
 
-GALAXY_BASE_FROM_TO_REPLACE=${GALAXY_BASE_FROM_TO_REPLACE:-quay.io/bgruening/galaxy-base:$GALAXY_VERSION}
+# GALAXY_BASE_FROM_TO_REPLACE=${GALAXY_BASE_FROM_TO_REPLACE:-quay.io/bgruening/galaxy-base:$GALAXY_VERSION}
+GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-init/Dockerfile | awk '{ print $2 }') # init starts from base, so we get it from there.
 CONDOR_BASE_FROM_TO_REPLACE=quay.io/bgruening/galaxy-htcondor-base:$GALAXY_VERSION
 
 GALAXY_RELEASE=${GALAXY_RELEASE:-release_$GALAXY_VERSION}
@@ -210,8 +211,11 @@ fi
 DOCKERFILE_WEB=Dockerfile
 if [ -n $GALAXY_REPO ]
 then
-	echo "Making custom galaxy-web:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
+	log "Making custom galaxy-web:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
+	GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-web/Dockerfile | awk '{ print $2 }')
 	sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-web/Dockerfile > galaxy-web/Dockerfile_web
+	FROM=$(grep ^FROM galaxy-web/Dockerfile_web | awk '{ print $2 }')
+	log "Using FROM $FROM for galaxy web"
 	DOCKERFILE_WEB=Dockerfile_web
 fi
 K8S_ANSIBLE_TAGS=""
