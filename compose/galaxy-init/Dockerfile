@@ -91,13 +91,14 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
-    conda install -c conda-forge nodejs=9.11.1 && \
+    conda install -c conda-forge nodejs=9.11.1 yarn=1.12.1 git && \
     ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
+    cd $GALAXY_ROOT/client && yarn install --network-timeout 120000 --check-files && yarn run build-production-maps && \
     rm -rf /home/galaxy/.cache/
 
 # Switch back to User root
@@ -106,6 +107,7 @@ USER root
 # Create symlinks from $GALAXY_ROOT/* to /export/*
 RUN mv $GALAXY_ROOT/config /galaxy-export/config && ln -s -f /export/config $GALAXY_ROOT/config && \
     mv $GALAXY_ROOT/tools /galaxy-export/tools && ln -s -f /export/tools $GALAXY_ROOT/tools && \
+    mv $GALAXY_ROOT/client /galaxy-export/client && ln -s -f /export/client $GALAXY_ROOT/client && \
     mv $GALAXY_ROOT/tool-data /galaxy-export/tool-data && ln -s -f /export/tool-data $GALAXY_ROOT/tool-data && \
     mv $GALAXY_ROOT/display_applications /galaxy-export/display_applications && ln -s -f /export/display_applications $GALAXY_ROOT/display_applications && \
     mv $GALAXY_ROOT/database /galaxy-export/database && ln -s -f /export/database $GALAXY_ROOT/database && \
