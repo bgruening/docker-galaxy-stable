@@ -91,7 +91,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
-    conda install -c conda-forge nodejs && \
+    conda install -c conda-forge nodejs=9.11.1 && \
     ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
