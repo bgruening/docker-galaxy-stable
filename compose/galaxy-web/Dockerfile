@@ -36,7 +36,7 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     # this can be optimised I think, we should get the SLURM client only and update it
     gpasswd -a $GALAXY_USER docker && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
-    pip install --upgrade pip && \
+    #pip install --upgrade pip && \
     pip install ephemeris supervisor --upgrade && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
