@@ -373,6 +373,73 @@ ALTER SEQUENCE cleanup_event_metadata_file_association_id_seq OWNED BY cleanup_e
 
 
 --
+-- Name: cleanup_event_user_association; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE cleanup_event_user_association (
+    id integer NOT NULL,
+    create_time timestamp without time zone,
+    cleanup_event_id integer,
+    user_id integer
+);
+
+
+--
+-- Name: cleanup_event_user_association_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE cleanup_event_user_association_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: cleanup_event_user_association_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE cleanup_event_user_association_id_seq OWNED BY cleanup_event_user_association.id;
+
+
+--
+-- Name: cloudauthz; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE cloudauthz (
+    id integer NOT NULL,
+    user_id integer,
+    provider character varying(255),
+    config bytea,
+    authn_id integer,
+    tokens bytea,
+    last_update timestamp without time zone,
+    last_activity timestamp without time zone,
+    description text
+);
+
+
+--
+-- Name: cloudauthz_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE cloudauthz_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: cloudauthz_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE cloudauthz_id_seq OWNED BY cloudauthz.id;
+
+
+--
 -- Name: data_manager_history_association; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -2090,7 +2157,7 @@ CREATE TABLE job_metric_numeric (
     job_id integer,
     plugin character varying(255),
     metric_name character varying(255),
-    metric_value numeric(22,7)
+    metric_value numeric(26,7)
 );
 
 
@@ -4283,7 +4350,7 @@ CREATE TABLE task_metric_numeric (
     task_id integer,
     plugin character varying(255),
     metric_name character varying(255),
-    metric_value numeric(22,7)
+    metric_value numeric(26,7)
 );
 
 
@@ -5693,6 +5760,20 @@ ALTER TABLE ONLY cleanup_event_metadata_file_association ALTER COLUMN id SET DEF
 
 
 --
+-- Name: cleanup_event_user_association id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association ALTER COLUMN id SET DEFAULT nextval('cleanup_event_user_association_id_seq'::regclass);
+
+
+--
+-- Name: cloudauthz id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz ALTER COLUMN id SET DEFAULT nextval('cloudauthz_id_seq'::regclass);
+
+
+--
 -- Name: data_manager_history_association id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -6943,6 +7024,36 @@ SELECT pg_catalog.setval('cleanup_event_metadata_file_association_id_seq', 1, fa
 
 
 --
+-- Data for Name: cleanup_event_user_association; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY cleanup_event_user_association (id, create_time, cleanup_event_id, user_id) FROM stdin;
+\.
+
+
+--
+-- Name: cleanup_event_user_association_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('cleanup_event_user_association_id_seq', 1, false);
+
+
+--
+-- Data for Name: cloudauthz; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY cloudauthz (id, user_id, provider, config, authn_id, tokens, last_update, last_activity, description) FROM stdin;
+\.
+
+
+--
+-- Name: cloudauthz_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('cloudauthz_id_seq', 1, false);
+
+
+--
 -- Data for Name: data_manager_history_association; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -8126,7 +8237,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	141
+Galaxy	lib/galaxy/model/migrate	144
 \.
 
 
@@ -9379,6 +9490,22 @@ ALTER TABLE ONLY cleanup_event_metadata_file_association
 
 ALTER TABLE ONLY cleanup_event
     ADD CONSTRAINT cleanup_event_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: cleanup_event_user_association cleanup_event_user_association_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association
+    ADD CONSTRAINT cleanup_event_user_association_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: cloudauthz cloudauthz_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz
+    ADD CONSTRAINT cloudauthz_pkey PRIMARY KEY (id);
 
 
 --
@@ -10790,6 +10917,34 @@ CREATE INDEX ix_cleanup_event_metadata_file_association_cleanup_event_id ON clea
 --
 
 CREATE INDEX ix_cleanup_event_metadata_file_association_metadata_file_id ON cleanup_event_metadata_file_association USING btree (metadata_file_id);
+
+
+--
+-- Name: ix_cleanup_event_user_association_cleanup_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cleanup_event_user_association_cleanup_event_id ON cleanup_event_user_association USING btree (cleanup_event_id);
+
+
+--
+-- Name: ix_cleanup_event_user_association_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cleanup_event_user_association_user_id ON cleanup_event_user_association USING btree (user_id);
+
+
+--
+-- Name: ix_cloudauthz_authn_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cloudauthz_authn_id ON cloudauthz USING btree (authn_id);
+
+
+--
+-- Name: ix_cloudauthz_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cloudauthz_user_id ON cloudauthz USING btree (user_id);
 
 
 --
@@ -14043,6 +14198,38 @@ ALTER TABLE ONLY cleanup_event_metadata_file_association
 
 ALTER TABLE ONLY cleanup_event_metadata_file_association
     ADD CONSTRAINT cleanup_event_metadata_file_association_metadata_file_id_fkey FOREIGN KEY (metadata_file_id) REFERENCES metadata_file(id);
+
+
+--
+-- Name: cleanup_event_user_association cleanup_event_user_association_cleanup_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association
+    ADD CONSTRAINT cleanup_event_user_association_cleanup_event_id_fkey FOREIGN KEY (cleanup_event_id) REFERENCES cleanup_event(id);
+
+
+--
+-- Name: cleanup_event_user_association cleanup_event_user_association_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association
+    ADD CONSTRAINT cleanup_event_user_association_user_id_fkey FOREIGN KEY (user_id) REFERENCES galaxy_user(id);
+
+
+--
+-- Name: cloudauthz cloudauthz_authn_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz
+    ADD CONSTRAINT cloudauthz_authn_id_fkey FOREIGN KEY (authn_id) REFERENCES oidc_user_authnz_tokens(id);
+
+
+--
+-- Name: cloudauthz cloudauthz_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz
+    ADD CONSTRAINT cloudauthz_user_id_fkey FOREIGN KEY (user_id) REFERENCES galaxy_user(id);
 
 
 --
