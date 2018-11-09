@@ -71,8 +71,8 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get install --no-install-recommends -y sudo \
         supervisor linux-image-extra-virtual munge \
         ansible nano python-pip wget htcondor \
-        unattended-upgrades \
-        gridengine-drmaa1.0 && \
+        unattended-upgrades && \
+##        gridengine-drmaa1.0 && \ # conflicting with new slurm
     pip install ephemeris virtualenv && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /tmp/download && \
