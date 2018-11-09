@@ -28,15 +28,13 @@ RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transpo
     apt-get install --no-install-recommends -y \
     # slurm-drmaa-dev nginx-extras=1.4.6-1ubuntu3.8ppa1 nginx-common=1.4.6-1ubuntu3.8ppa1 supervisor \
     # slurm-drmaa-dev slurm-llnl \
-    nginx-extras nginx-common supervisor autofs libslurm32 libslurmdb32
-
-RUN wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
+    nginx-extras nginx-common supervisor autofs libslurm32 libslurmdb32 && \
+    wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
     dpkg -i slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
-    dpkg -i slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb
-
+    dpkg -i slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
     # install and remove supervisor, so get the service config file
-RUN apt-get -qq remove -y supervisor && \
+    apt-get -qq remove -y supervisor && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     groupadd --gid 999 docker && \
     # this can be optimised I think, we should get the SLURM client only and update it
