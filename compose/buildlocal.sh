@@ -1,6 +1,10 @@
 #!/bin/bash
 set -x -e
 
+echo "*****************  Notice **************************************************"
+echo "This script is deprecated, please use build-orchestration-images.sh instead."
+echo "*****************  Notice **************************************************"
+
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
 ANSIBLE_RELEASE=18.09
 
@@ -35,3 +39,7 @@ docker build -t quay.io/bgruening/galaxy-htcondor$TAG ./galaxy-htcondor
 docker build -t quay.io/bgruening/galaxy-htcondor-executor$TAG ./galaxy-htcondor-executor
 
 docker build -t quay.io/bgruening/galaxy-grafana$TAG ./galaxy-grafana
+
+echo "*****************  Notice **************************************************"
+echo "This script is deprecated, please use build-orchestration-images.sh instead."
+echo "*****************  Notice **************************************************"

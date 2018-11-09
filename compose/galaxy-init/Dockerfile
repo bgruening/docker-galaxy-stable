@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:dev
+FROM quay.io/bgruening/galaxy-base:18.09
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -91,13 +91,14 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
-    conda install -c conda-forge nodejs && \
+    conda install -c conda-forge nodejs=9.11.1 yarn=1.12.1 git && \
     ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
+    cd $GALAXY_ROOT/client && yarn install --network-timeout 120000 --check-files && yarn run build-production-maps && \
     rm -rf /home/galaxy/.cache/
 
 # Switch back to User root
