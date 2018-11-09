@@ -56,7 +56,6 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars galaxy_tool_data_table_config_file=/etc/galaxy/tool_data_table_conf.xml \
     --extra-vars galaxy_extras_config_nginx_upload=False \
-    --extra-vars nginx_upload_store_path=$GALAXY_CONFIG_NGINX_UPLOAD_STORE \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
     --extra-vars nginx_welcome_path=$NGINX_WELCOME_PATH \
     --extra-vars startup_sleeplock=True \
