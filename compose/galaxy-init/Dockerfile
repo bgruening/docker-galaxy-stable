@@ -98,7 +98,7 @@ RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
-    cd $GALAXY_ROOT/client && yarn install --network-timeout 120000 --check-files && yarn run build-production-maps && \
+    ##cd $GALAXY_ROOT/client && yarn install --network-timeout 120000 --check-files && yarn run build-production-maps && \
     rm -rf /home/galaxy/.cache/
 
 # Switch back to User root
