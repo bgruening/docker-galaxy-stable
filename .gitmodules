@@ -1,7 +1,7 @@
 [submodule "galaxy/roles/galaxyproject.galaxyextras"]
 	path = galaxy/roles/galaxyprojectdotorg.galaxyextras
 	url = https://github.com/galaxyproject/ansible-galaxy-extras
-        branch = 18.01
+        branch = 18.09
 [submodule "galaxy/roles/galaxy-postgresql"]
 	path = galaxy/roles/galaxy-postgresql
 	url = https://github.com/galaxyproject/ansible-postgresql
