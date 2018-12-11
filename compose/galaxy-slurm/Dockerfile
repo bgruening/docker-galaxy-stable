@@ -14,7 +14,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     useradd -u $GALAXY_UID -m -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
     apt-get update -qq && apt-get install -y --no-install-recommends apt-transport-https \
         unattended-upgrades python-pip python-psutil supervisor wget build-essential \
-        libslurm32 libslurmdb32 && \
+        libslurm32 libslurmdb32 munge && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
     dpkg -i slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
