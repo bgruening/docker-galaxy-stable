@@ -70,7 +70,7 @@ RUN chown -R $SLURM_UID:$SLURM_GID "$GALAXY_VENV" && \
     . "$GALAXY_VENV"/bin/activate && \
     pip install --upgrade pip && \
     pip install galaxy-lib && \
-    pip install -r "$GALAXY_VENV"/requirements.txt --index-url https://wheels.galaxyproject.org/simple && \
+    pip install -r "$GALAXY_VENV"/requirements.txt --index-url https://wheels.galaxyproject.org/simple --extra-index-url https://pypi.python.org/simple && \
     rm -rf ~/.cache/
 
 
