@@ -110,6 +110,7 @@ before_install:
 
   # start building this repo
   - git submodule update --init --recursive
+  - sed -i 's|/galaxy.ini|/galaxy.yml|g' galaxy/roles/galaxyprojectdotorg.galaxyextras/defaults/main.yml
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
     if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
