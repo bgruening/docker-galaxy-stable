@@ -27,6 +27,10 @@ RUN mkdir -p /tmp/download && \
     #chmod +rx /root && \
     chmod +x /usr/bin/startup.sh
 
+RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog && \
+    mkdir -p /var/run/condor/ /var/lock/condor/ && \
+    chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
+
 ENV CONDOR_CPUS=1 \
     CONDOR_MEMORY=1024
 
