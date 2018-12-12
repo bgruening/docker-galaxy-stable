@@ -31,7 +31,6 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     make install && \
     rm -rf singularity-$SINGULARITY_VERSION singularity-$SINGULARITY_VERSION.tar.gz && \
     apt-get remove -y build-essential && \
-    mkdir /var/log/supervisor && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /tmp/download && \
     wget -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download && \
