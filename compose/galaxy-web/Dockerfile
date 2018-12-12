@@ -27,7 +27,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     # apt-get update -qq && apt-get upgrade -y && \
     # apt-get update -qq && \
     apt-get install --no-install-recommends -y \
-    nginx-extras nginx-common supervisor autofs libslurm32 libslurmdb32 && \
+    nginx-extras nginx-common supervisor autofs slurm-wlm slurm-wlm-torque && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
     dpkg -i slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \

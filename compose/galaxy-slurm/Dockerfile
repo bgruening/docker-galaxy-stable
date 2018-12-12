@@ -14,15 +14,13 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     useradd -u $GALAXY_UID -m -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
     apt-get update -qq && apt-get install -y --no-install-recommends apt-transport-https \
         unattended-upgrades python-pip python-psutil python-setuptools supervisor wget \
-        build-essential libslurm32 libslurmdb32 munge locales && \
+        build-essential munge locales slurm-wlm slurm-wlm-torque && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
     dpkg -i slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     dpkg -i slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
     /usr/sbin/create-munge-key && \
-    mkdir /var/log/slurm-llnl && \
-    touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log && \
-    mkdir /tmp/slurm && pip install --upgrade virtualenv && \
+    pip install --upgrade virtualenv && \
     wget https://github.com/singularityware/singularity/releases/download/$SINGULARITY_VERSION/singularity-$SINGULARITY_VERSION.tar.gz && \
     tar xvf singularity-$SINGULARITY_VERSION.tar.gz && \
     cd singularity-$SINGULARITY_VERSION && \
