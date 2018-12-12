@@ -22,7 +22,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     /usr/sbin/create-munge-key && \
     mkdir /var/log/slurm-llnl && \
     touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log && \
-    mkdir /tmp/slurm && pip install --upgrade supervisor virtualenv && \
+    mkdir /tmp/slurm && pip install --upgrade virtualenv && \
     wget https://github.com/singularityware/singularity/releases/download/$SINGULARITY_VERSION/singularity-$SINGULARITY_VERSION.tar.gz && \
     tar xvf singularity-$SINGULARITY_VERSION.tar.gz && \
     cd singularity-$SINGULARITY_VERSION && \
@@ -30,7 +30,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     make && \
     make install && \
     rm -rf singularity-$SINGULARITY_VERSION singularity-$SINGULARITY_VERSION.tar.gz && \
-    apt-get remove -y supervisor build-essential && \
+    apt-get remove -y build-essential && \
     mkdir /var/log/supervisor && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     mkdir -p /tmp/download && \
