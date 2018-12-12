@@ -222,7 +222,7 @@ K8S_ANSIBLE_TAGS=""
 if $BUILD_FOR_K8S; then
   K8S_ANSIBLE_TAGS=,k8,k8s
 fi
-docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx$K8S_ANSIBLE_TAGS -t $GALAXY_WEB_TAG -f galaxy-web/$DOCKERFILE_WEB galaxy-web/
+docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,cvmfs$K8S_ANSIBLE_TAGS -t $GALAXY_WEB_TAG -f galaxy-web/$DOCKERFILE_WEB galaxy-web/
 if $DOCKER_PUSH_ENABLED; then
   docker push $GALAXY_WEB_TAG
 fi
