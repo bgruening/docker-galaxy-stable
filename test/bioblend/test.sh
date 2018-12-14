@@ -2,7 +2,7 @@
 if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
 then
     docker_exec bash -c 'cd /home/galaxy ;
-    export PATH=/tool_deps/_conda/bin/:$PATH; . activate galaxy_env;
+    . /galaxy_venv/bin/activate ;
     wget https://github.com/galaxyproject/bioblend/archive/master.tar.gz && tar xfz master.tar.gz ;
     cd bioblend-master ;
     pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" ;
