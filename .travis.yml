@@ -45,10 +45,10 @@ before_install:
     if [ "${KUBE}" ]
     then
       # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
-      gimme 1.8
-      source ~/.gimme/envs/go1.8.env
-      sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/gofmt /usr/bin/gofmt
-      sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/go /usr/bin/go
+      gimme 1.11.1
+      source ~/.gimme/envs/go1.11.1.env
+      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/gofmt /usr/bin/gofmt
+      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/go /usr/bin/go
       go version
       mkdir ../kubernetes
       wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
