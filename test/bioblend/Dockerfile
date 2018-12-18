@@ -12,7 +12,8 @@ RUN wget https://github.com/galaxyproject/bioblend/archive/master.tar.gz && tar 
 
 ENV TOX_ENV=py27 \
     BIOBLEND_GALAXY_API_KEY=admin \
-    BIOBLEND_GALAXY_URL=http://galaxy
+    BIOBLEND_GALAXY_URL=http://galaxy \
+    BIOBLEND_TEST_JOB_TIMEOUT="120"
 
 CMD /bin/bash -c "export PATH=/tool_deps/_conda/bin/:$PATH && cd /home/galaxy/bioblend-master && tox -e $TOX_ENV -- -k 'not test_download_dataset and not test_upload_from_galaxy_filesystem and not test_get_datasets and not test_datasets_from_fs and not test_tool_dependency_install and not test_download_history and not test_export_and_download'"
 
