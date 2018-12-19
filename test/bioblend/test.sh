@@ -8,6 +8,7 @@ then
     pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" ;
     python setup.py install ;
     sed -i.bak "s/commands.*$/commands =/" tox.ini ;
+    sed -i.bak2 "s/GALAXY_VERSION/GALAXY_VERSION BIOBLEND_TEST_JOB_TIMEOUT/" tox.ini ;
     export TOX_ENV=py27 ;
     export BIOBLEND_GALAXY_API_KEY=admin ;
     export BIOBLEND_GALAXY_URL=http://galaxy ;

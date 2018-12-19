@@ -8,7 +8,8 @@ RUN wget https://github.com/galaxyproject/bioblend/archive/master.tar.gz && tar 
     export PATH=/tool_deps/_conda/bin/:$PATH && . activate galaxy_env && \
     pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" && \
     python setup.py install && \
-    sed -i.bak "s/commands.*$/commands =/" tox.ini
+    sed -i.bak "s/commands.*$/commands =/" tox.ini && \
+    sed -i.bak2 "s/GALAXY_VERSION/GALAXY_VERSION BIOBLEND_TEST_JOB_TIMEOUT/" tox.ini
 
 ENV TOX_ENV=py27 \
     BIOBLEND_GALAXY_API_KEY=admin \
