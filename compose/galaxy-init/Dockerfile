@@ -65,11 +65,6 @@ RUN ansible-playbook /ansible/provision.yml \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
 
-#--extra-vars galaxy_extras_config_container_resolution=True \
-#--extra-vars container_resolution_explicit=True \
-#--extra-vars container_resolution_cached_mulled=False \
-#--extra-vars container_resolution_build_mulled=False \
-
 
 # The following commands will be executed as User galaxy
 USER galaxy

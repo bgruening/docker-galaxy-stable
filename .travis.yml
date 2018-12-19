@@ -107,7 +107,7 @@ before_install:
         cd ${COMPOSE_DIR}
         ln -sf .env_k8_native .env
 
-        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-linux-amd64 -o kompose
+        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v1.17.1/kompose-linux-amd64 -o kompose
         chmod +x kompose
         sudo mv ./kompose /usr/bin/kompose
     fi
