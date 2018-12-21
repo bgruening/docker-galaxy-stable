@@ -827,6 +827,16 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
    - Singularity support and tests (compose only)
    - more work on K8s support and testing (@jmchilton)
    - using .env files to configure the compose setup for SLURM, Condor, K8s, SLURM-Singularity, Condor-Docker
+- 18.01:
+   - tracking the Galaxy release_18.01 branch
+   - uwsgi work to adopt to changes for 18.01
+   - remove nodejs-legacy & npm from Dockerfile and install latest version from ansible-extras
+   - initial galaxy.ini → galaxy.yml integration 
+   - grafana and influxdb container (compose)
+   - Galaxy telegraf integration to push to influxdb (compose)
+   - added some documentation (compose)
+- 18.05:
+   - Nothing very special, but a awesome Galaxy release as usual
 - 18.09:
    - new and more powerful orchestration build script (build-orchestration-images.sh) by @pcm32
    - a lot of bug-fixes to the compose setup by @abretaud
