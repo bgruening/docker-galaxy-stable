@@ -18,3 +18,8 @@ RUN wget https://dl.influxdata.com/telegraf/releases/telegraf-1.5.0_linux_amd64.
     rm telegraf-1.5.0_linux_amd64.tar.gz
 
 ADD telegraf.conf /etc/telegraf/telegraf.conf
+
+
+RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog && \
+    mkdir -p /var/run/condor/ /var/lock/condor/ && \
+    chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/

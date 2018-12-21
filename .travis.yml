@@ -45,10 +45,10 @@ before_install:
     if [ "${KUBE}" ]
     then
       # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
-      gimme 1.8
-      source ~/.gimme/envs/go1.8.env
-      sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/gofmt /usr/bin/gofmt
-      sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/go /usr/bin/go
+      gimme 1.11.1
+      source ~/.gimme/envs/go1.11.1.env
+      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/gofmt /usr/bin/gofmt
+      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/go /usr/bin/go
       go version
       mkdir ../kubernetes
       wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
@@ -59,7 +59,7 @@ before_install:
       sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
-      sudo ./hack/local-up-cluster.sh &
+      ./hack/local-up-cluster.sh &
       cd ../docker-galaxy-stable
     fi
 
@@ -103,7 +103,11 @@ before_install:
   - |
     if [ "${KUBE}" ]
     then
-        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-linux-amd64 -o kompose
+        # The compose file recognises ENV vars to change the defaul behavior
+        cd ${COMPOSE_DIR}
+        ln -sf .env_k8_native .env
+
+        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v1.17.1/kompose-linux-amd64 -o kompose
         chmod +x kompose
         sudo mv ./kompose /usr/bin/kompose
     fi
@@ -165,6 +169,9 @@ before_install:
             sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
             sudo curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
 
+            rm .env
+            ln -sf .env_slurm_singularity2 .env
+
             docker-compose up -d
             sleep 60
 
@@ -175,7 +182,7 @@ before_install:
             sleep 15
             # we are lucky that the out test image has a small bug and always prints a warning. We use this to grep if the tool was running with SINGULARITY
             # WARNING Bind file destination does not exist in container /usr/local/var/singularity/mnt/overlay/final/etc/...
-            parsec datasets show_dataset $OUTPUT_ID | jq .misc_info | grep singularity
+            parsec jobs show_job --full_details $OUTPUT_ID | jq .stderr | grep singularity
 
         fi
 
