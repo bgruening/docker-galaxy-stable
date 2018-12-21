@@ -2090,7 +2090,7 @@ CREATE TABLE job_metric_numeric (
     job_id integer,
     plugin character varying(255),
     metric_name character varying(255),
-    metric_value numeric(22,7)
+    metric_value numeric(26,7)
 );
 
 
@@ -4283,7 +4283,7 @@ CREATE TABLE task_metric_numeric (
     task_id integer,
     plugin character varying(255),
     metric_name character varying(255),
-    metric_value numeric(22,7)
+    metric_value numeric(26,7)
 );
 
 
@@ -8126,7 +8126,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	141
+Galaxy	lib/galaxy/model/migrate	142
 \.
 
 

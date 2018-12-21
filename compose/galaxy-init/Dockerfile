@@ -2,12 +2,17 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:18.05
+FROM quay.io/bgruening/galaxy-base:18.09
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE=release_18.05
+ARG GALAXY_RELEASE=18.09
 ARG GALAXY_REPO=galaxyproject/galaxy
+
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
+    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
+    apt-get -qq update && apt-get install --no-install-recommends -y && \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
 
 # Create these folders and link to target directory for installation
 RUN mkdir -p /export /galaxy-export && \
@@ -38,6 +43,7 @@ ADD config $GALAXY_ROOT/config
 ADD welcome /galaxy-export/welcome
 
 RUN ansible-playbook /ansible/provision.yml \
+    --extra-vars galaxy_extras_config_ie_proxy=False \
     --extra-vars galaxy_server_dir=$GALAXY_ROOT \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
@@ -56,12 +62,8 @@ RUN ansible-playbook /ansible/provision.yml \
     #--extra-vars container_resolution_cached_mulled=False \
     #--extra-vars container_resolution_build_mulled=False \
     --tags=ie,pbs,slurm,uwsgi,metrics,k8s -c local && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
-#--extra-vars galaxy_extras_config_container_resolution=True \
-#--extra-vars container_resolution_explicit=True \
-#--extra-vars container_resolution_cached_mulled=False \
-#--extra-vars container_resolution_build_mulled=False \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
 
 
 # The following commands will be executed as User galaxy
@@ -74,14 +76,25 @@ WORKDIR $GALAXY_ROOT
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
+
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
+    rm ~/miniconda.sh && \
+    echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate base" >> ~/.bashrc
+
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-RUN ./scripts/common_startup.sh --skip-client-build && \
+RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
+    conda install -c conda-forge nodejs=9.11.1 yarn=1.12.1 git && \
+    ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
-    npm install
+    npm install && \
+    cd $GALAXY_ROOT/client && yarn install --network-timeout 120000 --check-files && yarn run build-production-maps && \
+    rm -rf /home/galaxy/.cache/
 
 # Switch back to User root
 USER root

@@ -41,13 +41,16 @@ done
 
 # Optional, might not work
 {
-  if [ ! -d "/export/var/lib/docker" ]
+  if [ -d "/var/lib/docker" ]
   then
-    echo "Moving to /export/var/lib/docker"
-    mkdir -p /export/var/lib/
-    mv /var/lib/docker /export/var/lib/docker
-    chown -R $GALAXY_UID:$GALAXY_GID /export/var/lib/docker
-  fi
+      if [ ! -d "/export/var/lib/docker" ]
+      then
+        echo "Moving to /export/var/lib/docker"
+        mkdir -p /export/var/lib/
+        mv /var/lib/docker /export/var/lib/docker
+        chown -R $GALAXY_UID:$GALAXY_GID /export/var/lib/docker
+      fi
+    fi
 } || echo "Moving docker lib failed, this is not a fatal error"
 
 echo "Initialization complete"

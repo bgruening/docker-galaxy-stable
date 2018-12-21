@@ -1,17 +1,21 @@
 #!/bin/bash
 set -x -e
 
-ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ANSIBLE_RELEASE=14c60b66f10326c7d158627b004d58e38ca503e4
+echo "*****************  Notice **************************************************"
+echo "This script is deprecated, please use build-orchestration-images.sh instead."
+echo "*****************  Notice **************************************************"
 
-GALAXY_RELEASE=release_18.05
+ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
+ANSIBLE_RELEASE=18.09
+
+GALAXY_RELEASE=release_18.09
 GALAXY_REPO=galaxyproject/galaxy
 
 DOCKER_ADDITIONAL_BUILD_ARGS=""
 #"--no-cache"
 
 # For using latest simply leave this variable empty or set to ":latest". This should be the case on the master branch.
-TAG=":18.05"
+TAG=":18.09"
 
 docker pull postgres
 
@@ -35,3 +39,7 @@ docker build -t quay.io/bgruening/galaxy-htcondor$TAG ./galaxy-htcondor
 docker build -t quay.io/bgruening/galaxy-htcondor-executor$TAG ./galaxy-htcondor-executor
 
 docker build -t quay.io/bgruening/galaxy-grafana$TAG ./galaxy-grafana
+
+echo "*****************  Notice **************************************************"
+echo "This script is deprecated, please use build-orchestration-images.sh instead."
+echo "*****************  Notice **************************************************"

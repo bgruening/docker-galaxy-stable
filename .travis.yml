@@ -45,10 +45,10 @@ before_install:
     if [ "${KUBE}" ]
     then
       # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
-      gimme 1.8
-      source ~/.gimme/envs/go1.8.env
-      sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/gofmt /usr/bin/gofmt
-      sudo ln -s /home/travis/.gimme/versions/go1.7.linux.amd64/bin/go /usr/bin/go
+      gimme 1.11.1
+      source ~/.gimme/envs/go1.11.1.env
+      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/gofmt /usr/bin/gofmt
+      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/go /usr/bin/go
       go version
       mkdir ../kubernetes
       wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
@@ -59,7 +59,7 @@ before_install:
       sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
       sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
       # this needs to run in backgroud later, for now try to see the output
-      sudo ./hack/local-up-cluster.sh &
+      ./hack/local-up-cluster.sh &
       cd ../docker-galaxy-stable
     fi
 
@@ -103,7 +103,11 @@ before_install:
   - |
     if [ "${KUBE}" ]
     then
-        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v0.5.0/kompose-linux-amd64 -o kompose
+        # The compose file recognises ENV vars to change the defaul behavior
+        cd ${COMPOSE_DIR}
+        ln -sf .env_k8_native .env
+
+        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v1.17.1/kompose-linux-amd64 -o kompose
         chmod +x kompose
         sudo mv ./kompose /usr/bin/kompose
     fi
@@ -120,7 +124,11 @@ before_install:
         INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
         SAMPLE_TOOLS=/export/config/sample_tool_list.yaml
         cd "$WORKING_DIR"
-        ./buildlocal.sh
+        # For build script
+        export CONTAINER_REGISTRY=quay.io/
+        export CONTAINER_USER=bgruening
+        ./build-orchestration-images.sh --no-push --condor --grafana --slurm --k8s
+        source ./tags-for-compose-to-source.sh
         export COMPOSE_PROJECT_NAME=galaxy_compose
         docker-compose up -d
 
@@ -138,7 +146,7 @@ before_install:
             docker-compose stop galaxy-slurm
             sleep 30
         fi
-        
+
         if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
         then
             # turn down the htcondor services
@@ -150,7 +158,7 @@ before_install:
         if [ "${COMPOSE_SLURM_SINGULARITY}" ]
         then
             # docker-compose is already started and has pre-populated the /export dir
-            # we now turn it down again and copy in an example tool with tool_conf.xml and 
+            # we now turn it down again and copy in an example tool with tool_conf.xml and
             # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
             # script will not work as it detects something in /export/
             docker-compose down
@@ -160,6 +168,9 @@ before_install:
             sudo curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
             sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
             sudo curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
+
+            rm .env
+            ln -sf .env_slurm_singularity2 .env
 
             docker-compose up -d
             sleep 60
@@ -171,10 +182,10 @@ before_install:
             sleep 15
             # we are lucky that the out test image has a small bug and always prints a warning. We use this to grep if the tool was running with SINGULARITY
             # WARNING Bind file destination does not exist in container /usr/local/var/singularity/mnt/overlay/final/etc/...
-            parsec datasets show_dataset $OUTPUT_ID | jq .misc_info | grep singularity
+            parsec jobs show_job --full_details $OUTPUT_ID | jq .stderr | grep singularity
 
         fi
-        
+
         docker-compose logs --tail 50
         # Define start functions
         docker_exec() {
@@ -243,6 +254,11 @@ script:
         cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
       fi
   # Test Web api
+  - |
+      if [ "${COMPOSE_CONDOR_DOCKER}" ]
+      then
+        docker-compose logs --tail 50
+      fi
   - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
 
   # Test self-signed HTTPS
@@ -255,7 +271,7 @@ script:
   - date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
   # Test FTP Server get
   - curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
-  
+
   # Test CVMFS
   - docker_exec bash -c "service autofs start"
   - docker_exec bash -c "cvmfs_config chksetup"

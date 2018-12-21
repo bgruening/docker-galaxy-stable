@@ -3,7 +3,7 @@ services:
   # proftpd container
   galaxy-proftpd:
     # build: galaxy-proftpd
-    image: quay.io/bgruening/galaxy-proftpd:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-proftpd:${TAG_PROFTPD:-latest}
     env_file: .env
     environment:
         - proftpd_db_connection=galaxy@galaxy-postgres
@@ -43,7 +43,7 @@ services:
     # If you are using the official postgres image, it needs to be populated by calling
     # docker-compose run galaxy install_db.sh
     # on first run
-    image: quay.io/bgruening/galaxy-postgres:${TAG:-latest}
+    image: quay.io/bgruening/galaxy-postgres:${TAG_POSTGRES:-latest}
     container_name: galaxy-postgres
     hostname: galaxy-postgres
     env_file: .env
@@ -324,7 +324,6 @@ services:
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
-        - ${EXPORT_DIR:-/export}/galaxy-central/config/galaxy.yml.sample:/etc/galaxy/galaxy.yml
         - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
