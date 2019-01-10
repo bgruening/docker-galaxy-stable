@@ -137,7 +137,7 @@ GALAXY_VER_FOR_POSTGRES=$GALAXY_VERSION
 #PUSH_INTERMEDIATE_IMAGES=yes
 
 # Set tags
-TAG=${GALAXY_TAG:-v$GALAXY_VERSION}
+TAG=${GALAXY_TAG:-$GALAXY_VERSION}
 
 # TODO This is PhenoMeNal Jenkins specific, should be removed at some point.
 if [[ -n ${CONTAINER_TAG_PREFIX:-} && -n ${BUILD_NUMBER:-} ]]; then
