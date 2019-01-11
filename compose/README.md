@@ -49,7 +49,8 @@ cd docker-galaxy-stable/compose
 
 Build the compose containers:
 ```sh
-./buildlocal.sh
+./build-orchestration-images.sh --no-push --condor --grafana --slurm --k8s
+source ./tags-for-compose-to-source.sh
 ```
 
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
