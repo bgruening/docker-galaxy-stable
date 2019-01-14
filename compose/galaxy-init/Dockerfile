@@ -86,6 +86,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
 # prefetch Python wheels
 # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
 RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
+    conda create -y --override-channels --channel iuc --channel conda-forge --channel bioconda --channel defaults --name __bcftools@1.5 bcftools=1.5 && \
     conda install -c conda-forge nodejs=9.11.1 yarn=1.12.1 git && \
     ./scripts/common_startup.sh --skip-client-build && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \

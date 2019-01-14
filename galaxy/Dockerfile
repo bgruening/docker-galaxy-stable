@@ -104,6 +104,7 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86
     echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc && \
     echo "conda activate base" >> $GALAXY_HOME/.bashrc && \
     export PATH=/tool_deps/_conda/bin/:$PATH && \
+    conda create -y --override-channels --channel iuc --channel conda-forge --channel bioconda --channel defaults --name __bcftools@1.5 bcftools=1.5 && \
     conda install virtualenv pip && \
     # conda install conda-canary::conda=4.6 && \
     chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh && \
@@ -264,4 +265,3 @@ RUN chmod +x /usr/bin/install_db.sh
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
-
