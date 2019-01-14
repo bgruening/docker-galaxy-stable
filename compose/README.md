@@ -37,6 +37,17 @@ At first you need to install docker with [compose](https://docs.docker.com/compo
 - [docker](https://docs.docker.com/installation/)
 - [docker-compose](https://docs.docker.com/compose/install/)
 
+**Currently there is an issue with dockers storage driver**
+
+Ensure you are using `devicemapper` as dockers storage driver or the server may fail to start.
+```bash
+$ docker info
+...
+Storage Driver: devicemapper
+...
+```
+See [this issue](https://github.com/bgruening/docker-galaxy-stable/issues/267) for more information.
+
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
 ## Build <a name="Build" />
