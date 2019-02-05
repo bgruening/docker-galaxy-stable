@@ -153,6 +153,7 @@ GALAXY_BASE_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-base:$TAG
 GALAXY_INIT_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-init:$TAG
 GALAXY_WEB_TAG=${OVERRIDE_GALAXY_WEB_TAG:-$DOCKER_REPO$DOCKER_USER/galaxy-web:$TAG}
 
+# Set postgres tag
 if [[ -n "${OVERRIDE_POSTGRES_TAG:-}" ]]; then
     POSTGRES_TAG="${OVERRIDE_POSTGRES_TAG}"
 else
@@ -226,6 +227,10 @@ docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,script
 if $DOCKER_PUSH_ENABLED; then
   docker push $GALAXY_WEB_TAG
 fi
+
+# Create dump for postgres based on init created here
+export GALAXY_INIT_TAG
+./dumpsql.sh
 
 # Build postgres
 docker build -t $POSTGRES_TAG -f galaxy-postgres/Dockerfile galaxy-postgres/
