@@ -1,6 +1,6 @@
 #!/bin/bash
 
-TAG=v18.09
+INIT_IMAGE=${GALAXY_INIT_TAG:-"quay.io/bgruening/galaxy-init:v18.09"}
 
 # Sets the image of postgres to use
 POSTGRES=postgres:9.6.5
@@ -26,7 +26,7 @@ init_start=`date +%s`
 docker run -i --rm --name "dumpsql_galaxy_installdb" \
     -e "GALAXY_CONFIG_FILE=/etc/galaxy/galaxy.yml" \
     -e "GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://$POSTGRES_USER:$POSTGRES_PASSWORD@db/$POSTGRES_DB?client_encoding=utf8" \
-    --link "dumpsql_postgres:db" quay.io/bgruening/galaxy-init:$TAG install_db.sh
+    --link "dumpsql_postgres:db" $INIT_IMAGE install_db.sh
 
 init_end=`date +%s`
 dump_start=`date +%s`
