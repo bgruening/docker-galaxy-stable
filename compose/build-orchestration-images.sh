@@ -155,7 +155,7 @@ GALAXY_WEB_TAG=${OVERRIDE_GALAXY_WEB_TAG:-$DOCKER_REPO$DOCKER_USER/galaxy-web:$T
 
 # Set postgres tag
 if [[ -n "${OVERRIDE_POSTGRES_TAG:-}" ]]; then
-    POSTGRES_TAG="${OVERRIDE_POSTGRES_TAG}"
+    POSTGRES_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-postgres:$OVERRIDE_POSTGRES_TAG
 else
     PG_Dockerfile="galaxy-postgres/Dockerfile"
 
@@ -166,7 +166,7 @@ else
 fi
 
 if [[ -n "${OVERRIDE_PROFTPD_TAG:-}" ]]; then
-    PROFTPD_TAG="${OVERRIDE_PROFTPD_TAG}"
+    PROFTPD_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-proftpd:$OVERRIDE_PROFTPD_TAG
 else
     PROFTPD_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-proftpd:for_galaxy_v$GALAXY_VER_FOR_POSTGRES
 fi
