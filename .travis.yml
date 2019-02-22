@@ -216,7 +216,6 @@ before_install:
             -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
             -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
             -e GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True \
-            -e GALAXY_CONFIG_NGINX_UPLOAD_STORE \
             -v /tmp/:/tmp/ \
             quay.io/bgruening/galaxy
         sleep 30
