@@ -7,7 +7,7 @@ FROM ubuntu:18.04
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=18.09
+ARG ANSIBLE_RELEASE=master
 
 ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_USER=galaxy \
