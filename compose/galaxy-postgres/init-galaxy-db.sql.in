@@ -373,6 +373,73 @@ ALTER SEQUENCE cleanup_event_metadata_file_association_id_seq OWNED BY cleanup_e
 
 
 --
+-- Name: cleanup_event_user_association; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE cleanup_event_user_association (
+    id integer NOT NULL,
+    create_time timestamp without time zone,
+    cleanup_event_id integer,
+    user_id integer
+);
+
+
+--
+-- Name: cleanup_event_user_association_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE cleanup_event_user_association_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: cleanup_event_user_association_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE cleanup_event_user_association_id_seq OWNED BY cleanup_event_user_association.id;
+
+
+--
+-- Name: cloudauthz; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE cloudauthz (
+    id integer NOT NULL,
+    user_id integer,
+    provider character varying(255),
+    config bytea,
+    authn_id integer,
+    tokens bytea,
+    last_update timestamp without time zone,
+    last_activity timestamp without time zone,
+    description text
+);
+
+
+--
+-- Name: cloudauthz_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE cloudauthz_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: cloudauthz_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE cloudauthz_id_seq OWNED BY cloudauthz.id;
+
+
+--
 -- Name: data_manager_history_association; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -4018,7 +4085,8 @@ CREATE TABLE stored_workflow (
     deleted boolean,
     importable boolean,
     slug text,
-    published boolean
+    published boolean,
+    from_path text
 );
 
 
@@ -5502,18 +5570,17 @@ ALTER SEQUENCE workflow_step_annotation_association_id_seq OWNED BY workflow_ste
 CREATE TABLE workflow_step_connection (
     id integer NOT NULL,
     output_step_id integer,
-    input_step_id integer,
+    input_step_input_id integer,
     output_name text,
-    input_name text,
     input_subworkflow_step_id integer
 );
 
 
 --
--- Name: workflow_step_connection_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+-- Name: workflow_step_connection_id_seq1; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE workflow_step_connection_id_seq
+CREATE SEQUENCE workflow_step_connection_id_seq1
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -5522,10 +5589,10 @@ CREATE SEQUENCE workflow_step_connection_id_seq
 
 
 --
--- Name: workflow_step_connection_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+-- Name: workflow_step_connection_id_seq1; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
 --
 
-ALTER SEQUENCE workflow_step_connection_id_seq OWNED BY workflow_step_connection.id;
+ALTER SEQUENCE workflow_step_connection_id_seq1 OWNED BY workflow_step_connection.id;
 
 
 --
@@ -5545,6 +5612,43 @@ CREATE SEQUENCE workflow_step_id_seq
 --
 
 ALTER SEQUENCE workflow_step_id_seq OWNED BY workflow_step.id;
+
+
+--
+-- Name: workflow_step_input; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE workflow_step_input (
+    id integer NOT NULL,
+    workflow_step_id integer,
+    name text,
+    merge_type text,
+    scatter_type text,
+    value_from bytea,
+    value_from_type text,
+    default_value bytea,
+    default_value_set boolean,
+    runtime_value boolean
+);
+
+
+--
+-- Name: workflow_step_input_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE workflow_step_input_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: workflow_step_input_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE workflow_step_input_id_seq OWNED BY workflow_step_input.id;
 
 
 --
@@ -5690,6 +5794,20 @@ ALTER TABLE ONLY cleanup_event_library_folder_association ALTER COLUMN id SET DE
 --
 
 ALTER TABLE ONLY cleanup_event_metadata_file_association ALTER COLUMN id SET DEFAULT nextval('cleanup_event_metadata_file_association_id_seq'::regclass);
+
+
+--
+-- Name: cleanup_event_user_association id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association ALTER COLUMN id SET DEFAULT nextval('cleanup_event_user_association_id_seq'::regclass);
+
+
+--
+-- Name: cloudauthz id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz ALTER COLUMN id SET DEFAULT nextval('cloudauthz_id_seq'::regclass);
 
 
 --
@@ -6760,7 +6878,14 @@ ALTER TABLE ONLY workflow_step_annotation_association ALTER COLUMN id SET DEFAUL
 -- Name: workflow_step_connection id; Type: DEFAULT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY workflow_step_connection ALTER COLUMN id SET DEFAULT nextval('workflow_step_connection_id_seq'::regclass);
+ALTER TABLE ONLY workflow_step_connection ALTER COLUMN id SET DEFAULT nextval('workflow_step_connection_id_seq1'::regclass);
+
+
+--
+-- Name: workflow_step_input id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY workflow_step_input ALTER COLUMN id SET DEFAULT nextval('workflow_step_input_id_seq'::regclass);
 
 
 --
@@ -6940,6 +7065,36 @@ COPY cleanup_event_metadata_file_association (id, create_time, cleanup_event_id,
 --
 
 SELECT pg_catalog.setval('cleanup_event_metadata_file_association_id_seq', 1, false);
+
+
+--
+-- Data for Name: cleanup_event_user_association; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY cleanup_event_user_association (id, create_time, cleanup_event_id, user_id) FROM stdin;
+\.
+
+
+--
+-- Name: cleanup_event_user_association_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('cleanup_event_user_association_id_seq', 1, false);
+
+
+--
+-- Data for Name: cloudauthz; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY cloudauthz (id, user_id, provider, config, authn_id, tokens, last_update, last_activity, description) FROM stdin;
+\.
+
+
+--
+-- Name: cloudauthz_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('cloudauthz_id_seq', 1, false);
 
 
 --
@@ -8126,7 +8281,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	142
+Galaxy	lib/galaxy/model/migrate	146
 \.
 
 
@@ -8577,7 +8732,7 @@ SELECT pg_catalog.setval('sample_state_id_seq', 1, false);
 -- Data for Name: stored_workflow; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY stored_workflow (id, create_time, update_time, user_id, latest_workflow_id, name, deleted, importable, slug, published) FROM stdin;
+COPY stored_workflow (id, create_time, update_time, user_id, latest_workflow_id, name, deleted, importable, slug, published, from_path) FROM stdin;
 \.
 
 
@@ -9245,15 +9400,15 @@ SELECT pg_catalog.setval('workflow_step_annotation_association_id_seq', 1, false
 -- Data for Name: workflow_step_connection; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY workflow_step_connection (id, output_step_id, input_step_id, output_name, input_name, input_subworkflow_step_id) FROM stdin;
+COPY workflow_step_connection (id, output_step_id, input_step_input_id, output_name, input_subworkflow_step_id) FROM stdin;
 \.
 
 
 --
--- Name: workflow_step_connection_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+-- Name: workflow_step_connection_id_seq1; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
-SELECT pg_catalog.setval('workflow_step_connection_id_seq', 1, false);
+SELECT pg_catalog.setval('workflow_step_connection_id_seq1', 1, false);
 
 
 --
@@ -9261,6 +9416,21 @@ SELECT pg_catalog.setval('workflow_step_connection_id_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('workflow_step_id_seq', 1, false);
+
+
+--
+-- Data for Name: workflow_step_input; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY workflow_step_input (id, workflow_step_id, name, merge_type, scatter_type, value_from, value_from_type, default_value, default_value_set, runtime_value) FROM stdin;
+\.
+
+
+--
+-- Name: workflow_step_input_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('workflow_step_input_id_seq', 1, false);
 
 
 --
@@ -9379,6 +9549,22 @@ ALTER TABLE ONLY cleanup_event_metadata_file_association
 
 ALTER TABLE ONLY cleanup_event
     ADD CONSTRAINT cleanup_event_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: cleanup_event_user_association cleanup_event_user_association_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association
+    ADD CONSTRAINT cleanup_event_user_association_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: cloudauthz cloudauthz_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz
+    ADD CONSTRAINT cloudauthz_pkey PRIMARY KEY (id);
 
 
 --
@@ -10614,11 +10800,27 @@ ALTER TABLE ONLY workflow_step_annotation_association
 
 
 --
--- Name: workflow_step_connection workflow_step_connection_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: workflow_step_connection workflow_step_connection_pkey1; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY workflow_step_connection
-    ADD CONSTRAINT workflow_step_connection_pkey PRIMARY KEY (id);
+    ADD CONSTRAINT workflow_step_connection_pkey1 PRIMARY KEY (id);
+
+
+--
+-- Name: workflow_step_input workflow_step_input_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY workflow_step_input
+    ADD CONSTRAINT workflow_step_input_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: workflow_step_input workflow_step_input_workflow_step_id_name_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY workflow_step_input
+    ADD CONSTRAINT workflow_step_input_workflow_step_id_name_key UNIQUE (workflow_step_id, name);
 
 
 --
@@ -10790,6 +10992,34 @@ CREATE INDEX ix_cleanup_event_metadata_file_association_cleanup_event_id ON clea
 --
 
 CREATE INDEX ix_cleanup_event_metadata_file_association_metadata_file_id ON cleanup_event_metadata_file_association USING btree (metadata_file_id);
+
+
+--
+-- Name: ix_cleanup_event_user_association_cleanup_event_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cleanup_event_user_association_cleanup_event_id ON cleanup_event_user_association USING btree (cleanup_event_id);
+
+
+--
+-- Name: ix_cleanup_event_user_association_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cleanup_event_user_association_user_id ON cleanup_event_user_association USING btree (user_id);
+
+
+--
+-- Name: ix_cloudauthz_authn_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cloudauthz_authn_id ON cloudauthz USING btree (authn_id);
+
+
+--
+-- Name: ix_cloudauthz_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_cloudauthz_user_id ON cloudauthz USING btree (user_id);
 
 
 --
@@ -13782,10 +14012,17 @@ CREATE INDEX ix_workflow_step_annotation_association_workflow_step_id ON workflo
 
 
 --
--- Name: ix_workflow_step_connection_input_step_id; Type: INDEX; Schema: public; Owner: -
+-- Name: ix_workflow_step_connection_input_step_input_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX ix_workflow_step_connection_input_step_id ON workflow_step_connection USING btree (input_step_id);
+CREATE INDEX ix_workflow_step_connection_input_step_input_id ON workflow_step_connection USING btree (input_step_input_id);
+
+
+--
+-- Name: ix_workflow_step_connection_input_subworkflow_step_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_workflow_step_connection_input_subworkflow_step_id ON workflow_step_connection USING btree (input_subworkflow_step_id);
 
 
 --
@@ -13793,6 +14030,13 @@ CREATE INDEX ix_workflow_step_connection_input_step_id ON workflow_step_connecti
 --
 
 CREATE INDEX ix_workflow_step_connection_output_step_id ON workflow_step_connection USING btree (output_step_id);
+
+
+--
+-- Name: ix_workflow_step_input_workflow_step_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_workflow_step_input_workflow_step_id ON workflow_step_input USING btree (workflow_step_id);
 
 
 --
@@ -14043,6 +14287,38 @@ ALTER TABLE ONLY cleanup_event_metadata_file_association
 
 ALTER TABLE ONLY cleanup_event_metadata_file_association
     ADD CONSTRAINT cleanup_event_metadata_file_association_metadata_file_id_fkey FOREIGN KEY (metadata_file_id) REFERENCES metadata_file(id);
+
+
+--
+-- Name: cleanup_event_user_association cleanup_event_user_association_cleanup_event_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association
+    ADD CONSTRAINT cleanup_event_user_association_cleanup_event_id_fkey FOREIGN KEY (cleanup_event_id) REFERENCES cleanup_event(id);
+
+
+--
+-- Name: cleanup_event_user_association cleanup_event_user_association_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cleanup_event_user_association
+    ADD CONSTRAINT cleanup_event_user_association_user_id_fkey FOREIGN KEY (user_id) REFERENCES galaxy_user(id);
+
+
+--
+-- Name: cloudauthz cloudauthz_authn_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz
+    ADD CONSTRAINT cloudauthz_authn_id_fkey FOREIGN KEY (authn_id) REFERENCES oidc_user_authnz_tokens(id);
+
+
+--
+-- Name: cloudauthz cloudauthz_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY cloudauthz
+    ADD CONSTRAINT cloudauthz_user_id_fkey FOREIGN KEY (user_id) REFERENCES galaxy_user(id);
 
 
 --
@@ -16366,27 +16642,35 @@ ALTER TABLE ONLY workflow_step_annotation_association
 
 
 --
--- Name: workflow_step_connection workflow_step_connection_input_step_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: workflow_step_connection workflow_step_connection_input_step_input_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY workflow_step_connection
-    ADD CONSTRAINT workflow_step_connection_input_step_id_fkey FOREIGN KEY (input_step_id) REFERENCES workflow_step(id);
+    ADD CONSTRAINT workflow_step_connection_input_step_input_id_fkey FOREIGN KEY (input_step_input_id) REFERENCES workflow_step_input(id);
 
 
 --
--- Name: workflow_step_connection workflow_step_connection_input_subworkflow_step_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY workflow_step_connection
-    ADD CONSTRAINT workflow_step_connection_input_subworkflow_step_id_fkey FOREIGN KEY (input_subworkflow_step_id) REFERENCES workflow_step(id);
-
-
---
--- Name: workflow_step_connection workflow_step_connection_output_step_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+-- Name: workflow_step_connection workflow_step_connection_input_subworkflow_step_id_fkey1; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY workflow_step_connection
-    ADD CONSTRAINT workflow_step_connection_output_step_id_fkey FOREIGN KEY (output_step_id) REFERENCES workflow_step(id);
+    ADD CONSTRAINT workflow_step_connection_input_subworkflow_step_id_fkey1 FOREIGN KEY (input_subworkflow_step_id) REFERENCES workflow_step(id);
+
+
+--
+-- Name: workflow_step_connection workflow_step_connection_output_step_id_fkey1; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY workflow_step_connection
+    ADD CONSTRAINT workflow_step_connection_output_step_id_fkey1 FOREIGN KEY (output_step_id) REFERENCES workflow_step(id);
+
+
+--
+-- Name: workflow_step_input workflow_step_input_workflow_step_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY workflow_step_input
+    ADD CONSTRAINT workflow_step_input_workflow_step_id_fkey FOREIGN KEY (workflow_step_id) REFERENCES workflow_step(id);
 
 
 --
