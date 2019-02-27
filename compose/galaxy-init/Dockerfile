@@ -94,7 +94,9 @@ RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
     cd $GALAXY_ROOT/client && yarn install --network-timeout 120000 --check-files && yarn run build-production-maps && \
-    rm -rf /home/galaxy/.cache/
+    rm -rf /home/galaxy/.cache/ && \
+    # change the default location of shed_tools to be ../shed_tools
+    sed -i 's|database|..|'$GALAXY_CONFIG_DIR/shed_tool_conf.xml
 
 # Switch back to User root
 USER root

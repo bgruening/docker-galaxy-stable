@@ -208,7 +208,7 @@ RUN ./scripts/common_startup.sh && \
     npm install && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
     # change the default location of shed_tools to be ../shed_tools
-    sed -i 's|database|..|'$GALAXY_CONFIG_DIR/shed_tool_conf.xml
+    sed -i 's|database|..|' $GALAXY_CONFIG_DIR/shed_tool_conf.xml
 
 # Switch back to User root
 USER root
