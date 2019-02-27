@@ -162,7 +162,7 @@ before_install:
             # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
             # script will not work as it detects something in /export/
             docker-compose down
-            sleep 10
+            sleep 20
             echo "Downloading Singularity test files and images."
             sudo mkdir -p /export/database/container_images/singularity/mulled/
             sudo curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
@@ -173,16 +173,24 @@ before_install:
             ln -sf .env_slurm_singularity2 .env
 
             docker-compose up -d
-            sleep 60
 
+            until docker-compose exec galaxy-web ps -fC uwsgi
+            do
+              echo "Starting up Singularity test container: sleeping for 20 seconds"
+              sleep 20
+              docker-compose logs --tail 10
+            done
+
+            echo "parsec init"
             parsec init --api_key admin --url localhost:8080
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
             DATASET_ID=$(parsec tools paste_content 'asdf' $HISTORY_ID | jq '.outputs[0].id' -r)
             OUTPUT_ID=$(parsec tools run_tool $HISTORY_ID cat '{"input1": {"src": "hda", "id": "'$DATASET_ID'"}}' | jq '.outputs | .[0].id' -r)
-            sleep 15
-            # we are lucky that the out test image has a small bug and always prints a warning. We use this to grep if the tool was running with SINGULARITY
-            # WARNING Bind file destination does not exist in container /usr/local/var/singularity/mnt/overlay/final/etc/...
-            parsec jobs show_job --full_details $OUTPUT_ID | jq .stderr | grep singularity
+            sleep 10
+            echo "run parsec jobs show_job"
+            parsec jobs show_job --full_details $OUTPUT_ID
+            # TODO: find a way to get a log trace that this tool actually was running with singularity
+            #parsec jobs show_job --full_details $OUTPUT_ID | jq .stderr | grep singularity
 
         fi
 

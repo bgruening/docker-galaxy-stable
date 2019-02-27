@@ -121,9 +121,9 @@ DOCKER_REPO=${CONTAINER_REGISTRY:-quay.io/}
 DOCKER_USER=${CONTAINER_USER:-bgruening}
 
 ANSIBLE_REPO=${ANSIBLE_REPO:-galaxyproject/ansible-galaxy-extras}
-ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-18.09}
+ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-master}
 
-GALAXY_VERSION=${GALAXY_VERSION:-18.09}
+GALAXY_VERSION=${GALAXY_VERSION:-19.01}
 
 # GALAXY_BASE_FROM_TO_REPLACE=${GALAXY_BASE_FROM_TO_REPLACE:-quay.io/bgruening/galaxy-base:$GALAXY_VERSION}
 GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-init/Dockerfile | awk '{ print $2 }') # init starts from base, so we get it from there.
@@ -137,7 +137,7 @@ GALAXY_VER_FOR_POSTGRES=$GALAXY_VERSION
 #PUSH_INTERMEDIATE_IMAGES=yes
 
 # Set tags
-TAG=${GALAXY_TAG:-v$GALAXY_VERSION}
+TAG=${GALAXY_TAG:-$GALAXY_VERSION}
 
 # TODO This is PhenoMeNal Jenkins specific, should be removed at some point.
 if [[ -n ${CONTAINER_TAG_PREFIX:-} && -n ${BUILD_NUMBER:-} ]]; then
@@ -168,7 +168,7 @@ fi
 if [[ -n "${OVERRIDE_PROFTPD_TAG:-}" ]]; then
     PROFTPD_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-proftpd:$OVERRIDE_PROFTPD_TAG
 else
-    PROFTPD_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-proftpd:for_galaxy_v$GALAXY_VER_FOR_POSTGRES
+    PROFTPD_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-proftpd:for_galaxy_$GALAXY_VER_FOR_POSTGRES
 fi
 
 CONDOR_BASE_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-htcondor-base:$TAG

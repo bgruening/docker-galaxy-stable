@@ -6,16 +6,16 @@ echo "This script is deprecated, please use build-orchestration-images.sh instea
 echo "*****************  Notice **************************************************"
 
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ANSIBLE_RELEASE=18.09
+ANSIBLE_RELEASE=master
 
-GALAXY_RELEASE=release_18.09
+GALAXY_RELEASE=release_19.01
 GALAXY_REPO=galaxyproject/galaxy
 
 DOCKER_ADDITIONAL_BUILD_ARGS=""
 #"--no-cache"
 
 # For using latest simply leave this variable empty or set to ":latest". This should be the case on the master branch.
-TAG=":18.09"
+TAG=":19.01"
 
 docker pull postgres
 

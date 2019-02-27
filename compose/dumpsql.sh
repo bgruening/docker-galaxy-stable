@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INIT_IMAGE=${GALAXY_INIT_TAG:-"quay.io/bgruening/galaxy-init:v18.09"}
+INIT_IMAGE=${GALAXY_INIT_TAG:-"quay.io/bgruening/galaxy-init:19.01"}
 
 # Sets the image of postgres to use
 POSTGRES=postgres:9.6.5
