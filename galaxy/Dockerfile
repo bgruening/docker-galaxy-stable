@@ -97,7 +97,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
     ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
@@ -208,7 +208,7 @@ RUN ./scripts/common_startup.sh && \
     npm install && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
     # change the default location of shed_tools to be ../shed_tools
-    sed -i 's|database|..|' $GALAXY_CONFIG_DIR/shed_tool_conf.xml
+    sed -i 's|database|..|' $GALAXY_ROOT/config/shed_tool_conf.xml
 
 # Switch back to User root
 USER root

@@ -77,7 +77,7 @@ WORKDIR $GALAXY_ROOT
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
 
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
     echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> ~/.bashrc && \
@@ -96,7 +96,7 @@ RUN export PATH=/tool_deps/_conda/bin/:$PATH && \
     cd $GALAXY_ROOT/client && yarn install --network-timeout 120000 --check-files && yarn run build-production-maps && \
     rm -rf /home/galaxy/.cache/ && \
     # change the default location of shed_tools to be ../shed_tools
-    sed -i 's|database|..|' $GALAXY_CONFIG_DIR/shed_tool_conf.xml
+    sed -i 's|database|..|' $GALAXY_ROOT/config/shed_tool_conf.xml
 
 # Switch back to User root
 USER root
