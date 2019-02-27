@@ -173,7 +173,7 @@ before_install:
             ln -sf .env_slurm_singularity2 .env
 
             docker-compose up -d
-            sleep 60
+            sleep 120
 
             parsec init --api_key admin --url localhost:8080
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
