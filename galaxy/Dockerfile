@@ -206,7 +206,9 @@ RUN ./scripts/common_startup.sh && \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     npm install && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/
+    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
+    # change the default location of shed_tools to be ../shed_tools
+    sed -i 's|database|..|'$GALAXY_CONFIG_DIR/shed_tool_conf.xml
 
 # Switch back to User root
 USER root
