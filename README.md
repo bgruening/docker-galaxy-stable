@@ -840,7 +840,11 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
 - 18.09:
    - new and more powerful orchestration build script (build-orchestration-images.sh) by @pcm32
    - a lot of bug-fixes to the compose setup by @abretaud
-
+- 19.01:
+   - This is featuring the latest and greatest from the Galaxy community
+   - Please note that this release will be the last release which is based on `ubuntu:14.04` and PostgreSQL 9.3. 
+     We will migrate to `ubuntu:18.04` and a newer PostgreSQL version in `19.05`. Furthermore, we will not
+     support old Galaxy tool dependencies. 
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
