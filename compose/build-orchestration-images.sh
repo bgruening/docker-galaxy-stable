@@ -17,12 +17,12 @@ function log() {
 }
 
 function error {
-	local msg=$1
-	local code=$2
-	[[ -z $code ]] && code=1
-	log "[ERROR] $msg"
+    local msg=$1
+    local code=$2
+    [[ -z $code ]] && code=1
+    log "[ERROR] $msg"
 
-	exit $code
+    exit $code
 }
 
 
