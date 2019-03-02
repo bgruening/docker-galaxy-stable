@@ -6,6 +6,14 @@ FROM ubuntu:18.04
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
+# TODO
+# 
+# README: only Docker next to Docker is supported
+#
+#
+#
+
+
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
@@ -38,9 +46,9 @@ GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 GALAXY_RUNNERS_ENABLE_SLURM=True \
 GALAXY_RUNNERS_ENABLE_CONDOR=False \
 # Define the default postgresql database path
-PG_DATA_DIR_DEFAULT=/var/lib/postgresql/10.0/main/ \
-PG_CONF_DIR_DEFAULT=/etc/postgresql/10.0/main/ \
-PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/10.0/main/ \
+PG_DATA_DIR_DEFAULT=/var/lib/postgresql/10/main/ \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/10/main/ \
+PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/10/main/ \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
@@ -59,42 +67,48 @@ GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     apt-get -qq update && apt-get install --no-install-recommends -y locales && \
-    locale-gen en_US.UTF-8 && dpkg-reconfigure locales
+    locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
+    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
     adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https software-properties-common gpg-agent curl wget sudo && \
+RUN apt-get -qq update && apt-get install --no-install-recommends -y software-properties-common gpg-agent curl sudo && \
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
     add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
-    apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y postgresql-10 \
-    nginx-extras nginx-common docker-ce docker-ce-cli containerd.io slurm-client slurmctld \
-    proftpd proftpd-mod-pgsql libyaml-dev ansible munge libmunge-dev \
-    nano python-crypto python-psutil htcondor python-ldap autofs \
+    apt-get update -qq && \
+    apt-get purge -y software-properties-common gpg-agent
+    
+RUN apt-get install postgresql-10 --no-install-recommends -y 
+RUN apt-get install nginx-extras nginx-common --no-install-recommends -y 
+RUN apt-get install docker-ce-cli --no-install-recommends -y
+RUN apt-get install slurm-client slurmd slurmctld --no-install-recommends -y 
+RUN apt-get install proftpd proftpd-mod-pgsql --no-install-recommends -y
+RUN apt-get install munge libmunge-dev --no-install-recommends -y
+RUN apt-get install nano --no-install-recommends -y
+RUN apt-get install htcondor autofs --no-install-recommends -y
+    # python-crypto python-psutil python-ldap
     # git is used by the client builds
-    git \
-    gridengine-common gridengine-drmaa1.0 rabbitmq-server libswitch-perl unattended-upgrades supervisor && \
-    # install and remove supervisor, so get the service config file
-    apt-get -qq remove -y supervisor && \
-    apt-get purge -y software-properties-common gpg-agent && \
+RUN apt-get install git --no-install-recommends -y
+RUN apt-get install gridengine-common gridengine-drmaa1.0 --no-install-recommends -y
+RUN apt-get install rabbitmq-server --no-install-recommends -y
+RUN apt-get install --no-install-recommends -y libswitch-perl supervisor && \
+    apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
-    ln -s /usr/local/bin/supervisord /usr/bin/supervisord
+    rm -rf ~/.cache/ /galaxy-central/client/node_modules/
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
-    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
-    gpasswd -a $GALAXY_USER docker && \
-    adduser condor docker
+    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
 
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh -O ~/miniconda.sh && \
+
+RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh > ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
     ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
@@ -104,21 +118,20 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.12-Linux-x86
     conda config --add channels defaults && \
     conda config --add channels bioconda && \
     conda config --add channels conda-forge && \
-    conda install virtualenv pip ephemeris supervisor && \
+    conda install virtualenv pip ephemeris && \
     chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh && \
-    mkdir $GALAXY_ROOT && \
-    wget -q -O - $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
-    virtualenv $GALAXY_VIRTUAL_ENV && \
+    conda clean --packages -t -i && \
+    mkdir $GALAXY_ROOT
+
+RUN cp $GALAXY_HOME/.bashrc ~/
+RUN curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
+    PATH=/tool_deps/_conda/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT && \
     # Setup Galaxy configuration files.
     mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR && \
-    # $GALAXY_VIRTUAL_ENV/bin/pip2 install pip --upgrade && \
-    # $GALAXY_VIRTUAL_ENV/bin/pip2 install --extra-index-url https://wheels.galaxyproject.org/ uwsgi==2.0.15 -v --pre && \
-    # chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
-    conda clean --packages && \
+    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ && \
     su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
 
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
@@ -127,7 +140,12 @@ ADD roles/ /ansible/roles
 ADD provision.yml /ansible/provision.yml
 ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
-RUN ansible-playbook /ansible/postgresql_provision.yml -vvv && \
+RUN apt update && apt install --no-install-recommends -y ansible && \
+    ansible-playbook /ansible/postgresql_provision.yml -vvv && \
+    apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/
+
+RUN apt update && apt install --no-install-recommends -y ansible && \
     ansible-playbook /ansible/provision.yml -vvv \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
@@ -150,13 +168,12 @@ RUN ansible-playbook /ansible/postgresql_provision.yml -vvv && \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
     --tags=galaxyextras,cvmfs -c local && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/
+    apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/
 
-RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools && \
-    mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp && \
-    mkdir -p /tool_deps/ && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps && \
-    ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
+RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
+RUN mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp
+RUN ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
 
 # The following commands will be executed as the galaxy user
 USER $GALAXY_USER
@@ -238,7 +255,7 @@ ADD install_tools_wrapper.sh /usr/bin/install-tools
 # script to install BioJS visualizations
 ADD install_biojs_vis.sh /usr/bin/install-biojs
 RUN chmod +x /usr/bin/install-tools /usr/bin/install-biojs && \
-    cd /usr/bin/ && wget https://git.embl.de/grp-gbcs/galaxy-dir-sync/raw/master/src/galaxy-dir-sync.py && \
+    cd /usr/bin/ && curl https://git.embl.de/grp-gbcs/galaxy-dir-sync/raw/master/src/galaxy-dir-sync.py > galaxy-dir-sync.py && \
     chmod +x galaxy-dir-sync.py
 
 RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local && \
