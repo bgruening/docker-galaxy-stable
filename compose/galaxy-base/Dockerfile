@@ -9,6 +9,11 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
 ARG ANSIBLE_RELEASE=master
 
+"""
+TODO:
+* replace wget with curl everywhere
+"""
+
 ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
@@ -76,7 +81,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
             # I don't think this is needed anymore .. isn't it?
             #linux-image-extra-virtual \
             munge \
-            ansible nano python-pip wget htcondor \
+            ansible nano python-pip curl wget htcondor \
             gridengine-drmaa1.0 \
     && pip install ephemeris virtualenv \
     && apt-get autoremove -y \
@@ -100,7 +105,9 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Container Style
 ADD condor_config.local /etc/condor/condor_config.local
 # fetch ansible galaxy extras
-RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && cd /ansible/galaxyprojectdotorg.galaxyextras && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
+RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras \
+    && cd /ansible/galaxyprojectdotorg.galaxyextras \
+    && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
 ADD provision.yml /ansible/provision.yml
 
 # Install database script
