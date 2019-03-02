@@ -8,8 +8,9 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 # TODO
 # 
-# README: only Docker next to Docker is supported
-#
+# * README: only Docker next to Docker is supported
+# * NodeJS is getting globally installed via the playbook, this is not needed anymore isn't it?
+# * the playbooks are not cleaning anything up
 #
 #
 ARG GALAXY_RELEASE
@@ -78,7 +79,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && sudo add-apt-repository ppa:natefoo/slurm-drmaa \
     && apt-get update -qq \
     && apt-get purge -y software-properties-common gpg-agent \
-    && apt-get install postgresql-10 --no-install-recommends -y \
+    ## && apt-get install postgresql-10 --no-install-recommends -y \
     && apt-get install nginx-extras nginx-common --no-install-recommends -y \
     && apt-get install docker-ce-cli --no-install-recommends -y \
     && apt-get install slurm-client slurmd slurmctld slurm-drmaa1 --no-install-recommends -y \
@@ -95,15 +96,13 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ \
     # we will recreate this later
-    && rm -rf $PG_DATA_DIR_DEFAULT \
+    ## && rm -rf $PG_DATA_DIR_DEFAULT \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER \
     && mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     # cleanup dance
     && find /usr/lib/ -name '*.pyc' -delete \
-    && rm -rf /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
-
-
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
 
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
@@ -133,7 +132,7 @@ RUN curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-c
     # Setup Galaxy configuration files.
     && mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR \
-    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ \
+    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
     && su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
 
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
@@ -146,12 +145,11 @@ ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 RUN apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/postgresql_provision.yml -vvv \
     && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ \
     # cleanup dance
     && find /galaxy-central/ -name '*.pyc' -delete \
     && find /usr/lib/ -name '*.pyc' -delete \
     && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+    && rm -rf /tmp/* /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 RUN apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/provision.yml -vvv \
@@ -176,11 +174,13 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
     --tags=galaxyextras,cvmfs -c local \
+    && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
     && find /galaxy-central/ -name '*.pyc' -delete \
     && find /usr/lib/ -name '*.pyc' -delete \
     && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && rm -rf /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+    && find /galaxy_venv -name '*.pyc' -delete \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
 RUN mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp
@@ -235,7 +235,8 @@ RUN ./scripts/common_startup.sh \
     && find /galaxy-central/ -name '*.pyc' -delete \
     && find /usr/lib/ -name '*.pyc' -delete \
     && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && rm -rf /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+    && find /galaxy_venv -name '*.pyc' -delete \
+    && rm -rf /tmp/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     #cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
@@ -268,6 +269,7 @@ RUN rm $PG_DATA_DIR_DEFAULT -rf && \
     && find /galaxy-central/ -name '*.pyc' -delete \
     && find /usr/lib/ -name '*.pyc' -delete \
     && find /tool_deps/_conda/ -name '*.pyc' -delete \
+    && find /galaxy_venv -name '*.pyc' -delete \
     && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
 
