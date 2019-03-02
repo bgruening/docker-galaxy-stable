@@ -6,8 +6,11 @@ FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE=dev
-ARG GALAXY_REPO=galaxyproject/galaxy
+ARG GALAXY_RELEASE
+ARG GALAXY_REPO
+
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
+GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
@@ -34,7 +37,7 @@ RUN mkdir -p /export /galaxy-export \
     && ln -s -f /galaxy-export/venv /export/venv \
     && ln -s -f /galaxy-export/galaxy-central /export/galaxy-central \
     && chown -R $GALAXY_USER:$GALAXY_USER /galaxy-export /export \
-    && curl -L -s https://github.com/$GALAXY_REPO/archive/release_$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
+    && curl -L -s https://github.com/$GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && virtualenv $GALAXY_VIRTUAL_ENV \
     && cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE \
     && . $GALAXY_VIRTUAL_ENV/bin/activate \
