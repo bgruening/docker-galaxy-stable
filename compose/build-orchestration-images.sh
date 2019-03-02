@@ -123,7 +123,7 @@ DOCKER_USER=${CONTAINER_USER:-bgruening}
 ANSIBLE_REPO=${ANSIBLE_REPO:-galaxyproject/ansible-galaxy-extras}
 ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-master}
 
-GALAXY_VERSION=${GALAXY_VERSION:-19.01}
+GALAXY_VERSION=${GALAXY_VERSION:-dev}
 
 # GALAXY_BASE_FROM_TO_REPLACE=${GALAXY_BASE_FROM_TO_REPLACE:-quay.io/bgruening/galaxy-base:$GALAXY_VERSION}
 GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-init/Dockerfile | awk '{ print $2 }') # init starts from base, so we get it from there.

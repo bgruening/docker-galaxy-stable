@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:19.01
+FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -71,8 +71,15 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=$GALAXY_ANSIBLE_TAGS -c local && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    --tags=$GALAXY_ANSIBLE_TAGS -c local \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete \
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete \
+    && find /galaxy_venv -name '*.pyc' -delete \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
 
 RUN chmod +x /usr/bin/startup
 

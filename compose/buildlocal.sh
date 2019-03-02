@@ -8,14 +8,14 @@ echo "*****************  Notice ************************************************
 ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
 ANSIBLE_RELEASE=master
 
-GALAXY_RELEASE=release_19.01
+GALAXY_RELEASE=dev
 GALAXY_REPO=galaxyproject/galaxy
 
 DOCKER_ADDITIONAL_BUILD_ARGS=""
 #"--no-cache"
 
 # For using latest simply leave this variable empty or set to ":latest". This should be the case on the master branch.
-TAG=":19.01"
+TAG=":dev"
 
 docker pull postgres
 

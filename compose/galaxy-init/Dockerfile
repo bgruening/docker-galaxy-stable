@@ -6,7 +6,7 @@ FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE=19.01
+ARG GALAXY_RELEASE=dev
 ARG GALAXY_REPO=galaxyproject/galaxy
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
