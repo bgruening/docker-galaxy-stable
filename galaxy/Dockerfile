@@ -81,7 +81,8 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get install postgresql-10 --no-install-recommends -y \
     && apt-get install nginx-extras nginx-common --no-install-recommends -y \
     && apt-get install docker-ce-cli --no-install-recommends -y \
-    && apt-get install slurm-client slurmd slurmctld slurm-drmaa1 --no-install-recommends -y && ln -s /usr/lib/slurm-drmaa/lib/libdrmaa.so.1 /usr/lib/slurm-drmaa/lib/libdrmaa.so \
+    && apt-get install slurm-client slurmd slurmctld slurm-drmaa1 --no-install-recommends -y \
+    && ln -s /usr/lib/slurm-drmaa/lib/libdrmaa.so.1 /usr/lib/slurm-drmaa/lib/libdrmaa.so \
     && apt-get install proftpd proftpd-mod-pgsql --no-install-recommends -y \
     && apt-get install munge libmunge-dev --no-install-recommends -y \
     && apt-get install nano --no-install-recommends -y \
@@ -93,10 +94,16 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal  \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ \
-    && rm -rf ~/.cache/ /galaxy-central/client/node_modules/ \
+    # we will recreate this later
+    && rm -rf $PG_DATA_DIR_DEFAULT \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER \
-    && mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
+    && mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
+    # cleanup dance
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && rm -rf /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+
+
 
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
@@ -173,7 +180,7 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     && find /galaxy-central/ -name '*.pyc' -delete \
     && find /usr/lib/ -name '*.pyc' -delete \
     && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+    && rm -rf /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
 RUN mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp
@@ -228,7 +235,7 @@ RUN ./scripts/common_startup.sh \
     && find /galaxy-central/ -name '*.pyc' -delete \
     && find /usr/lib/ -name '*.pyc' -delete \
     && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+    && rm -rf /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     #cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \

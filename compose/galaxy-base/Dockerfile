@@ -9,10 +9,10 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
 ARG ANSIBLE_RELEASE=master
 
-"""
-TODO:
-* replace wget with curl everywhere
-"""
+
+## TODO:
+## * replace wget with curl everywhere
+##
 
 ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_USER=galaxy \
