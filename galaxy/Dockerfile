@@ -135,9 +135,15 @@ ADD roles/ /ansible/roles
 ADD provision.yml /ansible/provision.yml
 ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
+## This is playbook is modifying/installing python2 and python3 stuff
 RUN apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/postgresql_provision.yml -vvv \
     && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ \
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete \
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete \
     && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
 RUN apt update && apt install --no-install-recommends -y ansible \
@@ -163,8 +169,10 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
     --tags=galaxyextras,cvmfs -c local \
-    && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && find . -name '*.pyc' -delete \
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete \
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete \
     && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
@@ -212,16 +220,23 @@ GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
 ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
 
-RUN ./scripts/common_startup.sh && \
-    export PATH=GALAXY_CONDA_PREFIX/bin/:$PATH && \
-    . $GALAXY_VIRTUAL_ENV/bin/activate && \
-    python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
+RUN ./scripts/common_startup.sh \
+    && export PATH=GALAXY_CONDA_PREFIX/bin/:$PATH \
+    && . $GALAXY_VIRTUAL_ENV/bin/activate \
+    && python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed \
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete \
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete \
+    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
-    npm install && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
-    # change the default location of shed_tools to be ../shed_tools
-    sed -i 's|database|..|' $GALAXY_ROOT/config/shed_tool_conf.xml
+    #cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
+    #npm install && \
+    #rm -rf ~/.cache/ /galaxy-central/client/node_modules/
+
+# change the default location of shed_tools to be ../shed_tools
+RUN sed -i 's|database|..|' $GALAXY_ROOT/config/shed_tool_conf.xml
 
 # Switch back to User root
 USER root
@@ -234,13 +249,20 @@ ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
 # 2. Create DB-user 'galaxy' with password 'galaxy' in database 'galaxy'
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
 
+
 RUN rm $PG_DATA_DIR_DEFAULT -rf && \
     python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT && \
     service postgresql start && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
     sh create_db.sh -c "$GALAXY_CONFIG_FILE" && \
-    python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY && \
-    service postgresql stop
+    python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
+    && service postgresql stop \
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete \
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete \
+    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
+
 
 # Activate additional Tool Sheds
 # Activate the Test Tool Shed during runtime, useful for testing repositories.
