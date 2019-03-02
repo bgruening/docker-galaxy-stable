@@ -59,27 +59,30 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$GALAXY_ROOT/database/job_working_directory 
 HOME=$GALAXY_HOME
 
 # not to call sync() after package extraction and deactivate apt cache
-RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout && \
-    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
-    apt-get -qq update && apt-get install --no-install-recommends -y locales && \
-    locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
-    apt-get install --no-install-recommends -y apt-transport-https gnupg && \
-    echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 && \
-    apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y sudo \
-        supervisor linux-image-extra-virtual munge \
-        ansible nano python-pip wget htcondor \
-        unattended-upgrades \
-        gridengine-drmaa1.0 && \
-    pip install ephemeris virtualenv && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    mkdir -p /tmp/download && \
-    wget -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download && \
-    mv /tmp/download/docker/docker /usr/bin/ && \
-    rm -rf /tmp/download && \
-    rm -rf ~/.cache/
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
+    && echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout \
+    && echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries \
+    && apt-get -qq update \
+    && apt-get install --no-install-recommends -y locales \
+    && locale-gen en_US.UTF-8 \
+    && dpkg-reconfigure locales \
+    && apt-get install --no-install-recommends -y apt-transport-https gnupg \
+    && echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 \
+    && apt-get update -qq \
+    && apt-get install --no-install-recommends -y sudo \
+            supervisor linux-image-extra-virtual munge \
+            ansible nano python-pip wget htcondor \
+            gridengine-drmaa1.0 \
+    && pip install ephemeris virtualenv \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && mkdir -p /tmp/download \
+    && wget -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download \
+    && mv /tmp/download/docker/docker /usr/bin/ \
+    && rm -rf /tmp/download \
+    && rm -rf ~/.cache/
 
 RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog && \
     mkdir -p /var/run/condor/ /var/lock/condor/ && \
