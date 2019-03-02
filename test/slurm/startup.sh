@@ -32,4 +32,4 @@ fi
 chown $SLURM_USER_NAME /tmp/slurm
 ln -s "$GALAXY_DIR" "$SYMLINK_TARGET"
 ln -s "$SLURM_CONF_PATH" /etc/slurm-llnl/slurm.conf
-exec /usr/local/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
