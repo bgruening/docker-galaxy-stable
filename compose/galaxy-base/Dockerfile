@@ -70,8 +70,12 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 \
     && apt-get update -qq \
-    && apt-get install --no-install-recommends -y sudo \
-            supervisor linux-image-extra-virtual munge \
+    && apt-get install --no-install-recommends -y \
+            sudo \
+            supervisor \
+            # I don't think this is needed anymore .. isn't it?
+            #linux-image-extra-virtual \
+            munge \
             ansible nano python-pip wget htcondor \
             gridengine-drmaa1.0 \
     && pip install ephemeris virtualenv \
@@ -84,9 +88,9 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && rm -rf /tmp/download \
     && rm -rf ~/.cache/
 
-RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog && \
-    mkdir -p /var/run/condor/ /var/lock/condor/ && \
-    chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
+RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog \
+    && mkdir -p /var/run/condor/ /var/lock/condor/ \
+    && chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
@@ -116,11 +120,12 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG=/export/galaxy-central/integrated
 
 # Create symlinks for export, the destination will be created by galaxy-init
 # TODO: Is this even required?
-RUN ln -s -f /export/shed_tools /shed_tools && \
-    ln -s -f /export/tool_deps /tool_deps && \
-    ln -s -f /export/galaxy-central /galaxy-central && \
-    ln -s -f /export/venv /galaxy_venv && \
-    mkdir /etc/galaxy && ln -s -f /export/welcome /etc/galaxy/web
+RUN ln -s -f /export/shed_tools /shed_tools \
+    && ln -s -f /export/tool_deps /tool_deps \
+    && ln -s -f /export/galaxy-central /galaxy-central \
+    && ln -s -f /export/venv /galaxy_venv \
+    && mkdir /etc/galaxy \
+    && ln -s -f /export/welcome /etc/galaxy/web
 
 RUN wget https://dl.influxdata.com/telegraf/releases/telegraf-1.5.0_linux_amd64.tar.gz && \
     cd / && tar xvfz telegraf-1.5.0_linux_amd64.tar.gz && \
