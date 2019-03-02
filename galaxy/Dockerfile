@@ -44,6 +44,11 @@ GALAXY_DEFAULT_ADMIN_KEY=admin \
 GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 GALAXY_RUNNERS_ENABLE_SLURM=True \
 GALAXY_RUNNERS_ENABLE_CONDOR=False \
+GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8 \
+GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
+GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
+GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
+GALAXY_CONFIG_STATIC_ENABLED=False \
 # Define the default postgresql database path
 PG_DATA_DIR_DEFAULT=/var/lib/postgresql/10/main/ \
 PG_CONF_DIR_DEFAULT=/etc/postgresql/10/main/ \
@@ -61,15 +66,15 @@ GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 LC_ALL=en_US.UTF-8 \
 LANG=en_US.UTF-8 \
-GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
+GALAXY_CONDA_PREFIX=/tool_deps/_conda
 
 # 16MB
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
     && apt-get -qq update && apt-get install --no-install-recommends -y locales \
     && locale-gen en_US.UTF-8 && dpkg-reconfigure locales \
-    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
@@ -103,7 +108,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     # cleanup dance
     && find /usr/lib/ -name '*.pyc' -delete \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
 
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
@@ -111,12 +116,12 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # download latest stable release of Galaxy.
 
 RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh > ~/miniconda.sh \
-    && /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ \
+    && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
     && rm ~/miniconda.sh \
-    && ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
-    && echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc \
+    && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
+    && echo ". $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc \
     && echo "conda activate base" >> $GALAXY_HOME/.bashrc \
-    && export PATH=/tool_deps/_conda/bin/:$PATH \
+    && export PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH \
     && conda config --add channels defaults \
     && conda config --add channels bioconda \
     && conda config --add channels conda-forge \
@@ -124,23 +129,23 @@ RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_6
     && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh \
     && conda clean --packages -t -i \
     # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
-    && find /galaxy_venv -name '*.pyc' -delete | true \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 
 RUN cp $GALAXY_HOME/.bashrc ~/
 RUN mkdir $GALAXY_ROOT \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
-    && PATH=/tool_deps/_conda/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
+    && PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
     # Setup Galaxy configuration files.
     && mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
     && su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
 
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
@@ -154,13 +159,31 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/postgresql_provision.yml -vvv \
     && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
-    && find /galaxy_venv -name '*.pyc' -delete | true \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
-RUN apt update && apt install --no-install-recommends -y ansible \
+
+
+# Include all needed scripts from the host
+ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
+
+
+
+# Configure PostgreSQL
+# 1. Remove all old configuration
+# 2. Create DB-user 'galaxy' with password 'galaxy' in database 'galaxy'
+# 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
+
+
+RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
+    && chown $GALAXY_USER:$GALAXY_USER /shed_tools $EXPORT_DIR/ftp \
+    && ln -s /tool_deps/ $EXPORT_DIR/tool_deps \
+    # Configure Galaxy to use the Tool Shed
+    && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
+    && apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/provision.yml -vvv \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
@@ -183,17 +206,22 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
     --tags=galaxyextras,cvmfs -c local \
-    && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    # TODO: no clue why this is needed here again
+    && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
+    && cd / \
+    && rm $PG_DATA_DIR_DEFAULT -rf \
+    && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT \
+    && service postgresql start \
+    && . $GALAXY_VIRTUAL_ENV/bin/activate \
+    && sh $GALAXY_ROOT/create_db.sh -c "$GALAXY_CONFIG_FILE" \
+    && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
+    && service postgresql stop \
     # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
-    && find /galaxy_venv -name '*.pyc' -delete | true \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
-
-RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
-RUN mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp
-RUN ln -s /tool_deps/ $EXPORT_DIR/tool_deps && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps # Configure Galaxy to use the Tool Shed
+    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
 
 # The following commands will be executed as the galaxy user
 USER $GALAXY_USER
@@ -203,12 +231,7 @@ WORKDIR $GALAXY_ROOT
 # Updating genome informations from UCSC
 #RUN export GALAXY=$GALAXY_ROOT && sh ./cron/updateucsc.sh.sample
 
-ENV GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:galaxy@localhost:5432/galaxy?client_encoding=utf8 \
-GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org \
-GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
-GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
-GALAXY_CONFIG_STATIC_ENABLED=False \
-GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$EXPORT_DIR/galaxy-central/database/job_working_directory \
+ENV GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$EXPORT_DIR/galaxy-central/database/job_working_directory \
 GALAXY_CONFIG_FILE_PATH=$EXPORT_DIR/galaxy-central/database/files \
 GALAXY_CONFIG_NEW_FILE_PATH=$EXPORT_DIR/galaxy-central/database/files \
 GALAXY_CONFIG_TEMPLATE_CACHE_PATH=$EXPORT_DIR/galaxy-central/database/compiled_templates \
@@ -236,50 +259,27 @@ GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 ADD GalaxyDocker.png $GALAXY_CONFIG_DIR/web/welcome_image.png
 ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
 
-RUN ./scripts/common_startup.sh \
-    && export PATH=GALAXY_CONDA_PREFIX/bin/:$PATH \
-    && . $GALAXY_VIRTUAL_ENV/bin/activate \
-    && python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed \
-    # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete \
-    && find /usr/lib/ -name '*.pyc' -delete \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && find /galaxy_venv -name '*.pyc' -delete \
-    && rm -rf /tmp/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+#RUN ./scripts/common_startup.sh \
+#    && export PATH=GALAXY_CONDA_PREFIX/bin/:$PATH \
+#    && . $GALAXY_VIRTUAL_ENV/bin/activate \
+#    && python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed \
+#    # cleanup dance
+#    && find $GALAXY_ROOT/ -name '*.pyc' -delete \
+#    && find /usr/lib/ -name '*.pyc' -delete \
+#    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete \
+#    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete \
+#    && rm -rf /tmp/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
     #cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     #npm install && \
-    #rm -rf ~/.cache/ /galaxy-central/client/node_modules/
+    #rm -rf ~/.cache/ $GALAXY_ROOT/client/node_modules/
 
 # change the default location of shed_tools to be ../shed_tools
 RUN sed -i 's|database|..|' $GALAXY_ROOT/config/shed_tool_conf.xml
 
 # Switch back to User root
 USER root
-
-# Include all needed scripts from the host
-ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
-
-# Configure PostgreSQL
-# 1. Remove all old configuration
-# 2. Create DB-user 'galaxy' with password 'galaxy' in database 'galaxy'
-# 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
-
-
-RUN rm $PG_DATA_DIR_DEFAULT -rf && \
-    python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT && \
-    service postgresql start && \
-    . $GALAXY_VIRTUAL_ENV/bin/activate && \
-    sh create_db.sh -c "$GALAXY_CONFIG_FILE" && \
-    python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
-    && service postgresql stop \
-    # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete \
-    && find /usr/lib/ -name '*.pyc' -delete \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && find /galaxy_venv -name '*.pyc' -delete \
-    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
 
 # Activate additional Tool Sheds
