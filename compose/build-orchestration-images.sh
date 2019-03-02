@@ -129,7 +129,9 @@ GALAXY_VERSION=${GALAXY_VERSION:-dev}
 GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-init/Dockerfile | awk '{ print $2 }') # init starts from base, so we get it from there.
 CONDOR_BASE_FROM_TO_REPLACE=quay.io/bgruening/galaxy-htcondor-base:$GALAXY_VERSION
 
-GALAXY_RELEASE=${GALAXY_RELEASE:-release_$GALAXY_VERSION}
+
+# for releases this needs to be ${GALAXY_RELEASE:-release_$GALAXY_VERSION}, for dev versions ${GALAXY_RELEASE:-$GALAXY_VERSION}
+GALAXY_RELEASE=${GALAXY_RELEASE:-$GALAXY_VERSION}
 GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
 
 GALAXY_VER_FOR_POSTGRES=$GALAXY_VERSION
@@ -197,13 +199,13 @@ if [ -n $GALAXY_REPO ]
        if [ -n $ANSIBLE_REPO ]
        then
          sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-init/Dockerfile > galaxy-init/Dockerfile_init
-	       FROM=`grep ^FROM galaxy-init/Dockerfile_init | awk '{ print $2 }'`
-	       log "Using FROM $FROM for galaxy init"
-	       DOCKERFILE_INIT_1=Dockerfile_init
+           FROM=`grep ^FROM galaxy-init/Dockerfile_init | awk '{ print $2 }'`
+           log "Using FROM $FROM for galaxy init"
+           DOCKERFILE_INIT_1=Dockerfile_init
        fi
        docker build $NO_CACHE --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE -t $GALAXY_INIT_TAG -f galaxy-init/$DOCKERFILE_INIT_1 galaxy-init/
        if [[ "${DOCKER_PUSH_ENABLED:-}" = "true" ]]; then
-	       log "Pushing image $GALAXY_INIT_TAG"
+           log "Pushing image $GALAXY_INIT_TAG"
          docker push $GALAXY_INIT_TAG
        fi
 fi
