@@ -3,7 +3,7 @@ FROM quay.io/bgruening/galaxy
 USER galaxy
 WORKDIR /home/galaxy
 
-RUN wget https://github.com/galaxyproject/bioblend/archive/master.tar.gz && tar xfz master.tar.gz && \
+RUN curl -L -s https://github.com/galaxyproject/bioblend/archive/master.tar.gz | tar xzf - --strip-components=1 -C bioblend-master && \
     cd bioblend-master && \
     export PATH=/tool_deps/_conda/bin/:$PATH && . activate galaxy_env && \
     pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" && \
