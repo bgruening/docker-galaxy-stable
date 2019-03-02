@@ -12,14 +12,6 @@ ARG GALAXY_REPO
 ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
 GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
 
-RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
-    && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
-    && apt-get -qq update \
-    && apt-get install --no-install-recommends -y \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache/ /home/galaxy/.cache/
-
 # Create these folders and link to target directory for installation
 RUN mkdir -p /export /galaxy-export \
     && mkdir /galaxy-export/shed_tools \
@@ -41,7 +33,6 @@ RUN mkdir -p /export /galaxy-export \
     && virtualenv $GALAXY_VIRTUAL_ENV \
     && cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE \
     && . $GALAXY_VIRTUAL_ENV/bin/activate \
-    && pip install pip --upgrade \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV/* \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT/* \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_FILE
@@ -72,8 +63,14 @@ RUN ansible-playbook /ansible/provision.yml \
     && apt-get autoremove -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /root/.cache /home/galaxy/.cache \
-    && find . -name '*.pyc' -delete \
-    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
+    && find /galaxy_venv -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
 
 
 # The following commands will be executed as User galaxy

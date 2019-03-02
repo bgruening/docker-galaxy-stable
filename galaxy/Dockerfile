@@ -11,7 +11,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * README: only Docker next to Docker is supported
 # * NodeJS is getting globally installed via the playbook, this is not needed anymore isn't it?
 # * the playbooks are not cleaning anything up
-#
+# * autofs is huge and should be installed during startup, only in case --priv is enables
 #
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
@@ -64,11 +64,12 @@ LANG=en_US.UTF-8 \
 GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
 # 16MB
-RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
-    apt-get -qq update && apt-get install --no-install-recommends -y locales && \
-    locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
+    && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
+    && apt-get -qq update && apt-get install --no-install-recommends -y locales \
+    && locale-gen en_US.UTF-8 && dpkg-reconfigure locales \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
@@ -109,24 +110,24 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
 
-RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh > ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
-    rm ~/miniconda.sh && \
-    ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
-    echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc && \
-    echo "conda activate base" >> $GALAXY_HOME/.bashrc && \
-    export PATH=/tool_deps/_conda/bin/:$PATH && \
-    conda config --add channels defaults && \
-    conda config --add channels bioconda && \
-    conda config --add channels conda-forge && \
-    conda install virtualenv pip ephemeris && \
-    chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh && \
-    conda clean --packages -t -i && \
+RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh > ~/miniconda.sh \
+    && /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ \
+    && rm ~/miniconda.sh \
+    && ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
+    && echo ". /tool_deps/_conda/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc \
+    && echo "conda activate base" >> $GALAXY_HOME/.bashrc \
+    && export PATH=/tool_deps/_conda/bin/:$PATH \
+    && conda config --add channels defaults \
+    && conda config --add channels bioconda \
+    && conda config --add channels conda-forge \
+    && conda install virtualenv pip ephemeris \
+    && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh \
+    && conda clean --packages -t -i \
     # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete \
-    && find /usr/lib/ -name '*.pyc' -delete \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && find /galaxy_venv -name '*.pyc' -delete \
+    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
+    && find /galaxy_venv -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 
@@ -139,7 +140,7 @@ RUN mkdir $GALAXY_ROOT \
     # Setup Galaxy configuration files.
     && mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR \
-    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
     && su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
 
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
@@ -153,10 +154,11 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/postgresql_provision.yml -vvv \
     && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete \
-    && find /usr/lib/ -name '*.pyc' -delete \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && rm -rf /tmp/* /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
+    && find /galaxy_venv -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 RUN apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/provision.yml -vvv \
@@ -183,10 +185,10 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     --tags=galaxyextras,cvmfs -c local \
     && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
-    && find /galaxy-central/ -name '*.pyc' -delete \
-    && find /usr/lib/ -name '*.pyc' -delete \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && find /galaxy_venv -name '*.pyc' -delete \
+    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
+    && find /galaxy_venv -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools

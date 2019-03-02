@@ -90,8 +90,14 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && mkdir -p /tmp/download \
     && wget -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download \
     && mv /tmp/download/docker/docker /usr/bin/ \
-    && rm -rf /tmp/download \
-    && rm -rf ~/.cache/
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete | true \
+    && find /galaxy_venv -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
+
 
 RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog \
     && mkdir -p /var/run/condor/ /var/lock/condor/ \
