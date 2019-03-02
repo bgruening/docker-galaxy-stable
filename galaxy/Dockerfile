@@ -12,8 +12,6 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 #
 #
 #
-
-
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
@@ -64,6 +62,7 @@ LC_ALL=en_US.UTF-8 \
 LANG=en_US.UTF-8 \
 GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
+# 16MB
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache && \
     apt-get -qq update && apt-get install --no-install-recommends -y locales && \
@@ -71,37 +70,33 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
-RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID && \
-    adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres
-
-RUN apt-get -qq update && apt-get install --no-install-recommends -y software-properties-common gpg-agent curl sudo && \
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - && \
-    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" && \
-    apt-get update -qq && \
-    apt-get purge -y software-properties-common gpg-agent
-    
-RUN apt-get install postgresql-10 --no-install-recommends -y 
-RUN apt-get install nginx-extras nginx-common --no-install-recommends -y 
-RUN apt-get install docker-ce-cli --no-install-recommends -y
-RUN apt-get install slurm-client slurmd slurmctld --no-install-recommends -y 
-RUN apt-get install proftpd proftpd-mod-pgsql --no-install-recommends -y
-RUN apt-get install munge libmunge-dev --no-install-recommends -y
-RUN apt-get install nano --no-install-recommends -y
-RUN apt-get install htcondor autofs --no-install-recommends -y
-    # python-crypto python-psutil python-ldap
-    # git is used by the client builds
-RUN apt-get install git --no-install-recommends -y
-RUN apt-get install gridengine-common gridengine-drmaa1.0 --no-install-recommends -y
-RUN apt-get install rabbitmq-server --no-install-recommends -y
-RUN apt-get install --no-install-recommends -y libswitch-perl supervisor && \
-    apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ && \
-    mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/
-
-RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
-    useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
-    mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
+RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
+    && adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres \
+    && apt-get -qq update && apt-get install --no-install-recommends -y software-properties-common gpg-agent curl sudo \
+    && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - \
+    && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
+    && sudo add-apt-repository ppa:natefoo/slurm-drmaa \
+    && apt-get update -qq \
+    && apt-get purge -y software-properties-common gpg-agent \
+    && apt-get install postgresql-10 --no-install-recommends -y \
+    && apt-get install nginx-extras nginx-common --no-install-recommends -y \
+    && apt-get install docker-ce-cli --no-install-recommends -y \
+    && apt-get install slurm-client slurmd slurmctld slurm-drmaa1 --no-install-recommends -y && ln -s /usr/lib/slurm-drmaa/lib/libdrmaa.so.1 /usr/lib/slurm-drmaa/lib/libdrmaa.so \
+    && apt-get install proftpd proftpd-mod-pgsql --no-install-recommends -y \
+    && apt-get install munge libmunge-dev --no-install-recommends -y \
+    && apt-get install nano --no-install-recommends -y \
+    && apt-get install htcondor autofs --no-install-recommends -y \
+    && apt-get install git --no-install-recommends -y \
+    && apt-get install gridengine-common gridengine-drmaa1.0 --no-install-recommends -y \
+    && apt-get install rabbitmq-server --no-install-recommends -y \
+    && apt-get install --no-install-recommends -y libswitch-perl supervisor \
+    && apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal  \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
+    && mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ \
+    && rm -rf ~/.cache/ /galaxy-central/client/node_modules/ \
+    && groupadd -r $GALAXY_USER -g $GALAXY_GID \
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER \
+    && mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR
 
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
@@ -124,15 +119,15 @@ RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_6
     mkdir $GALAXY_ROOT
 
 RUN cp $GALAXY_HOME/.bashrc ~/
-RUN curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT && \
-    PATH=/tool_deps/_conda/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV && \
-    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
-    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT && \
+RUN curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
+    && PATH=/tool_deps/_conda/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
     # Setup Galaxy configuration files.
-    mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && \
-    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ && \
-    su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
+    && mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web \
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR \
+    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ \
+    && su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
 
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
@@ -140,13 +135,13 @@ ADD roles/ /ansible/roles
 ADD provision.yml /ansible/provision.yml
 ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
-RUN apt update && apt install --no-install-recommends -y ansible && \
-    ansible-playbook /ansible/postgresql_provision.yml -vvv && \
-    apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/
+RUN apt update && apt install --no-install-recommends -y ansible \
+    && ansible-playbook /ansible/postgresql_provision.yml -vvv \
+    && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
-RUN apt update && apt install --no-install-recommends -y ansible && \
-    ansible-playbook /ansible/provision.yml -vvv \
+RUN apt update && apt install --no-install-recommends -y ansible \
+    && ansible-playbook /ansible/provision.yml -vvv \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
     --extra-vars galaxy_user_name=$GALAXY_USER \
@@ -167,9 +162,10 @@ RUN apt update && apt install --no-install-recommends -y ansible && \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
-    --tags=galaxyextras,cvmfs -c local && \
-    apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/
+    --tags=galaxyextras,cvmfs -c local \
+    && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && find . -name '*.pyc' -delete \
+    && rm -rf /root/.cache/ /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/
 
 RUN mkdir /shed_tools && chown $GALAXY_USER:$GALAXY_USER /shed_tools
 RUN mkdir $EXPORT_DIR/ftp/ && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/ftp
