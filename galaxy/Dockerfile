@@ -87,7 +87,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get install proftpd proftpd-mod-pgsql --no-install-recommends -y \
     && apt-get install munge libmunge-dev --no-install-recommends -y \
     && apt-get install nano --no-install-recommends -y \
-    && apt-get install htcondor autofs --no-install-recommends -y \
+    && apt-get install htcondor --no-install-recommends -y \
     && apt-get install git --no-install-recommends -y \
     && apt-get install gridengine-common gridengine-drmaa1.0 --no-install-recommends -y \
     && apt-get install rabbitmq-server --no-install-recommends -y \
@@ -122,10 +122,17 @@ RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_6
     conda install virtualenv pip ephemeris && \
     chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh && \
     conda clean --packages -t -i && \
-    mkdir $GALAXY_ROOT
+    # cleanup dance
+    && find /galaxy-central/ -name '*.pyc' -delete \
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && find /tool_deps/_conda/ -name '*.pyc' -delete \
+    && find /galaxy_venv -name '*.pyc' -delete \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
 
 RUN cp $GALAXY_HOME/.bashrc ~/
-RUN curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
+RUN mkdir $GALAXY_ROOT \
+    && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && PATH=/tool_deps/_conda/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
