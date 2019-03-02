@@ -41,7 +41,7 @@ RUN mkdir -p /export /galaxy-export \
     && pip install pip --upgrade \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV/* \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT/* \
-    chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_FILE
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_FILE
 
 ADD config $GALAXY_ROOT/config
 ADD welcome /galaxy-export/welcome
