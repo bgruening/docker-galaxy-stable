@@ -71,10 +71,10 @@ RUN rm -f /usr/bin/startup && \
     --tags=$GALAXY_ANSIBLE_TAGS -c local \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
-    && find $GALAXY_ROOT -name '*.pyc' -delete \
-    && find /usr/lib/ -name '*.pyc' -delete \
-    && find /tool_deps/_conda/ -name '*.pyc' -delete \
-    && find /galaxy_venv -name '*.pyc' -delete \
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_CONDA_PREFIX -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 
