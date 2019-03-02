@@ -22,10 +22,7 @@ GALAXY_HANDLER_NUMPROCS=2
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
-    echo "deb https://deb.nodesource.com/node_9.x $(lsb_release -sc) main" > /etc/apt/sources.list.d/nodejs.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68576280 && \
-    apt-get update -qq && \
-    apt-get install --no-install-recommends -y nodejs \
+    apt-get install --no-install-recommends -y \
     nginx-extras nginx-common supervisor autofs slurm-wlm slurm-wlm-torque && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
