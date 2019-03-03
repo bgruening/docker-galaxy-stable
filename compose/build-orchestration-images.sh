@@ -121,7 +121,7 @@ DOCKER_REPO=${CONTAINER_REGISTRY:-quay.io/}
 DOCKER_USER=${CONTAINER_USER:-bgruening}
 
 ANSIBLE_REPO=${ANSIBLE_REPO:-galaxyproject/ansible-galaxy-extras}
-ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-master}
+ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-19.05}
 
 GALAXY_VERSION=${GALAXY_VERSION:-dev}
 
@@ -186,7 +186,7 @@ if [ -n $ANSIBLE_REPO ]
        docker build $NO_CACHE --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t $GALAXY_BASE_TAG galaxy-base/
        if [[ ! -z ${PUSH_INTERMEDIATE_IMAGES+x} ]];
        then
-	         log "Pushing intermediate image $DOCKER_REPO$DOCKER_USER/galaxy-base:$TAG"
+           log "Pushing intermediate image $DOCKER_REPO$DOCKER_USER/galaxy-base:$TAG"
            docker push $GALAXY_BASE_TAG
        fi
 fi
@@ -214,12 +214,12 @@ fi
 DOCKERFILE_WEB=Dockerfile
 if [ -n $GALAXY_REPO ]
 then
-	log "Making custom galaxy-web:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
-	GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-web/Dockerfile | awk '{ print $2 }')
-	sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-web/Dockerfile > galaxy-web/Dockerfile_web
-	FROM=$(grep ^FROM galaxy-web/Dockerfile_web | awk '{ print $2 }')
-	log "Using FROM $FROM for galaxy web"
-	DOCKERFILE_WEB=Dockerfile_web
+    log "Making custom galaxy-web:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
+    GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-web/Dockerfile | awk '{ print $2 }')
+    sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-web/Dockerfile > galaxy-web/Dockerfile_web
+    FROM=$(grep ^FROM galaxy-web/Dockerfile_web | awk '{ print $2 }')
+    log "Using FROM $FROM for galaxy web"
+    DOCKERFILE_WEB=Dockerfile_web
 fi
 K8S_ANSIBLE_TAGS=""
 if $BUILD_FOR_K8S; then
