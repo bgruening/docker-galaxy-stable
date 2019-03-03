@@ -50,7 +50,7 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars galaxy_extras_config_rabbitmq=False \
-    --extra-vars galaxy_extras_config_slurm=False \
+    --extra-vars galaxy_extras_config_slurm=True \
     --extra-vars galaxy_extras_config_proftpd=False \
     --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars galaxy_tool_data_table_config_file=/etc/galaxy/tool_data_table_conf.xml \
