@@ -37,6 +37,7 @@ before_install:
   - sudo apt-get update -qq
   - sudo apt-get install docker-ce --no-install-recommends -y -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
   - sudo apt-get install sshpass --no-install-recommends -y
+  - pip install ephemeris
 
   - docker --version
   - docker info
@@ -226,6 +227,7 @@ before_install:
             -e GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True \
             -v /tmp/:/tmp/ \
             quay.io/bgruening/galaxy
+
         sleep 30
         docker logs galaxy
         # Define start functions
@@ -269,6 +271,10 @@ script:
       then
         docker-compose logs --tail 50
       fi
+
+  - echo 'Waiting for Galaxy to come up.'
+  - galaxy-wait -g $BIOBLEND_GALAXY_URL -v
+
   - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
 
   # Test self-signed HTTPS
