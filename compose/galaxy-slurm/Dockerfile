@@ -15,6 +15,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && apt-get update -qq \
     && apt-get install -y --no-install-recommends \
         apt-transport-https \
+        software-properties-common \
         python-psutil \
         python-setuptools \
         supervisor wget \
