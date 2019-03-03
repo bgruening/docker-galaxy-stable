@@ -11,7 +11,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * README: only Docker next to Docker is supported
 # * NodeJS is getting globally installed via the playbook, this is not needed anymore isn't it?
 # * the playbooks are not cleaning anything up
-# * autofs is huge and should be installed during startup, only in case --priv is enables
+# * autofs is big and should be installed during startup, only in case --priv is enables ?
 #
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
@@ -163,7 +163,7 @@ ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
 ## This is playbook is modifying/installing python2 and python3 stuff
 RUN apt update && apt install --no-install-recommends -y ansible \
-    && ansible-playbook /ansible/postgresql_provision.yml -vvv \
+    && ansible-playbook /ansible/postgresql_provision.yml \
     && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
@@ -187,7 +187,7 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     # Configure Galaxy to use the Tool Shed
     && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
     && apt update && apt install --no-install-recommends -y ansible \
-    && ansible-playbook /ansible/provision.yml -vvv \
+    && ansible-playbook /ansible/provision.yml \
         --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
         --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
         --extra-vars galaxy_user_name=$GALAXY_USER \
@@ -204,7 +204,7 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
         --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
         --extra-vars proftpd_use_sftp=True \
         --extra-vars galaxy_extras_docker_legacy=False \
-        --extra-vars galaxy_minimum_version=18.01 \
+        --extra-vars galaxy_minimum_version=19.01 \
         --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
         --extra-vars supervisor_postgres_autostart=false \
         --extra-vars nginx_use_remote_header=True \
