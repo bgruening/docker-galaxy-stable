@@ -7,7 +7,7 @@ FROM ubuntu:18.04
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=master
+ARG ANSIBLE_RELEASE=19.05
 
 
 ## TODO:
@@ -98,7 +98,6 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 
-
 RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog \
     && mkdir -p /var/run/condor/ /var/lock/condor/ \
     && chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
@@ -111,6 +110,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Container Style
 ADD condor_config.local /etc/condor/condor_config.local
 # fetch ansible galaxy extras
+
 RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras \
     && cd /ansible/galaxyprojectdotorg.galaxyextras \
     && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
