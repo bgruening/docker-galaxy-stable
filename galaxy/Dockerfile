@@ -146,7 +146,14 @@ RUN mkdir $GALAXY_ROOT \
     && mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
-    && su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
+    && su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE" \
+    # cleanup dance
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
 
 ADD ./reports_wsgi.ini.sample $GALAXY_CONFIG_DIR/reports_wsgi.ini
 ADD sample_tool_list.yaml $GALAXY_HOME/ephemeris/sample_tool_list.yaml
@@ -166,17 +173,13 @@ RUN apt update && apt install --no-install-recommends -y ansible \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 
-
 # Include all needed scripts from the host
 ADD ./setup_postgresql.py /usr/local/bin/setup_postgresql.py
-
-
 
 # Configure PostgreSQL
 # 1. Remove all old configuration
 # 2. Create DB-user 'galaxy' with password 'galaxy' in database 'galaxy'
 # 3. Create Galaxy Admin User 'admin@galaxy.org' with password 'admin' and API key 'admin'
-
 
 RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && chown $GALAXY_USER:$GALAXY_USER /shed_tools $EXPORT_DIR/ftp \
@@ -185,27 +188,27 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
     && apt update && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/provision.yml -vvv \
-    --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
-    --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
-    --extra-vars galaxy_user_name=$GALAXY_USER \
-    --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE \
-    --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR \
-    --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
-    --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
-    --extra-vars supervisor_manage_slurm="" \
-    --extra-vars galaxy_extras_config_condor=True \
-    --extra-vars galaxy_extras_config_condor_docker=True \
-    --extra-vars galaxy_extras_config_rabbitmq=True \
-    --extra-vars galaxy_extras_config_cvmfs=True \
-    --extra-vars proftpd_db_connection=galaxy@galaxy \
-    --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
-    --extra-vars proftpd_use_sftp=True \
-    --extra-vars galaxy_extras_docker_legacy=False \
-    --extra-vars galaxy_minimum_version=18.01 \
-    --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
-    --extra-vars supervisor_postgres_autostart=false \
-    --extra-vars nginx_use_remote_header=True \
-    --tags=galaxyextras,cvmfs -c local \
+        --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
+        --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
+        --extra-vars galaxy_user_name=$GALAXY_USER \
+        --extra-vars galaxy_config_file=$GALAXY_CONFIG_FILE \
+        --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR \
+        --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
+        --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
+        --extra-vars supervisor_manage_slurm="" \
+        --extra-vars galaxy_extras_config_condor=True \
+        --extra-vars galaxy_extras_config_condor_docker=True \
+        --extra-vars galaxy_extras_config_rabbitmq=True \
+        --extra-vars galaxy_extras_config_cvmfs=True \
+        --extra-vars proftpd_db_connection=galaxy@galaxy \
+        --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
+        --extra-vars proftpd_use_sftp=True \
+        --extra-vars galaxy_extras_docker_legacy=False \
+        --extra-vars galaxy_minimum_version=18.01 \
+        --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
+        --extra-vars supervisor_postgres_autostart=false \
+        --extra-vars nginx_use_remote_header=True \
+        --tags=galaxyextras,cvmfs -c local \
     # TODO: no clue why this is needed here again
     && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
     && cd / \
@@ -216,12 +219,15 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && sh $GALAXY_ROOT/create_db.sh -c "$GALAXY_CONFIG_FILE" \
     && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
     && service postgresql stop \
+    && apt-get purge -y ansible \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find /var/log/ -name '*.log' -delete | true \
     && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 # The following commands will be executed as the galaxy user
 USER $GALAXY_USER
