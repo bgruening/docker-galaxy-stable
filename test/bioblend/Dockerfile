@@ -1,5 +1,4 @@
-FROM galaxy-s
-#quay.io/bgruening/galaxy
+FROM quay.io/bgruening/galaxy
 
 USER galaxy
 WORKDIR /home/galaxy
