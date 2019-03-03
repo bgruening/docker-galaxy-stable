@@ -15,7 +15,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
     && cd / && tar xvfz telegraf-1.5.0_linux_amd64.tar.gz \
     && cp -Rv telegraf/* / \
     && find /usr/lib/ -name '*.pyc' -delete \
-    && apt-get purge -y wget \
+    ## && apt-get purge -y wget \
     && apt-get autoremove -y && apt-get clean \
     && rm -rf /tmp/* /root/.cache/ /var/tmp/* /var/cache/* /var/lib/apt/lists/* \
     && rm -rf telegraf \
