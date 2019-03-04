@@ -273,7 +273,7 @@ script:
       fi
 
   - echo 'Waiting for Galaxy to come up.'
-  - galaxy-wait -g $BIOBLEND_GALAXY_URL -v
+  - galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 300
 
   - curl -v --fail $BIOBLEND_GALAXY_URL/api/version
 
