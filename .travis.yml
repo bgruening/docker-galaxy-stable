@@ -181,7 +181,7 @@ before_install:
               sleep 20
               docker-compose logs --tail 10
             done
-
+            galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 300
             echo "parsec init"
             parsec init --api_key admin --url localhost:8080
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
