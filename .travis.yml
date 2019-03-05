@@ -178,8 +178,8 @@ before_install:
             until docker-compose exec galaxy-web ps -fC uwsgi
             do
               echo "Starting up Singularity test container: sleeping for 20 seconds"
-              sleep 20
-              docker-compose logs --tail 10
+              sleep 40
+              docker-compose logs
             done
             galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 300
             echo "parsec init"
