@@ -2063,8 +2063,8 @@ CREATE TABLE public.job (
     command_line text,
     param_filename character varying(1024),
     runner_name character varying(255),
-    stdout text,
-    stderr text,
+    tool_stdout text,
+    tool_stderr text,
     traceback text,
     session_id integer,
     job_runner_name character varying(255),
@@ -2079,7 +2079,10 @@ CREATE TABLE public.job (
     destination_id character varying(255),
     destination_params bytea,
     dependencies bytea,
-    copied_from_job_id integer
+    copied_from_job_id integer,
+    job_messages bytea,
+    job_stdout text,
+    job_stderr text
 );
 
 
@@ -4436,8 +4439,8 @@ CREATE TABLE public.task (
     command_line text,
     param_filename character varying(1024),
     runner_name character varying(255),
-    stdout text,
-    stderr text,
+    tool_stdout text,
+    tool_stderr text,
     traceback text,
     job_id integer NOT NULL,
     task_runner_name character varying(255),
@@ -4445,7 +4448,10 @@ CREATE TABLE public.task (
     prepare_input_files_cmd text,
     working_directory character varying(1024),
     info character varying(255),
-    exit_code integer
+    exit_code integer,
+    job_messages bytea,
+    job_stdout text,
+    job_stderr text
 );
 
 
@@ -7546,7 +7552,7 @@ COPY public.implicitly_created_dataset_collection_inputs (id, dataset_collection
 -- Data for Name: job; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.job (id, create_time, update_time, history_id, tool_id, tool_version, state, info, command_line, param_filename, runner_name, stdout, stderr, traceback, session_id, job_runner_name, job_runner_external_id, library_folder_id, user_id, imported, object_store_id, params, handler, exit_code, destination_id, destination_params, dependencies, copied_from_job_id) FROM stdin;
+COPY public.job (id, create_time, update_time, history_id, tool_id, tool_version, state, info, command_line, param_filename, runner_name, tool_stdout, tool_stderr, traceback, session_id, job_runner_name, job_runner_external_id, library_folder_id, user_id, imported, object_store_id, params, handler, exit_code, destination_id, destination_params, dependencies, copied_from_job_id, job_messages, job_stdout, job_stderr) FROM stdin;
 \.
 
 
@@ -7812,7 +7818,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY public.migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	146
+Galaxy	lib/galaxy/model/migrate	147
 \.
 
 
@@ -8116,7 +8122,7 @@ COPY public.tag (id, type, parent_id, name) FROM stdin;
 -- Data for Name: task; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.task (id, create_time, execution_time, update_time, state, command_line, param_filename, runner_name, stdout, stderr, traceback, job_id, task_runner_name, task_runner_external_id, prepare_input_files_cmd, working_directory, info, exit_code) FROM stdin;
+COPY public.task (id, create_time, execution_time, update_time, state, command_line, param_filename, runner_name, tool_stdout, tool_stderr, traceback, job_id, task_runner_name, task_runner_external_id, prepare_input_files_cmd, working_directory, info, exit_code, job_messages, job_stdout, job_stderr) FROM stdin;
 \.
 
 
