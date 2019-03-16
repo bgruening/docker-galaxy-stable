@@ -609,6 +609,39 @@ ALTER SEQUENCE public.dataset_collection_id_seq OWNED BY public.dataset_collecti
 
 
 --
+-- Name: dataset_hash; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dataset_hash (
+    id integer NOT NULL,
+    dataset_id integer,
+    hash_function text,
+    hash_value text,
+    extra_files_path text
+);
+
+
+--
+-- Name: dataset_hash_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dataset_hash_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dataset_hash_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dataset_hash_id_seq OWNED BY public.dataset_hash.id;
+
+
+--
 -- Name: dataset_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
@@ -660,6 +693,71 @@ CREATE SEQUENCE public.dataset_permissions_id_seq
 --
 
 ALTER SEQUENCE public.dataset_permissions_id_seq OWNED BY public.dataset_permissions.id;
+
+
+--
+-- Name: dataset_source; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dataset_source (
+    id integer NOT NULL,
+    dataset_id integer,
+    source_uri text,
+    extra_files_path text,
+    transform bytea
+);
+
+
+--
+-- Name: dataset_source_hash; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dataset_source_hash (
+    id integer NOT NULL,
+    dataset_source_id integer,
+    hash_function text,
+    hash_value text
+);
+
+
+--
+-- Name: dataset_source_hash_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dataset_source_hash_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dataset_source_hash_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dataset_source_hash_id_seq OWNED BY public.dataset_source_hash.id;
+
+
+--
+-- Name: dataset_source_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dataset_source_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dataset_source_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dataset_source_id_seq OWNED BY public.dataset_source.id;
 
 
 --
@@ -6020,10 +6118,31 @@ ALTER TABLE ONLY public.dataset_collection_element ALTER COLUMN id SET DEFAULT n
 
 
 --
+-- Name: dataset_hash id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_hash ALTER COLUMN id SET DEFAULT nextval('public.dataset_hash_id_seq'::regclass);
+
+
+--
 -- Name: dataset_permissions id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.dataset_permissions ALTER COLUMN id SET DEFAULT nextval('public.dataset_permissions_id_seq'::regclass);
+
+
+--
+-- Name: dataset_source id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_source ALTER COLUMN id SET DEFAULT nextval('public.dataset_source_id_seq'::regclass);
+
+
+--
+-- Name: dataset_source_hash id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_source_hash ALTER COLUMN id SET DEFAULT nextval('public.dataset_source_hash_id_seq'::regclass);
 
 
 --
@@ -7221,10 +7340,34 @@ COPY public.dataset_collection_element (id, dataset_collection_id, hda_id, ldda_
 
 
 --
+-- Data for Name: dataset_hash; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.dataset_hash (id, dataset_id, hash_function, hash_value, extra_files_path) FROM stdin;
+\.
+
+
+--
 -- Data for Name: dataset_permissions; Type: TABLE DATA; Schema: public; Owner: -
 --
 
 COPY public.dataset_permissions (id, create_time, update_time, action, dataset_id, role_id) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dataset_source; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.dataset_source (id, dataset_id, source_uri, extra_files_path, transform) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dataset_source_hash; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.dataset_source_hash (id, dataset_source_id, hash_function, hash_value) FROM stdin;
 \.
 
 
@@ -7818,7 +7961,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY public.migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	147
+Galaxy	lib/galaxy/model/migrate	148
 \.
 
 
@@ -8574,6 +8717,13 @@ SELECT pg_catalog.setval('public.dataset_collection_id_seq', 1, false);
 
 
 --
+-- Name: dataset_hash_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.dataset_hash_id_seq', 1, false);
+
+
+--
 -- Name: dataset_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -8585,6 +8735,20 @@ SELECT pg_catalog.setval('public.dataset_id_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('public.dataset_permissions_id_seq', 1, false);
+
+
+--
+-- Name: dataset_source_hash_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.dataset_source_hash_id_seq', 1, false);
+
+
+--
+-- Name: dataset_source_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.dataset_source_id_seq', 1, false);
 
 
 --
@@ -9774,6 +9938,14 @@ ALTER TABLE ONLY public.dataset_collection
 
 
 --
+-- Name: dataset_hash dataset_hash_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_hash
+    ADD CONSTRAINT dataset_hash_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: dataset_permissions dataset_permissions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -9787,6 +9959,22 @@ ALTER TABLE ONLY public.dataset_permissions
 
 ALTER TABLE ONLY public.dataset
     ADD CONSTRAINT dataset_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dataset_source_hash dataset_source_hash_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_source_hash
+    ADD CONSTRAINT dataset_source_hash_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dataset_source dataset_source_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_source
+    ADD CONSTRAINT dataset_source_pkey PRIMARY KEY (id);
 
 
 --
@@ -11274,6 +11462,13 @@ CREATE INDEX ix_dataset_deleted ON public.dataset USING btree (deleted);
 
 
 --
+-- Name: ix_dataset_hash_dataset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_dataset_hash_dataset_id ON public.dataset_hash USING btree (dataset_id);
+
+
+--
 -- Name: ix_dataset_object_store_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -11299,6 +11494,20 @@ CREATE INDEX ix_dataset_permissions_role_id ON public.dataset_permissions USING 
 --
 
 CREATE INDEX ix_dataset_purged ON public.dataset USING btree (purged);
+
+
+--
+-- Name: ix_dataset_source_dataset_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_dataset_source_dataset_id ON public.dataset_source USING btree (dataset_id);
+
+
+--
+-- Name: ix_dataset_source_hash_dataset_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_dataset_source_hash_dataset_source_id ON public.dataset_source_hash USING btree (dataset_source_id);
 
 
 --
@@ -14552,6 +14761,14 @@ ALTER TABLE ONLY public.dataset_collection_element
 
 
 --
+-- Name: dataset_hash dataset_hash_dataset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_hash
+    ADD CONSTRAINT dataset_hash_dataset_id_fkey FOREIGN KEY (dataset_id) REFERENCES public.dataset(id);
+
+
+--
 -- Name: dataset_permissions dataset_permissions_dataset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -14565,6 +14782,22 @@ ALTER TABLE ONLY public.dataset_permissions
 
 ALTER TABLE ONLY public.dataset_permissions
     ADD CONSTRAINT dataset_permissions_role_id_fkey FOREIGN KEY (role_id) REFERENCES public.role(id);
+
+
+--
+-- Name: dataset_source dataset_source_dataset_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_source
+    ADD CONSTRAINT dataset_source_dataset_id_fkey FOREIGN KEY (dataset_id) REFERENCES public.dataset(id);
+
+
+--
+-- Name: dataset_source_hash dataset_source_hash_dataset_source_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dataset_source_hash
+    ADD CONSTRAINT dataset_source_hash_dataset_source_id_fkey FOREIGN KEY (dataset_source_id) REFERENCES public.dataset_source(id);
 
 
 --

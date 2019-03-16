@@ -14,8 +14,8 @@ GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
 
 # Create these folders and link to target directory for installation
 RUN mkdir -p /export /galaxy-export \
-    && mkdir /galaxy-export/shed_tools \
     && mkdir /galaxy-export/tool_deps \
+    && mkdir /galaxy-export/shed_tools \
     && mkdir /galaxy-export/venv \
     && mkdir /galaxy-export/galaxy-central \
     && mkdir /galaxy-export/nginx_upload_store \
