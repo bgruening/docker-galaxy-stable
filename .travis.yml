@@ -177,13 +177,14 @@ before_install:
 
             until docker-compose exec galaxy-web ps -fC uwsgi
             do
-              echo "Starting up Singularity test container: sleeping for 20 seconds"
+              echo "Starting up Singularity test container: sleeping for 40 seconds"
               sleep 40
               docker-compose logs
             done
+            echo "waiting until Galaxy is up"
             galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 300
             echo "parsec init"
-            parsec init --api_key admin --url localhost:8080
+            parsec init --api_key admin --url $BIOBLEND_GALAXY_URL
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
             DATASET_ID=$(parsec tools paste_content 'asdf' $HISTORY_ID | jq '.outputs[0].id' -r)
             OUTPUT_ID=$(parsec tools run_tool $HISTORY_ID cat '{"input1": {"src": "hda", "id": "'$DATASET_ID'"}}' | jq '.outputs | .[0].id' -r)
