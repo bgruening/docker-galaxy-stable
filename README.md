@@ -310,7 +310,7 @@ docker run -p 8080:80 \
     bgruening/galaxy-stable
 ```
 
-Please note, that your sensitive data is still available in an environment variable. This is convinient for many users, but can also be a security problem if a tool exposes all `env`'s for exmaple. To be on the save site you can change the security related settings in `/export/galaxy-central/config/galaxy.yml` and unset the environment once: `-e "GALAXY_CONFIG_MASTER_API_KEY=''" -e "GALAXY_CONFIG_ADMIN_USERS=''"`
+Please note, that your sensitive data is still available in an environment variable. This is convinient for many users, but can also be a security problem if a tool exposes all `env`'s for example. For better security you can change the security related settings in `/export/galaxy-central/config/galaxy.yml` and unset the related environment variables: `-e "GALAXY_CONFIG_MASTER_API_KEY=''" -e "GALAXY_CONFIG_ADMIN_USERS=''"`
 
 Note, that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.yml`:
 
