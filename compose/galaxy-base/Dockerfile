@@ -117,7 +117,7 @@ RUN ln -s -f /export/shed_tools /shed_tools && \
     ln -s -f /export/tool_deps /tool_deps && \
     ln -s -f /export/galaxy-central /galaxy-central && \
     ln -s -f /export/venv /galaxy_venv && \
-    mkdir /etc/galaxy && ln -s -f /export/welcome /etc/galaxy/web
+    mkdir $GALAXY_CONFIG_DIR && ln -s -f /export/welcome $GALAXY_CONFIG_DIR/web
 
 RUN wget https://dl.influxdata.com/telegraf/releases/telegraf-1.5.0_linux_amd64.tar.gz && \
     cd / && tar xvfz telegraf-1.5.0_linux_amd64.tar.gz && \
