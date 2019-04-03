@@ -311,11 +311,17 @@ file_path = /export/galaxy-central/database/files
 *By default* the `admin_users` and `master_api_key` variables are set to:
 
 ```
-GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
-GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
+admin_users: admin@galaxy.org
+master_api_key: HSNiugRFvgT574F43jZ7N9F3
 ```
 
-You should change these manually in `/export/galaxy-central/config/galaxy.yml` and unset the related environment variables: `-e "GALAXY_CONFIG_MASTER_API_KEY=''" -e "GALAXY_CONFIG_ADMIN_USERS=''"`
+Additionally Galaxy encodes various internal values that can be part of output using secret string configurable as `id_secret` in the config file (use 5-65 bytes long string). This prevents 'guessing' of Galaxy's internal database sequences. Example:
+
+```
+id_secret: d5c910cc6e32cad08599987ab64dcfae
+```
+
+You should change all three configuration variables above manually in `/export/galaxy-central/config/galaxy.yml`.
 
 Alternatively you can pass the security configuration when running the image but please note that it is a security problem. E.g. if a tool exposes all `env`'s your secret API key will also be exposed. 
 
