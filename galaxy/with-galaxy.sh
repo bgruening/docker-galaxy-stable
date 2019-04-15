@@ -48,3 +48,5 @@ then
     rm $install_log
     service postgresql stop
 fi
+
+exit $exit_code
