@@ -225,6 +225,14 @@ When initialization is complete, this container notifies the galaxy handlers to 
 This container runs the actual webhandler.
 As of now, this container also runs nginx, job handlers, cron, docker.
 This container will wait until it is notified via the lock on /export/.initdone. You can disable this mechanism by setting NONUSE=sleeplock.
+
+To configure the container with HTTPS using certificates of your own, you need to modify docker-compose.yml to set the following environment variables
+- USE_HTTPS=True
+- HTTPS_PORT=443
+- GALAXY_CONFIG_WELCOME_URL=/static/welcome.html
+
+and open the ports: "${HTTPS_PORT:-443}:443"
+
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
 ### Configuration <a name="galaxy-web-Configuration" />
