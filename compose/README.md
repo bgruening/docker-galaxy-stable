@@ -230,8 +230,8 @@ To configure the container with HTTPS using certificates of your own, you need t
 - USE_HTTPS=True
 - HTTPS_PORT=443
 - GALAXY_CONFIG_WELCOME_URL=/static/welcome.html
-
-and open the ports: "${HTTPS_PORT:-443}:443"
+and open the ports:
+- "${HTTPS_PORT:-443}:443"
 
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
