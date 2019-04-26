@@ -9,20 +9,22 @@ SCRIPT_NAME="${0##*/}"
 TRUE='true'
 FALSE='false'
 DFT_DOCKER_PUSH_ENABLED=$TRUE
+DFT_DOCKER_BUILD_ENABLED=$TRUE
+TAGS_FOR_COMPOSE_TO_SOURCE=tags-for-compose-to-source.sh
 
 ### Functions ###
 
 function log() {
-  echo -e "$@" >&2
+    echo -e "$@" >&2
 }
 
 function error {
-	local msg=$1
-	local code=$2
-	[[ -z $code ]] && code=1
-	log "[ERROR] $msg"
+    local msg=$1
+    local code=$2
+    [[ -z $code ]] && code=1
+    log "[ERROR] $msg"
 
-	exit $code
+    exit $code
 }
 
 
@@ -35,7 +37,7 @@ function debug {
 }
 
 function warning {
-    local msg=$1
+    local msg=$1.
 
     log "[WARNING] ##### $msg #####"
 }
@@ -50,7 +52,9 @@ function print_help {
         echo "   -g, --debug                    Debug mode. [false]"
         echo "   -h, --help                     Print this help message."
         echo "   -p, --push                     Push docker images. You can also set environment variable DOCKER_PUSH_ENABLED to \"true\". [true]"
-        echo "   +p, --no-push                  Do not push dockers. You can also set environment variable DOCKER_PUSH_ENABLED to \"false\"."
+        echo "   +p, --no-push                  Do not push docker images. You can also set environment variable DOCKER_PUSH_ENABLED to \"false\"."
+        echo "   -b, --buid                     Build docker images. You can also set environment variable DOCKER_BUILD_ENABLED to \"true\". [true]"
+        echo "   +b, --no-build                 Do not build docker images. You can also set environment variable DOCKER_BUILD_ENABLED to \"false\"."
         echo "       --push-intermediate        Also push intermediate images [false]"
         echo "       --no-cache                 Tell Docker not to use cached images. [false]"
         echo "       --init-tag       <tag>     Set the tag for the Galaxy Init Flavour container image."
@@ -79,10 +83,12 @@ function read_args {
             -h|--help)               print_help ; exit 0 ;;
             -p|--push)               DOCKER_PUSH_ENABLED=$TRUE ;;
             +p|--no-push)            DOCKER_PUSH_ENABLED=$FALSE ;;
-            --k8s)                   BUILD_FOR_K8S=$TRUE ;;
-            --condor)                BUILD_FOR_CONDOR=$TRUE ;;
-            --slurm)                 BUILD_FOR_SLURM=$TRUE ;;
-            --grafana)               BUILD_FOR_GRAFANA=$TRUE ;;
+            -b|--build)              DOCKER_BUILD_ENABLED=$TRUE ;;
+            +b|--no-build)           DOCKER_BUILD_ENABLED=$FALSE ;;
+            --k8s)                   MANAGE_K8S=$TRUE ;;
+            --condor)                MANAGE_CONDOR=$TRUE ;;
+            --slurm)                 MANAGE_SLURM=$TRUE ;;
+            --grafana)               MANAGE_GRAFANA=$TRUE ;;
             --push-intermediate)     PUSH_INTERMEDIATE_IMAGES=$TRUE ;;
             --no-cache)              NO_CACHE="--no-cache" ;;
             --postgres-tag)          OVERRIDE_POSTGRES_TAG="$2" ; shift_count=2 ;;
@@ -100,6 +106,7 @@ function read_args {
     debug "Command line arguments: $args"
     debug "Argument DEBUG=$DEBUG"
     debug "Argument DOCKER_PUSH_ENABLED=$DOCKER_PUSH_ENABLED"
+    debug "Argument DOCKER_BUILD_ENABLED=$DOCKER_BUILD_ENABLED"
     debug "Argument DOCKER_USER=$DOCKER_USER"
     debug "Argument OVERRIDE_GALAXY_WEB_TAG=$OVERRIDE_GALAXY_WEB_TAG"
     debug "Argument OVERRIDE_POSTGRES_TAG=$OVERRIDE_POSTGRES_TAG"
@@ -108,13 +115,14 @@ function read_args {
 }
 
 ### MAIN ###
-BUILD_FOR_K8S=$FALSE
-BUILD_FOR_CONDOR=$FALSE
-BUILD_FOR_GRAFANA=$FALSE
-BUILD_FOR_SLURM=$FALSE
+MANAGE_K8S=$FALSE
+MANAGE_CONDOR=$FALSE
+MANAGE_GRAFANA=$FALSE
+MANAGE_SLURM=$FALSE
 
 read_args "$@"
 
+DOCKER_BUILD_ENABLED=${DOCKER_BUILD_ENABLED:-$DFT_DOCKER_BUILD_ENABLED}
 DOCKER_PUSH_ENABLED=${DOCKER_PUSH_ENABLED:-$DFT_DOCKER_PUSH_ENABLED}
 
 DOCKER_REPO=${CONTAINER_REGISTRY:-quay.io/}
@@ -158,7 +166,6 @@ if [[ -n "${OVERRIDE_POSTGRES_TAG:-}" ]]; then
     POSTGRES_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-postgres:$OVERRIDE_POSTGRES_TAG
 else
     PG_Dockerfile="galaxy-postgres/Dockerfile"
-
     [[ -f "${PG_Dockerfile}" ]] || error "The galaxy-postgres Dockerfile is missing under galaxy-Postgres." 99
     POSTGRES_VERSION=$(grep FROM "${PG_Dockerfile}" | awk -F":" '{ print $2 }')
 
@@ -178,97 +185,128 @@ GRAFANA_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-grafana:$TAG
 SLURM_TAG=$DOCKER_REPO$DOCKER_USER/galaxy-slurm:$TAG
 ### do work
 
-if [ -n $ANSIBLE_REPO ]
-    then
-       log "Making custom galaxy-base:$TAG from $ANSIBLE_REPO at $ANSIBLE_RELEASE"
-       docker build $NO_CACHE --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t $GALAXY_BASE_TAG galaxy-base/
-       if [[ ! -z ${PUSH_INTERMEDIATE_IMAGES+x} ]];
-       then
-	         log "Pushing intermediate image $DOCKER_REPO$DOCKER_USER/galaxy-base:$TAG"
-           docker push $GALAXY_BASE_TAG
-       fi
+if [ -n $ANSIBLE_REPO ]; then
+    if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+        log "Making custom galaxy-base:$TAG from $ANSIBLE_REPO at $ANSIBLE_RELEASE"
+        docker build $NO_CACHE --build-arg ANSIBLE_REPO=$ANSIBLE_REPO --build-arg ANSIBLE_RELEASE=$ANSIBLE_RELEASE -t $GALAXY_BASE_TAG galaxy-base/
+        if [[ ! -z ${PUSH_INTERMEDIATE_IMAGES+x} ]]; then
+            log "Pushing intermediate image $DOCKER_REPO$DOCKER_USER/galaxy-base:$TAG"
+            docker push $GALAXY_BASE_TAG
+        fi
+    else
+        log "Pulling Galaxy Base"
+        docker pull $GALAXY_BASE_TAG
+    fi
 fi
 
-
-if [ -n $GALAXY_REPO ]
-    then
-       log "Making custom galaxy-init:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
-       DOCKERFILE_INIT_1=Dockerfile
-       if [ -n $ANSIBLE_REPO ]
-       then
-         sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-init/Dockerfile > galaxy-init/Dockerfile_init
-	       FROM=`grep ^FROM galaxy-init/Dockerfile_init | awk '{ print $2 }'`
-	       log "Using FROM $FROM for galaxy init"
-	       DOCKERFILE_INIT_1=Dockerfile_init
-       fi
-       docker build $NO_CACHE --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE -t $GALAXY_INIT_TAG -f galaxy-init/$DOCKERFILE_INIT_1 galaxy-init/
-       if [[ "${DOCKER_PUSH_ENABLED:-}" = "true" ]]; then
-	       log "Pushing image $GALAXY_INIT_TAG"
-         docker push $GALAXY_INIT_TAG
-       fi
+if [ -n $GALAXY_REPO ]; then
+    if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+        log "Making custom galaxy-init:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
+        DOCKERFILE_INIT_1=Dockerfile
+        if [ -n $ANSIBLE_REPO ]; then
+            sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-init/Dockerfile > galaxy-init/Dockerfile_init
+            FROM=`grep ^FROM galaxy-init/Dockerfile_init | awk '{ print $2 }'`
+            log "Using FROM $FROM for galaxy init"
+            DOCKERFILE_INIT_1=Dockerfile_init
+        fi
+        docker build $NO_CACHE --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE -t $GALAXY_INIT_TAG -f galaxy-init/$DOCKERFILE_INIT_1 galaxy-init/
+        if [[ "${DOCKER_PUSH_ENABLED:-}" = "true" ]]; then
+           log "Pushing image $GALAXY_INIT_TAG"
+           docker push $GALAXY_INIT_TAG
+        fi
+    else
+        log "Pulling Galaxy Init"
+        docker pull $GALAXY_INIT_TAG
+    fi
 fi
 
+# galaxy web
+if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+    DOCKERFILE_WEB=Dockerfile
+    if [ -n $GALAXY_REPO ]; then
+        log "Making custom galaxy-web:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
+        GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-web/Dockerfile | awk '{ print $2 }')
+        sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-web/Dockerfile > galaxy-web/Dockerfile_web
+        FROM=$(grep ^FROM galaxy-web/Dockerfile_web | awk '{ print $2 }')
+        log "Using FROM $FROM for galaxy web"
+        DOCKERFILE_WEB=Dockerfile_web
+    fi
 
-DOCKERFILE_WEB=Dockerfile
-if [ -n $GALAXY_REPO ]
-then
-	log "Making custom galaxy-web:$TAG from $GALAXY_REPO at $GALAXY_RELEASE"
-	GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-web/Dockerfile | awk '{ print $2 }')
-	sed s+$GALAXY_BASE_FROM_TO_REPLACE+$GALAXY_BASE_TAG+ galaxy-web/Dockerfile > galaxy-web/Dockerfile_web
-	FROM=$(grep ^FROM galaxy-web/Dockerfile_web | awk '{ print $2 }')
-	log "Using FROM $FROM for galaxy web"
-	DOCKERFILE_WEB=Dockerfile_web
-fi
-K8S_ANSIBLE_TAGS=""
-if $BUILD_FOR_K8S; then
-  K8S_ANSIBLE_TAGS=,k8,k8s
-fi
-docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,cvmfs$K8S_ANSIBLE_TAGS -t $GALAXY_WEB_TAG -f galaxy-web/$DOCKERFILE_WEB galaxy-web/
-if $DOCKER_PUSH_ENABLED; then
-  docker push $GALAXY_WEB_TAG
+    K8S_ANSIBLE_TAGS=""
+    if $MANAGE_K8S; then
+        K8S_ANSIBLE_TAGS=,k8,k8s
+    fi
+
+    docker build $NO_CACHE --build-arg GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,cvmfs$K8S_ANSIBLE_TAGS -t $GALAXY_WEB_TAG -f galaxy-web/$DOCKERFILE_WEB galaxy-web/
+    if $DOCKER_PUSH_ENABLED; then
+        docker push $GALAXY_WEB_TAG
+    fi
+else
+    docker pull $GALAXY_WEB_TAG
 fi
 
 # Create dump for postgres based on init created here
 export GALAXY_INIT_TAG
 ./dumpsql.sh
 
-# Build postgres
-docker build -t $POSTGRES_TAG -f galaxy-postgres/Dockerfile galaxy-postgres/
-if $DOCKER_PUSH_ENABLED; then
-  docker push $POSTGRES_TAG
+# postgresql
+if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+    docker build -t $POSTGRES_TAG -f galaxy-postgres/Dockerfile galaxy-postgres/
+    if $DOCKER_PUSH_ENABLED; then
+        docker push $POSTGRES_TAG
+    fi
+else
+    docker pull $POSTGRES_TAG
 fi
 
-# Build proftpd
-docker build -t $PROFTPD_TAG -f galaxy-proftpd/Dockerfile galaxy-proftpd/
-if $DOCKER_PUSH_ENABLED; then
-  docker push $PROFTPD_TAG
+# proftpd
+if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+    docker build -t $PROFTPD_TAG -f galaxy-proftpd/Dockerfile galaxy-proftpd/
+    if $DOCKER_PUSH_ENABLED; then
+        docker push $PROFTPD_TAG
+    fi
+else
+    docker pull $PROFTPD_TAG
 fi
 
-# Build condor
-if $BUILD_FOR_CONDOR; then
-  docker build $NO_CACHE -t $CONDOR_BASE_TAG galaxy-htcondor-base
-  sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor/Dockerfile > galaxy-htcondor/Dockerfile_condor
-  FROM=`grep ^FROM galaxy-htcondor/Dockerfile_condor | awk '{ print $2 }'`
-  log "Using FROM $FROM for condor"
-  docker build $NO_CACHE -t $CONDOR_TAG -f galaxy-htcondor/Dockerfile_condor galaxy-htcondor/
-  sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor-executor/Dockerfile > galaxy-htcondor-executor/Dockerfile_condor
-  FROM=`grep ^FROM galaxy-htcondor-executor/Dockerfile_condor | awk '{ print $2 }'`
-  log "Using FROM $FROM for condor-executor"
-  docker build $NO_CACHE -t $CONDOR_EXEC_TAG -f galaxy-htcondor-executor/Dockerfile_condor galaxy-htcondor-executor/
-  if $DOCKER_PUSH_ENABLED; then
-    docker push $CONDOR_TAG
-    docker push $CONDOR_EXEC_TAG
-  fi
+# condor
+if $MANAGE_CONDOR; then
+    if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+        docker build $NO_CACHE -t $CONDOR_BASE_TAG galaxy-htcondor-base
+        sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor/Dockerfile > galaxy-htcondor/Dockerfile_condor
+        FROM=`grep ^FROM galaxy-htcondor/Dockerfile_condor | awk '{ print $2 }'`
+        log "Using FROM $FROM for condor"
+        docker build $NO_CACHE -t $CONDOR_TAG -f galaxy-htcondor/Dockerfile_condor galaxy-htcondor/
+        sed s+$CONDOR_BASE_FROM_TO_REPLACE+$CONDOR_BASE_TAG+ galaxy-htcondor-executor/Dockerfile > galaxy-htcondor-executor/Dockerfile_condor
+        FROM=`grep ^FROM galaxy-htcondor-executor/Dockerfile_condor | awk '{ print $2 }'`
+        log "Using FROM $FROM for condor-executor"
+        docker build $NO_CACHE -t $CONDOR_EXEC_TAG -f galaxy-htcondor-executor/Dockerfile_condor galaxy-htcondor-executor/
+        if $DOCKER_PUSH_ENABLED; then
+            docker push $CONDOR_TAG
+            docker push $CONDOR_EXEC_TAG
+        fi
+    else
+        docker pull $CONDOR_TAG
+        docker pull $CONDOR_EXEC_TAG
+    fi
 fi
 
-# Build for slurm
-if $BUILD_FOR_SLURM; then
-  docker build -t $SLURM_TAG ./galaxy-slurm
+# slurm
+if $MANAGE_SLURM; then
+    if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+        docker build -t $SLURM_TAG ./galaxy-slurm
+    else
+        docker pull $SLURM_TAG
+    fi
 fi
 
-# Build for grafana
-if $BUILD_FOR_GRAFANA; then
-  docker build -t $GRAFANA_TAG ./galaxy-grafana
+# grafana
+if $MANAGE_GRAFANA; then
+    if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then
+        docker build -t $GRAFANA_TAG ./galaxy-grafana
+    else
+        docker pull $GRAFANA_TAG
+    fi
 fi
 
 log "Relevant containers:"
@@ -276,26 +314,26 @@ log "Web:          $GALAXY_WEB_TAG"
 log "Init:         $GALAXY_INIT_TAG"
 log "Postgres:     $POSTGRES_TAG"
 log "Proftpd:      $PROFTPD_TAG"
-if $BUILD_FOR_CONDOR; then
-  log "Condor:       $CONDOR_TAG"
-  log "Condor-exec:  $CONDOR_EXEC_TAG"
+if $MANAGE_CONDOR; then
+    log "Condor:       $CONDOR_TAG"
+    log "Condor-exec:  $CONDOR_EXEC_TAG"
 fi
-if $BUILD_FOR_SLURM; then
-  log "Slurm:        $SLURM_TAG"
+if $MANAGE_SLURM; then
+    log "Slurm:        $SLURM_TAG"
 fi
-if $BUILD_FOR_GRAFANA; then
-  log "Grafana:     $GRAFANA_TAG"
+if $MANAGE_GRAFANA; then
+    log "Grafana:     $GRAFANA_TAG"
 fi
 
 log "Now build your own Galaxy init container starting FROM $GALAXY_INIT_TAG to add you own flavour, tools, workflows, etc."
-if $BUILD_FOR_K8S; then
-  log ""
-  log "For k8s: Once you have built your own init container use it within the galaxy-stable Helm chart at https://github.com/galaxyproject/galaxy-kubernetes together with:"
-  log " - Web: $GALAXY_WEB_TAG"
-  log " - Postgres: $POSTGRES_TAG"
-  log " - Proftpd: $PROFTPD_TAG"
+if $MANAGE_K8S; then
+    log ""
+    log "For k8s: Once you have your own init container use it within the galaxy-stable Helm chart at https://github.com/galaxyproject/galaxy-kubernetes together with:"
+    log " - Web: $GALAXY_WEB_TAG"
+    log " - Postgres: $POSTGRES_TAG"
+    log " - Proftpd: $PROFTPD_TAG"
 fi
 
-echo "export TAG="$(echo $GALAXY_WEB_TAG | awk -F':' '{print $2}')  > tags-for-compose-to-source.sh
-echo "export TAG_POSTGRES="$(echo $POSTGRES_TAG | awk -F':' '{print $2}') >> tags-for-compose-to-source.sh
-echo "export TAG_PROFTPD="$(echo $PROFTPD_TAG | awk -F':' '{print $2}') >> tags-for-compose-to-source.sh
+echo "export TAG="$(echo $GALAXY_WEB_TAG | awk -F':' '{print $2}')  > $TAGS_FOR_COMPOSE_TO_SOURCE
+echo "export TAG_POSTGRES="$(echo $POSTGRES_TAG | awk -F':' '{print $2}') >> $TAGS_FOR_COMPOSE_TO_SOURCE
+echo "export TAG_PROFTPD="$(echo $PROFTPD_TAG | awk -F':' '{print $2}') >> $TAGS_FOR_COMPOSE_TO_SOURCE
