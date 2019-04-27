@@ -221,7 +221,6 @@ before_install:
         mkdir local_folder
         docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
             --name galaxy \
-            --privileged=true \
             -v `pwd`/local_folder:/export/ \
             -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
             -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
