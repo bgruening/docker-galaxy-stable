@@ -165,11 +165,11 @@ before_install:
             docker-compose down
             sleep 20
             echo "Downloading Singularity test files and images."
-            sudo mkdir -p /export/database/container_images/singularity/mulled/
-            sudo curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
-            sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
-            sudo curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
-            sudo chown 1450:1450 /export/cat* /export/database/container_images/ -R
+            docker-compose exec galaxy-web    mkdir -p /export/database/container_images/singularity/mulled/
+            docker-compose exec galaxy-web    curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
+            docker-compose exec galaxy-web    curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
+            docker-compose exec galaxy-web    curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
+            docker-compose exec galaxy-web     chown 1450:1450 /export/cat* /export/database/container_images/ -R
 
             rm .env
             ln -sf .env_slurm_singularity2 .env
@@ -183,7 +183,10 @@ before_install:
               docker-compose logs
             done
             echo "waiting until Galaxy is up"
-            galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 300
+            galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60
+            docker-compose logs galaxy-web
+            galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60
+            docker-compose logs galaxy-web
             echo "parsec init"
             parsec init --api_key admin --url $BIOBLEND_GALAXY_URL
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
