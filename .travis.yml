@@ -119,7 +119,7 @@ before_install:
   - |
     if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
-        pip install docker-compose galaxy-parsec
+        pip install docker-compose galaxy-parsec==1.0.6
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
         export DOCKER_RUN_CONTAINER="galaxy-web"
         INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
@@ -169,6 +169,7 @@ before_install:
             sudo curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
             sudo curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
             sudo curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
+            sudo chown 1450:1450 /export/cat* /export/database/container_images/ -R
 
             rm .env
             ln -sf .env_slurm_singularity2 .env
