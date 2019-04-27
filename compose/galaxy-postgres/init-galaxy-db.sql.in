@@ -427,7 +427,8 @@ CREATE TABLE public.cloudauthz (
     tokens bytea,
     last_update timestamp without time zone,
     last_activity timestamp without time zone,
-    description text
+    description text,
+    create_time timestamp without time zone
 );
 
 
@@ -449,6 +450,43 @@ CREATE SEQUENCE public.cloudauthz_id_seq
 --
 
 ALTER SEQUENCE public.cloudauthz_id_seq OWNED BY public.cloudauthz.id;
+
+
+--
+-- Name: custos_authnz_token; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.custos_authnz_token (
+    id integer NOT NULL,
+    user_id integer,
+    external_user_id character varying(64),
+    provider character varying(255),
+    access_token text,
+    id_token text,
+    refresh_token text,
+    expiration_time timestamp without time zone,
+    refresh_expiration_time timestamp without time zone
+);
+
+
+--
+-- Name: custos_authnz_token_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.custos_authnz_token_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: custos_authnz_token_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.custos_authnz_token_id_seq OWNED BY public.custos_authnz_token.id;
 
 
 --
@@ -923,6 +961,46 @@ CREATE SEQUENCE public.deferred_job_id_seq
 --
 
 ALTER SEQUENCE public.deferred_job_id_seq OWNED BY public.deferred_job.id;
+
+
+--
+-- Name: dynamic_tool; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.dynamic_tool (
+    id integer NOT NULL,
+    uuid character(32),
+    create_time timestamp without time zone,
+    update_time timestamp without time zone,
+    tool_id character varying(255),
+    tool_version character varying(255),
+    tool_format character varying(255),
+    tool_path character varying(255),
+    tool_directory character varying(255),
+    hidden boolean,
+    active boolean,
+    value bytea
+);
+
+
+--
+-- Name: dynamic_tool_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.dynamic_tool_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: dynamic_tool_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.dynamic_tool_id_seq OWNED BY public.dynamic_tool.id;
 
 
 --
@@ -2180,7 +2258,8 @@ CREATE TABLE public.job (
     copied_from_job_id integer,
     job_messages bytea,
     job_stdout text,
-    job_stderr text
+    job_stderr text,
+    dynamic_tool_id integer
 );
 
 
@@ -3249,7 +3328,8 @@ CREATE TABLE public.metadata_file (
     deleted boolean,
     purged boolean,
     lda_id integer,
-    object_store_id character varying(255)
+    object_store_id character varying(255),
+    uuid character(32)
 );
 
 
@@ -5306,6 +5386,38 @@ ALTER SEQUENCE public.visualization_user_share_association_id_seq OWNED BY publi
 
 
 --
+-- Name: worker_process; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.worker_process (
+    id integer NOT NULL,
+    server_name character varying(255),
+    hostname character varying(255),
+    update_time timestamp without time zone
+);
+
+
+--
+-- Name: worker_process_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.worker_process_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: worker_process_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.worker_process_id_seq OWNED BY public.worker_process.id;
+
+
+--
 -- Name: workflow; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -5794,7 +5906,8 @@ CREATE TABLE public.workflow_step (
     order_index integer,
     label character varying(255),
     uuid character(32),
-    subworkflow_id integer
+    subworkflow_id integer,
+    dynamic_tool_id integer
 );
 
 
@@ -6083,6 +6196,13 @@ ALTER TABLE ONLY public.cloudauthz ALTER COLUMN id SET DEFAULT nextval('public.c
 
 
 --
+-- Name: custos_authnz_token id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.custos_authnz_token ALTER COLUMN id SET DEFAULT nextval('public.custos_authnz_token_id_seq'::regclass);
+
+
+--
 -- Name: data_manager_history_association id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -6178,6 +6298,13 @@ ALTER TABLE ONLY public.default_user_permissions ALTER COLUMN id SET DEFAULT nex
 --
 
 ALTER TABLE ONLY public.deferred_job ALTER COLUMN id SET DEFAULT nextval('public.deferred_job_id_seq'::regclass);
+
+
+--
+-- Name: dynamic_tool id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dynamic_tool ALTER COLUMN id SET DEFAULT nextval('public.dynamic_tool_id_seq'::regclass);
 
 
 --
@@ -7056,6 +7183,13 @@ ALTER TABLE ONLY public.visualization_user_share_association ALTER COLUMN id SET
 
 
 --
+-- Name: worker_process id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.worker_process ALTER COLUMN id SET DEFAULT nextval('public.worker_process_id_seq'::regclass);
+
+
+--
 -- Name: workflow id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -7295,7 +7429,15 @@ COPY public.cleanup_event_user_association (id, create_time, cleanup_event_id, u
 -- Data for Name: cloudauthz; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.cloudauthz (id, user_id, provider, config, authn_id, tokens, last_update, last_activity, description) FROM stdin;
+COPY public.cloudauthz (id, user_id, provider, config, authn_id, tokens, last_update, last_activity, description, create_time) FROM stdin;
+\.
+
+
+--
+-- Data for Name: custos_authnz_token; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.custos_authnz_token (id, user_id, external_user_id, provider, access_token, id_token, refresh_token, expiration_time, refresh_expiration_time) FROM stdin;
 \.
 
 
@@ -7408,6 +7550,14 @@ COPY public.default_user_permissions (id, user_id, action, role_id) FROM stdin;
 --
 
 COPY public.deferred_job (id, create_time, update_time, state, plugin, params) FROM stdin;
+\.
+
+
+--
+-- Data for Name: dynamic_tool; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.dynamic_tool (id, uuid, create_time, update_time, tool_id, tool_version, tool_format, tool_path, tool_directory, hidden, active, value) FROM stdin;
 \.
 
 
@@ -7695,7 +7845,7 @@ COPY public.implicitly_created_dataset_collection_inputs (id, dataset_collection
 -- Data for Name: job; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.job (id, create_time, update_time, history_id, tool_id, tool_version, state, info, command_line, param_filename, runner_name, tool_stdout, tool_stderr, traceback, session_id, job_runner_name, job_runner_external_id, library_folder_id, user_id, imported, object_store_id, params, handler, exit_code, destination_id, destination_params, dependencies, copied_from_job_id, job_messages, job_stdout, job_stderr) FROM stdin;
+COPY public.job (id, create_time, update_time, history_id, tool_id, tool_version, state, info, command_line, param_filename, runner_name, tool_stdout, tool_stderr, traceback, session_id, job_runner_name, job_runner_external_id, library_folder_id, user_id, imported, object_store_id, params, handler, exit_code, destination_id, destination_params, dependencies, copied_from_job_id, job_messages, job_stdout, job_stderr, dynamic_tool_id) FROM stdin;
 \.
 
 
@@ -7943,7 +8093,7 @@ COPY public.library_permissions (id, create_time, update_time, action, library_i
 -- Data for Name: metadata_file; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.metadata_file (id, name, hda_id, create_time, update_time, deleted, purged, lda_id, object_store_id) FROM stdin;
+COPY public.metadata_file (id, name, hda_id, create_time, update_time, deleted, purged, lda_id, object_store_id, uuid) FROM stdin;
 \.
 
 
@@ -7961,7 +8111,7 @@ GalaxyTools	lib/tool_shed/galaxy_install/migrate	1
 --
 
 COPY public.migrate_version (repository_id, repository_path, version) FROM stdin;
-Galaxy	lib/galaxy/model/migrate	148
+Galaxy	lib/galaxy/model/migrate	153
 \.
 
 
@@ -8438,6 +8588,14 @@ COPY public.visualization_user_share_association (id, visualization_id, user_id)
 
 
 --
+-- Data for Name: worker_process; Type: TABLE DATA; Schema: public; Owner: -
+--
+
+COPY public.worker_process (id, server_name, hostname, update_time) FROM stdin;
+\.
+
+
+--
 -- Data for Name: workflow; Type: TABLE DATA; Schema: public; Owner: -
 --
 
@@ -8553,7 +8711,7 @@ COPY public.workflow_request_to_input_dataset (id, name, workflow_invocation_id,
 -- Data for Name: workflow_step; Type: TABLE DATA; Schema: public; Owner: -
 --
 
-COPY public.workflow_step (id, create_time, update_time, workflow_id, type, tool_id, tool_version, tool_inputs, tool_errors, "position", config, order_index, label, uuid, subworkflow_id) FROM stdin;
+COPY public.workflow_step (id, create_time, update_time, workflow_id, type, tool_id, tool_version, tool_inputs, tool_errors, "position", config, order_index, label, uuid, subworkflow_id, dynamic_tool_id) FROM stdin;
 \.
 
 
@@ -8689,6 +8847,13 @@ SELECT pg_catalog.setval('public.cloudauthz_id_seq', 1, false);
 
 
 --
+-- Name: custos_authnz_token_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.custos_authnz_token_id_seq', 1, false);
+
+
+--
 -- Name: data_manager_history_association_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -8784,6 +8949,13 @@ SELECT pg_catalog.setval('public.default_user_permissions_id_seq', 1, false);
 --
 
 SELECT pg_catalog.setval('public.deferred_job_id_seq', 1, false);
+
+
+--
+-- Name: dynamic_tool_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.dynamic_tool_id_seq', 1, false);
 
 
 --
@@ -9662,6 +9834,13 @@ SELECT pg_catalog.setval('public.visualization_user_share_association_id_seq', 1
 
 
 --
+-- Name: worker_process_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
+--
+
+SELECT pg_catalog.setval('public.worker_process_id_seq', 1, false);
+
+
+--
 -- Name: workflow_id_seq; Type: SEQUENCE SET; Schema: public; Owner: -
 --
 
@@ -9906,6 +10085,30 @@ ALTER TABLE ONLY public.cloudauthz
 
 
 --
+-- Name: custos_authnz_token custos_authnz_token_external_user_id_provider_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.custos_authnz_token
+    ADD CONSTRAINT custos_authnz_token_external_user_id_provider_key UNIQUE (external_user_id, provider);
+
+
+--
+-- Name: custos_authnz_token custos_authnz_token_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.custos_authnz_token
+    ADD CONSTRAINT custos_authnz_token_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: custos_authnz_token custos_authnz_token_user_id_external_user_id_provider_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.custos_authnz_token
+    ADD CONSTRAINT custos_authnz_token_user_id_external_user_id_provider_key UNIQUE (user_id, external_user_id, provider);
+
+
+--
 -- Name: data_manager_history_association data_manager_history_association_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -10015,6 +10218,14 @@ ALTER TABLE ONLY public.default_user_permissions
 
 ALTER TABLE ONLY public.deferred_job
     ADD CONSTRAINT deferred_job_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: dynamic_tool dynamic_tool_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.dynamic_tool
+    ADD CONSTRAINT dynamic_tool_pkey PRIMARY KEY (id);
 
 
 --
@@ -11039,6 +11250,22 @@ ALTER TABLE ONLY public.visualization_tag_association
 
 ALTER TABLE ONLY public.visualization_user_share_association
     ADD CONSTRAINT visualization_user_share_association_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: worker_process worker_process_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.worker_process
+    ADD CONSTRAINT worker_process_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: worker_process worker_process_server_name_hostname_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.worker_process
+    ADD CONSTRAINT worker_process_server_name_hostname_key UNIQUE (server_name, hostname);
 
 
 --
@@ -13982,20 +14209,6 @@ CREATE INDEX ix_user_address_user_id ON public.user_address USING btree (user_id
 
 
 --
--- Name: ix_user_deleted; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_user_deleted ON public.galaxy_user USING btree (deleted);
-
-
---
--- Name: ix_user_form_values_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_user_form_values_id ON public.galaxy_user USING btree (form_values_id);
-
-
---
 -- Name: ix_user_group_association_group_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -14024,13 +14237,6 @@ CREATE INDEX ix_user_preference_user_id ON public.user_preference USING btree (u
 
 
 --
--- Name: ix_user_purged; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_user_purged ON public.galaxy_user USING btree (purged);
-
-
---
 -- Name: ix_user_quota_association_quota_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -14056,13 +14262,6 @@ CREATE INDEX ix_user_role_association_role_id ON public.user_role_association US
 --
 
 CREATE INDEX ix_user_role_association_user_id ON public.user_role_association USING btree (user_id);
-
-
---
--- Name: ix_user_username; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ix_user_username ON public.galaxy_user USING btree (username);
 
 
 --
@@ -14252,6 +14451,13 @@ CREATE INDEX ix_wfinv_swfinv_wfi ON public.workflow_invocation_to_subworkflow_in
 --
 
 CREATE INDEX ix_wfreq_inputstep_wfi ON public.workflow_request_input_step_parameter USING btree (workflow_invocation_id);
+
+
+--
+-- Name: ix_worker_process_server_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX ix_worker_process_server_name ON public.worker_process USING btree (server_name);
 
 
 --
@@ -14702,6 +14908,14 @@ ALTER TABLE ONLY public.cloudauthz
 
 ALTER TABLE ONLY public.cloudauthz
     ADD CONSTRAINT cloudauthz_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.galaxy_user(id);
+
+
+--
+-- Name: custos_authnz_token custos_authnz_token_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.custos_authnz_token
+    ADD CONSTRAINT custos_authnz_token_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.galaxy_user(id);
 
 
 --
@@ -15478,6 +15692,14 @@ ALTER TABLE ONLY public.implicitly_created_dataset_collection_inputs
 
 ALTER TABLE ONLY public.implicitly_created_dataset_collection_inputs
     ADD CONSTRAINT implicitly_created_dataset_collectio_dataset_collection_id_fkey FOREIGN KEY (dataset_collection_id) REFERENCES public.history_dataset_collection_association(id);
+
+
+--
+-- Name: job job_dynamic_tool_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.job
+    ADD CONSTRAINT job_dynamic_tool_id_fkey FOREIGN KEY (dynamic_tool_id) REFERENCES public.dynamic_tool(id);
 
 
 --
@@ -17070,6 +17292,14 @@ ALTER TABLE ONLY public.workflow_step_connection
 
 ALTER TABLE ONLY public.workflow_step_connection
     ADD CONSTRAINT workflow_step_connection_output_step_id_fkey1 FOREIGN KEY (output_step_id) REFERENCES public.workflow_step(id);
+
+
+--
+-- Name: workflow_step workflow_step_dynamic_tool_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.workflow_step
+    ADD CONSTRAINT workflow_step_dynamic_tool_id_fkey FOREIGN KEY (dynamic_tool_id) REFERENCES public.dynamic_tool(id);
 
 
 --
