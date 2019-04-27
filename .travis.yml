@@ -162,15 +162,14 @@ before_install:
             # we now turn it down again and copy in an example tool with tool_conf.xml and
             # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
             # script will not work as it detects something in /export/
-            docker-compose down
-            sleep 20
             echo "Downloading Singularity test files and images."
             docker-compose exec galaxy-web    mkdir -p /export/database/container_images/singularity/mulled/
             docker-compose exec galaxy-web    curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
             docker-compose exec galaxy-web    curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
             docker-compose exec galaxy-web    curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
             docker-compose exec galaxy-web     chown 1450:1450 /export/cat* /export/database/container_images/ -R
-
+            docker-compose down
+            sleep 20
             rm .env
             ln -sf .env_slurm_singularity2 .env
 
