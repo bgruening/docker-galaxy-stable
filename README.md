@@ -290,32 +290,40 @@ docker run -p 8080:80 \
 
 Every Galaxy configuration parameter in `config/galaxy.ini` can be overwritten by passing an environment variable to the `docker run` command during startup. The name of the environment variable has to be:
 `GALAXY_CONFIG`+ *the_original_parameter_name_in_capital_letters*
-For example, you can set the Galaxy session timeout to 5 minutes by adding `-e "GALAXY_CONFIG_SESSION_DURATION=5"` to the `docker run command`
-
-*by default* the `admin_users`, `master_api_key` and the `brand` variable it set to:
-
-```
-GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
-GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3
-GALAXY_CONFIG_BRAND="Galaxy Docker Build"
-```
-
-You can and should overwrite these during launching your container:
+For example, you can set the Galaxy session timeout to 5 minutes and set your own Galaxy brand by invoking the `docker run` like this:
 
 ```sh
 docker run -p 8080:80 \
-    -e "GALAXY_CONFIG_ADMIN_USERS=albert@einstein.gov" \
-    -e "GALAXY_CONFIG_MASTER_API_KEY=83D4jaba7330aDKHkakjGa937" \
     -e "GALAXY_CONFIG_BRAND='My own Galaxy flavour'" \
+    -e "GALAXY_CONFIG_SESSION_DURATION=5" \
     bgruening/galaxy-stable
 ```
 
-Note that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.ini`:
+Note, that if you would like to run any of the [cleanup scripts](https://wiki.galaxyproject.org/Admin/Config/Performance/Purge%20Histories%20and%20Datasets), you will need to add the following to `/export/galaxy-central/config/galaxy.yml`:
 
 ```
 database_connection = postgresql://galaxy:galaxy@localhost:5432/galaxy
 file_path = /export/galaxy-central/database/files
 ```
+
+## Security Configuration
+
+*By default* the `admin_users` and `master_api_key` variables are set to:
+
+```
+admin_users: admin@galaxy.org
+master_api_key: HSNiugRFvgT574F43jZ7N9F3
+```
+
+Additionally Galaxy encodes various internal values that can be part of output using secret string configurable as `id_secret` in the config file (use 5-65 bytes long string). This prevents 'guessing' of Galaxy's internal database sequences. Example:
+
+```
+id_secret: d5c910cc6e32cad08599987ab64dcfae
+```
+
+You should change all three configuration variables above manually in `/export/galaxy-central/config/galaxy.yml`.
+
+Alternatively you can pass the security configuration when running the image but please note that it is a security problem. E.g. if a tool exposes all `env`'s your secret API key will also be exposed. 
 
 ## Configuring Galaxy's behind a proxy <a name="Galaxy-behind-proxy" /> [[toc]](#toc)
 
