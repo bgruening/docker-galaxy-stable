@@ -129,15 +129,17 @@ DOCKER_REPO=${CONTAINER_REGISTRY:-quay.io/}
 DOCKER_USER=${CONTAINER_USER:-bgruening}
 
 ANSIBLE_REPO=${ANSIBLE_REPO:-galaxyproject/ansible-galaxy-extras}
-ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-master}
+ANSIBLE_RELEASE=${ANSIBLE_RELEASE:-19.05}
 
-GALAXY_VERSION=${GALAXY_VERSION:-19.01}
+GALAXY_VERSION=${GALAXY_VERSION:-dev}
 
 # GALAXY_BASE_FROM_TO_REPLACE=${GALAXY_BASE_FROM_TO_REPLACE:-quay.io/bgruening/galaxy-base:$GALAXY_VERSION}
 GALAXY_BASE_FROM_TO_REPLACE=$(grep ^FROM galaxy-init/Dockerfile | awk '{ print $2 }') # init starts from base, so we get it from there.
 CONDOR_BASE_FROM_TO_REPLACE=quay.io/bgruening/galaxy-htcondor-base:$GALAXY_VERSION
 
-GALAXY_RELEASE=${GALAXY_RELEASE:-release_$GALAXY_VERSION}
+
+# for releases this needs to be ${GALAXY_RELEASE:-release_$GALAXY_VERSION}, for dev versions ${GALAXY_RELEASE:-$GALAXY_VERSION}
+GALAXY_RELEASE=${GALAXY_RELEASE:-$GALAXY_VERSION}
 GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
 
 GALAXY_VER_FOR_POSTGRES=$GALAXY_VERSION
@@ -198,6 +200,7 @@ if [ -n $ANSIBLE_REPO ]; then
         docker pull $GALAXY_BASE_TAG
     fi
 fi
+
 
 if [ -n $GALAXY_REPO ]; then
     if [[ "${DOCKER_BUILD_ENABLED:-}" = "true" ]]; then

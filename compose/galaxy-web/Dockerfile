@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:19.01
+FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -22,10 +22,7 @@ GALAXY_HANDLER_NUMPROCS=2
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
-    echo "deb https://deb.nodesource.com/node_9.x $(lsb_release -sc) main" > /etc/apt/sources.list.d/nodejs.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68576280 && \
-    apt-get update -qq && \
-    apt-get install --no-install-recommends -y nodejs \
+    apt-get install --no-install-recommends -y \
     nginx-extras nginx-common supervisor autofs slurm-wlm slurm-wlm-torque && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
@@ -53,7 +50,7 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars galaxy_extras_config_rabbitmq=False \
-    --extra-vars galaxy_extras_config_slurm=False \
+    --extra-vars galaxy_extras_config_slurm=True \
     --extra-vars galaxy_extras_config_proftpd=False \
     --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars galaxy_tool_data_table_config_file=/etc/galaxy/tool_data_table_conf.xml \
@@ -71,8 +68,15 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=$GALAXY_ANSIBLE_TAGS -c local && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    --tags=$GALAXY_ANSIBLE_TAGS -c local \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    # cleanup dance
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_CONDA_PREFIX -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
 
 RUN chmod +x /usr/bin/startup
 

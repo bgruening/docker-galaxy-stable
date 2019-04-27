@@ -4,7 +4,7 @@ import shutil
 import argparse
 import subprocess
 
-POSTGRES_VERSION = "9.3"
+POSTGRES_VERSION = "10"
 
 PG_BIN = "/usr/lib/postgresql/%s/bin/" % POSTGRES_VERSION
 PG_CONF = '/etc/postgresql/%s/main/postgresql.conf' % POSTGRES_VERSION

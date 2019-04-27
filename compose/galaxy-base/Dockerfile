@@ -7,7 +7,12 @@ FROM ubuntu:18.04
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG ANSIBLE_REPO=galaxyproject/ansible-galaxy-extras
-ARG ANSIBLE_RELEASE=master
+ARG ANSIBLE_RELEASE=19.05
+
+
+## TODO:
+## * replace wget with curl everywhere
+##
 
 ENV DEBIAN_FRONTEND=noninteractive \
 GALAXY_USER=galaxy \
@@ -59,31 +64,43 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY=$GALAXY_ROOT/database/job_working_directory 
 HOME=$GALAXY_HOME
 
 # not to call sync() after package extraction and deactivate apt cache
-RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
-    echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout && \
-    echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries && \
-    apt-get -qq update && apt-get install --no-install-recommends -y locales && \
-    locale-gen en_US.UTF-8 && dpkg-reconfigure locales && \
-    apt-get install --no-install-recommends -y apt-transport-https gnupg && \
-    echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 && \
-    apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y sudo \
-        supervisor linux-image-extra-virtual munge \
-        ansible nano python-pip wget htcondor \
-        unattended-upgrades \
-        gridengine-drmaa1.0 && \
-    pip install ephemeris virtualenv && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    mkdir -p /tmp/download && \
-    wget -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download && \
-    mv /tmp/download/docker/docker /usr/bin/ && \
-    rm -rf /tmp/download && \
-    rm -rf ~/.cache/
+RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
+    && echo 'Acquire::http::Timeout "20";' > /etc/apt/apt.conf.d/98AcquireTimeout \
+    && echo 'Acquire::Retries "5";' > /etc/apt/apt.conf.d/99AcquireRetries \
+    && apt-get -qq update \
+    && apt-get install --no-install-recommends -y locales \
+    && locale-gen en_US.UTF-8 \
+    && dpkg-reconfigure locales \
+    && apt-get install --no-install-recommends -y apt-transport-https gnupg \
+    && echo "deb [arch=amd64] http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main" > /etc/apt/sources.list.d/ansible.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 7BB9C367 \
+    && apt-get update -qq \
+    && apt-get install --no-install-recommends -y \
+            sudo \
+            supervisor \
+            # I don't think this is needed anymore .. isn't it?
+            #linux-image-extra-virtual \
+            munge \
+            ansible nano python-pip curl wget htcondor \
+            gridengine-drmaa1.0 \
+    && pip install ephemeris virtualenv \
+    && apt-get autoremove -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && mkdir -p /tmp/download \
+    && wget -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download \
+    && mv /tmp/download/docker/docker /usr/bin/ \
+    # cleanup dance
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_CONDA_PREFIX -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
-RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog && \
-    mkdir -p /var/run/condor/ /var/lock/condor/ && \
-    chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
+
+RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog \
+    && mkdir -p /var/run/condor/ /var/lock/condor/ \
+    && chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
@@ -93,7 +110,10 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Container Style
 ADD condor_config.local /etc/condor/condor_config.local
 # fetch ansible galaxy extras
-RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && cd /ansible/galaxyprojectdotorg.galaxyextras && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
+
+RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras \
+    && cd /ansible/galaxyprojectdotorg.galaxyextras \
+    && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
 ADD provision.yml /ansible/provision.yml
 
 # Install database script
@@ -113,11 +133,12 @@ ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG=/export/galaxy-central/integrated
 
 # Create symlinks for export, the destination will be created by galaxy-init
 # TODO: Is this even required?
-RUN ln -s -f /export/shed_tools /shed_tools && \
-    ln -s -f /export/tool_deps /tool_deps && \
-    ln -s -f /export/galaxy-central /galaxy-central && \
-    ln -s -f /export/venv /galaxy_venv && \
-    mkdir /etc/galaxy && ln -s -f /export/welcome /etc/galaxy/web
+RUN ln -s -f /export/shed_tools /shed_tools \
+    && ln -s -f /export/tool_deps /tool_deps \
+    && ln -s -f /export/galaxy-central /galaxy-central \
+    && ln -s -f /export/venv /galaxy_venv \
+    && mkdir -p $GALAXY_CONFIG_DIR \
+    && ln -s -f /export/welcome $GALAXY_CONFIG_DIR/web
 
 RUN wget https://dl.influxdata.com/telegraf/releases/telegraf-1.5.0_linux_amd64.tar.gz && \
     cd / && tar xvfz telegraf-1.5.0_linux_amd64.tar.gz && \
