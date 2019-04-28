@@ -207,6 +207,7 @@ before_install:
             echo "waiting until Galaxy is up"
             docker ps
             pip show ephemeris
+            which galaxy-wait
             #galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60 -v
             #docker-compose logs galaxy-web
             #galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60 -v
