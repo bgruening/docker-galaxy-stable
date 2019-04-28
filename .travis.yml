@@ -126,7 +126,8 @@ before_install:
         if [[ $(($size/(1024*1024))) -ge $2 ]]
         then
             echo "The new compiled image ($1) is larger then allowed. $size vs $2"
-            exit
+            sleep 2
+            #exit
         fi
     }
 
