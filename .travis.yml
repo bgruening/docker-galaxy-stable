@@ -214,7 +214,7 @@ before_install:
             #docker-compose logs galaxy-web
             #galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60 -v
             docker-compose logs galaxy-web
-            sleep 300
+            sleep 500
             docker-compose logs
             echo "parsec init"
             parsec init --api_key admin --url $BIOBLEND_GALAXY_URL
