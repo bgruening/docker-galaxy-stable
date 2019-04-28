@@ -117,6 +117,19 @@ before_install:
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
   - |
+    ## define a container size check function, first parameter is the container name, second the max allowed size in MB
+    container_size_check () {
+
+        # check that the image size is not growing too much between releases
+        # the 19.05 monolithic image was around 1.500 MB
+        size=`docker image inspect $1 --format='{{.Size}}'`
+        if [[ $(($size/(1024*1024)) -ge $2 ]]
+        then
+            echo "The new compiled image ($1) is larger then allowed. $size vs $2"
+            exit
+        fi
+    }
+
     if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
         pip install docker-compose galaxy-parsec==1.0.6
@@ -130,6 +143,11 @@ before_install:
         export CONTAINER_USER=bgruening
         ./build-orchestration-images.sh --no-push --condor --grafana --slurm --k8s
         source ./tags-for-compose-to-source.sh
+
+        container_size_check   quay.io/bgruening/galaxy-base:dev:$TAG               350
+        container_size_check   quay.io/bgruening/galaxy-web:$TAG                    650
+        container_size_check   quay.io/bgruening/galaxy-htcondor-base:dev:$TAG      280
+
         export COMPOSE_PROJECT_NAME=galaxy_compose
         docker-compose up -d
 
@@ -227,15 +245,9 @@ before_install:
         SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
         cd "$WORKING_DIR"
         docker build -t quay.io/bgruening/galaxy galaxy/
-        
-        # check that the image size is not growing too much between releases
-        # the 19.05 image was around 1.500.000 MB
-        if [[ $((`docker image inspect quay.io/bgruening/galaxy --format='{{.Size}}'`/1024)) -ge 1600000 ]]
-        then
-            echo 'The new compiled image is way larger then the previous'
-            exit
-        fi
-        
+
+        container_size_check   quay.io/bgruening/galaxy  1500
+
         mkdir local_folder
         docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
             --name galaxy \
