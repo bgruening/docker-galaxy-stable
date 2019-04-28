@@ -182,6 +182,10 @@ before_install:
               docker-compose logs
             done
             docker-compose logs galaxy-web
+            sleep 30
+            docker-compose logs galaxy-web
+            sleep 30
+            docker-compose logs galaxy-web
             echo "waiting until Galaxy is up"
             galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60
             docker-compose logs galaxy-web
