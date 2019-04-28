@@ -123,9 +123,10 @@ before_install:
         # check that the image size is not growing too much between releases
         # the 19.05 monolithic image was around 1.500 MB
         size=`docker image inspect $1 --format='{{.Size}}'`
-        if [[ $(($size/(1024*1024))) -ge $2 ]]
+        size_in_mb=$(($size/(1024*1024)))
+        if [[ $size_in_mb -ge $2 ]]
         then
-            echo "The new compiled image ($1) is larger then allowed. $size vs $2"
+            echo "The new compiled image ($1) is larger than allowed. $size_in_mb vs. $2"
             sleep 2
             #exit
         fi
@@ -145,7 +146,7 @@ before_install:
         ./build-orchestration-images.sh --no-push --condor --grafana --slurm --k8s
         source ./tags-for-compose-to-source.sh
 
-        container_size_check   quay.io/bgruening/galaxy-base:$TAG               350
+        container_size_check   quay.io/bgruening/galaxy-base:$TAG               350 
         container_size_check   quay.io/bgruening/galaxy-web:$TAG                650
         container_size_check   quay.io/bgruening/galaxy-htcondor-base:$TAG      280
 
@@ -213,6 +214,8 @@ before_install:
             #docker-compose logs galaxy-web
             #galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60 -v
             docker-compose logs galaxy-web
+            sleep 300
+            docker-compose logs
             echo "parsec init"
             parsec init --api_key admin --url $BIOBLEND_GALAXY_URL
             HISTORY_ID=$(parsec histories create_history | jq .id -r)
