@@ -123,7 +123,7 @@ before_install:
         # check that the image size is not growing too much between releases
         # the 19.05 monolithic image was around 1.500 MB
         size=`docker image inspect $1 --format='{{.Size}}'`
-        if [[ $(($size/(1024*1024)) -ge $2 ]]
+        if [[ $(($size/(1024*1024))) -ge $2 ]]
         then
             echo "The new compiled image ($1) is larger then allowed. $size vs $2"
             exit
