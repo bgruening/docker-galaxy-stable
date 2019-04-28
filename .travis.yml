@@ -224,7 +224,11 @@ before_install:
         
         # check that the image size is not growing too much between releases
         # the 19.05 image was around 1.500.000 MB
-        if [[ $((`docker image inspect quay.io/bgruening/galaxy --format='{{.Size}}'`/1024)) -ge 1600000 ]]; then exit('The new compiled image is way larger then the previous'); fi
+        if [[ $((`docker image inspect quay.io/bgruening/galaxy --format='{{.Size}}'`/1024)) -ge 1600000 ]]
+        then
+            echo 'The new compiled image is way larger then the previous'
+            exit
+        fi
         
         mkdir local_folder
         docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
