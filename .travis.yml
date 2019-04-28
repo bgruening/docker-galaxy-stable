@@ -181,6 +181,7 @@ before_install:
               sleep 40
               docker-compose logs
             done
+            docker-compose logs galaxy-web
             echo "waiting until Galaxy is up"
             galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60
             docker-compose logs galaxy-web
@@ -220,6 +221,11 @@ before_install:
         SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
         cd "$WORKING_DIR"
         docker build -t quay.io/bgruening/galaxy galaxy/
+        
+        # check that the image size is not growing too much between releases
+        # the 19.05 image was around 1.500.000 MB
+        if [[ $((`docker image inspect quay.io/bgruening/galaxy --format='{{.Size}}'`/1024)) -ge 1600000 ]]; then exit('The new compiled image is way larger then the previous'); fi
+        
         mkdir local_folder
         docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
             --name galaxy \
