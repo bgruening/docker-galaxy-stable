@@ -3,7 +3,7 @@
 INIT_IMAGE=${GALAXY_INIT_TAG:-"quay.io/bgruening/galaxy-init:dev"}
 
 # Sets the image of postgres to use
-POSTGRES=postgres:10.7
+POSTGRES=postgres:11.2
 
 # User and password to use.
 POSTGRES_USER=galaxy
