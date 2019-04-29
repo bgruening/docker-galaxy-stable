@@ -134,7 +134,7 @@ before_install:
 
     if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
-        pip install docker-compose galaxy-parsec==1.0.6
+        pip install docker-compose galaxy-parsec
         export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
         export DOCKER_RUN_CONTAINER="galaxy-web"
         INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
