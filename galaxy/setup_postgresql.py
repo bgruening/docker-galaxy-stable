@@ -4,10 +4,11 @@ import shutil
 import argparse
 import subprocess
 
-POSTGRES_VERSION = "10"
+POSTGRES_VERSION = "11"
 
 PG_BIN = "/usr/lib/postgresql/%s/bin/" % POSTGRES_VERSION
 PG_CONF = '/etc/postgresql/%s/main/postgresql.conf' % POSTGRES_VERSION
+
 
 def pg_ctl( database_path, mod = 'start' ):
     """
@@ -50,6 +51,7 @@ def create_pg_db(user, password, database, database_path):
 
     subprocess.call("su - postgres -c 'createdb -O %s %s'" % (user, database), shell=True)
     subprocess.call('service postgresql stop', shell=True)
+
 
 if __name__ == "__main__":
 

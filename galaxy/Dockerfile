@@ -21,7 +21,9 @@ GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
 EXPORT_DIR=/export \
-DEBIAN_FRONTEND=noninteractive
+DEBIAN_FRONTEND=noninteractive \
+PG_VERSION=11
+
 
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml \
 GALAXY_CONFIG_JOB_CONFIG_FILE=$GALAXY_CONFIG_DIR/job_conf.xml \
@@ -50,9 +52,9 @@ GALAXY_CONFIG_MASTER_API_KEY=HSNiugRFvgT574F43jZ7N9F3 \
 GALAXY_CONFIG_BRAND="Galaxy Docker Build" \
 GALAXY_CONFIG_STATIC_ENABLED=False \
 # Define the default postgresql database path
-PG_DATA_DIR_DEFAULT=/var/lib/postgresql/10/main/ \
-PG_CONF_DIR_DEFAULT=/etc/postgresql/10/main/ \
-PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/10/main/ \
+PG_DATA_DIR_DEFAULT=/var/lib/postgresql/$PG_VERSION/main/ \
+PG_CONF_DIR_DEFAULT=/etc/postgresql/$PG_VERSION/main/ \
+PG_DATA_DIR_HOST=$EXPORT_DIR/postgresql/$PG_VERSION/main/ \
 # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
 UWSGI_PROCESSES=2 \
 UWSGI_THREADS=4 \
@@ -84,7 +86,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
     && sudo add-apt-repository ppa:natefoo/slurm-drmaa \
     && apt-get update -qq \
-    && apt-get purge -y software-properties-common gpg-agent \
+    ## && apt-get purge -y software-properties-common gpg-agent \
     ## && apt-get install postgresql-10 --no-install-recommends -y \
     && apt-get install nginx-extras nginx-common --no-install-recommends -y \
     && apt-get install docker-ce-cli --no-install-recommends -y \
@@ -162,9 +164,9 @@ ADD provision.yml /ansible/provision.yml
 ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
 ## This is playbook is modifying/installing python2 and python3 stuff
-RUN apt update && apt install --no-install-recommends -y ansible \
+RUN apt update -qq && apt install --no-install-recommends -y ansible dirmngr gpg gpg-agent \
     && ansible-playbook /ansible/postgresql_provision.yml \
-    && apt purge ansible -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && apt purge ansible dirmngr gpg gpg-agent -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
@@ -186,7 +188,7 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && ln -s /tool_deps/ $EXPORT_DIR/tool_deps \
     # Configure Galaxy to use the Tool Shed
     && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
-    && apt update && apt install --no-install-recommends -y ansible \
+    && apt update -qq && apt install --no-install-recommends -y ansible \
     && ansible-playbook /ansible/provision.yml \
         --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
         --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \

@@ -3,11 +3,12 @@
   remote_user: root
   vars:
     postgresql_backup_local_dir: /export/postgresql_backup/
-    postgresql_version: 10
+    postgresql_version: 11
+    postgresql_flavor: pgdg
     postgresql_conf:
       listen_addresses: "'*'"
-      hba_file: "'/etc/postgresql/10/main/pg_hba.conf'"
-      ident_file: "'/etc/postgresql/10/main/pg_ident.conf'"
+      hba_file: "'/etc/postgresql/11/main/pg_hba.conf'"
+      ident_file: "'/etc/postgresql/11/main/pg_ident.conf'"
     postgresql_pg_hba_conf:
       - host all all 0.0.0.0/0 md5
   roles:
