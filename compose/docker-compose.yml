@@ -247,8 +247,8 @@ services:
   grafana:
     image: quay.io/bgruening/galaxy-grafana:${TAG:-latest}
     env_file: .env
-    volumes:
-        - ${EXPORT_DIR:-/export}/grafana:/var/lib/grafana
+    #volumes:
+        #- ${EXPORT_DIR:-/export}/grafana:/var/lib/grafana
     networks:
       - galaxy
     ports:
