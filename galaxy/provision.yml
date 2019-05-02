@@ -1,5 +1,7 @@
 - hosts: localhost
   connection: local
+  vars:
+    postgresql_version: 11
   roles:
       - role: galaxyprojectdotorg.galaxyextras
         tags: galaxyextras
