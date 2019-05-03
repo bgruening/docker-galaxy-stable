@@ -303,6 +303,10 @@ RUN chmod +x /usr/bin/install-tools /usr/bin/install-biojs && \
 RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.local && \
     echo "TRUST_UID_DOMAIN=true" >> /etc/condor/condor_config.local
 
+# use https://github.com/krallin/tini/ as tiny but valid init and PID 1
+ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
+RUN chmod +x /sbin/tini
+
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG $EXPORT_DIR/galaxy-central/integrated_tool_panel.xml
@@ -319,6 +323,8 @@ VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
 ADD install_db.sh /usr/bin/install_db.sh
 RUN chmod +x /usr/bin/install_db.sh
+
+ENTRYPOINT ["/sbin/tini", "--"]
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]
