@@ -1,22 +1,17 @@
-import sys
 import os
 import shutil
 import argparse
 import subprocess
 
-POSTGRES_VERSION = "11"
 
-PG_BIN = "/usr/lib/postgresql/%s/bin/" % POSTGRES_VERSION
-PG_CONF = '/etc/postgresql/%s/main/postgresql.conf' % POSTGRES_VERSION
-
-
-def pg_ctl(database_path, mod='start'):
+def pg_ctl(database_path, database_version, mod='start'):
     """
         Start/Stop PostgreSQL with variable data_directory.
         mod = [start, end, restart, reload]
     """
+    pg_conf = '/etc/postgresql/%s/main/postgresql.conf' % database_version
     new_data_directory = "'%s'" % database_path
-    cmd = 'sed -i "s|data_directory = .*|data_directory = %s|g" %s' % (new_data_directory, PG_CONF)
+    cmd = 'sed -i "s|data_directory = .*|data_directory = %s|g" %s' % (new_data_directory, pg_conf)
     subprocess.call(cmd, shell=True)
     subprocess.call('service postgresql %s' % mod, shell=True)
 
@@ -29,14 +24,15 @@ def set_pg_permission(database_path):
     subprocess.call('chmod -R 0700 %s' % database_path, shell=True)
 
 
-def create_pg_db(user, password, database, database_path):
+def create_pg_db(user, password, database, database_path, database_version):
     """
         Initialize PostgreSQL Database, add database user und create the Galaxy Database.
     """
+    pg_bin = "/usr/lib/postgresql/%s/bin/" % database_version
     os.makedirs(database_path)
     set_pg_permission(database_path)
     # initialize a new postgres database
-    subprocess.call("su - postgres -c '%s --auth=trust --encoding UTF8 --pgdata=%s'" % (os.path.join(PG_BIN, 'initdb'),
+    subprocess.call("su - postgres -c '%s --auth=trust --encoding UTF8 --pgdata=%s'" % (os.path.join(pg_bin, 'initdb'),
                                                                                         database_path), shell=True)
 
     shutil.copy('/etc/ssl/certs/ssl-cert-snakeoil.pem', os.path.join(database_path, 'server.crt'))
@@ -45,10 +41,10 @@ def create_pg_db(user, password, database, database_path):
     set_pg_permission(os.path.join(database_path, 'server.key'))
 
     # change data_directory in postgresql.conf and start the service with the new location
-    pg_ctl(database_path, 'start')
+    pg_ctl(database_path, database_version, 'start')
 
-    subprocess.call("""su - postgres -c "psql --command \\"CREATE USER galaxy WITH SUPERUSER PASSWORD 'galaxy'\\";"
-                    """, shell=True)
+    subprocess.call("""su - postgres -c "psql --command \\"CREATE USER %s WITH SUPERUSER PASSWORD '%s'\\";"
+                    """ % (user, password), shell=True)
 
     subprocess.call("su - postgres -c 'createdb -O %s %s'" % (user, database), shell=True)
     subprocess.call('service postgresql stop', shell=True)
@@ -72,7 +68,7 @@ if __name__ == "__main__":
     parser.add_argument("--dbpath",
                         help="Galaxy Database path.")
 
-    parser.add_argument("--dbversion",
+    parser.add_argument("--dbversion", default='11',
                         help="Postgresql server major version.")
 
     options = parser.parse_args()
@@ -82,6 +78,4 @@ if __name__ == "__main__":
         This database is the default one, created by the Dockerfile. 
         The user can set a volume (-v /path/:/export/) to get a persistent database.
     """
-    create_pg_db(options.dbuser, options.dbpassword, options.db_name, options.dbpath)
-
-
+    create_pg_db(options.dbuser, options.dbpassword, options.db_name, options.dbpath, options.dbversion)
