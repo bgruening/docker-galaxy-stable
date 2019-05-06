@@ -9,7 +9,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
 GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
 
 # Create these folders and link to target directory for installation
