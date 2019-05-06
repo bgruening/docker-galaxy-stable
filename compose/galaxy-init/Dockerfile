@@ -2,15 +2,12 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:dev
+ARG GALAXY_RELEASE=${GALAXY_RELEASE:-dev}
+FROM quay.io/bgruening/galaxy-base:${GALAXY_RELEASE}
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_RELEASE
-ARG GALAXY_REPO
-
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-dev} \
-GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
+ARG GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
 
 # Create these folders and link to target directory for installation
 RUN mkdir -p /export /galaxy-export \
