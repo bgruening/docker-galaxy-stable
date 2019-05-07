@@ -2,12 +2,16 @@
 #
 # VERSION       Galaxy-central
 
-ARG GALAXY_RELEASE=${GALAXY_RELEASE:-dev}
-FROM quay.io/bgruening/galaxy-base:${GALAXY_RELEASE}
+ARG GALAXY_BASE_TAG=dev
+FROM quay.io/bgruening/galaxy-base:${GALAXY_BASE_TAG}
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-ARG GALAXY_REPO=${GALAXY_REPO:-galaxyproject/galaxy}
+ARG GALAXY_RELEASE=dev
+ARG GALAXY_REPO=galaxyproject/galaxy
+
+ENV GALAXY_RELEASE=${GALAXY_RELEASE} \
+    GALAXY_REPO=${GALAXY_REPO}
 
 # Create these folders and link to target directory for installation
 RUN mkdir -p /export /galaxy-export \
@@ -26,7 +30,7 @@ RUN mkdir -p /export /galaxy-export \
     && ln -s -f /galaxy-export/venv /export/venv \
     && ln -s -f /galaxy-export/galaxy-central /export/galaxy-central \
     && chown -R $GALAXY_USER:$GALAXY_USER /galaxy-export /export \
-    && curl -L -s https://github.com/$GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
+    && curl -L -s https://github.com/galaxyproject/galaxy/archive/release_19.05.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && virtualenv $GALAXY_VIRTUAL_ENV \
     && cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE \
     # this can be removed?

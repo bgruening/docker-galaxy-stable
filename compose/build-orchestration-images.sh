@@ -212,7 +212,7 @@ if [ -n $GALAXY_REPO ]; then
             log "Using FROM $FROM for galaxy init"
             DOCKERFILE_INIT_1=Dockerfile_init
         fi
-        docker build $NO_CACHE --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE -t $GALAXY_INIT_TAG -f galaxy-init/$DOCKERFILE_INIT_1 galaxy-init/
+        docker build $NO_CACHE --build-arg GALAXY_REPO=$GALAXY_REPO --build-arg GALAXY_RELEASE=$GALAXY_RELEASE --build-arg GALAXY_BASE_TAG=$TAG -t $GALAXY_INIT_TAG -f galaxy-init/$DOCKERFILE_INIT_1 galaxy-init/
         if [[ "${DOCKER_PUSH_ENABLED:-}" = "true" ]]; then
            log "Pushing image $GALAXY_INIT_TAG"
            docker push $GALAXY_INIT_TAG
