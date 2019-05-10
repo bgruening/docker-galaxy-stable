@@ -1,22 +1,4 @@
 #!/usr/bin/bash
-{% if startup_sleeplock|bool %}
-echo "Waiting for galaxy-init"
-# Wait until the $SLEEPLOCK_FILE existis in the /export folder.
-# Can be disabled by NONUSE=sleeplock
-if [[ $NONUSE != *"sleeplock"* ]]
-then
-    SLEEPLOCK_FILE=${SLEEPLOCK_FILE:-/export/.initdone}
-
-    touch $SLEEPLOCK_FILE
-    until [ "$(cat $SLEEPLOCK_FILE)" == "done"  ]
-    do
-        echo "Sleeping another 5s and wait for the galaxy-init container."
-        sleep 5
-    done
-
-    echo "Init done"
-fi
-{% elif startup_embed|bool %}
 echo "Initializing export"
 # Always copy current config to .distribution_config
 echo "Copying to /export/.distribution_config"
@@ -61,7 +43,6 @@ done
 } || echo "Moving docker lib failed, this is not a fatal error"
 
 echo "Initialization complete"
-{% endif %}
 
 # Migration path for old images that had the tool_deps under /export/galaxy-central/tool_deps/
 
@@ -103,8 +84,8 @@ if [ "x$PROXY_PREFIX" != "x" ]
         ansible localhost -m lineinfile -a "path=${GALAXY_CONFIG_FILE} insertafter='^uwsgi:' line='  socket: unix:///srv/galaxy/var/uwsgi.sock'" &> /dev/null
 
         # Also set SCRIPT_NAME. It's not always necessary due to manage-script-name: true in galaxy.yml, but it makes life easier in this container + it does no harm
-        ansible localhost -m lineinfile -a "path={{ nginx_conf_directory }}/uwsgi.conf regexp='^    uwsgi_param SCRIPT_NAME' state=absent" &> /dev/null
-        ansible localhost -m lineinfile -a "path={{ nginx_conf_directory }}/uwsgi.conf insertafter='^    include uwsgi_params' line='    uwsgi_param SCRIPT_NAME ${PROXY_PREFIX};'" &> /dev/null
+        ansible localhost -m lineinfile -a "path=/etc/nginx/conf.d/uwsgi.conf regexp='^    uwsgi_param SCRIPT_NAME' state=absent" &> /dev/null
+        ansible localhost -m lineinfile -a "path=/etc/nginx/conf.d/uwsgi.conf insertafter='^    include uwsgi_params' line='    uwsgi_param SCRIPT_NAME ${PROXY_PREFIX};'" &> /dev/null
     fi
 
     ansible localhost -m ini_file -a "dest=${GALAXY_CONFIG_DIR}/reports_wsgi.ini section=filter:proxy-prefix option=prefix value=${PROXY_PREFIX}/reports" &> /dev/null
@@ -135,11 +116,11 @@ if [ "x$DISABLE_REPORTS_AUTH" != "x" ]
     then
         # disable authentification
         echo "Disable Galaxy reports authentification "
-        echo "" > {{ nginx_conf_directory }}/reports_auth.conf
+        echo "" > /etc/nginx/conf.d/reports_auth.conf
     else
         # enable authentification
         echo "Enable Galaxy reports authentification "
-        cp {{ nginx_conf_directory }}/reports_auth.conf.source {{ nginx_conf_directory }}/reports_auth.conf
+        cp /etc/nginx/conf.d/reports_auth.conf.source /etc/nginx/conf.d/reports_auth.conf
 fi
 
 # Try to guess if we are running under --privileged mode
@@ -161,8 +142,8 @@ else
 fi
 {% endif %}
 
-cd {{ galaxy_server_dir }}
-. {{ galaxy_venv_dir }}/bin/activate
+cd $GALAXY_ROOT
+. $GALAXY_ROOT/bin/activate
 
 if $PRIVILEGED; then
     umount /var/lib/docker
@@ -261,30 +242,6 @@ TRUST_UID_DOMAIN = true" > /etc/condor/condor_config.local
         rm -f /etc/condor/condor_config
         ln -s /export/condor_config /etc/condor/condor_config
     fi
-fi
-{% endif %}
-
-
-{% if startup_chown_on_directory is defined and startup_chown_on_directory|bool %}
-if [ -e {{ startup_chown_on_directory }}  ];
-then
-    old_uid=`stat -c '%u' "{{ galaxy_home_dir }}"`
-    old_gid=`stat -c '%g' "{{ galaxy_home_dir }}"`
-    old_perms="$old_uid:$old_gid"
-
-    source_uid=`stat -c '%u' "{{ startup_chown_on_directory }}"`
-    source_gid=`stat -c '%g' "{{ startup_chown_on_directory }}"`
-    source_perms="$source_uid:$source_gid"
-
-    deluser {{ galaxy_user_name }}
-    groupadd -r {{ galaxy_user_name }} -g $source_gid
-    useradd -u $source_uid -r -g {{ galaxy_user_name }} -d "{{ galaxy_home_dir }}" -c "Galaxy User" {{ galaxy_user_name }} -s /bin/bash
-    echo {{ galaxy_user_name }} | passwd {{ galaxy_user_name }} --stdin
-
-    for target_path in /opt /home /tmp/slurm;
-    do
-        chown --from=$old_perms -R $source_perms $target_path
-    done
 fi
 {% endif %}
 
