@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/env bash
 echo "Initializing export"
 # Always copy current config to .distribution_config
 echo "Copying to /export/.distribution_config"
@@ -7,39 +7,39 @@ cp -rp /galaxy-export/config/ /export/.distribution_config
 chown $GALAXY_UID:$GALAXY_GID /export
 
 for export_me in /galaxy-export/*; do
-	export_name=$(basename $export_me)
-	dest_path="/export/$export_name"
-	if [ ! "x$GALAXY_INIT_FORCE_COPY" = "x" ]; then
-		 # delete so that if can be copied again if in the force-copy env var
-		 # Example content for $GALAXY_INIT_FORCE_COPY
-		 # GALAXY_INIT_FORCE_COPY = __venv__,__tools__
-		 if [[ $GALAXY_INIT_FORCE_COPY = *__"$export_name"__* ]]; then
-		 echo "Removing ${dest_path} as part of forced copy process."
-		 rm -rf "${dest_path}"
-		 fi
-	fi
-	if [ ! -d "${dest_path}" ]
-	then
-		echo "Copying to ${dest_path}"
-		cp -rp "$export_me" "${dest_path}"
-		chown -R $GALAXY_UID:$GALAXY_GID "${dest_path}"
-	else
-		echo "Skipping $export_me (directory already and overwrite isn't forced)"
-	fi
+    export_name=$(basename $export_me)
+    dest_path="/export/$export_name"
+    if [ ! "x$GALAXY_INIT_FORCE_COPY" = "x" ]; then
+         # delete so that if can be copied again if in the force-copy env var
+         # Example content for $GALAXY_INIT_FORCE_COPY
+         # GALAXY_INIT_FORCE_COPY = __venv__,__tools__
+         if [[ $GALAXY_INIT_FORCE_COPY = *__"$export_name"__* ]]; then
+         echo "Removing ${dest_path} as part of forced copy process."
+         rm -rf "${dest_path}"
+         fi
+    fi
+    if [ ! -d "${dest_path}" ]
+    then
+        echo "Copying to ${dest_path}"
+        cp -rp "$export_me" "${dest_path}"
+        chown -R $GALAXY_UID:$GALAXY_GID "${dest_path}"
+    else
+        echo "Skipping $export_me (directory already and overwrite isn't forced)"
+    fi
 done
 
 # Optional, might not work
 {
   if [ -d "/var/lib/docker" ]
   then
-		if [ ! -d "/export/var/lib/docker" ]
-		then
-			echo "Moving to /export/var/lib/docker"
-			mkdir -p /export/var/lib/
-			mv /var/lib/docker /export/var/lib/docker
-			chown -R $GALAXY_UID:$GALAXY_GID /export/var/lib/docker
-		fi
-	fi
+        if [ ! -d "/export/var/lib/docker" ]
+        then
+            echo "Moving to /export/var/lib/docker"
+            mkdir -p /export/var/lib/
+            mv /var/lib/docker /export/var/lib/docker
+            chown -R $GALAXY_UID:$GALAXY_GID /export/var/lib/docker
+        fi
+    fi
 } || echo "Moving docker lib failed, this is not a fatal error"
 
 echo "Initialization complete"
@@ -68,7 +68,7 @@ if [ ! -f $GALAXY_CONFIG_FILE ]
 fi
 
 # Configure proxy prefix filtering
-if [ "x$PROXY_PREFIX" != "x" ]
+if [[ ! -z $PROXY_PREFIX ]]
     then
     if [ ${GALAXY_CONFIG_FILE: -4} == ".ini" ]
         then
@@ -112,7 +112,7 @@ if [ "x$PROXY_PREFIX" != "x" ]
 fi
 
 # Disable authentication of Galaxy reports
-if [ "x$DISABLE_REPORTS_AUTH" != "x" ]
+if [[ ! -z $DISABLE_REPORTS_AUTH ]]
     then
         # disable authentification
         echo "Disable Galaxy reports authentification "
@@ -124,23 +124,23 @@ if [ "x$DISABLE_REPORTS_AUTH" != "x" ]
 fi
 
 # Try to guess if we are running under --privileged mode
-{% if host_docker_legacy|bool %}
-if mount | grep "/proc/kcore"; then
-    PRIVILEGED=false
+if [[ ! -z $HOST_DOCKER_LEGACY ]]; then
+    if mount | grep "/proc/kcore"; then
+        PRIVILEGED=false
+    else
+        PRIVILEGED=true
+    fi
 else
-    PRIVILEGED=true
+    # Taken from http://stackoverflow.com/questions/32144575/how-to-know-if-a-docker-container-is-running-in-privileged-mode
+    ip link add dummy0 type dummy >/dev/null
+    if [[ $? -eq 0 ]]; then
+        PRIVILEGED=true
+        # clean the dummy0 link
+        ip link delete dummy0 >/dev/null
+    else
+        PRIVILEGED=false
+    fi
 fi
-{% else %}
-# Taken from http://stackoverflow.com/questions/32144575/how-to-know-if-a-docker-container-is-running-in-privileged-mode
-ip link add dummy0 type dummy >/dev/null
-if [[ $? -eq 0 ]]; then
-    PRIVILEGED=true
-    # clean the dummy0 link
-    ip link delete dummy0 >/dev/null
-else
-    PRIVILEGED=false
-fi
-{% endif %}
 
 cd $GALAXY_ROOT
 . $GALAXY_ROOT/bin/activate
@@ -149,17 +149,17 @@ if $PRIVILEGED; then
     umount /var/lib/docker
 fi
 
-{% if startup_export_user_files is defined and startup_export_user_files|bool %}
-# If /export/ is mounted, export_user_files file moving all data to /export/
-# symlinks will point from the original location to the new path under /export/
-# If /export/ is not given, nothing will happen in that step
-echo "Checking /export..."
-python /usr/local/bin/export_user_files.py $PG_DATA_DIR_DEFAULT
-{% endif %}
+if [[ ! -z $STARTUP_EXPORT_USER_FILES ]]; then
+    # If /export/ is mounted, export_user_files file moving all data to /export/
+    # symlinks will point from the original location to the new path under /export/
+    # If /export/ is not given, nothing will happen in that step
+    echo "Checking /export..."
+    python /usr/local/bin/export_user_files.py $PG_DATA_DIR_DEFAULT
+fi
 
 # Enable loading of dependencies on startup. Such as LDAP.
 # Adapted from galaxyproject/galaxy/scripts/common_startup.sh
-if [[ "x$LOAD_GALAXY_CONDITIONAL_DEPENDENCIES" != "x" ]]
+if [[ ! -z $LOAD_GALAXY_CONDITIONAL_DEPENDENCIES ]]
     then
         echo "Installing optional dependencies in galaxy virtual environment..."
         : ${GALAXY_WHEELS_INDEX_URL:="https://wheels.galaxyproject.org/simple"}
@@ -167,7 +167,7 @@ if [[ "x$LOAD_GALAXY_CONDITIONAL_DEPENDENCIES" != "x" ]]
         [ -z "$GALAXY_CONDITIONAL_DEPENDENCIES" ] || echo "$GALAXY_CONDITIONAL_DEPENDENCIES" | pip install -q -r /dev/stdin --index-url "${GALAXY_WHEELS_INDEX_URL}"
 fi
 
-if [[ "x$LOAD_GALAXY_CONDITIONAL_DEPENDENCIES" != "x"  ]] && [[ "x$LOAD_PYTHON_DEV_DEPENDENCIES" != "x" ]]
+if [[ ! -z $LOAD_GALAXY_CONDITIONAL_DEPENDENCIES ]] && [[ ! -z $LOAD_PYTHON_DEV_DEPENDENCIES ]]
     then
         echo "Installing development requirements in galaxy virtual environment..."
         : ${GALAXY_WHEELS_INDEX_URL:="https://wheels.galaxyproject.org/simple"}
@@ -176,21 +176,21 @@ if [[ "x$LOAD_GALAXY_CONDITIONAL_DEPENDENCIES" != "x"  ]] && [[ "x$LOAD_PYTHON_D
 fi
 
 # Enable Test Tool Shed
-if [ "x$ENABLE_TTS_INSTALL" != "x" ]
+if [[ ! -z $ENABLE_TTS_INSTALL ]]
     then
         echo "Enable installation from the Test Tool Shed."
         export GALAXY_CONFIG_TOOL_SHEDS_CONFIG_FILE=$GALAXY_HOME/tool_sheds_conf.xml
 fi
 
 # Remove all default tools from Galaxy by default
-if [ "x$BARE" != "x" ]
+if [[ ! -z $BARE ]]
     then
         echo "Remove all tools from the tool_conf.xml file."
         export GALAXY_CONFIG_TOOL_CONFIG_FILE=config/shed_tool_conf.xml,$GALAXY_ROOT/test/functional/tools/upload_tool_conf.xml
 fi
 
 # If auto installing conda envs, make sure bcftools is installed for __set_metadata__ tool
-if [ "x$GALAXY_CONFIG_CONDA_AUTO_INSTALL" != "x" ]
+if [[ ! -z $GALAXY_CONFIG_CONDA_AUTO_INSTALL ]]
     then
         if [ ! -d "/tool_deps/_conda/envs/__bcftools@1.5" ]; then
             su $GALAXY_USER -c "/tool_deps/_conda/bin/conda create -y --override-channels --channel iuc --channel conda-forge --channel bioconda --channel defaults --name __bcftools@1.5 bcftools=1.5"
@@ -198,52 +198,54 @@ if [ "x$GALAXY_CONFIG_CONDA_AUTO_INSTALL" != "x" ]
         fi
 fi
 
-{% if galaxy_extras_config_postgres|bool %}
-if [[ $NONUSE != *"postgres"* ]]
-then
-    # Backward compatibility for exported postgresql directories before version 15.08.
-    # In previous versions postgres has the UID/GID of 102/106. We changed this in
-    # https://github.com/bgruening/docker-galaxy-stable/pull/71 to GALAXY_POSTGRES_UID=1550 and
-    # GALAXY_POSTGRES_GID=1550
-    if [ -e /export/postgresql/ ];
+if [[ ! -z $GALAXY_EXTRAS_CONFIG_POSTGRES ]]; then
+    if [[ $NONUSE != *"postgres"* ]]
+    then
+        # Backward compatibility for exported postgresql directories before version 15.08.
+        # In previous versions postgres has the UID/GID of 102/106. We changed this in
+        # https://github.com/bgruening/docker-galaxy-stable/pull/71 to GALAXY_POSTGRES_UID=1550 and
+        # GALAXY_POSTGRES_GID=1550
+        if [ -e /export/postgresql/ ];
+            then
+                if [ `stat -c %g /export/postgresql/` == "106" ];
+                    then
+                        chown -R postgres:postgres /export/postgresql/
+                fi
+        fi
+    fi
+fi
+
+
+if [[ ! -z $GALAXY_EXTRAS_CONFIG_CONDOR ]]; then
+    if [[ ! -z $ENABLE_CONDOR ]]
+    then
+        if [[ ! -z $CONDOR_HOST ]]
         then
-            if [ `stat -c %g /export/postgresql/` == "106" ];
-                then
-                    chown -R postgres:postgres /export/postgresql/
-            fi
+            echo "Enabling Condor with external scheduler at $CONDOR_HOST"
+            cat <<-EOF
+                # Config generated by startup.sh
+                CONDOR_HOST = $CONDOR_HOST
+                ALLOW_ADMINISTRATOR = *
+                ALLOW_OWNER = *
+                ALLOW_READ = *
+                ALLOW_WRITE = *
+                ALLOW_CLIENT = *
+                ALLOW_NEGOTIATOR = *
+                DAEMON_LIST = MASTER, SCHEDD
+                UID_DOMAIN = galaxy
+                DISCARD_SESSION_KEYRING_ON_STARTUP = False
+                TRUST_UID_DOMAIN = true" > /etc/condor/condor_config.local
+            EOF
+        fi
+
+        if [ -e /export/condor_config ]
+        then
+            echo "Replacing Condor config by locally supplied config from /export/condor_config"
+            rm -f /etc/condor/condor_config
+            ln -s /export/condor_config /etc/condor/condor_config
+        fi
     fi
 fi
-{% endif %}
-
-
-{% if galaxy_extras_config_condor|bool %}
-if [ "x$ENABLE_CONDOR" != "x" ]
-then
-    if [ "x$CONDOR_HOST" != "x" ]
-    then
-        echo "Enabling Condor with external scheduler at $CONDOR_HOST"
-        echo "# Config generated by startup.sh
-CONDOR_HOST = $CONDOR_HOST
-ALLOW_ADMINISTRATOR = *
-ALLOW_OWNER = *
-ALLOW_READ = *
-ALLOW_WRITE = *
-ALLOW_CLIENT = *
-ALLOW_NEGOTIATOR = *
-DAEMON_LIST = MASTER, SCHEDD
-UID_DOMAIN = galaxy
-DISCARD_SESSION_KEYRING_ON_STARTUP = False
-TRUST_UID_DOMAIN = true" > /etc/condor/condor_config.local
-    fi
-
-    if [ -e /export/condor_config ]
-    then
-        echo "Replacing Condor config by locally supplied config from /export/condor_config"
-        rm -f /etc/condor/condor_config
-        ln -s /export/condor_config /etc/condor/condor_config
-    fi
-fi
-{% endif %}
 
 
 # Copy or link the slurm/munge config files
@@ -282,60 +284,65 @@ function wait_for_postgres {
 function start_supervisor {
     supervisord -c /etc/supervisor/supervisord.conf
     sleep 5
-    {% if supervisor_manage_postgres|bool and not supervisor_postgres_autostart|bool %}
-    if [[ $NONUSE != *"postgres"* ]]
-    then
-        echo "Starting postgres"
-        supervisorctl start postgresql
+
+    if [[ ! -z $SUPERVISOR_MANAGE_POSTGRES && ! -z $SUPERVISOR_POSTGRES_AUTOSTART ]]; then
+        if [[ $NONUSE != *"postgres"* ]]
+        then
+            echo "Starting postgres"
+            supervisorctl start postgresql
+        fi
     fi
-    {% endif %}
+
     wait_for_postgres
 
     # Make sure the database is automatically updated
-    if [ "x$GALAXY_AUTO_UPDATE_DB" != "x" ]
+    if [[ ! -z $GALAXY_AUTO_UPDATE_DB ]]
     then
         echo "Updating Galaxy database"
         sh manage_db.sh -c /etc/galaxy/galaxy.yml upgrade
     fi
 
-    {% if supervisor_manage_cron|bool %}
-    if [[ $NONUSE != *"cron"* ]]
-    then
-        echo "Starting cron"
-        supervisorctl start cron
+    if [[ ! -z $SUPERVISOR_MANAGE_CRON ]]; then
+        if [[ $NONUSE != *"cron"* ]]
+        then
+            echo "Starting cron"
+            supervisorctl start cron
+        fi
     fi
-    {% endif %}
-    {% if supervisor_manage_proftp|bool %}
-    if [[ $NONUSE != *"proftp"* ]]
-    then
-        echo "Starting ProFTP"
-        supervisorctl start proftpd
-    fi
-    {% endif %}
-    {% if supervisor_manage_reports|bool %}
-    if [[ $NONUSE != *"reports"* ]]
-    then
-        echo "Starting Galaxy reports webapp"
-        supervisorctl start reports
-    fi
-    {% endif %}
-    {% if supervisor_manage_ie_proxy|bool %}
-    if [[ $NONUSE != *"nodejs"* ]]
-    then
-        echo "Starting nodejs"
-        supervisorctl start galaxy:galaxy_nodejs_proxy
-    fi
-    {% endif %}
-    {% if supervisor_manage_condor|bool %}
-    if [[ $NONUSE != *"condor"* ]]
-    then
-        echo "Starting condor"
-        supervisorctl start condor
-    fi
-    {% endif %}
 
+    if [[ ! -z $SUPERVISOR_MANAGE_PROFTP ]]; then
+        if [[ $NONUSE != *"proftp"* ]]
+        then
+            echo "Starting ProFTP"
+            supervisorctl start proftpd
+        fi
+    fi
 
-    {% if supervisor_manage_slurm|bool %}
+    if [[ ! -z $SUPERVISOR_MANAGE_REPORTS ]]; then
+        if [[ $NONUSE != *"reports"* ]]
+        then
+            echo "Starting Galaxy reports webapp"
+            supervisorctl start reports
+        fi
+    fi
+
+    if [[ ! -z $SUPERVISOR_MANAGE_IE_PROXY ]]; then
+        if [[ $NONUSE != *"nodejs"* ]]
+        then
+            echo "Starting nodejs"
+            supervisorctl start galaxy:galaxy_nodejs_proxy
+        fi
+    fi
+
+    if [[ ! -z $SUPERVISOR_MANAGE_CONDOR ]]; then
+        if [[ $NONUSE != *"condor"* ]]
+        then
+            echo "Starting condor"
+            supervisorctl start condor
+        fi
+    fi
+
+    if [[ ! -z $SUPERVISOR_MANAGE_SLURM ]]; then
         if [[ $NONUSE != *"slurmctld"* ]]
         then
             echo "Starting slurmctld"
@@ -347,32 +354,30 @@ function start_supervisor {
             supervisorctl start slurmd
         fi
         supervisorctl start munge
-
-    {% else %}
+    else
         if [[ $NONUSE != *"slurmctld"* ]]
         then
             echo "Starting slurmctld"
-            /usr/sbin/slurmctld -L {{ slurm_log_dir }}/slurmctld.log
+            /usr/sbin/slurmctld -L $GALAXY_LOGS_DIR/slurmctld.log
         fi
         if [[ $NONUSE != *"slurmd"* ]]
         then
             echo "Starting slurmd"
-            /usr/sbin/slurmd -L {{ slurm_log_dir }}/slurmd.log
+            /usr/sbin/slurmd -L $GALAXY_LOGS_DIR/slurmd.log
         fi
 
         # We need to run munged regardless
         mkdir -p /var/run/munge && /usr/sbin/munged -f
-
-    {% endif %}
+    fi
 }
 
-{% if galaxy_extras_config_postgres|bool %}
-if [[ $NONUSE != *"postgres"* ]]
-then
-    # Change the data_directory of postgresql in the main config file
-    ansible localhost -m lineinfile -a "line='data_directory = \'$PG_DATA_DIR_HOST\'' dest=$PG_CONF_DIR_DEFAULT/postgresql.conf backup=yes state=present regexp='data_directory'" &> /dev/null
+if [[ ! -z $SUPERVISOR_POSTGRES_AUTOSTART ]]; then
+    if [[ $NONUSE != *"postgres"* ]]
+    then
+        # Change the data_directory of postgresql in the main config file
+        ansible localhost -m lineinfile -a "line='data_directory = \'$PG_DATA_DIR_HOST\'' dest=$PG_CONF_DIR_DEFAULT/postgresql.conf backup=yes state=present regexp='data_directory'" &> /dev/null
+    fi
 fi
-{% endif %}
 
 if $PRIVILEGED; then
     echo "Enable Galaxy Interactive Environments."
@@ -385,26 +390,21 @@ if $PRIVILEGED; then
     else
         #inheriting /var/run/docker.sock from parent, assume that you need to
         #run docker with sudo to validate
-        echo "{{ galaxy_user_name }} ALL = NOPASSWD : ALL" >> /etc/sudoers
+        echo "$GALAXY_USER ALL = NOPASSWD : ALL" >> /etc/sudoers
         start_supervisor
     fi
-    if  [ "x$PULL_IE_IMAGES" != "x" ]; then
+    if  [[ ! -z $PULL_IE_IMAGES ]]; then
         echo "About to pull IE images. Depending on the size, this may take a while!"
-        {% if galaxy_extras_ie_fetch_jupyter|bool %}
-            docker pull {{ galaxy_extras_ie_jupyter_image }}
-        {% endif %}
-        {% if galaxy_extras_ie_fetch_rstudio|bool %}
-            docker pull {{ galaxy_extras_ie_rstudio_image }}
-        {% endif %}
-        {% if galaxy_extras_ie_fetch_ethercalc|bool %}
-            docker pull {{ galaxy_extras_ie_ethercalc_image }}
-        {% endif %}
-        {% if galaxy_extras_ie_fetch_phinch|bool %}
-            docker pull {{ galaxy_extras_ie_phinch_image }}
-        {% endif %}
-        {% if galaxy_extras_ie_fetch_neo|bool %}
-            docker pull {{ galaxy_extras_ie_neo_image }}
-        {% endif %}
+
+        for ie in {JUPYTER,RSTUDIO,ETHERCALC,PHINCH,NEO}; do
+            enabled_var_name="GALAXY_EXTRAS_IE_FETCH_${ie}";
+            if [[ ${!enabled_var_name} ]]; then
+                # Store name in a var
+                image_var_name="GALAXY_EXTRAS_${ie}_IMAGE"
+                # And then read from that var
+                docker pull "${!image_var_name}"
+            fi
+        done
     fi
 
     # in privileged mode autofs and CVMFS is available
@@ -454,25 +454,25 @@ then
 fi
 
 # In case the user wants the default admin to be created, do so.
-if [ "x$GALAXY_DEFAULT_ADMIN_USER" != "x" ]
+if [[ ! -z $GALAXY_DEFAULT_ADMIN_USER ]]
     then
         echo "Creating admin user $GALAXY_DEFAULT_ADMIN_USER with key $GALAXY_DEFAULT_ADMIN_KEY and password $GALAXY_DEFAULT_ADMIN_PASSWORD if not existing"
         python /usr/local/bin/create_galaxy_user.py --user "$GALAXY_DEFAULT_ADMIN_EMAIL" --password "$GALAXY_DEFAULT_ADMIN_PASSWORD" \
-		-c "$GALAXY_CONFIG_FILE" --username "$GALAXY_DEFAULT_ADMIN_USER" --key "$GALAXY_DEFAULT_ADMIN_KEY"
-	# If there is a need to execute actions that would require a live galaxy instance, such as adding workflows, setting quotas, adding more users, etc.
-	# then place a file with that logic named post-start-actions.sh on the /export/ directory, it should have access to all environment variables
-	# visible here.
-	# The file needs to be executable (chmod a+x post-start-actions.sh)
+        -c "$GALAXY_CONFIG_FILE" --username "$GALAXY_DEFAULT_ADMIN_USER" --key "$GALAXY_DEFAULT_ADMIN_KEY"
+    # If there is a need to execute actions that would require a live galaxy instance, such as adding workflows, setting quotas, adding more users, etc.
+    # then place a file with that logic named post-start-actions.sh on the /export/ directory, it should have access to all environment variables
+    # visible here.
+    # The file needs to be executable (chmod a+x post-start-actions.sh)
         if [ -x /export/post-start-actions.sh ]
             then
-	       # uses ephemeris, present in docker-galaxy-stable, to wait for the local instance
-	       galaxy-wait -g http://127.0.0.1 -v --timeout 120 > {{ galaxy_log_dir }}/post-start-actions.log &&
-	       /export/post-start-actions.sh >> {{ galaxy_log_dir }}/post-start-actions.log &
-	fi
+           # uses ephemeris, present in docker-galaxy-stable, to wait for the local instance
+           galaxy-wait -g http://127.0.0.1 -v --timeout 120 > $GALAXY_LOGS_DIR/post-start-actions.log &&
+           /export/post-start-actions.sh >> $GALAXY_LOGS_DIR/post-start-actions.log &
+    fi
 fi
 
 # Reinstall tools if the user want to
-if [ "x$GALAXY_AUTO_UPDATE_TOOLS" != "x" ]
+if [[ ! -z $GALAXY_AUTO_UPDATE_TOOLS ]]
     then
         galaxy-wait -g http://127.0.0.1 -v --timeout 120 > /home/galaxy/logs/post-start-actions.log &&
         OLDIFS=$IFS
@@ -493,9 +493,8 @@ python3 ${GALAXY_ROOT}/scripts/plugin_staging.py
 # Enable verbose output
 if [ `echo ${GALAXY_LOGGING:-'no'} | tr [:upper:] [:lower:]` = "full" ]
     then
-        tail -f /var/log/supervisor/* /var/log/nginx/* {{ galaxy_log_dir }}/*.log
+        tail -f /var/log/supervisor/* /var/log/nginx/* $GALAXY_LOGS_DIR/*.log
     else
-        tail -f {{ galaxy_log_dir }}/*.log
+        tail -f $GALAXY_LOGS_DIR/*.log
 fi
-
 
