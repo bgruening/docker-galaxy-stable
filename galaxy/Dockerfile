@@ -7,7 +7,7 @@ FROM ubuntu:18.04
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 # TODO
-# 
+#
 # * README: only Docker next to Docker is supported
 # * NodeJS is getting globally installed via the playbook, this is not needed anymore isn't it?
 # * the playbooks are not cleaning anything up
@@ -318,6 +318,18 @@ EXPOSE :9002
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
 ADD install_db.sh /usr/bin/install_db.sh
+ADD startup.sh /usr/bin/startup
+ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
+    SUPERVISOR_MANAGE_POSTGRES=True \
+    SUPERVISOR_MANAGE_CRON=True \
+    SUPERVISOR_MANAGE_PROFTP=True \
+    SUPERVISOR_MANAGE_REPORTS=True \
+    SUPERVISOR_MANAGE_IE_PROXY=True \
+    SUPERVISOR_MANAGE_CONDOR=True \
+    SUPERVISOR_MANAGE_SLURM=True \
+    HOST_DOCKER_LEGACY= \
+    GALAXY_EXTRAS_CONFIG_POSTGRES=True
+
 RUN chmod +x /usr/bin/install_db.sh
 
 # Autostart script that is invoked during container start

@@ -26,7 +26,8 @@ ENV GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
     SUPERVISOR_MANAGE_REPORTS=True \
     SUPERVISOR_MANAGE_IE_PROXY=True \
     SUPERVISOR_MANAGE_CONDOR=True \
-    SUPERVISOR_MANAGE_SLURM=True
+    SUPERVISOR_MANAGE_SLURM=True \
+    HOST_DOCKER_LEGACY=True
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
