@@ -9,16 +9,24 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,cvmfs
 
 ENV GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
-# The following 2 ENV vars can be used to set the number of uwsgi processes and threads
-UWSGI_PROCESSES=2 \
-UWSGI_THREADS=4 \
-# Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
-USE_HTTPS=False \
-# Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to a domain that is reachable to get a letsencrypt certificate
-USE_HTTPS_LETSENCRYPT=False \
-GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost \
-# Set the number of Galaxy handlers
-GALAXY_HANDLER_NUMPROCS=2
+    # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
+    UWSGI_PROCESSES=2 \
+    UWSGI_THREADS=4 \
+    # Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
+    USE_HTTPS=False \
+    # Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to
+    # a domain that is reachable to get a letsencrypt certificate
+    USE_HTTPS_LETSENCRYPT=False \
+    GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost \
+    # Set the number of Galaxy handlers
+    GALAXY_HANDLER_NUMPROCS=2 \
+    SUPERVISOR_MANAGE_POSTGRES=True \
+    SUPERVISOR_MANAGE_CRON=True \
+    SUPERVISOR_MANAGE_PROFTP=True \
+    SUPERVISOR_MANAGE_REPORTS=True \
+    SUPERVISOR_MANAGE_IE_PROXY=True \
+    SUPERVISOR_MANAGE_CONDOR=True \
+    SUPERVISOR_MANAGE_SLURM=True
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
@@ -57,7 +65,7 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_nginx_upload=False \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
     --extra-vars nginx_welcome_path=$NGINX_WELCOME_PATH \
-    --extra-vars startup_sleeplock=True \
+    --extra-vars startup_embed=True \
     --extra-vars startup_export_user_files=False \
     --extra-vars supervisor_manage_slurm=False \
     --extra-vars supervisor_manage_postgres=False \
@@ -78,6 +86,7 @@ RUN rm -f /usr/bin/startup && \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 
+ADD startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
 
 # Mark folders as imported from the host.
