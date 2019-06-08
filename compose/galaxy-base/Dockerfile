@@ -150,7 +150,8 @@ ADD telegraf.conf /etc/telegraf/telegraf.conf
 
 ENV GALAXY_CONFIG_STATSD_HOST=localhost \
     GALAXY_CONFIG_STATSD_PORT=8125 \
-    GALAXY_CONFIG_STATSD_PREFIX=galaxy
+    GALAXY_CONFIG_STATSD_PREFIX=galaxy \
+    GALAXY_CONFIG_STATSD_INFLUXDB=true
 
 # Autostart script that is invoked during container start
 CMD ["/usr/bin/startup"]

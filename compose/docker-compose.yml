@@ -53,8 +53,6 @@ services:
         - POSTGRES_DB=galaxy
     volumes:
         - ${EXPORT_DIR:-/export}/postgres/:/var/lib/postgresql/data
-    depends_on:
-      - galaxy-init
     networks:
       - galaxy
     deploy:
@@ -110,25 +108,6 @@ services:
       placement:
         constraints:
           - node.role == ${NODE_ROLE:-worker}
-
-
-  # This container initializes the galaxy export.
-  galaxy-init:
-    # build: galaxy-init
-    image: quay.io/bgruening/galaxy-init:${TAG:-latest}
-    container_name: galaxy-init
-    hostname: galaxy-init
-    env_file: .env
-    volumes:
-        # This is the directory where all your files from Galaxy will be stored
-        # on your host system. By default this is 'export' in your current working dir
-        - ${EXPORT_DIR:-/export}/:/export/
-    networks:
-      - galaxy
-    deploy:
-      placement:
-        constraints:
-          - node.role == ${NODE_ROLE:-manager}
 
 
   galaxy-htcondor:
@@ -247,8 +226,8 @@ services:
   grafana:
     image: quay.io/bgruening/galaxy-grafana:${TAG:-latest}
     env_file: .env
-    volumes:
-        - ${EXPORT_DIR:-/export}/grafana:/var/lib/grafana
+    #volumes:
+        #- ${EXPORT_DIR:-/export}/grafana:/var/lib/grafana
     networks:
       - galaxy
     ports:
@@ -327,7 +306,6 @@ services:
         - ${EXPORT_DIR:-/export}/:/export/
         - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
-      - galaxy-init
       - galaxy-postgres
       - rabbitmq
     deploy:
