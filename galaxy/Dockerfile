@@ -198,6 +198,8 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
         --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
         --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
         --extra-vars supervisor_manage_slurm=True \
+        --extra-vars supervisor_slurm_autostart=False \
+        --extra-vars supervisor_condor_autostart=False \
         --extra-vars galaxy_extras_config_condor=True \
         --extra-vars galaxy_extras_config_condor_docker=True \
         --extra-vars galaxy_extras_config_rabbitmq=True \
