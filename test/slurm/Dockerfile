@@ -11,7 +11,7 @@ RUN apt-get update -qq && apt-get install -y --no-install-recommends \
     apt install -y docker-ce && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ && \
     adduser galaxy &&\
-    /usr/sbin/create-munge-key &&\
+    yes | /usr/sbin/create-munge-key &&\
     touch /var/log/slurm-llnl/slurmctld.log /var/log/slurm-llnl/slurmd.log &&\
     mkdir /tmp/slurm
 

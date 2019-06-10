@@ -50,7 +50,6 @@ echo '#### Test submitting jobs to an external slurm cluster ####'
 pushd $WORKING_DIR/test/slurm/
 bash test.sh
 popd
-#cd $WORKING_DIR
 
 # Test submitting jobs to an external gridengine cluster
 # This test is not testing compose, thus disabled
@@ -60,8 +59,6 @@ echo "skip SGE test, fix me"
 
 echo '#### Start .ci/testing.sh ####'
 source .ci/testing.sh
-
-exit(1)
 
 echo '### Run a ton of BioBlend test against our servers ####'
 pushd $WORKING_DIR/test/bioblend/

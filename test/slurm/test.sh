@@ -33,7 +33,8 @@ docker run -d -e "NONUSE=slurmd,slurmctld" \
    -p 80:80 -v "$EXPORT":/export quay.io/bgruening/galaxy
 # Let's submit a job from the galaxy container and check it runs in the slurm container
 sleep 60s
-docker exec galaxy-slurm-test su - galaxy -c 'srun hostname' | grep slurm
+docker exec galaxy-slurm-test su - galaxy -c 'srun hostname'
 docker stop galaxy-slurm-test slurm
 docker rm galaxy-slurm-test slurm
+
 # TODO: Run a galaxy tool and check it runs on the cluster
