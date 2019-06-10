@@ -2,7 +2,9 @@
 
 set -o errexit
 
-pip install docker-compose galaxy-parsec --user
+pip --version
+# --user does not work if you are already in a virtual-env
+pip install docker-compose galaxy-parsec --user || pip install docker-compose galaxy-parsec
 
 export DOCKER_RUN_CONTAINER="galaxy-web"
 INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
