@@ -59,6 +59,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 - [Integrating non-Tool Shed tools into the container](#Integrating-non-Tool-Shed-tools-into-the-container)
 - [Users & Passwords](#Users-Passwords)
 - [Development](#Development)
+  - [Testing](#Testing)
 - [Requirements](#Requirements)
 - [History](#History)
 - [Support & Bug Reports](#Support-Bug-Reports)
@@ -773,6 +774,18 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
  --build-arg GALAXY_RELEASE=install_workflow_and_tools
  --build-arg GALAXY_REPO=https://github.com/manabuishii/galaxy
 ```
+
+## Testing the images
+
+You can run our test against the newly build images with our test scripts. Please note that for a few tests we currently need to run commands with sudo.
+We also assume you have Docker installed.
+
+Testing the monolithic container:
+
+```bash
+.ci/monolithic.sh
+```
+
 
 # Requirements <a name="Requirements" /> [[toc]](#toc)
 
