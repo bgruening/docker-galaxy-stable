@@ -6,8 +6,9 @@ source .ci/set_env.sh
 source .ci/functions.sh
 
 # The compose file recognises ENV vars to change the defaul behavior
-cd ${COMPOSE_DIR}
+pushd ${COMPOSE_DIR}
 ln -sf .env_slurm_singularity .env
+popd
 
 # start building this repo
 #git submodule update --init --recursive
