@@ -31,14 +31,14 @@ before_install:
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
 
-  # Build a k8s cluster
+  # Build and test the monolithic container
   - |
     if [ "${MONOLITHIC}" ]
     then
         bash .ci/monolithic.sh
     fi
 
-  # Build a k8s cluster
+  # Build and test the k8s compose containers
   - |
     if [ "${KUBE}" ]
     then
@@ -46,21 +46,21 @@ before_install:
     fi
 
 
-  # load all configurations needed for SLURM testing
+  # Build and test the compose SLURM enabled containers
   - |
     if [ "${COMPOSE_SLURM}" ]
     then
         bash .ci/compose_slurm.sh
     fi
 
-  # load all configurations needed for SLURM testing
+  # Build and test the compose SLURM enabled containers with Singularity dependency resolver
   - |
     if [ "${COMPOSE_SLURM_SINGULARITY}" ]
     then
         bash .ci/compose_slurm_singularity.sh
     fi
 
-  # load all configurations needed for Condor and Docker
+  # Build and test the compose ht-condor enabled containers with Docker dependency resolver
   - |
     if [ "${COMPOSE_CONDOR_DOCKER}" ]
     then
