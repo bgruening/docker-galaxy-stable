@@ -141,7 +141,9 @@ RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_6
 RUN cp $GALAXY_HOME/.bashrc ~/
 RUN mkdir $GALAXY_ROOT \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
-    && PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
+    && mkdir -p $GALAXY_VIRTUAL_ENV/lib \
+    && ln -sf $CONDA_PREFIX/lib/libpython2.7.so.1.0 $GALAXY_VIRTUAL_ENV/lib/ \
+    && PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH virtualenv -v $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
     # Setup Galaxy configuration files.
