@@ -117,7 +117,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
 
-RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh > ~/miniconda.sh \
+RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.6.14-Linux-x86_64.sh > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
     && rm ~/miniconda.sh \
     && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
