@@ -117,7 +117,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
 
-RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh > ~/miniconda.sh \
+RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.6.14-Linux-x86_64.sh > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
     && rm ~/miniconda.sh \
     && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
@@ -141,7 +141,11 @@ RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_6
 RUN cp $GALAXY_HOME/.bashrc ~/
 RUN mkdir $GALAXY_ROOT \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
-    && PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
+    && . ~/.bashrc \
+    && mkdir -p $GALAXY_VIRTUAL_ENV/lib \
+    && ln -sf $CONDA_PREFIX/lib/libpython2.7.so.1.0 $GALAXY_VIRTUAL_ENV/lib/ \
+    && PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH LD_LIBRARY_PATH=$GALAXY_VIRTUAL_ENV/lib virtualenv -v $GALAXY_VIRTUAL_ENV \
+    && echo "export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GALAXY_VIRTUAL_ENV/lib" >> $GALAXY_VIRTUAL_ENV/bin/activate \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
     # Setup Galaxy configuration files.
