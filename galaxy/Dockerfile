@@ -83,7 +83,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ && \
     mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ && \
     pip install --upgrade pip && \
-    pip install ephemeris supervisor --upgrade && \
+    pip install ephemeris==0.10.2 supervisor --upgrade && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
     ln -s /usr/local/bin/supervisord /usr/bin/supervisord
 
