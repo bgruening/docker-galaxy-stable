@@ -72,7 +72,7 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-add-repository -y ppa:ansible/ansible && \
     apt-add-repository -y ppa:galaxyproject/nginx && \
     apt-get update -qq && apt-get upgrade -y && \
-    apt-get install --no-install-recommends -y postgresql-9.3 sudo \
+    apt-get install --no-install-recommends -y postgresql-9.3 postgresql-server-dev-all sudo \
     nginx-extras=1.4.6-1ubuntu3.8ppa1 nginx-common=1.4.6-1ubuntu3.8ppa1 docker-ce=17.09.0~ce-0~ubuntu slurm-llnl slurm-llnl-torque \
     slurm-drmaa-dev proftpd proftpd-mod-pgsql libyaml-dev ansible munge libmunge-dev \
     nano vim curl python-crypto python-pip python-psutil condor python-ldap autofs \
@@ -115,8 +115,8 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.12-Linux-x86
     # Setup Galaxy configuration files.
     mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR && \
-    $GALAXY_VIRTUAL_ENV/bin/pip2 install pip --upgrade && \
-    $GALAXY_VIRTUAL_ENV/bin/pip2 install --extra-index-url https://wheels.galaxyproject.org/ uwsgi==2.0.15 -v --pre && \
+    $GALAXY_VIRTUAL_ENV/bin/pip install pip --upgrade && \
+    $GALAXY_VIRTUAL_ENV/bin/pip install --extra-index-url https://wheels.galaxyproject.org/ uwsgi==2.0.15 -v --pre && \
     chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/ && \
     su $GALAXY_USER -c "cp $GALAXY_ROOT/config/galaxy.yml.sample $GALAXY_CONFIG_FILE"
