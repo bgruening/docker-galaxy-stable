@@ -684,7 +684,7 @@ Where all Galaxy workflows needs to be in one directory, here the `$GALAXY_HOME/
 - running Galaxy data-managers to create indices or download data
 
   ```bash
-      run-data-managers -u admin@galaxy.org -p admin -g http://localhost:8080
+      run-data-managers -u $GALAXY_DEFAULT_ADMIN_USER -p $GALAXY_DEFAULT_ADMIN_PASSWORD -g http://localhost:8080
           --config data_manager_rna_seq.yaml
   ```
 
