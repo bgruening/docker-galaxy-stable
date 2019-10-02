@@ -221,7 +221,6 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && sh $GALAXY_ROOT/create_db.sh -c "$GALAXY_CONFIG_FILE" \
     && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
     && service postgresql stop \
-    && apt-get purge -y ansible \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
