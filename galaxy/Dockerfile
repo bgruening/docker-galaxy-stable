@@ -230,6 +230,10 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
+RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog && \
+    mkdir -p /var/run/condor/ /var/lock/condor/ && \
+    chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
+
 # The following commands will be executed as the galaxy user
 USER $GALAXY_USER
 
