@@ -113,6 +113,11 @@ if [[ ! -z $STARTUP_EXPORT_USER_FILES ]]; then
     python /usr/local/bin/export_user_files.py $PG_DATA_DIR_DEFAULT
 fi
 
+# Delete compiled templates in case they are out of date
+if [[ ! -z $GALAXY_CONFIG_TEMPLATE_CACHE_PATH ]]; then
+    rm -rf $GALAXY_CONFIG_TEMPLATE_CACHE_PATH/*
+fi
+
 # Enable loading of dependencies on startup. Such as LDAP.
 # Adapted from galaxyproject/galaxy/scripts/common_startup.sh
 if [[ ! -z $LOAD_GALAXY_CONDITIONAL_DEPENDENCIES ]]
