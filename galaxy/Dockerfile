@@ -117,7 +117,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
 
-RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.5.12-Linux-x86_64.sh > ~/miniconda.sh \
+RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.7.10-Linux-x86_64.sh > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
     && rm ~/miniconda.sh \
     && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
@@ -221,7 +221,6 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && sh $GALAXY_ROOT/create_db.sh -c "$GALAXY_CONFIG_FILE" \
     && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
     && service postgresql stop \
-    && apt-get purge -y ansible \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
@@ -230,6 +229,10 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+
+RUN touch /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog && \
+    mkdir -p /var/run/condor/ /var/lock/condor/ && \
+    chown -R condor: /var/log/condor/StartLog /var/log/condor/StarterLog /var/log/condor/CollectorLog /var/log/condor/NegotiatorLog /var/run/condor/ /var/lock/condor/
 
 # The following commands will be executed as the galaxy user
 USER $GALAXY_USER
@@ -332,7 +335,7 @@ ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     SUPERVISOR_MANAGE_REPORTS=True \
     SUPERVISOR_MANAGE_IE_PROXY=True \
     SUPERVISOR_MANAGE_CONDOR=True \
-    SUPERVISOR_MANAGE_SLURM=True \
+    SUPERVISOR_MANAGE_SLURM= \
     HOST_DOCKER_LEGACY= \
     GALAXY_EXTRAS_CONFIG_POSTGRES=True \
     STARTUP_EXPORT_USER_FILES=True

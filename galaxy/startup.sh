@@ -113,6 +113,11 @@ if [[ ! -z $STARTUP_EXPORT_USER_FILES ]]; then
     python /usr/local/bin/export_user_files.py $PG_DATA_DIR_DEFAULT
 fi
 
+# Delete compiled templates in case they are out of date
+if [[ ! -z $GALAXY_CONFIG_TEMPLATE_CACHE_PATH ]]; then
+    rm -rf $GALAXY_CONFIG_TEMPLATE_CACHE_PATH/*
+fi
+
 # Enable loading of dependencies on startup. Such as LDAP.
 # Adapted from galaxyproject/galaxy/scripts/common_startup.sh
 if [[ ! -z $LOAD_GALAXY_CONDITIONAL_DEPENDENCIES ]]
@@ -420,7 +425,7 @@ if [[ ! -z $GALAXY_DEFAULT_ADMIN_USER ]]
         if [ -x /export/post-start-actions.sh ]
             then
            # uses ephemeris, present in docker-galaxy-stable, to wait for the local instance
-           galaxy-wait -g http://127.0.0.1 -v --timeout 120 > $GALAXY_LOGS_DIR/post-start-actions.log &&
+           /tool_deps/_conda/bin/galaxy-wait -g http://127.0.0.1 -v --timeout 120 > $GALAXY_LOGS_DIR/post-start-actions.log &&
            /export/post-start-actions.sh >> $GALAXY_LOGS_DIR/post-start-actions.log &
     fi
 fi
@@ -428,13 +433,13 @@ fi
 # Reinstall tools if the user want to
 if [[ ! -z $GALAXY_AUTO_UPDATE_TOOLS ]]
     then
-        galaxy-wait -g http://127.0.0.1 -v --timeout 120 > /home/galaxy/logs/post-start-actions.log &&
+        /tool_deps/_conda/bin/galaxy-wait -g http://127.0.0.1 -v --timeout 120 > /home/galaxy/logs/post-start-actions.log &&
         OLDIFS=$IFS
         IFS=','
         for TOOL_YML in `echo "$GALAXY_AUTO_UPDATE_TOOLS"`
         do
             echo "Installing tools from $TOOL_YML"
-            shed-tools install -g "http://127.0.0.1" -a "$GALAXY_DEFAULT_ADMIN_KEY" -t "$TOOL_YML"
+            /tool_deps/_conda/bin/shed-tools install -g "http://127.0.0.1" -a "$GALAXY_DEFAULT_ADMIN_KEY" -t "$TOOL_YML"
             /tool_deps/_conda/bin/conda clean --tarballs --yes
         done
         IFS=$OLDIFS
