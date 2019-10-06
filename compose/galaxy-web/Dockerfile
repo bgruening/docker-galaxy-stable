@@ -2,30 +2,36 @@
 #
 # VERSION       Galaxy-central
 
-FROM quay.io/bgruening/galaxy-base:19.01
+FROM quay.io/bgruening/galaxy-base:dev
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
 ARG GALAXY_ANSIBLE_TAGS=supervisor,startup,scripts,nginx,cvmfs
 
 ENV GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
-# The following 2 ENV vars can be used to set the number of uwsgi processes and threads
-UWSGI_PROCESSES=2 \
-UWSGI_THREADS=4 \
-# Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
-USE_HTTPS=False \
-# Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to a domain that is reachable to get a letsencrypt certificate
-USE_HTTPS_LETSENCRYPT=False \
-GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost \
-# Set the number of Galaxy handlers
-GALAXY_HANDLER_NUMPROCS=2
+    # The following 2 ENV vars can be used to set the number of uwsgi processes and threads
+    UWSGI_PROCESSES=2 \
+    UWSGI_THREADS=4 \
+    # Set HTTPS to use a self-signed certificate (or your own certificate in /export/{server.key,server.crt})
+    USE_HTTPS=False \
+    # Set USE_HTTPS_LENSENCRYPT and GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL to
+    # a domain that is reachable to get a letsencrypt certificate
+    USE_HTTPS_LETSENCRYPT=False \
+    GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost \
+    # Set the number of Galaxy handlers
+    GALAXY_HANDLER_NUMPROCS=2 \
+    SUPERVISOR_MANAGE_POSTGRES=True \
+    SUPERVISOR_MANAGE_CRON=True \
+    SUPERVISOR_MANAGE_PROFTP=True \
+    SUPERVISOR_MANAGE_REPORTS=True \
+    SUPERVISOR_MANAGE_IE_PROXY=True \
+    SUPERVISOR_MANAGE_CONDOR=True \
+    SUPERVISOR_MANAGE_SLURM= \
+    HOST_DOCKER_LEGACY=True
 
 RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
     apt-get -qq update && apt-get install --no-install-recommends -y apt-transport-https wget && \
-    echo "deb https://deb.nodesource.com/node_9.x $(lsb_release -sc) main" > /etc/apt/sources.list.d/nodejs.list && \
-    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 68576280 && \
-    apt-get update -qq && \
-    apt-get install --no-install-recommends -y nodejs \
+    apt-get install --no-install-recommends -y \
     nginx-extras nginx-common supervisor autofs slurm-wlm slurm-wlm-torque && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb && \
     wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb && \
@@ -53,14 +59,14 @@ RUN rm -f /usr/bin/startup && \
     --extra-vars galaxy_extras_config_condor=True \
     --extra-vars galaxy_extras_config_condor_docker=True \
     --extra-vars galaxy_extras_config_rabbitmq=False \
-    --extra-vars galaxy_extras_config_slurm=False \
+    --extra-vars galaxy_extras_config_slurm=True \
     --extra-vars galaxy_extras_config_proftpd=False \
     --extra-vars galaxy_extras_config_cvmfs=True \
     --extra-vars galaxy_tool_data_table_config_file=/etc/galaxy/tool_data_table_conf.xml \
     --extra-vars galaxy_extras_config_nginx_upload=False \
     --extra-vars nginx_welcome_location=$NGINX_WELCOME_LOCATION \
     --extra-vars nginx_welcome_path=$NGINX_WELCOME_PATH \
-    --extra-vars startup_sleeplock=True \
+    --extra-vars startup_embed=True \
     --extra-vars startup_export_user_files=False \
     --extra-vars supervisor_manage_slurm=False \
     --extra-vars supervisor_manage_postgres=False \
@@ -71,9 +77,17 @@ RUN rm -f /usr/bin/startup && \
     # Used for detecting privileged mode
     --extra-vars host_docker_legacy=False \
     --extra-vars galaxy_extras_docker_legacy=False \
-    --tags=$GALAXY_ANSIBLE_TAGS -c local && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+    --tags=$GALAXY_ANSIBLE_TAGS -c local \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    # cleanup dance
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_CONDA_PREFIX -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ /galaxy_venv/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
+
+ADD startup.sh /usr/bin/startup
 RUN chmod +x /usr/bin/startup
 
 # Mark folders as imported from the host.

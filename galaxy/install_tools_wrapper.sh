@@ -4,6 +4,9 @@
 echo "Enable installation from the Test Tool Shed."
 export GALAXY_CONFIG_TOOL_SHEDS_CONFIG_FILE=$GALAXY_HOME/tool_sheds_conf.xml
 
+. /tool_deps/_conda/etc/profile.d/conda.sh
+conda activate base
+
 if pgrep "supervisord" > /dev/null
 then
     echo "System is up and running. Starting with the installation."

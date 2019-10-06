@@ -11,20 +11,29 @@ GALAXY_GID=1450
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
-RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
-    useradd -u $GALAXY_UID -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER && \
-    apt-get -qq update && \
-    apt-get install --no-install-recommends -y software-properties-common \
-    unattended-upgrades wget && \
-    apt-add-repository ppa:ansible/ansible && \
-    apt-get -qq update && \
-    apt-get install --no-install-recommends -y ansible openssh-client proftpd proftpd-mod-pgsql && \
-    apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
-
 ADD ansible /ansible
-RUN mkdir -p /ansible/galaxyprojectdotorg.galaxyextras && \
-    cd /ansible/galaxyprojectdotorg.galaxyextras && \
-    wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1
+
+RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER \
+    && apt-get -qq update \
+    && apt-get install --no-install-recommends -y \
+        wget \
+        software-properties-common \
+    && apt-add-repository ppa:ansible/ansible \
+    && apt-get -qq update \
+    && apt-get install --no-install-recommends -y \
+        ansible \
+        openssh-client \
+        proftpd \
+        proftpd-mod-pgsql \
+    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
+    && mkdir -p /ansible/galaxyprojectdotorg.galaxyextras \
+    && cd /ansible/galaxyprojectdotorg.galaxyextras \
+    && wget -pO- https://api.github.com/repos/$ANSIBLE_REPO/tarball/$ANSIBLE_RELEASE | tar xvz --strip-components=1 \
+    && apt-get purge -y wget software-properties-common \
+    && apt-get autoremove -y && apt-get clean \
+    && find /usr/lib/ -name '*.pyc' -delete \
+    && rm -rf /tmp/* /root/* /var/tmp/* /var/cache/* /var/lib/apt/lists/*
 
 # Generate ssh keys, all other config will be overwritte upon startup
 RUN ansible-playbook /ansible/provision.yml \

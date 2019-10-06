@@ -6,21 +6,21 @@
 [![docker image stats](https://images.microbadger.com/badges/image/bgruening/galaxy-stable.svg)](https://microbadger.com/images/bgruening/galaxy-stable "Get your own image badge on microbadger.com")
 
 
-:information_source: `19.01` will be the last release which is based on `ubuntu:14.04` and
-PostgreSQL 9.3. We will migrate to `ubuntu:18.04` and a newer PostgreSQL version in `19.05`. Furthermore, we will not
-support old Galaxy tool dependencies. These are deprecated since a few years and we think its time to remove support
+:information_source: `19.01` was the last release which is based on `ubuntu:14.04` and
+PostgreSQL 9.3. In 19.05 we have migrate to `ubuntu:18.04` and PostgreSQL version 11.5. Furthermore, we no longer
+support old Galaxy tool dependencies. These are deprecated since a few years and we think it's time to remove support
 for this in the default installation. You can install all needed packages manually to enable support again, though.
 
 In short, with 19.05:
-  * Galaxy tool dependencies will not be supported by default
-  * `ubuntu:18.04` will be the new base image
-  * a new PostgreSQL version means you need to migrate any old database to the new version
+  * Galaxy tool dependencies are be supported by default
+  * `ubuntu:18.04` is the new base image
+  * a new PostgreSQL version means you need to [migrate any old database to the new version](#Postgresql-migration)
 
 
 Galaxy Docker Image
 ===================
 
-The [Galaxy](http://www.galaxyproject.org) [Docker](http://www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features. 
+The [Galaxy](http://www.galaxyproject.org) [Docker](http://www.docker.io) Image is an easy distributable full-fledged Galaxy installation, that can be used for testing, teaching and presenting new tools and features.
 
 One of the main goals is to make the access to entire tool suites as easy as possible. Usually,
 this includes the setup of a public available web-service that needs to be maintained, or that the Tool-user needs to either setup a Galaxy Server by its own or to have Admin access to a local Galaxy server.
@@ -34,6 +34,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 - [Usage](#Usage)
   - [Upgrading images](#Upgrading-images)
+    - [Upgrading images](#Postgresql-migration)
   - [Enabling Interactive Environments in Galaxy](#Enabling-Interactive-Environments-in-Galaxy)
   - [Using passive mode FTP or SFTP](#Using-passive-mode-FTP-or-SFTP)
   - [Using Parent docker](#Using-Parent-docker)
@@ -218,6 +219,59 @@ We will release a new version of this image concurrent with every new Galaxy rel
 13. Clean the old container and image
 
 
+### Postgresql migration <a name="Postgresql-migration" /> [[toc]](#toc)
+
+In the 19.05 version, Postgresql was updated from version 9.3 to version 11.5. If you are upgrading from a version <19.05, you will need to migrate the database.
+You can do it the following way for example:
+
+1. Stop Galaxy in the old container
+
+```sh
+docker exec <old_container_name> supervisorctl stop galaxy:
+```
+
+2. Dump the old database
+
+```sh
+docker exec <old_container_name> bash
+su postgres
+pg_dumpall --clean > /export/postgresql/9.3dump.sql
+exit
+exit
+```
+
+3. Update the container
+
+```sh
+docker stop <old_container_name>
+docker pull bgruening/galaxy-stable
+docker run -p 8080:80 -v /data/galaxy-data:/export --name <new_container_name> bgruening/galaxy-stable
+```
+
+4. Restore the dump to the new postgres version
+
+Wait for the startup process to finish (Galaxy should be accessible)
+
+```sh
+docker exec <new_container_name> bash
+supervisorctl stop galaxy:
+su postgres
+psql -f /export/postgresql/9.3dump.sql postgres
+#Upgrade the database to the most recent version
+sh manage_db.sh upgrade
+exit
+exit
+```
+5. Restart Galaxy
+
+```sh
+docker exec <old_container_name> supervisorctl start galaxy:
+```
+
+6. Clean old files
+
+If you are *very* sure that everything went well, you can delete `/export/postgresql/9.3dump.sql` and `/export/postgresql/9.3/` to save some space.
+
 ## Enabling Interactive Environments in Galaxy <a name="Enabling-Interactive-Environments-in-Galaxy" /> [[toc]](#toc)
 
 Interactive Environments (IE) are sophisticated ways to extend Galaxy with powerful services, like [Jupyter](http://jupyter.org/), in a secure and reproducible way.
@@ -323,7 +377,7 @@ id_secret: d5c910cc6e32cad08599987ab64dcfae
 
 You should change all three configuration variables above manually in `/export/galaxy-central/config/galaxy.yml`.
 
-Alternatively you can pass the security configuration when running the image but please note that it is a security problem. E.g. if a tool exposes all `env`'s your secret API key will also be exposed. 
+Alternatively you can pass the security configuration when running the image but please note that it is a security problem. E.g. if a tool exposes all `env`'s your secret API key will also be exposed.
 
 ## Configuring Galaxy's behind a proxy <a name="Galaxy-behind-proxy" /> [[toc]](#toc)
 
@@ -839,7 +893,7 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
    - tracking the Galaxy release_18.01 branch
    - uwsgi work to adopt to changes for 18.01
    - remove nodejs-legacy & npm from Dockerfile and install latest version from ansible-extras
-   - initial galaxy.ini → galaxy.yml integration 
+   - initial galaxy.ini → galaxy.yml integration
    - grafana and influxdb container (compose)
    - Galaxy telegraf integration to push to influxdb (compose)
    - added some documentation (compose)
@@ -850,9 +904,14 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
    - a lot of bug-fixes to the compose setup by @abretaud
 - 19.01:
    - This is featuring the latest and greatest from the Galaxy community
-   - Please note that this release will be the last release which is based on `ubuntu:14.04` and PostgreSQL 9.3. 
+   - Please note that this release will be the last release which is based on `ubuntu:14.04` and PostgreSQL 9.3.
      We will migrate to `ubuntu:18.04` and a newer PostgreSQL version in `19.05`. Furthermore, we will not
-     support old Galaxy tool dependencies. 
+     support old Galaxy tool dependencies.
+- 19.05:
+   - The image is now based on `ubuntu:18.04` (instead of ubuntu:14.04 previously) and PostgreSQL 11.5 (9.3 previously).
+     See [migration documention](#Postgresql-migration) to migrate the postgresql database from 9.3 to 11.5.
+   - We not longer support old Galaxy tool dependencies.
+
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
