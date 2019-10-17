@@ -34,7 +34,7 @@ The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and 
 
 - [Usage](#Usage)
   - [Upgrading images](#Upgrading-images)
-    - [Upgrading images](#Postgresql-migration)
+    - [PostgreSQL migration](#Postgresql-migration)
   - [Enabling Interactive Environments in Galaxy](#Enabling-Interactive-Environments-in-Galaxy)
   - [Using passive mode FTP or SFTP](#Using-passive-mode-FTP-or-SFTP)
   - [Using Parent docker](#Using-Parent-docker)
@@ -143,7 +143,59 @@ We will release a new version of this image concurrent with every new Galaxy rel
 
 * Create a test instance with only the database and configuration files. This will allow testing to ensure that things run but won't require copying all of the data.
 * New unmodified configuration files are always stored in a hidden directory called `.distribution_config`. Use this folder to diff your configurations with the new configuration files shipped with Galaxy. This prevents needing to go through the change log files to find out which new files were added or which new features you can activate.
+
+Here are 2 suggested upgrade methods, a quick one, and a safer one.
+
+### The quick upgrade method
+
+This method involves less data copying, which makes the process quicker, but makes it impossible to downgrade in case of problems.
+
+If you are upgrading from <19.05 to >=19.05, you need to migrate the PostgreSQL database, have a look at [PostgreSQL migration](#Postgresql-migration).
+
+
+1. Stop the old Galaxy container
+
+```sh
+docker stop <old_container_name>
+docker pull bgruening/galaxy-stable
+```
+
+2. Run the container with the updated image
+
+```sh
+docker run -p 8080:80 -v /data/galaxy-data:/export --name <new_container_name> bgruening/galaxy-stable
+```
+
+3. Use diff to find changes in the config files (only if you changed any config file).
+
+```sh
+cd /data/galaxy-data/.distribution_config
+for f in *; do echo $f; diff $f ../galaxy-central/config/$f; read; done
+```
+
+4. Upgrade the database schema
+
+```sh
+docker exec -it <new_container_name> bash
+supervisorctl stop galaxy:
+sh manage_db.sh upgrade
+exit
+```
+5. Restart Galaxy
+
+```sh
+docker exec -it <old_container_name> supervisorctl start galaxy:
+```
+
+(Alternatively, restart the whole container)
+
+
+### The safe upgrade method
+
+With this method, you keep a backup in case you decide to downgrade, but requires some potentially long data copying.
+
 * Note that copying database and datasets can be expensive if you have many GB of data.
+* If you are upgrading from <19.05 to >=19.05, you need to migrate the PostgreSQL database, have a look at [PostgreSQL migration](#Postgresql-migration).
 
 1. Download newer version of the Galaxy image
 
@@ -222,18 +274,18 @@ We will release a new version of this image concurrent with every new Galaxy rel
 ### Postgresql migration <a name="Postgresql-migration" /> [[toc]](#toc)
 
 In the 19.05 version, Postgresql was updated from version 9.3 to version 11.5. If you are upgrading from a version <19.05, you will need to migrate the database.
-You can do it the following way for example:
+You can do it the following way for example (based on the "The quick upgrade method" above):
 
 1. Stop Galaxy in the old container
 
 ```sh
-docker exec <old_container_name> supervisorctl stop galaxy:
+docker exec -it <old_container_name> supervisorctl stop galaxy:
 ```
 
 2. Dump the old database
 
 ```sh
-docker exec <old_container_name> bash
+docker exec -it <old_container_name> bash
 su postgres
 pg_dumpall --clean > /export/postgresql/9.3dump.sql
 exit
@@ -253,7 +305,7 @@ docker run -p 8080:80 -v /data/galaxy-data:/export --name <new_container_name> b
 Wait for the startup process to finish (Galaxy should be accessible)
 
 ```sh
-docker exec <new_container_name> bash
+docker exec -it <new_container_name> bash
 supervisorctl stop galaxy:
 su postgres
 psql -f /export/postgresql/9.3dump.sql postgres
@@ -265,7 +317,7 @@ exit
 5. Restart Galaxy
 
 ```sh
-docker exec <old_container_name> supervisorctl start galaxy:
+docker exec -it <old_container_name> supervisorctl start galaxy:
 ```
 
 6. Clean old files
