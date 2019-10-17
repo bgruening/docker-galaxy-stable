@@ -184,7 +184,7 @@ exit
 5. Restart Galaxy
 
 ```sh
-docker exec -it <old_container_name> supervisorctl start galaxy:
+docker exec -it <new_container_name> supervisorctl start galaxy:
 ```
 
 (Alternatively, restart the whole container)
