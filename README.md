@@ -274,7 +274,7 @@ With this method, you keep a backup in case you decide to downgrade, but require
 ### Postgresql migration <a name="Postgresql-migration" /> [[toc]](#toc)
 
 In the 19.05 version, Postgresql was updated from version 9.3 to version 11.5. If you are upgrading from a version <19.05, you will need to migrate the database.
-You can do it the following way for example (based on the "The quick upgrade method" above):
+You can do it the following way (based on the "The quick upgrade method" above):
 
 1. Stop Galaxy in the old container
 
@@ -292,15 +292,20 @@ exit
 exit
 ```
 
-3. Update the container
+3. Update the container (= step 1 of the "The quick upgrade method" above)
 
 ```sh
 docker stop <old_container_name>
 docker pull bgruening/galaxy-stable
+```
+
+4. Run the container with the updated image (= step 2 of the "The quick upgrade method" above)
+
+```sh
 docker run -p 8080:80 -v /data/galaxy-data:/export --name <new_container_name> bgruening/galaxy-stable
 ```
 
-4. Restore the dump to the new postgres version
+5. Restore the dump to the new postgres version
 
 Wait for the startup process to finish (Galaxy should be accessible)
 
@@ -309,16 +314,33 @@ docker exec -it <new_container_name> bash
 supervisorctl stop galaxy:
 su postgres
 psql -f /export/postgresql/9.3dump.sql postgres
-#Upgrade the database to the most recent version
-sh manage_db.sh upgrade
 exit
 exit
 ```
-5. Restart Galaxy
+
+6. Use diff to find changes in the config files (only if you changed any config file). (= step 3 of the "The quick upgrade method" above)
 
 ```sh
-docker exec -it <old_container_name> supervisorctl start galaxy:
+cd /data/galaxy-data/.distribution_config
+for f in *; do echo $f; diff $f ../galaxy-central/config/$f; read; done
 ```
+
+7. Upgrade the database schema (= step 4 of the "The quick upgrade method" above)
+
+```sh
+docker exec -it <new_container_name> bash
+supervisorctl stop galaxy:
+sh manage_db.sh upgrade
+exit
+```
+
+5. Restart Galaxy (= step 5 of the "The quick upgrade method" above)
+
+```sh
+docker exec -it <new_container_name> supervisorctl start galaxy:
+```
+
+(Alternatively, restart the whole container)
 
 6. Clean old files
 
