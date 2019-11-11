@@ -154,6 +154,22 @@ docker stack ps  galaxy --no-trunc
 
 # Advanced <a name="Advanced" />
 
+## Only run what's needed <a name="advanced-customisation" />
+If you only want to run some of the containers in docker-compose.yml, then you may do, for example, as follows
+```sh
+docker-compose up -d \
+  galaxy-postgres galaxy-init \
+  galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big \
+  rabbitmq galaxy-web
+```
+
+## Reset the environment by completely shutting down all the galaxy containers <a name="advanced-customisation" />
+Here is a neat way to shut down all the galaxy containers before restarting them:
+```sh
+docker-compose down -v
+```
+This will remove all the stopped containers and the associated galaxy network. "-v" also removes all the volumes, and effectively resets the whole environment.
+
 ## postgres <a name="postgres" />
 You can theoretically use any external database. The included postgres build is based on the [official postgres container](https://hub.docker.com/_/postgres/) and adds an initialization script which loads a vanilla dump of the initial database state on first startup which is faster than initializing by the migration script.
 
@@ -225,6 +241,15 @@ When initialization is complete, this container notifies the galaxy handlers to 
 This container runs the actual webhandler.
 As of now, this container also runs nginx, job handlers, cron, docker.
 This container will wait until it is notified via the lock on /export/.initdone. You can disable this mechanism by setting NONUSE=sleeplock.
+
+To configure the container with HTTPS using certificates of your own, you need to modify docker-compose.yml to set the following environment variables
+- USE_HTTPS=True
+- HTTPS_PORT=443
+- GALAXY_CONFIG_WELCOME_URL=/static/welcome.html
+
+and open up additional ports:
+- "${HTTPS_PORT:-443}:443"
+
 <p align="right"><a href="#toc">&#x25B2; back to top</a></p>
 
 ### Configuration <a name="galaxy-web-Configuration" />
