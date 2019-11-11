@@ -99,7 +99,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get install git --no-install-recommends -y \
     && apt-get install gridengine-common gridengine-drmaa1.0 --no-install-recommends -y \
     && apt-get install rabbitmq-server --no-install-recommends -y \
-    && apt-get install --no-install-recommends -y libswitch-perl supervisor \
+    && apt-get install --no-install-recommends -y uuid-runtime libswitch-perl supervisor \
     && apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal  \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ \
@@ -197,7 +197,9 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
         --extra-vars galaxy_config_dir=$GALAXY_CONFIG_DIR \
         --extra-vars galaxy_job_conf_path=$GALAXY_CONFIG_JOB_CONFIG_FILE \
         --extra-vars galaxy_job_metrics_conf_path=$GALAXY_CONFIG_JOB_METRICS_CONFIG_FILE \
-        --extra-vars supervisor_manage_slurm="" \
+        --extra-vars supervisor_manage_slurm=True \
+        --extra-vars supervisor_slurm_autostart=False \
+        --extra-vars supervisor_condor_autostart=False \
         --extra-vars galaxy_extras_config_condor=True \
         --extra-vars galaxy_extras_config_condor_docker=True \
         --extra-vars galaxy_extras_config_rabbitmq=True \

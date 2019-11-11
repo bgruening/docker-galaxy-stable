@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -x
+set -o errexit
 # Test that jobs run successfully on an external slurm cluster
 
 # We use a temporary directory as an export dir that will hold the shared data between
@@ -36,4 +36,5 @@ sleep 60s
 docker exec galaxy-slurm-test su - galaxy -c 'srun hostname' | grep slurm
 docker stop galaxy-slurm-test slurm
 docker rm galaxy-slurm-test slurm
+
 # TODO: Run a galaxy tool and check it runs on the cluster
