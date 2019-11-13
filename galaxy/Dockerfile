@@ -106,7 +106,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     # we will recreate this later
     ## && rm -rf $PG_DATA_DIR_DEFAULT \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
-    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER \
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
     && mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     # cleanup dance
     && find /usr/lib/ -name '*.pyc' -delete \
