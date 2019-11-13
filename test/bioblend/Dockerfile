@@ -6,7 +6,8 @@ WORKDIR /home/galaxy
 ENV TOX_ENV=py27 \
     BIOBLEND_GALAXY_API_KEY=admin \
     BIOBLEND_GALAXY_URL=http://galaxy \
-    BIOBLEND_TEST_JOB_TIMEOUT="240"
+    BIOBLEND_TEST_JOB_TIMEOUT="240" \
+    GALAXY_VERSION=release_19.05
 
 RUN mkdir bioblend-master \
     && curl -L -s https://github.com/galaxyproject/bioblend/archive/master.tar.gz | tar xzf - --strip-components=1 -C bioblend-master \

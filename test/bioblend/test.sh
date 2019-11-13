@@ -13,6 +13,7 @@ then
     export BIOBLEND_GALAXY_API_KEY=admin ;
     export BIOBLEND_GALAXY_URL=http://galaxy ;
     export BIOBLEND_TEST_JOB_TIMEOUT="240";
+    export GALAXY_VERSION=release_19.05;
     cd /home/galaxy/bioblend-master ;
     tox -e $TOX_ENV -- -k "not test_download_dataset and not test_upload_from_galaxy_filesystem and not test_get_datasets and not test_datasets_from_fs and not test_existing_history and not test_new_history and not test_params and not test_tool_dependency_install and not test_download_history and not test_export_and_download"'
 
