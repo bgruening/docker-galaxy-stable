@@ -245,6 +245,11 @@ services:
     image: quay.io/bgruening/galaxy-web:${TAG:-latest}
     env_file: .env
     environment:
+        # To enable SSL, these need to be defined, and put server.crt and server.key in /export
+        #- USE_HTTPS=True
+        #- HTTPS_PORT=443
+        #- GALAXY_CONFIG_WELCOME_URL=/static/welcome.html
+
         # In case the galaxy-init container is not used, you need to include "sleeplock" to NONUSE
         - NONUSE=proftpd,postgres,slurmd,slurmctld
         - GALAXY_DEFAULT_ADMIN_USER=admin
@@ -300,6 +305,7 @@ services:
       - galaxy
     ports:
         - "${GALAXY_PORT:-8080}:80" # nginx
+        - "${HTTPS_PORT:-443}:443"  # https
     volumes:
         # This is the directory where all your files from Galaxy will be stored
         # on your host system
