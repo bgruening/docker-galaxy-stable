@@ -1,0 +1,52 @@
+version: '3'
+services:
+  galaxy-server:
+    build: galaxy-server
+    environment:
+      # Currently non-functional :( - TODO!!
+      - GALAXY_DEFAULT_ADMIN_USER=admin
+      - GALAXY_DEFAULT_ADMIN_EMAIL=admin@galaxy.org
+      - GALAXY_DEFAULT_ADMIN_PASSWORD=admin
+      - GALAXY_DEFAULT_ADMIN_KEY=admin
+    hostname: galaxy-server
+    privileged: True
+    ports:
+      - 8080:8080
+    volumes:
+      # This is the directory where all your files from Galaxy will be stored
+      # on your host system
+      - ${EXPORT_DIR:-./export}/:/export/
+      - /var/run/docker.sock:/var/run/docker.sock # TODO
+    depends_on:
+      - postgres
+      - rabbitmq
+  postgres:
+    # If you are using the official postgres image, it needs to be populated by calling
+    # docker-compose run galaxy install_db.sh
+    # on first run
+    build: galaxy-postgres
+    hostname: postgres
+    environment:
+      - POSTGRES_PASSWORD=chaopagoosaequuashie
+      - POSTGRES_USER=galaxy
+      - POSTGRES_DB=galaxy
+    volumes:
+      - ${EXPORT_DIR:-./export}/postgres/:/var/lib/postgresql/data
+  nginx:
+    image: nginx:1.17-alpine
+    ports:
+      - 80:80
+    volumes:
+      - ./static_conf/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${EXPORT_DIR:-./export}/galaxy/static:/export/galaxy/static:ro
+  # Message queue for better performance
+  rabbitmq:
+    image: rabbitmq:alpine
+    container_name: galaxy-rabbitmq
+    hostname: rabbitmq
+    environment:
+        - RABBITMQ_DEFAULT_USER=galaxy
+        - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
+        - RABBITMQ_DEFAULT_VHOST=galaxy
+    volumes:
+        - ${EXPORT_DIR:-./export}/rabbitmq:/var/lib/rabbitmq
