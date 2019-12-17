@@ -52,5 +52,8 @@ coverage.xml
 # Sphinx documentation
 docs/_build/
 
+# Export folder for docker-compose setup
+compose/export
+compose-v2/export
 
 .DS_Store
