@@ -89,8 +89,8 @@ RUN mkdir "${GALAXY_ROOT}" \
 # USER $GALAXY_USER
 RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh
 
-ADD ./files/galaxy.yml /galaxy/config/galaxy.yml
-ADD ./files/start.sh /usr/bin/start.sh
+COPY ./files/galaxy.yml /galaxy/config/galaxy.yml
+COPY ./files/start.sh /usr/bin/start.sh
 
 EXPOSE 80
 

@@ -11,7 +11,7 @@ services:
     hostname: galaxy-server
     privileged: True
     ports:
-      - 8080:8080
+      - 5555:5555
     volumes:
       # This is the directory where all your files from Galaxy will be stored
       # on your host system
@@ -20,6 +20,8 @@ services:
     depends_on:
       - postgres
       - rabbitmq
+    networks: 
+      - galaxy
   postgres:
     # If you are using the official postgres image, it needs to be populated by calling
     # docker-compose run galaxy install_db.sh
@@ -32,6 +34,8 @@ services:
       - POSTGRES_DB=galaxy
     volumes:
       - ${EXPORT_DIR:-./export}/postgres/:/var/lib/postgresql/data
+    networks: 
+      - galaxy
   nginx:
     image: nginx:1.17-alpine
     ports:
@@ -39,14 +43,22 @@ services:
     volumes:
       - ./static_conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ${EXPORT_DIR:-./export}/galaxy/static:/export/galaxy/static:ro
+    depends_on: 
+      - galaxy-server
+    networks: 
+      - galaxy
   # Message queue for better performance
   rabbitmq:
     image: rabbitmq:alpine
     container_name: galaxy-rabbitmq
     hostname: rabbitmq
     environment:
-        - RABBITMQ_DEFAULT_USER=galaxy
-        - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
-        - RABBITMQ_DEFAULT_VHOST=galaxy
+      - RABBITMQ_DEFAULT_USER=galaxy
+      - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
+      - RABBITMQ_DEFAULT_VHOST=galaxy
     volumes:
-        - ${EXPORT_DIR:-./export}/rabbitmq:/var/lib/rabbitmq
+      - ${EXPORT_DIR:-./export}/rabbitmq:/var/lib/rabbitmq
+    networks: 
+      - galaxy
+networks: 
+  galaxy: 
