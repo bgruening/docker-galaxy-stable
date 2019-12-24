@@ -35,5 +35,10 @@ echo "Finished initialization"
 # Not first start:
     # Start Galaxy
 
+echo "Waiting for Postgres..."
+until nc -z -w 2 postgres 5432 && echo Postgres started; do
+    sleep 1;
+done;
+
 echo "Starting Galaxy now.."
 $GALAXY_ROOT/run.sh
