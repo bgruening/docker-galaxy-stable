@@ -43,6 +43,7 @@ services:
     volumes:
       - ./static_conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ${EXPORT_DIR:-./export}/galaxy/static:/export/galaxy/static:ro
+      - ${EXPORT_DIR:-./export}/galaxy/config/plugins:/galaxy/config/plugins:ro
     depends_on: 
       - galaxy-server
     networks: 
