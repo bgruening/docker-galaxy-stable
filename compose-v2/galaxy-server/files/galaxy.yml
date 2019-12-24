@@ -1741,7 +1741,7 @@ galaxy:
   # not specified either, Galaxy will automatically create and use a
   # separate sqlite database located in your <galaxy>/database folder
   # (indicated in the commented out line below).
-  #amqp_internal_connection: sqlalchemy+sqlite:///./database/control.sqlite?isolation_level=IMMEDIATE
+  amqp_internal_connection: amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy
 
   # Galaxy real time communication server settings
   #enable_communication_server: false
