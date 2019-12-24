@@ -22,7 +22,7 @@ ENV GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda \
 
 # TODO: CLEAN UP!!!!
 # Install all needed dependencies
-RUN apk add --no-cache py2-virtualenv git curl nodejs wget gcc bash musl-dev python2-dev libffi-dev zlib-dev xz-dev curl-dev build-base bzip2-dev libxml2-dev libxslt-dev
+RUN apk add --no-cache py2-virtualenv git curl nodejs wget gcc bash musl-dev python2-dev libffi-dev zlib-dev xz-dev curl-dev build-base bzip2-dev libxml2-dev libxslt-dev postgresql-libs libpq postgresql-dev
 RUN apk add --no-cache \
             --allow-untrusted \
             --repository \
@@ -38,7 +38,7 @@ RUN apk --update  --repository http://dl-4.alpinelinux.org/alpine/edge/community
     bzip2 \
     unzip \
     sudo \
-    libstdc++ \
+    libstdc++6 \
     glib \
     libxext \
     libxrender \
