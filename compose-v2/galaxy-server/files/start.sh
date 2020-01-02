@@ -18,6 +18,7 @@ ln -v -s $EXPORT_DIR/$GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR
 
 if [ ! -d  "$EXPORT_DIR/$GALAXY_STATIC_DIR" ] || [ -z "$(ls -A $EXPORT_DIR/$GALAXY_STATIC_DIR)" ]; then
     # Move static to $EXPORT_DIR and create symlink
+    mkdir $EXPORT_DIR/$GALAXY_STATIC_DIR
     cp -rfv $GALAXY_STATIC_DIR/* $EXPORT_DIR/$GALAXY_STATIC_DIR
 fi
 rm -rf $GALAXY_STATIC_DIR
