@@ -1,4 +1,4 @@
-FROM alpine:3.10
+FROM ubuntu:19.10
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy
@@ -22,38 +22,16 @@ ENV GALAXY_USER=galaxy \
 ENV GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda \
     MINICONDA_VERSION=4.7.10
 
+RUN apt update && apt install --no-install-recommends python2 python-dev python-pip python-virtualenv git curl nodejs wget mercurial netcat python-setuptools libpq-dev build-essential -y \
+    && pip install wheel 
+
 # TODO: CLEAN UP!!!!
 # Install all needed dependencies
-RUN apk add --no-cache py2-virtualenv git curl nodejs wget gcc bash musl-dev python2-dev libffi-dev zlib-dev xz-dev curl-dev build-base bzip2-dev libxml2-dev libxslt-dev postgresql-libs libpq postgresql-dev
-RUN apk add --no-cache \
-            --allow-untrusted \
-            --repository \
-             http://dl-3.alpinelinux.org/alpine/edge/testing \
-            hdf5 \
-            hdf5-dev
-# Needed for miniconda, see https://github.com/CognitiveScale/alpine-miniconda/blob/master/Dockerfile
-RUN apk --update  --repository http://dl-4.alpinelinux.org/alpine/edge/community add \
-    bash \
-    git \
-    curl \
-    ca-certificates \
-    bzip2 \
-    unzip \
-    sudo \
-    libstdc++6 \
-    glib \
-    libxext \
-    libxrender \
-    tini \ 
-    && curl -L "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.25-r0/glibc-2.25-r0.apk" -o /tmp/glibc.apk \
-    && curl -L "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.25-r0/glibc-bin-2.25-r0.apk" -o /tmp/glibc-bin.apk \
-    && curl -L "https://github.com/andyshinn/alpine-pkg-glibc/releases/download/2.25-r0/glibc-i18n-2.25-r0.apk" -o /tmp/glibc-i18n.apk \
-    && apk add --allow-untrusted /tmp/glibc*.apk \
-    && /usr/glibc-compat/sbin/ldconfig /lib /usr/glibc-compat/lib \
-    && /usr/glibc-compat/bin/localedef -i en_US -f UTF-8 en_US.UTF-8 \
-    && rm -rf /tmp/glibc*apk /var/cache/apk/*
 
-RUN addgroup -S -g $GALAXY_GID $GALAXY_GROUP && adduser -S -G $GALAXY_GROUP -u $GALAXY_UID $GALAXY_USER
+RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
+    && mkdir $GALAXY_HOME \
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME
 
 # Install Miniconda
 RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh" > ~/miniconda.sh \
@@ -90,8 +68,6 @@ RUN mkdir "${GALAXY_ROOT}" \
 # Install Galaxy dependencies
 # USER $GALAXY_USER
 RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh
-
-RUN apk add --no-cache mercurial 
 
 COPY ./files/job_conf.xml /galaxy/config/job_conf.xml
 COPY ./files/galaxy.yml /galaxy/config/galaxy.yml
