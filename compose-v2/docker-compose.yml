@@ -15,7 +15,7 @@ services:
     volumes:
       # This is the directory where all your files from Galaxy will be stored
       # on your host system
-      - ${EXPORT_DIR:-./export}/:/export/
+      - ${EXPORT_DIR:-./export}/:/export/:delegated
       - /var/run/docker.sock:/var/run/docker.sock # TODO
     depends_on:
       - postgres
@@ -33,7 +33,7 @@ services:
       - POSTGRES_USER=galaxy
       - POSTGRES_DB=galaxy
     volumes:
-      - ${EXPORT_DIR:-./export}/postgres/:/var/lib/postgresql/data
+      - ${EXPORT_DIR:-./export}/postgres/:/var/lib/postgresql/data:delegated
     networks: 
       - galaxy
   nginx:
@@ -58,7 +58,7 @@ services:
       - RABBITMQ_DEFAULT_PASS=vaiJa3ieghai2ief0jao
       - RABBITMQ_DEFAULT_VHOST=galaxy
     volumes:
-      - ${EXPORT_DIR:-./export}/rabbitmq:/var/lib/rabbitmq
+      - ${EXPORT_DIR:-./export}/rabbitmq:/var/lib/rabbitmq:delegated
     networks: 
       - galaxy
 networks: 
