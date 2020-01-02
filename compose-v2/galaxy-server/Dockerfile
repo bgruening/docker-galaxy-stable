@@ -1,4 +1,4 @@
-FROM ubuntu:19.10
+FROM ubuntu:19.10 as build
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy
@@ -68,6 +68,36 @@ RUN mkdir "${GALAXY_ROOT}" \
 # Install Galaxy dependencies
 # USER $GALAXY_USER
 RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh
+
+FROM ubuntu:19.10
+
+COPY --from=build /galaxy /galaxy
+COPY --from=build /tool_deps /tool_deps 
+COPY --from=build /home/galaxy /home/galaxy
+
+ENV EXPORT_DIR=/export \
+    GALAXY_ROOT=/galaxy
+
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
+    GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
+    GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
+    GALAXY_EXPORT=$EXPORT_DIR/galaxy \
+    GALAXY_CONFIG_DIR=$GALAXY_ROOT/config \
+    GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
+    GALAXY_CONFIG_TOOL_PATH=$GALAXY_ROOT/tools \
+    GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
+    GALAXY_DATABASE_PATH=$GALAXY_ROOT/database
+
+ENV GALAXY_USER=galaxy \
+    GALAXY_GROUP=galaxy \
+    GALAXY_UID=1450 \
+    GALAXY_GID=1450 \
+    GALAXY_HOME=/home/galaxy
+
+RUN apt update && apt install --no-install-recommends python2 python-virtualenv netcat libpq-dev mercurial -y \
+    && groupadd -r $GALAXY_USER -g $GALAXY_GID \
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME
 
 COPY ./files/job_conf.xml /galaxy/config/job_conf.xml
 COPY ./files/galaxy.yml /galaxy/config/galaxy.yml
