@@ -9,7 +9,9 @@ ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
     GALAXY_EXPORT=$EXPORT_DIR/galaxy \
     GALAXY_CONFIG_DIR=$GALAXY_ROOT/config \
     GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
-    GALAXY_CONFIG_TOOL_PATH=/tools
+    GALAXY_CONFIG_TOOL_PATH=$GALAXY_ROOT/tools \
+    GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
+    GALAXY_DATABASE_PATH=$GALAXY_ROOT/database
 
 ENV GALAXY_USER=galaxy \
     GALAXY_GROUP=galaxy \
@@ -66,29 +68,32 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
     && conda config --add channels conda-forge \
     && conda install virtualenv pip ephemeris \
     && chown $GALAXY_GROUP:$GALAXY_USER -R $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR /etc/profile.d/conda.sh \
-    && conda clean --packages -t -i 
+    && conda clean --packages -t -i \
     # cleanup dance
-    # && find $GALAXY_ROOT -name '*.pyc' -delete | true \
-    # && find /usr/lib/ -name '*.pyc' -delete | true \
-    # && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
-    #&& find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
-    #&& rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 # Install Galaxy
 RUN mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
-    && chown -R $GALAXY_GROUP:$GALAXY_USER $GALAXY_ROOT 
+    && chown -R $GALAXY_GROUP:$GALAXY_USER $GALAXY_ROOT \
     # cleanup dance
-    # && find $GALAXY_ROOT -name '*.pyc' -delete | true \
-    # && find /usr/lib/ -name '*.pyc' -delete | true \
-    #&& find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
-    #&& find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
-    #&& rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true \
+    && find /usr/lib/ -name '*.pyc' -delete | true \
+    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
+    && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
 # Install Galaxy dependencies
 # USER $GALAXY_USER
 RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh
 
+RUN apk add --no-cache mercurial 
+
+COPY ./files/job_conf.xml /galaxy/config/job_conf.xml
 COPY ./files/galaxy.yml /galaxy/config/galaxy.yml
 COPY ./files/start.sh /usr/bin/start.sh
 
