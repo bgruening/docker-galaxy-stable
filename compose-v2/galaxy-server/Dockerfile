@@ -1,4 +1,4 @@
-FROM ubuntu:19.10 as build
+FROM buildpack-deps:19.10 as build
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy
@@ -21,9 +21,6 @@ ENV GALAXY_USER=galaxy \
 
 ENV GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda \
     MINICONDA_VERSION=4.7.10
-
-RUN apt update && apt install --no-install-recommends python2 python-dev python-pip python-virtualenv git curl nodejs wget mercurial netcat python-setuptools libpq-dev build-essential -y \
-    && pip install wheel 
 
 # TODO: CLEAN UP!!!!
 # Install all needed dependencies
