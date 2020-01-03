@@ -64,7 +64,8 @@ RUN mkdir "${GALAXY_ROOT}" \
 
 # Install Galaxy dependencies
 # USER $GALAXY_USER
-RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh
+RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh \
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true
 
 FROM ubuntu:19.10
 
@@ -99,6 +100,9 @@ RUN apt update && apt install --no-install-recommends python2 python-virtualenv 
 COPY ./files/job_conf.xml /galaxy/config/job_conf.xml
 COPY ./files/galaxy.yml /galaxy/config/galaxy.yml
 COPY ./files/start.sh /usr/bin/start.sh
+
+# Last cleanup before shipping
+RUN find / -name '*.pyc' -delete | true
 
 EXPOSE 80
 
