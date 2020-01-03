@@ -65,6 +65,7 @@ RUN mkdir "${GALAXY_ROOT}" \
 # Install Galaxy dependencies
 # USER $GALAXY_USER
 RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh \
+    && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 && deactivate \
     && find $GALAXY_ROOT -name '*.pyc' -delete | true
 
 FROM ubuntu:19.10

@@ -65,10 +65,6 @@ until nc -z -w 2 postgres 5432 && echo Postgres started; do
     sleep 1;
 done;
 
-# Install additional dependency: psycopg2
-. $GALAXY_ROOT/.venv/bin/activate
-pip install psycopg2
-deactivate
 
 echo "Starting Galaxy now.."
 cd $GALAXY_ROOT
