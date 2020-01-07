@@ -36,11 +36,7 @@ jobs:
       #   run: docker-compose -f docker-compose.htconder.yml build
       #   working-directory: ./compose-v2
       - name: Docker Login
-        uses: azure/docker-login@v1
-        with:
-          login-server: 'index.docker.io'
-          username: ${{ secrets.dockerhub_username }}
-          password: ${{ secrets.dockerhub_password }}
+        run: echo "${{ secrets.dockerhub_password }}" | docker login -u "${{ secrets.dockerhub_username }}" --password-stdin
       - name: Upload images to Docker Hub (docker-compose.yml)
         run: |
           docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-server:${IMAGE_TAG:-latest}
