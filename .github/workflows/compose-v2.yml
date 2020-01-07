@@ -20,3 +20,17 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         reporter: github-check
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build Images (docker-compose.yml)
+        continue-on-error: false
+        run: docker-compose -f docker-compose.yml build
+        working-directory: ./compose-v2
+      # - name: Build Images (docker-compose.htcondor.yml)
+      #   continue-on-error: false
+      #   run: docker-compose -f docker-compose.htconder.yml build
+      #   working-directory: ./compose-v2
+
