@@ -1,6 +1,7 @@
 version: '3'
 services:
   galaxy-server:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-server:${IMAGE_TAG:-latest}
     build: galaxy-server
     environment:
       # Currently non-functional :( - TODO!!
@@ -26,6 +27,7 @@ services:
     # If you are using the official postgres image, it needs to be populated by calling
     # docker-compose run galaxy install_db.sh
     # on first run
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-postgres:${IMAGE_TAG:-latest}
     build: galaxy-postgres
     hostname: postgres
     environment:
