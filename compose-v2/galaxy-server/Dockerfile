@@ -62,10 +62,11 @@ RUN mkdir "${GALAXY_ROOT}" \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
-# Install Galaxy dependencies
-# USER $GALAXY_USER
-RUN cd $GALAXY_ROOT && ./scripts/common_startup.sh \
-    && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 && deactivate \
+# Install Galaxy dependencies and delete unneeded afterwards
+RUN apt update && apt install python-dev python-pip -y \
+    && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
+    && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 \
+    && deactivate \
     && find $GALAXY_ROOT -name '*.pyc' -delete | true
 
 FROM ubuntu:19.10
@@ -96,7 +97,7 @@ ENV GALAXY_USER=galaxy \
 RUN apt update && apt install --no-install-recommends python2 python-virtualenv netcat libpq-dev mercurial -y \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
-    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_ROOT $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR
 
 COPY ./files/job_conf.xml /galaxy/config/job_conf.xml
 COPY ./files/galaxy.yml /galaxy/config/galaxy.yml
