@@ -28,17 +28,14 @@ jobs:
       - name: Set needed environment variables
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Build Images (docker-compose.yml)
-        continue-on-error: false
-        run: docker-compose -f docker-compose.yml build
+        run: docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml build
         working-directory: ./compose-v2
-      # - name: Build Images (docker-compose.htcondor.yml)
-      #   continue-on-error: false
-      #   run: docker-compose -f docker-compose.htconder.yml build
-      #   working-directory: ./compose-v2
+        continue-on-error: false
       - name: Docker Login
         run: echo "${{ secrets.dockerhub_password }}" | docker login -u "${{ secrets.dockerhub_username }}" --password-stdin
       - name: Upload images to Docker Hub (docker-compose.yml)
         run: |
           docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-server:${IMAGE_TAG:-latest}
           docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-postgres:${IMAGE_TAG:-latest}
+          docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
 
