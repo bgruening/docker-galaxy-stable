@@ -94,7 +94,9 @@ ENV GALAXY_USER=galaxy \
     GALAXY_GID=1450 \
     GALAXY_HOME=/home/galaxy
 
-RUN apt update && apt install --no-install-recommends python2 python-virtualenv netcat libpq-dev mercurial -y \
+ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml
+
+RUN apt update && apt install --no-install-recommends python python-virtualenv netcat libpq-dev mercurial libgomp1 -y \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_ROOT $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR
@@ -102,6 +104,9 @@ RUN apt update && apt install --no-install-recommends python2 python-virtualenv 
 COPY ./files/job_conf.xml /galaxy/config/job_conf.xml
 COPY ./files/galaxy.yml /galaxy/config/galaxy.yml
 COPY ./files/start.sh /usr/bin/start.sh
+
+# Some helpful scripts
+COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
 # Last cleanup before shipping
 RUN find / -name '*.pyc' -delete | true

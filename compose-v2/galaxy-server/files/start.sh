@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 # First start?? Check if something exists that indicates that environment is not new.. Config file? Something in DB maybe??
 
@@ -91,6 +91,13 @@ if [ -f "/etc/condor/condor_config.local" ]; then
     cp -rpf "$GALAXY_ROOT/lib/*" "$EXPORT_DIR/$GALAXY_ROOT/lib"
     echo "Starting HTCondor.."
     service condor start
+# In case the user wants the default admin to be created, do so.
+if [[ -n $GALAXY_DEFAULT_ADMIN_USER ]]; then
+    echo "Creating admin user $GALAXY_DEFAULT_ADMIN_USER with key $GALAXY_DEFAULT_ADMIN_KEY and password $GALAXY_DEFAULT_ADMIN_PASSWORD if not existing"
+    . /galaxy/.venv/bin/activate
+    python /usr/local/bin/create_galaxy_user.py --user "$GALAXY_DEFAULT_ADMIN_EMAIL" --password "$GALAXY_DEFAULT_ADMIN_PASSWORD" \
+    -c "$GALAXY_CONFIG_FILE" --username "$GALAXY_DEFAULT_ADMIN_USER" --key "$GALAXY_DEFAULT_ADMIN_KEY"
+    deactivate
 fi
 
 echo "Starting Galaxy now.."
