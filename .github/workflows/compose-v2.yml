@@ -25,6 +25,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v1
+      - name: Set needed environment variables
+        run: export IMAGE_TAG=${GITHUB_REF##*/}
       - name: Build Images (docker-compose.yml)
         continue-on-error: false
         run: docker-compose -f docker-compose.yml build
