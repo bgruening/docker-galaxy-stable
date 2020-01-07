@@ -3,10 +3,18 @@
 <job_conf>
     <plugins>
         <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
+        <plugin id="condor" type="runner" load="galaxy.jobs.runners.condor:CondorJobRunner"/>
     </plugins>
-    <destinations>
+    <destinations default="condor">
         <destination id="local" runner="local">
-            <env file="/export/galaxy/.venv/bin/activate" />
+            <env file="/galaxy/.venv/bin/activate" />
+        </destination>
+        <destination id="condor" runner="condor">
+            <env file="/galaxy/.venv/bin/activate" />
         </destination>
     </destinations>
+    <tools>
+        <tool id="upload1" destination="local" />
+        <tool id="__SET_METADATA__" destination="local" />
+    </tools>
 </job_conf>
