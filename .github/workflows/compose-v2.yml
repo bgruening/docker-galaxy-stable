@@ -47,6 +47,6 @@ jobs:
       - name: Set needed environment variables
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests 
-        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml run --exit-code-from bioblend-test
+        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from bioblend-test
         working-directory: ./compose-v2
         continue-on-error: false
