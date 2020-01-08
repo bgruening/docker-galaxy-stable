@@ -1,8 +1,8 @@
 version: "3"
 services:
-  bioblend-test:
-    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-test:${IMAGE_TAG:-latest}
-    build: galaxy-test
+  galaxy-bioblend-test:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-bioblend-test:${IMAGE_TAG:-latest}
+    build: galaxy-bioblend-test
     environment:
       - GALAXY_VERSION=${GALAXY_VERSION:-release_19.10} # TODO: Change to GALAXY_RELEASE
       - GALAXY_DEFAULT_ADMIN_USER=tester
