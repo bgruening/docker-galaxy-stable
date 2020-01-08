@@ -1,0 +1,21 @@
+version: "3"
+services:
+  bioblend-test:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-test:${IMAGE_TAG:-latest}
+    build: galaxy-test
+    environment:
+      - GALAXY_VERSION=${GALAXY_VERSION:-release_19.10} # TODO: Change to GALAXY_RELEASE
+      - GALAXY_DEFAULT_ADMIN_USER=tester
+      - GALAXY_DEFAULT_ADMIN_EMAIL=tester@galaxy.org
+      - GALAXY_DEFAULT_ADMIN_PASSWORD=tester
+      - BIOBLEND_GALAXY_API_KEY=tester
+      - BIOBLEND_GALAXY_URL=http://nginx
+      - BIOBLEND_TEST_JOB_TIMEOUT=240
+    networks: 
+      - galaxy
+  galaxy-server:
+    environment:
+      - GALAXY_DEFAULT_ADMIN_USER=tester
+      - GALAXY_DEFAULT_ADMIN_EMAIL=tester@galaxy.org
+      - GALAXY_DEFAULT_ADMIN_PASSWORD=tester
+      - GALAXY_DEFAULT_ADMIN_KEY=tester

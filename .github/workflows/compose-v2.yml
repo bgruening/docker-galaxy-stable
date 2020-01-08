@@ -38,4 +38,15 @@ jobs:
           docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-server:${IMAGE_TAG:-latest}
           docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-postgres:${IMAGE_TAG:-latest}
           docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
-
+  test:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Set needed environment variables
+        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
+      - name: Run Bioblend tests 
+        run: docker-compose -f docker-compose.yml -f docker-compose.test.yml run --exit-code-from bioblend-test
+        working-directory: ./compose-v2
+        continue-on-error: false
