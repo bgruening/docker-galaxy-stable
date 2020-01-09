@@ -76,7 +76,7 @@ jobs:
           password: ${{ secrets.dockerhub_password }}
           workdir: ./compose-v2/galaxy-bioblend-test
           cache: true
-  test:
+  test_galaxy:
     needs: [build_galaxy-server, build_galaxy-postgres, build_galaxy-htcondor, build_galaxy-bioblend-test]
     runs-on: ubuntu-latest
     steps:
@@ -87,7 +87,7 @@ jobs:
       - name: Run Bioblend tests 
         run: |
           docker-compose -f docker-compose.yml -f docker-compose.test.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml up --abort-on-container-exit
-          exit $(($(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1) + $(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-bioblend-test_1)))
+          docker-compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from galaxy-bioblend-test
         working-directory: ./compose-v2
         continue-on-error: false
+        timeout-minutes: 45
