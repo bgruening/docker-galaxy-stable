@@ -20,27 +20,60 @@ jobs:
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         reporter: github-check
-  build:
+  build_galaxy-server:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v1
-      - name: Set needed environment variables
-        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
-      - name: Build Images (docker-compose.yml)
-        run: docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml build
-        working-directory: ./compose-v2
+      - name: Build, Tag and Publish
+        uses: elgohr/Publish-Docker-Github-Action@master
         continue-on-error: false
-      - name: Docker Login
-        run: echo "${{ secrets.dockerhub_password }}" | docker login -u "${{ secrets.dockerhub_username }}" --password-stdin
-      - name: Upload images to Docker Hub (docker-compose.yml)
-        run: |
-          docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-server:${IMAGE_TAG:-latest}
-          docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-postgres:${IMAGE_TAG:-latest}
-          docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
-          docker push ${IMAGE_DOMAIN:-andreassko}/galaxy-bioblend-test:${IMAGE_TAG:-latest}
+        with:
+          name: andreassko/galaxy-server
+          username: ${{ secrets.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+          workdir: ./compose-v2/galaxy-server
+  build_galaxy-postgres:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build, Tag and Publish
+        uses: elgohr/Publish-Docker-Github-Action@master
+        continue-on-error: false
+        with:
+          name: andreassko/galaxy-postgres
+          username: ${{ secrets.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+          workdir: ./compose-v2/galaxy-postgres
+  build_galaxy-htcondor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build, Tag and Publish
+        uses: elgohr/Publish-Docker-Github-Action@master
+        continue-on-error: false
+        with:
+          name: andreassko/galaxy-htcondor
+          username: ${{ secrets.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+          workdir: ./compose-v2/galaxy-htcondor
+  build_galaxy-bioblend-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build, Tag and Publish
+        uses: elgohr/Publish-Docker-Github-Action@master
+        continue-on-error: false
+        with:
+          name: andreassko/galaxy-bioblend-test
+          username: ${{ secrets.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+          workdir: ./compose-v2/galaxy-bioblend-test
   test:
-    needs: build
+    needs: [build_galaxy-server, build_galaxy-postgres, build_galaxy-htcondor, build_galaxy-bioblend-test]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
