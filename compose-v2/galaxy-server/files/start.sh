@@ -83,6 +83,9 @@ until nc -z -w 2 postgres 5432 && echo Postgres started; do
      sleep 1;
 done;
 
+echo "Create/Upgrade Database if necessary"
+$GALAXY_ROOT/create_db.sh
+
 if [ -f "/etc/condor/condor_config.local" ]; then
     echo "HTCondor config file found"
     echo "Copying Galaxy library to /export (needed by HTCondor workers).."
