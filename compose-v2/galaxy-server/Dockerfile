@@ -107,6 +107,7 @@ COPY ./files/start.sh /usr/bin/start.sh
 
 # Some helpful scripts
 COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
+COPY ./files/check_database.py /usr/local/bin/check_database.py
 
 # Last cleanup before shipping
 RUN find / -name '*.pyc' -delete | true

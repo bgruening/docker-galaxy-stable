@@ -79,9 +79,12 @@ until nc -z -w 2 rabbitmq 5672 && echo RabbitMQ started; do
 done;
 
 echo "Waiting for Postgres..."
-until nc -z -w 2 postgres 5432 && echo Postgres started; do
-    sleep 1;
+. $GALAXY_VIRTUAL_ENV/bin/activate
+until /usr/local/bin/check_database.py 2>&1 >/dev/null; do 
+    sleep 1; 
 done;
+deactivate
+echo "Postgres started"
 
 if [ -f "/etc/condor/condor_config.local" ]; then
     echo "HTCondor config file found"
@@ -91,6 +94,10 @@ if [ -f "/etc/condor/condor_config.local" ]; then
     cp -rpf $GALAXY_ROOT/lib/* $EXPORT_DIR/$GALAXY_ROOT/lib
     echo "Starting HTCondor.."
     service condor start
+    # export CONDOR_CONFIG="/etc/condor/condor_config.local"
+    # export PATH="/opt/htcondor/bin:/opt/htcondor/sbin:$PATH"
+    # #ln -s /
+    # "$HTCONDOR_ROOT/sbin/condor_master"
 fi
 
 # In case the user wants the default admin to be created, do so.
