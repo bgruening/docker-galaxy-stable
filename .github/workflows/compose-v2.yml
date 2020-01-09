@@ -33,6 +33,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_password }}
           workdir: ./compose-v2/galaxy-server
+          cache: true
   build_galaxy-postgres:
     runs-on: ubuntu-latest
     steps:
@@ -46,6 +47,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_password }}
           workdir: ./compose-v2/galaxy-postgres
+          cache: true
   build_galaxy-htcondor:
     runs-on: ubuntu-latest
     steps:
@@ -59,6 +61,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_password }}
           workdir: ./compose-v2/galaxy-htcondor
+          cache: true
   build_galaxy-bioblend-test:
     runs-on: ubuntu-latest
     steps:
@@ -72,6 +75,7 @@ jobs:
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_password }}
           workdir: ./compose-v2/galaxy-bioblend-test
+          cache: true
   test:
     needs: [build_galaxy-server, build_galaxy-postgres, build_galaxy-htcondor, build_galaxy-bioblend-test]
     runs-on: ubuntu-latest
