@@ -79,12 +79,9 @@ until nc -z -w 2 rabbitmq 5672 && echo RabbitMQ started; do
 done;
 
 echo "Waiting for Postgres..."
-. $GALAXY_VIRTUAL_ENV/bin/activate
-until /usr/local/bin/check_database.py 2>&1 >/dev/null; do 
-    sleep 1; 
+until nc -z -w 2 postgres 5432 && echo Postgres started; do
+     sleep 1;
 done;
-deactivate
-echo "Postgres started"
 
 if [ -f "/etc/condor/condor_config.local" ]; then
     echo "HTCondor config file found"
