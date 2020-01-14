@@ -111,6 +111,9 @@ COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 # Last cleanup before shipping
 RUN find / -name '*.pyc' -delete | true
 
+# Quick test for chetaah c library
+RUN pip install cheetah3
+
 EXPOSE 80
 
 ENTRYPOINT "/usr/bin/start.sh"
