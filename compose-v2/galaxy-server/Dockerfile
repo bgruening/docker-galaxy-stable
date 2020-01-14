@@ -22,6 +22,9 @@ ENV GALAXY_USER=galaxy \
 ENV GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda \
     MINICONDA_VERSION=4.7.10
 
+# DELETE AGAIN!!
+RUN apt update && apt install --no-install-recommends gcc 
+
 # TODO: CLEAN UP!!!!
 # Install all needed dependencies
 
