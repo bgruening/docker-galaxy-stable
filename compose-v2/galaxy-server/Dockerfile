@@ -113,8 +113,8 @@ RUN find / -name '*.pyc' -delete | true
 
 # Quick test for chetaah c library
 RUN apt install --no-install-recommends gcc python-pip -y \
-    && pip uninstall cheetah2 -y \
-    && pip install cheetah2
+    && pip uninstall cheetah -y \
+    && pip install cheetah
 
 EXPOSE 80
 
