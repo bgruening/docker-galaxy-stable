@@ -1,0 +1,9 @@
+version: "3"
+services:
+  galaxy-workflow-test:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-workflow-test:${IMAGE_TAG:-latest}
+    build: galaxy-workflow-test
+    environment:
+      - WORKFLOWS=sklearn/ard/ard.ga
+    networks: 
+      - galaxy
