@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e # Stop script, if a test fails
 
 echo "Waiting for Galaxy..."
 until [ "$(curl -s -o /dev/null -w '%{http_code}' ${GALAXY_URL:-nginx})" -eq "200" ] && echo Galaxy started; do
