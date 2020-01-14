@@ -62,6 +62,20 @@ jobs:
           password: ${{ secrets.dockerhub_password }}
           workdir: ./compose-v2/galaxy-htcondor
           cache: true
+  build_galaxy-configurator:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      - name: Build, Tag and Publish
+        uses: elgohr/Publish-Docker-Github-Action@master
+        continue-on-error: false
+        with:
+          name: andreassko/galaxy-configurator
+          username: ${{ secrets.dockerhub_username }}
+          password: ${{ secrets.dockerhub_password }}
+          workdir: ./compose-v2/galaxy-configurator
+          cache: true
   build_galaxy-bioblend-test:
     runs-on: ubuntu-latest
     steps:
