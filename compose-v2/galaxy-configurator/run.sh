@@ -1,0 +1,13 @@
+#!/bin/bash
+
+if [ "$GALAXY_OVERWRITE_CONFIG" != "true" ]; then
+    echo "GALAXY_OVERWRITE_CONFIG is not true. Skipping configuration of Galaxy"
+    exit 0
+fi
+
+cd ${GALAXY_CONFIG_DIR:-/galaxy/config} || { echo "Error: Could not find Galaxy config dir"; exit 1; }
+
+echo "Configuring job_conf.xml"
+j2 --undefined -o /galaxy/config/job_conf.xml /templates/job_conf.xml.j2
+
+echo "Finished configuring Galaxy"

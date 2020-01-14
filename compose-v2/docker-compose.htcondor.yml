@@ -26,3 +26,6 @@ services:
   galaxy-server:
     volumes:
       - ./static_conf/htcondor_galaxy.conf:/etc/condor/condor_config.local:ro
+  galaxy-configurator:
+    environment: 
+      - GALAXY_JOB_DESTINATION=condor
