@@ -19,3 +19,6 @@ services:
       - GALAXY_DEFAULT_ADMIN_EMAIL=admin@galaxy.org
       - GALAXY_DEFAULT_ADMIN_PASSWORD=password
       - GALAXY_DEFAULT_ADMIN_KEY=fakekey
+  galaxy-configurator:
+    environment: 
+      - DONT_EXIT=true
