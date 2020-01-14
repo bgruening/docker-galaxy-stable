@@ -100,8 +100,8 @@ jobs:
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests 
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml up --exit-code-from galaxy-bioblend-test
+          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml pull
+          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml up --exit-code-from galaxy-bioblend-test
           test_exit_code=$?
           galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
@@ -118,8 +118,8 @@ jobs:
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests 
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml up --exit-code-from galaxy-bioblend-test
+          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml pull
+          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml up --exit-code-from galaxy-bioblend-test
           test_exit_code=$?
           galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
