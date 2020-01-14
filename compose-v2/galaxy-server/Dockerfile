@@ -112,7 +112,7 @@ COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 RUN find / -name '*.pyc' -delete | true
 
 # Quick test for chetaah c library
-RUN apt install --no-install-recommends gcc python-pip -y \
+RUN apt install --no-install-recommends gcc python-pip python-setuptools -y \
     && pip uninstall cheetah -y \
     && pip install cheetah
 
