@@ -69,6 +69,8 @@ RUN mkdir "${GALAXY_ROOT}" \
 RUN apt update && apt install python-dev python-pip -y \
     && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
     && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 \
+    && pip uninstall cheetah -y \
+    && pip install cheetah \
     && deactivate \
     && find $GALAXY_ROOT -name '*.pyc' -delete | true
 
