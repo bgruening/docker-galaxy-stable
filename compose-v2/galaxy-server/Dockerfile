@@ -80,6 +80,11 @@ COPY --from=build /galaxy /galaxy
 COPY --from=build /tool_deps /tool_deps 
 COPY --from=build /home/galaxy /home/galaxy
 
+#COPY --from=build /opt/htcondor /opt/htcondor
+ENV DEBIAN_FRONTEND noninteractive
+RUN apt update && apt install htcondor -y \
+    && rm /etc/condor/condor_config.local
+
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy
 
