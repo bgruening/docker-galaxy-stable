@@ -4,6 +4,6 @@ services:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-workflow-test:${IMAGE_TAG:-latest}
     build: galaxy-workflow-test
     environment:
-      - WORKFLOWS=sklearn/ard/ard.ga,GraphClust2/GC-lite.ga,example2/wf4-shed-tools.ga,raceid3/raceid3_workflow.ga,training/assembly/general-introduction/assembly-general-introduction.ga
+      - WORKFLOWS=sklearn/ard/ard.ga,GraphClust2/GC-lite.ga
     networks: 
       - galaxy

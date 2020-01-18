@@ -159,7 +159,7 @@ jobs:
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
         working-directory: ./compose-v2
         continue-on-error: false
-        timeout-minutes: 45
+        timeout-minutes: 120
   workflow-test_galaxy-htcondor:
     needs: [build_galaxy-server, build_galaxy-postgres, build_galaxy-htcondor, build_galaxy-configurator, build_galaxy-bioblend-test]
     runs-on: ubuntu-latest
@@ -177,4 +177,4 @@ jobs:
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
         working-directory: ./compose-v2
         continue-on-error: false
-        timeout-minutes: 45
+        timeout-minutes: 120
