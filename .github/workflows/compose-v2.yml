@@ -5,7 +5,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout
-      uses: actions/checkout@v1
+      uses: actions/checkout@v2
     - name: Cleanup to only use compose-v2 for now
       run: rm -R compose docs galaxy  test
     - name: Run shellcheck with reviewdog
@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Set image tag
         id: image_tag
         run: echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Build, Tag and Publish
         uses: elgohr/Publish-Docker-Github-Action@master
         continue-on-error: false
@@ -54,7 +54,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Build, Tag and Publish
         uses: elgohr/Publish-Docker-Github-Action@master
         continue-on-error: false
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Build, Tag and Publish
         uses: elgohr/Publish-Docker-Github-Action@master
         continue-on-error: false
@@ -82,7 +82,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Build, Tag and Publish
         uses: elgohr/Publish-Docker-Github-Action@master
         continue-on-error: false
@@ -96,7 +96,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Build, Tag and Publish
         uses: elgohr/Publish-Docker-Github-Action@master
         continue-on-error: false
@@ -111,7 +111,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Set needed environment variables
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests 
@@ -129,7 +129,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Set needed environment variables
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests for the first time
@@ -162,7 +162,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Set needed environment variables
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests 
@@ -180,7 +180,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Set needed environment variables
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests 
@@ -198,7 +198,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Set needed environment variables
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
       - name: Run Bioblend tests 
