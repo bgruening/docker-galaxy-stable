@@ -41,15 +41,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Set image tag
+        id: image_tag
+        run: echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
       - name: Build, Tag and Publish
-        uses: elgohr/Publish-Docker-Github-Action@master
+        uses: whoan/docker-build-with-cache-action@v2
         continue-on-error: false
         with:
-          name: andreassko/galaxy-postgres
           username: ${{ secrets.dockerhub_username }}
           password: ${{ secrets.dockerhub_password }}
-          workdir: ./compose-v2/galaxy-postgres
-          cache: true
+          image_name: andreassko/galaxy-postgres
+          image_tag: ${{ steps.image_tag.outputs.image_tag }}
+          context: ./compose-v2/galaxy-postgres
   build_galaxy-htcondor:
     runs-on: ubuntu-latest
     steps:
