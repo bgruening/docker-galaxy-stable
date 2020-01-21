@@ -145,8 +145,8 @@ jobs:
         timeout-minutes: 45
       - name: Clean up after first run
         run: |
-          rm -rf export/postgres
-          rm -rf export/galaxy/database
+          sudo rm -rf export/postgres
+          sudo rm -rf export/galaxy/database
         working-directory: ./compose-v2
       - name: Run Bioblend tests a second time (to see if export worked as expected)
         run: |
