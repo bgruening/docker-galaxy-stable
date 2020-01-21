@@ -7,8 +7,7 @@ echo "Initialization: Check if files already exist, export otherwise."
 # Create initial $GALAXY_ROOT in $EXPORT_DIR if not already existent
 mkdir -p "$EXPORT_DIR/$GALAXY_ROOT"
 
-declare -A exports=( ["$GALAXY_CONFIG_DIR"]="$EXPORT_DIR/$GALAXY_CONFIG_DIR" \
-                     ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
+declare -A exports=( ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
                      ["$GALAXY_CONFIG_TOOL_PATH"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH" \
                      ["$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR" \
                      ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" )
@@ -26,9 +25,22 @@ for galaxy_dir in "${!exports[@]}"; do
     chown -h "$GALAXY_USER:$GALAXY_USER" $galaxy_dir
 done
 
+# Export galaxy_config seperately (special treatment because of plugins-dir)
+# shellcheck disable=SC2143,SC2086,SC2010
+if [ ! -d  "$EXPORT_DIR/$GALAXY_CONFIG_DIR" ] || [ -z "$(ls -p $EXPORT_DIR/$GALAXY_CONFIG_DIR | grep -v /)" ]; then
+    # Move config to $EXPORT_DIR and create symlink 
+    mkdir "$EXPORT_DIR/$GALAXY_CONFIG_DIR"
+    chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_CONFIG_DIR"
+    cp -rpf $GALAXY_CONFIG_DIR/* $EXPORT_DIR/$GALAXY_CONFIG_DIR
+    cp -rpf $GALAXY_CONFIG_DIR/plugins/* $EXPORT_DIR/$GALAXY_CONFIG_DIR/plugins
+fi
+rm -rf "$GALAXY_CONFIG_DIR"
+ln -v -s "$EXPORT_DIR/$GALAXY_CONFIG_DIR" "$GALAXY_CONFIG_DIR"
+chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_CONFIG_DIR"
+
 # Export database-folder (used for job files etc)
 rm -rf "$GALAXY_DATABASE_PATH"
-mkdir "$EXPORT_DIR/$GALAXY_DATABASE_PATH"
+mkdir -p "$EXPORT_DIR/$GALAXY_DATABASE_PATH"
 chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_DATABASE_PATH"
 ln -v -s "$EXPORT_DIR/$GALAXY_DATABASE_PATH" "$GALAXY_DATABASE_PATH"
 chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_DATABASE_PATH"
