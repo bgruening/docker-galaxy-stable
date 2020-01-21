@@ -1,14 +1,14 @@
 name: Build and Test
 on: [push]
 jobs:
-  build-images:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         image:
           - galaxy-server
           - galaxy-postgres
-          - galaxy-htcondor,
+          - galaxy-htcondor
           - galaxy-configurator
           - galaxy-bioblend-test
           - galaxy-workflow-test
@@ -28,7 +28,7 @@ jobs:
           image_tag: ${{ steps.image_tag.outputs.image_tag }}
           context: ./compose-v2/${{ matrix.image }}
   bioblend-test_galaxy:
-    needs: [build-images]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -46,7 +46,7 @@ jobs:
         continue-on-error: false
         timeout-minutes: 45
   bioblend-test_galaxy-with-restart:
-    needs: [build-images]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -79,7 +79,7 @@ jobs:
         continue-on-error: false
         timeout-minutes: 45
   bioblend-test_galaxy-htcondor:
-    needs: [build-images]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -97,7 +97,7 @@ jobs:
         continue-on-error: false
         timeout-minutes: 45
   workflow-test_galaxy:
-    needs: [build-images]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -115,7 +115,7 @@ jobs:
         continue-on-error: false
         timeout-minutes: 120
   workflow-test_galaxy-htcondor:
-    needs: [build-images]
+    needs: [build]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
