@@ -45,7 +45,8 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
     && find / -name '*.pyc' -delete | true
 
 # Install Galaxy
-RUN mkdir "${GALAXY_ROOT}" \
+RUN apt update && apt install python-dev python-pip gcc -y && rm -rf /var/lib/apt/lists/* \
+    && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && chown -R $GALAXY_GROUP:$GALAXY_USER $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
