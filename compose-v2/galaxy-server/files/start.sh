@@ -16,6 +16,7 @@ declare -A exports=( ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
 for galaxy_dir in "${!exports[@]}"; do 
     exp_dir=${exports[$galaxy_dir]}
     if [ ! -d  $exp_dir ] || [ -z "$(ls -A $exp_dir)" ]; then
+        echo "Exporting $galaxy_dir to $exp_dir"
         mkdir $exp_dir
         chown "$GALAXY_USER:$GALAXY_USER" $exp_dir
         cp -rpf $galaxy_dir/* $exp_dir
