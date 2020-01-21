@@ -13,8 +13,7 @@ ENV POSTGRES_PASSWORD=build \
     POSTGRES_USER=galaxy \
     POSTGRES_DB=galaxy
 # Install Galaxy (there needs to be a better way!!)
-RUN apt update && apt install curl python-pip python-dev git libpq-dev -y \
-    && pip install boltons \
+RUN apt update && apt install --no-install-recommends build-essential ca-certificates curl gcc libpq-dev python-pip python-dev -y \
     && mkdir /galaxy && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C /galaxy \
     && cd /galaxy && ./scripts/common_startup.sh --skip-client-build && cd / \
     && . /galaxy/.venv/bin/activate && pip install psycopg2 && deactivate
