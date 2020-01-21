@@ -143,6 +143,11 @@ jobs:
         working-directory: ./compose-v2
         continue-on-error: false
         timeout-minutes: 45
+      - name: Clean up after first run
+        run: |
+          rm -rf export/postgres
+          rm -rf export/galaxy/database
+        working-directory: ./compose-v2
       - name: Run Bioblend tests a second time (to see if export worked as expected)
         run: |
           docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml up --exit-code-from galaxy-bioblend-test
