@@ -1,4 +1,4 @@
-name: Build and Test
+name: build-and-test
 on: [push]
 jobs:
   build:
@@ -27,105 +27,49 @@ jobs:
           image_name: andreassko/${{ matrix.image }}
           image_tag: ${{ steps.image_tag.outputs.image_tag }}
           context: ./compose-v2/${{ matrix.image }}
-  bioblend-test_galaxy:
+  test:
     needs: [build]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        case:
+          - name: bioblend
+            files: -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
+            exit-from: galaxy-bioblend-test
+          - name: bioblend-htcondor
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
+            exit-from: galaxy-bioblend-test
+          - name: workflows
+            files: -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+          - name: workflows-htcondor
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+      fail-fast: false
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Set needed environment variables
+      - name: Set image tag in env
         run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
-      - name: Run Bioblend tests
+      - name: Run tests for the first time
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml up --exit-code-from galaxy-bioblend-test
+          docker-compose ${{ matrix.case.files }} pull
+          docker-compose ${{ matrix.case.files }} up --exit-code-from ${{ matrix.case.exit-from }}
           test_exit_code=$?
           galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
+          docker-compose ${{ matrix.case.files }} down
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
         working-directory: ./compose-v2
         continue-on-error: false
-        timeout-minutes: 45
-  bioblend-test_galaxy-with-restart:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set needed environment variables
-        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
-      - name: Run Bioblend tests for the first time
-        run: |
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml up --exit-code-from galaxy-bioblend-test
-          test_exit_code=$?
-          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml down
-          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
-        working-directory: ./compose-v2
-        continue-on-error: false
-        timeout-minutes: 45
+        timeout-minutes: 120
       - name: Clean up after first run
         run: |
           sudo rm -rf export/postgres
           sudo rm -rf export/galaxy/database
         working-directory: ./compose-v2
-      - name: Run Bioblend tests a second time (to see if export worked as expected)
+      - name: Run tests a second time
         run: |
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml up --exit-code-from galaxy-bioblend-test
-          test_exit_code=$?
-          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
-        working-directory: ./compose-v2
-        continue-on-error: false
-        timeout-minutes: 45
-  bioblend-test_galaxy-htcondor:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set needed environment variables
-        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
-      - name: Run Bioblend tests
-        run: |
-          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml up --exit-code-from galaxy-bioblend-test
-          test_exit_code=$?
-          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
-        working-directory: ./compose-v2
-        continue-on-error: false
-        timeout-minutes: 45
-  workflow-test_galaxy:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set needed environment variables
-        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
-      - name: Run Bioblend tests
-        run: |
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml up --exit-code-from galaxy-workflow-test
-          test_exit_code=$?
-          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
-        working-directory: ./compose-v2
-        continue-on-error: false
-        timeout-minutes: 120
-  workflow-test_galaxy-htcondor:
-    needs: [build]
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set needed environment variables
-        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
-      - name: Run Bioblend tests
-        run: |
-          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml pull
-          docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml up --exit-code-from galaxy-workflow-test
+          docker-compose ${{ matrix.case.files }} up --exit-code-from ${{ matrix.case.exit-from }}
           test_exit_code=$?
           galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
