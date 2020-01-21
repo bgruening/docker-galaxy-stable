@@ -1,7 +1,8 @@
 FROM buildpack-deps:19.10 as build
 
 ENV EXPORT_DIR=/export \
-    GALAXY_ROOT=/galaxy
+    GALAXY_ROOT=/galaxy \
+    HTCONDOR_ROOT=/opt/htcondor
 
 ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
@@ -21,9 +22,6 @@ ENV GALAXY_USER=galaxy \
 
 ENV GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda \
     MINICONDA_VERSION=4.7.10
-
-# DELETE AGAIN!!
-RUN apt update && apt install --no-install-recommends gcc 
 
 # TODO: CLEAN UP!!!!
 # Install all needed dependencies
@@ -63,22 +61,31 @@ RUN mkdir "${GALAXY_ROOT}" \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
+    && rm -rf /tmp/* /root/.cache/ /var/cache/* /home/galaxy/.cache/ /home/galaxy/.npm
 
 # Install Galaxy dependencies and delete unneeded afterwards
-RUN apt update && apt install python-dev python-pip -y \
+#COPY ./files/requirements.txt $GALAXY_ROOT/lib/galaxy/dependencies/pipfiles/default/pinned-requirements.txt
+RUN apt update && apt install python-dev python-pip gcc -y \
     && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
     && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 \
+    # Fix as cheetah was missing C library first
     && pip uninstall cheetah -y \
     && pip install cheetah \
     && deactivate \
-    && find $GALAXY_ROOT -name '*.pyc' -delete | true
+    && find $GALAXY_ROOT -name '*.pyc' -delete | true 
+
+# Cleanup of unneeded files. TODO: Include in other statements
+RUN cd $GALAXY_ROOT && rm -rf client doc test test-data .venv/lib/node_modules
+
+# # Install HTCondor 
+# RUN cd /tmp && wget http://parrot.cs.wisc.edu//symlink/20200102142623/8/8.8/8.8.7/e04b89a266a2bf2576c19d960ab1a002/condor-8.8.7-x86_64_Ubuntu18-stripped.tar.gz -O htcondor.tar.gz \
+#     && tar -zxvf htcondor.tar.gz \
+#     && mkdir "$HTCONDOR_ROOT" \
+#     && chown "$GALAXY_USER:$GALAXY_GROUP" "$HTCONDOR_ROOT" \
+#     && cd condor-8.8.7-x86_64_Ubuntu18-stripped \
+#     && HOSTNAME=galaxy-server.local ./condor_install --install=. --owner="$GALAXY_USER" --install-dir="$HTCONDOR_ROOT" --local-dir=/opt/htcondor/var --type=submit
 
 FROM ubuntu:19.10
-
-COPY --from=build /galaxy /galaxy
-COPY --from=build /tool_deps /tool_deps 
-COPY --from=build /home/galaxy /home/galaxy
 
 #COPY --from=build /opt/htcondor /opt/htcondor
 ENV DEBIAN_FRONTEND noninteractive
@@ -86,7 +93,8 @@ RUN apt update && apt install htcondor -y \
     && rm /etc/condor/condor_config.local
 
 ENV EXPORT_DIR=/export \
-    GALAXY_ROOT=/galaxy
+    GALAXY_ROOT=/galaxy \
+    HTCONDOR_ROOT=/opt/htcondor
 
 ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
@@ -106,7 +114,11 @@ ENV GALAXY_USER=galaxy \
 
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml
 
-RUN apt update && apt install --no-install-recommends python python-virtualenv netcat libpq-dev mercurial libgomp1 -y \
+COPY --from=build ${GALAXY_ROOT} ${GALAXY_ROOT}
+COPY --from=build ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
+COPY --from=build ${GALAXY_HOME} ${GALAXY_HOME}
+
+RUN apt update && apt install --no-install-recommends netcat libpq-dev mercurial libgomp1 -y \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_ROOT $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR
@@ -120,11 +132,6 @@ COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
 # Last cleanup before shipping
 RUN find / -name '*.pyc' -delete | true
-
-# Quick test for chetaah c library
-RUN apt install --no-install-recommends gcc python-pip python-setuptools -y \
-    && pip uninstall cheetah -y \
-    && pip install cheetah
 
 EXPOSE 80
 
