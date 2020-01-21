@@ -23,9 +23,6 @@ ENV GALAXY_USER=galaxy \
 ENV GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda \
     MINICONDA_VERSION=4.7.10
 
-# TODO: CLEAN UP!!!!
-# Install all needed dependencies
-
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
     && mkdir $GALAXY_HOME \
@@ -63,8 +60,7 @@ RUN mkdir "${GALAXY_ROOT}" \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* /home/galaxy/.cache/ /home/galaxy/.npm
 
-# Install Galaxy dependencies and delete unneeded afterwards
-#COPY ./files/requirements.txt $GALAXY_ROOT/lib/galaxy/dependencies/pipfiles/default/pinned-requirements.txt
+# Install Galaxy dependencies
 RUN apt update && apt install python-dev python-pip gcc -y \
     && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
     && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 \
@@ -75,7 +71,7 @@ RUN apt update && apt install python-dev python-pip gcc -y \
     && find $GALAXY_ROOT -name '*.pyc' -delete | true 
 
 # Cleanup of unneeded files. TODO: Include in other statements
-RUN cd $GALAXY_ROOT && rm -rf client doc test test-data .venv/lib/node_modules
+RUN cd $GALAXY_ROOT && rm -rf client contrib doc test test-data .venv/lib/node_modules
 
 # # Install HTCondor 
 # RUN cd /tmp && wget http://parrot.cs.wisc.edu//symlink/20200102142623/8/8.8/8.8.7/e04b89a266a2bf2576c19d960ab1a002/condor-8.8.7-x86_64_Ubuntu18-stripped.tar.gz -O htcondor.tar.gz \
