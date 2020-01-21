@@ -3,66 +3,28 @@
 # First start?? Check if something exists that indicates that environment is not new.. Config file? Something in DB maybe??
 
 echo "Initialization: Check if files already exist, export otherwise."
-if [ ! -d  "$EXPORT_DIR/$GALAXY_ROOT" ]; then
-    # Create initial $GALAXY_ROOT in $EXPORT_DIR
-    mkdir "$EXPORT_DIR/$GALAXY_ROOT"
-fi
+
+# Create initial $GALAXY_ROOT in $EXPORT_DIR if not already existent
+mkdir -p "$EXPORT_DIR/$GALAXY_ROOT"
+
+declare -A exports=( ["$GALAXY_CONFIG_DIR"]="$EXPORT_DIR/$GALAXY_CONFIG_DIR" \
+                     ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
+                     ["$GALAXY_CONFIG_TOOL_PATH"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH" \
+                     ["$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR" \
+                     ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" )
 
 # shellcheck disable=SC2143,SC2086,SC2010
-if [ ! -d  "$EXPORT_DIR/$GALAXY_CONFIG_DIR" ] || [ -z "$(ls -p $EXPORT_DIR/$GALAXY_CONFIG_DIR | grep -v /)" ]; then
-    # Move config to $EXPORT_DIR and create symlink 
-    mkdir "$EXPORT_DIR/$GALAXY_CONFIG_DIR"
-    chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_CONFIG_DIR"
-    cp -rpf $GALAXY_CONFIG_DIR/* $EXPORT_DIR/$GALAXY_CONFIG_DIR
-    cp -rpf $GALAXY_CONFIG_DIR/plugins/* $EXPORT_DIR/$GALAXY_CONFIG_DIR/plugins
-fi
-rm -rf "$GALAXY_CONFIG_DIR"
-ln -v -s "$EXPORT_DIR/$GALAXY_CONFIG_DIR" "$GALAXY_CONFIG_DIR"
-chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_CONFIG_DIR"
-
-# shellcheck disable=SC2143,SC2086,SC2010
-if [ ! -d  "$EXPORT_DIR/$GALAXY_STATIC_DIR" ] || [ -z "$(ls -A $EXPORT_DIR/$GALAXY_STATIC_DIR)" ]; then
-    # Move static to $EXPORT_DIR and create symlink
-    mkdir "$EXPORT_DIR/$GALAXY_STATIC_DIR"
-    chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_STATIC_DIR"
-    cp -rpf $GALAXY_STATIC_DIR/* $EXPORT_DIR/$GALAXY_STATIC_DIR
-fi
-rm -rf "$GALAXY_STATIC_DIR"
-ln -v -s "$EXPORT_DIR/$GALAXY_STATIC_DIR" "$GALAXY_STATIC_DIR"
-chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_STATIC_DIR"
-
-# shellcheck disable=SC2143,SC2086,SC2010
-if [ ! -d  "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH" ] || [ -z "$(ls -A $EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH)" ]; then
-    # Move environment to export and create symlink
-    mkdir "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH"
-    chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH"
-    cp -rpf $GALAXY_CONFIG_TOOL_PATH/* $EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH
-fi
-rm -rf "$GALAXY_CONFIG_TOOL_PATH"
-ln -v -s "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH" "$GALAXY_CONFIG_TOOL_PATH"
-chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_CONFIG_TOOL_PATH"
-
-# shellcheck disable=SC2143,SC2086,SC2010
-if [ ! -d  "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR" ] || [ -z "$(ls -A $EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR)" ]; then
-    # Move tools and tool-deps to export and create symlink
-    mkdir "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"
-    chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"
-    cp -rpf $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/* $EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR
-fi
-rm -rf "$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"
-ln -v -s "$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR" "$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"
-chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"
-
-# Move Galaxy virtual environment
-# shellcheck disable=SC2143,SC2086,SC2010
-if [ ! -d  "$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" ] || [ -z "$(ls -A $EXPORT_DIR/$GALAXY_VIRTUAL_ENV)" ]; then
-    mkdir "$EXPORT_DIR/$GALAXY_VIRTUAL_ENV"
-    chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_VIRTUAL_ENV"
-    cp -rpf $GALAXY_VIRTUAL_ENV/* $EXPORT_DIR/$GALAXY_VIRTUAL_ENV
-fi
-rm -rf "$GALAXY_VIRTUAL_ENV"
-ln -v -s "$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" "$GALAXY_VIRTUAL_ENV"
-chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_VIRTUAL_ENV"
+for galaxy_dir in "${!exports[@]}"; do 
+    exp_dir=${exports[$galaxy_dir]}
+    if [ ! -d  $exp_dir ] || [ -z "$(ls -A $exp_dir)" ]; then
+        mkdir $exp_dir
+        chown "$GALAXY_USER:$GALAXY_USER" $exp_dir
+        cp -rpf $galaxy_dir/* $exp_dir
+    fi
+    rm -rf $galaxy_dir
+    ln -v -s $exp_dir $galaxy_dir
+    chown -h "$GALAXY_USER:$GALAXY_USER" $galaxy_dir
+done
 
 # Export database-folder (used for job files etc)
 rm -rf "$GALAXY_DATABASE_PATH"
