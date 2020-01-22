@@ -19,7 +19,9 @@ RUN apt update && apt install --no-install-recommends build-essential ca-certifi
     && cd /galaxy && ./scripts/common_startup.sh --skip-client-build && cd / \
     && . /galaxy/.venv/bin/activate && pip install psycopg2 && deactivate
 COPY files/galaxy.yml /galaxy/config/galaxy.yml
-RUN docker-entrypoint.sh postgres & sleep 10 && ./galaxy/create_db.sh && PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h localhost -U galaxy galaxy > /docker-entrypoint-initdb.d/galaxy.sql
+RUN docker-entrypoint.sh postgres & sleep 10 \
+    && /galaxy/create_db.sh -c /galaxy/config/galaxy.yml \
+    && PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h localhost -U galaxy galaxy > /docker-entrypoint-initdb.d/galaxy.sql
 
 FROM library/postgres:11.2
 
