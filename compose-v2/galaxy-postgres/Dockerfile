@@ -1,6 +1,6 @@
 FROM library/postgres:11.2 AS build
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.09} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy}
 
 COPY init-galaxy-db.sql.in /docker-entrypoint-initdb.d/
@@ -21,7 +21,7 @@ RUN apt update && apt install --no-install-recommends build-essential ca-certifi
 COPY files/galaxy.yml /galaxy/config/galaxy.yml
 RUN docker-entrypoint.sh postgres & sleep 10 && ./galaxy/create_db.sh && PGPASSWORD=$POSTGRES_PASSWORD pg_dump -h localhost -U galaxy galaxy > /docker-entrypoint-initdb.d/galaxy.sql
 
-FROM library/postgres:11.2 
+FROM library/postgres:11.2
 
 COPY init-galaxy-db.sql.in /docker-entrypoint-initdb.d/
 COPY init-galaxy-db.sh /docker-entrypoint-initdb.d/

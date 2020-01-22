@@ -4,7 +4,7 @@ ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
     HTCONDOR_ROOT=/opt/htcondor
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.09} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
     GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
     GALAXY_EXPORT=$EXPORT_DIR/galaxy \
