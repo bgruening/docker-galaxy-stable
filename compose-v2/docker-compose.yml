@@ -20,15 +20,21 @@ services:
     depends_on:
       - postgres
       - rabbitmq
-    networks: 
+    networks:
       - galaxy
   galaxy-configurator:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-configurator:${IMAGE_TAG:-latest}
     build: galaxy-configurator
-    environment: 
+    environment:
       - GALAXY_OVERWRITE_CONFIG=true
+      - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
+      - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@postgres/galaxy
+      - GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost
+      - GALAXY_CONFIG_CONDA_AUTO_INSTALL=true
+      - GALAXY_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy
     volumes:
       - ${EXPORT_DIR:-./export}/galaxy/config:/galaxy/config
+      - ./base_config.yml:/base_config.yml
   postgres:
     # If you are using the official postgres image, it needs to be populated by calling
     # docker-compose run galaxy install_db.sh
@@ -42,7 +48,7 @@ services:
       - POSTGRES_DB=galaxy
     volumes:
       - ${EXPORT_DIR:-./export}/postgres/:/var/lib/postgresql/data:delegated
-    networks: 
+    networks:
       - galaxy
   nginx:
     image: nginx:1.17-alpine
@@ -52,9 +58,9 @@ services:
       - ./static_conf/nginx.conf:/etc/nginx/nginx.conf:ro
       - ${EXPORT_DIR:-./export}/galaxy/static:/export/galaxy/static:ro
       - ${EXPORT_DIR:-./export}/galaxy/config/plugins:/galaxy/config/plugins:ro
-    depends_on: 
+    depends_on:
       - galaxy-server
-    networks: 
+    networks:
       - galaxy
   # Message queue for better performance
   rabbitmq:
@@ -67,7 +73,7 @@ services:
       - RABBITMQ_DEFAULT_VHOST=galaxy
     volumes:
       - ${EXPORT_DIR:-./export}/rabbitmq:/var/lib/rabbitmq:delegated
-    networks: 
+    networks:
       - galaxy
-networks: 
-  galaxy: 
+networks:
+  galaxy:

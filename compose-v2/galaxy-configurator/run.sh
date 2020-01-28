@@ -12,9 +12,16 @@ until [ "$(ls -p | grep -v /)" != "" ] && echo Galaxy config populated; do
     sleep 0.5;
 done;
 
-echo "Configuring job_conf.xml"
-j2 --undefined -o /galaxy/config/job_conf.xml /templates/job_conf.xml.j2
+if [ ! -f /base_config.yml ]; then
+    echo "Warning: 'base_config.yml' does not exist. Configuration will solely happen through env!"
+    touch /base_config.yml
+fi
 
+echo "Configuring job_conf.xml"
+j2 --customize /customize.py --undefined -o /galaxy/config/job_conf.xml /templates/job_conf.xml.j2
+
+echo "Configuring galaxy.yml"
+j2 --customize /customize.py --undefined -o /galaxy/config/galaxy.yml /templates/galaxy.yml.j2 /base_config.yml
 echo "Finished configuring Galaxy"
 
 if [ "$DONT_EXIT" = "true" ]; then
