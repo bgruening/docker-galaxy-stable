@@ -17,14 +17,15 @@ if [ ! -f /base_config.yml ]; then
     touch /base_config.yml
 fi
 
-echo "Configuring job_conf.xml"
-j2 --customize /customize.py --undefined -o /galaxy/config/job_conf.xml /templates/job_conf.xml.j2
+configs=( "job_conf.xml" "galaxy.yml" "job_metrics.xml" )
 
-echo "Configuring galaxy.yml"
-j2 --customize /customize.py --undefined -o /galaxy/config/galaxy.yml /templates/galaxy.yml.j2 /base_config.yml
-
-echo "Configuring job_metrics.xml"
-j2 --customize /customize.py --undefined -o /galaxy/config/job_metrics.xml /templates/job_metrics.xml.j2 /base_config.yml
+for conf in "${configs[@]}"; do
+  echo "Configuring $conf"
+  j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/$conf.j2" /base_config.yml
+  echo "The following changes will be applied to $conf:"
+  diff "${GALAXY_CONFIG_DIR:-/galaxy/config}/$conf" "/tmp/$conf"
+  mv -f "/tmp/$conf" "${GALAXY_CONFIG_DIR:-/galaxy/config}/$conf"
+done
 
 echo "Finished configuring Galaxy"
 
