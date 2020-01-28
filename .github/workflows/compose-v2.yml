@@ -69,6 +69,15 @@ jobs:
         working-directory: ./compose-v2
         continue-on-error: false
         timeout-minutes: 120
+      - name: Allow upload-artifact read access
+        if: failure()
+        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+      - name: Save artifacts for debugging a failed test
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: ${{ matrix.case.name }}_first-run
+          path: ./compose-v2/export/galaxy/database
       - name: Clean up after first run
         run: |
           sudo rm -rf export/postgres
@@ -83,3 +92,12 @@ jobs:
         working-directory: ./compose-v2
         continue-on-error: false
         timeout-minutes: 120
+      - name: Allow upload-artifact read access
+        if: failure()
+        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+      - name: Save artifacts for debugging a failed test
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: ${{ matrix.case.name }}_second-run
+          path: ./compose-v2/export/galaxy/database

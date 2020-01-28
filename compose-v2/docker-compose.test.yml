@@ -7,5 +7,6 @@ services:
       - GALAXY_DEFAULT_ADMIN_PASSWORD=password
       - GALAXY_DEFAULT_ADMIN_KEY=fakekey
   galaxy-configurator:
-    environment: 
+    environment:
+      - GALAXY_CONFIG_CLEANUP_JOB=never
       - DONT_EXIT=true
