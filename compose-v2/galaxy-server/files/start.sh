@@ -13,7 +13,7 @@ declare -A exports=( ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
                      ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" )
 
 # shellcheck disable=SC2143,SC2086,SC2010
-for galaxy_dir in "${!exports[@]}"; do 
+for galaxy_dir in "${!exports[@]}"; do
     exp_dir=${exports[$galaxy_dir]}
     if [ ! -d  $exp_dir ] || [ -z "$(ls -A $exp_dir)" ]; then
         echo "Exporting $galaxy_dir to $exp_dir"
@@ -29,7 +29,7 @@ done
 # Export galaxy_config seperately (special treatment because of plugins-dir)
 # shellcheck disable=SC2143,SC2086,SC2010
 if [ ! -d  "$EXPORT_DIR/$GALAXY_CONFIG_DIR" ] || [ -z "$(ls -p $EXPORT_DIR/$GALAXY_CONFIG_DIR | grep -v /)" ]; then
-    # Move config to $EXPORT_DIR and create symlink 
+    # Move config to $EXPORT_DIR and create symlink
     mkdir "$EXPORT_DIR/$GALAXY_CONFIG_DIR"
     chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_CONFIG_DIR"
     cp -rpf $GALAXY_CONFIG_DIR/* $EXPORT_DIR/$GALAXY_CONFIG_DIR
@@ -45,6 +45,21 @@ mkdir -p "$EXPORT_DIR/$GALAXY_DATABASE_PATH"
 chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_DATABASE_PATH"
 ln -v -s "$EXPORT_DIR/$GALAXY_DATABASE_PATH" "$GALAXY_DATABASE_PATH"
 chown -h "$GALAXY_USER:$GALAXY_USER" "$GALAXY_DATABASE_PATH"
+
+# Try to guess if we are running under --privileged mode
+if mount | grep "/proc/kcore"; then
+    PRIVILEGED=false
+else
+    PRIVILEGED=true
+    echo "Privileged mode detected"
+fi
+
+if $PRIVILEGED; then
+  echo "Mounting CVMFS"
+  chmod 666 /dev/fuse
+  mkdir /cvmfs/data.galaxyproject.org
+  mount -t cvmfs data.galaxyproject.org /cvmfs/data.galaxyproject.org
+fi
 
 echo "Finished initialization"
 

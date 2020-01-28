@@ -93,6 +93,20 @@ COPY --from=build ${GALAXY_ROOT} ${GALAXY_ROOT}
 COPY --from=build ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
 COPY --from=build ${GALAXY_HOME} ${GALAXY_HOME}
 
+# Install CVMFS
+RUN apt update \
+    && apt install wget lsb-release -y \
+    && wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb \
+    && dpkg -i cvmfs-release-latest_all.deb \
+    && rm -f cvmfs-release-latest_all.deb \
+    && apt update \
+    && apt install --no-install-recommends cvmfs -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir /srv/cvmfs
+COPY files/cvmfs/default.local /etc/cvmfs/default.local
+COPY files/cvmfs/galaxyproject.org.conf /etc/cvmfs/domain.d/galaxyproject.org.conf
+COPY files/cvmfs/data.galaxyproject.org.pub /etc/cvmfs/keys/data.galaxyproject.org.pub
+
 RUN apt update && apt install --no-install-recommends ca-certificates netcat libpq-dev mercurial libgomp1  -y \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd -r $GALAXY_USER -g $GALAXY_GID \
