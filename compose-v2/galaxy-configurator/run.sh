@@ -22,6 +22,10 @@ j2 --customize /customize.py --undefined -o /galaxy/config/job_conf.xml /templat
 
 echo "Configuring galaxy.yml"
 j2 --customize /customize.py --undefined -o /galaxy/config/galaxy.yml /templates/galaxy.yml.j2 /base_config.yml
+
+echo "Configuring job_metrics.xml"
+j2 --customize /customize.py --undefined -o /galaxy/config/job_metrics.xml /templates/job_metrics.xml.j2 /base_config.yml
+
 echo "Finished configuring Galaxy"
 
 if [ "$DONT_EXIT" = "true" ]; then

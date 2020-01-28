@@ -23,7 +23,8 @@ def alter_context(context):
 
     translations = {
       "GALAXY_CONFIG_": "galaxy",
-      "GALAXY_UWSGI_CONFIG_": "galaxy_uwsgi"
+      "GALAXY_UWSGI_CONFIG_": "galaxy_uwsgi",
+      "GALAXY_JOB_METRICS_": "galaxy_job_metrics"
     }
 
     # Add values from possible input file if existent
