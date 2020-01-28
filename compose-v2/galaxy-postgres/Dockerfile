@@ -1,7 +1,7 @@
 FROM library/postgres:11.2 AS build
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.09} \
-    GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy}
+ARG GALAXY_RELEASE=release_19.09
+ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 COPY init-galaxy-db.sql.in /docker-entrypoint-initdb.d/
 COPY init-galaxy-db.sh /docker-entrypoint-initdb.d/

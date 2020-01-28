@@ -1,12 +1,13 @@
 FROM buildpack-deps:19.10 as build
 
+ARG GALAXY_RELEASE=release_19.09
+ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
+
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
     HTCONDOR_ROOT=/opt/htcondor
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.09} \
-    GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
-    GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
+ENV GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
     GALAXY_EXPORT=$EXPORT_DIR/galaxy \
     GALAXY_CONFIG_DIR=$GALAXY_ROOT/config \
     GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
