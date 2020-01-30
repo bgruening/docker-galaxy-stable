@@ -30,7 +30,6 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME
 
 FROM build_base as build_miniconda
-
 # Install Miniconda
 RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh" > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX \
@@ -43,7 +42,6 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
     && conda config --add channels bioconda \
     && conda config --add channels conda-forge \
     && conda install virtualenv pip ephemeris \
-    && chown $GALAXY_GROUP:$GALAXY_USER -R $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR /etc/profile.d/conda.sh \
     && conda clean --packages -t -i \
     && find / -name '*.pyc' -delete | true
 
@@ -52,7 +50,6 @@ FROM build_base as build_galaxy
 RUN apt update && apt install --no-install-recommends python-dev python-pip -y && rm -rf /var/lib/apt/lists/* \
     && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
-    && chown -R $GALAXY_GROUP:$GALAXY_USER $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
     && ./scripts/common_startup.sh \
     && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 \
@@ -64,11 +61,30 @@ RUN apt update && apt install --no-install-recommends python-dev python-pip -y &
     && rm -rf client contrib doc test test-data .venv/lib/node_modules .venv/src/node-v10.13.0-linux-x64 \
               .venv/include/node .venv/bin/node .venv/bin/nodeenv
 
-FROM ubuntu:19.10
+FROM ubuntu:19.10 as final
 
+# Install HTCondor
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install --no-install-recommends htcondor -y \
     && rm /etc/condor/condor_config.local
+
+# Install CVMFS
+RUN apt update \
+    && apt install wget lsb-release -y \
+    && wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb \
+    && dpkg -i cvmfs-release-latest_all.deb \
+    && rm -f cvmfs-release-latest_all.deb \
+    && apt update \
+    && apt install --no-install-recommends cvmfs -y \
+    && rm -rf /var/lib/apt/lists/* \
+    && mkdir /srv/cvmfs
+COPY files/cvmfs/default.local /etc/cvmfs/default.local
+COPY files/cvmfs/galaxyproject.org.conf /etc/cvmfs/domain.d/galaxyproject.org.conf
+COPY files/cvmfs/data.galaxyproject.org.pub /etc/cvmfs/keys/data.galaxyproject.org.pub
+
+# Install remaining dependencies
+RUN apt update && apt install --no-install-recommends ca-certificates netcat libpq-dev mercurial libgomp1  -y \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
@@ -95,26 +111,12 @@ ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml
 COPY --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
 COPY --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
 COPY --from=build_miniconda ${GALAXY_HOME} ${GALAXY_HOME}
+COPY --from=build_miniconda /etc/profile.d/conda.sh /etc/profile.d/conda.sh
 
-# Install CVMFS
-RUN apt update \
-    && apt install wget lsb-release -y \
-    && wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb \
-    && dpkg -i cvmfs-release-latest_all.deb \
-    && rm -f cvmfs-release-latest_all.deb \
-    && apt update \
-    && apt install --no-install-recommends cvmfs -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && mkdir /srv/cvmfs
-COPY files/cvmfs/default.local /etc/cvmfs/default.local
-COPY files/cvmfs/galaxyproject.org.conf /etc/cvmfs/domain.d/galaxyproject.org.conf
-COPY files/cvmfs/data.galaxyproject.org.pub /etc/cvmfs/keys/data.galaxyproject.org.pub
-
-RUN apt update && apt install --no-install-recommends ca-certificates netcat libpq-dev mercurial libgomp1  -y \
-    && rm -rf /var/lib/apt/lists/* \
-    && groupadd -r $GALAXY_USER -g $GALAXY_GID \
+# Set permissions
+RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
-    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_ROOT $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_ROOT $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR /etc/profile.d/conda.sh
 
 COPY ./files/job_conf.xml ${GALAXY_CONFIG_DIR}/job_conf.xml
 COPY ./files/galaxy.yml /${GALAXY_CONFIG_DIR}/galaxy.yml
@@ -122,9 +124,6 @@ COPY ./files/start.sh /usr/bin/start.sh
 
 # Some helpful scripts
 COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
-
-# Last cleanup before shipping
-RUN find / -name '*.pyc' -delete | true
 
 EXPOSE 80
 
