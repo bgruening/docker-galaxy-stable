@@ -1,4 +1,4 @@
-FROM buildpack-deps:19.10 as build
+FROM buildpack-deps:19.10 as build_base
 
 ARG GALAXY_RELEASE=release_19.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
@@ -29,6 +29,8 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && mkdir $GALAXY_HOME \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME
 
+FROM build_base as build_miniconda
+
 # Install Miniconda
 RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh" > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX \
@@ -45,6 +47,7 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
     && conda clean --packages -t -i \
     && find / -name '*.pyc' -delete | true
 
+FROM build_base as build_galaxy
 # Install Galaxy
 RUN apt update && apt install --no-install-recommends python-dev python-pip -y && rm -rf /var/lib/apt/lists/* \
     && mkdir "${GALAXY_ROOT}" \
@@ -89,9 +92,9 @@ ENV GALAXY_USER=galaxy \
 
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml
 
-COPY --from=build ${GALAXY_ROOT} ${GALAXY_ROOT}
-COPY --from=build ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
-COPY --from=build ${GALAXY_HOME} ${GALAXY_HOME}
+COPY --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
+COPY --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
+COPY --from=build_miniconda ${GALAXY_HOME} ${GALAXY_HOME}
 
 # Install CVMFS
 RUN apt update \
