@@ -286,9 +286,6 @@ ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
     #npm install && \
     #rm -rf ~/.cache/ $GALAXY_ROOT/client/node_modules/
 
-# change the default location of shed_tools to be ../shed_tools
-RUN sed -i 's|database|..|' $GALAXY_ROOT/config/shed_tool_conf.xml
-
 # Switch back to User root
 USER root
 
