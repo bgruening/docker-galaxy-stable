@@ -286,6 +286,10 @@ ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
     #npm install && \
     #rm -rf ~/.cache/ $GALAXY_ROOT/client/node_modules/
 
+# This is a dead symlink in 19.09, triggering an error when creating /export at startup
+# See https://github.com/galaxyproject/galaxy/pull/9292
+RUN rm /galaxy-central/lib/galaxy/web/framework/static/toolshed/src
+
 # Switch back to User root
 USER root
 
