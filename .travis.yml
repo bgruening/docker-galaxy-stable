@@ -1,14 +1,14 @@
 sudo: required
 
 language: python
-python: 3.5
+python: 3.6
 
 services:
   - docker
 
 env:
   matrix:
-    - TOX_ENV=py35
+    - TOX_ENV=py36
     - COMPOSE_SLURM=True
     - COMPOSE_SLURM_SINGULARITY=True
     # Compose version with Condor submitting Docker jobs

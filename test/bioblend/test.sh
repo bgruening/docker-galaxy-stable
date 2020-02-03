@@ -9,7 +9,7 @@ then
     python setup.py install ;
     sed -i.bak "s/commands.*$/commands =/" tox.ini ;
     sed -i.bak2 "s/GALAXY_VERSION/GALAXY_VERSION BIOBLEND_TEST_JOB_TIMEOUT/" tox.ini ;
-    export TOX_ENV=py35 ;
+    export TOX_ENV=py36 ;
     export BIOBLEND_GALAXY_API_KEY=admin ;
     export BIOBLEND_GALAXY_URL=http://galaxy ;
     export BIOBLEND_TEST_JOB_TIMEOUT="240";
