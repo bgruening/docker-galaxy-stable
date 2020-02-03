@@ -8,7 +8,7 @@ services:
 
 env:
   matrix:
-    - TOX_ENV=py27
+    - TOX_ENV=py35
     - COMPOSE_SLURM=True
     - COMPOSE_SLURM_SINGULARITY=True
     # Compose version with Condor submitting Docker jobs
