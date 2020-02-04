@@ -108,15 +108,14 @@ ENV GALAXY_USER=galaxy \
 
 ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml
 
-COPY --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
-COPY --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
-COPY --from=build_miniconda ${GALAXY_HOME} ${GALAXY_HOME}
-COPY --from=build_miniconda /etc/profile.d/conda.sh /etc/profile.d/conda.sh
-
 # Set permissions
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
-    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
-    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $GALAXY_ROOT $GALAXY_CONFIG_TOOL_DEPENDENCY_DIR /etc/profile.d/conda.sh
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER
+
+COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
+COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
+COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_HOME} ${GALAXY_HOME}
+COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda /etc/profile.d/conda.sh /etc/profile.d/conda.sh
 
 COPY ./files/job_conf.xml ${GALAXY_CONFIG_DIR}/job_conf.xml
 COPY ./files/galaxy.yml /${GALAXY_CONFIG_DIR}/galaxy.yml
