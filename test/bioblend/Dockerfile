@@ -1,5 +1,8 @@
 FROM quay.io/bgruening/galaxy
 
+RUN apt-get -qq update && apt-get install --no-install-recommends -y python3-distutils \
+    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
+
 USER galaxy
 WORKDIR /home/galaxy
 
@@ -13,8 +16,6 @@ RUN mkdir bioblend-master \
     && curl -L -s https://github.com/galaxyproject/bioblend/archive/master.tar.gz | tar xzf - --strip-components=1 -C bioblend-master \
     && cd bioblend-master \
     && export PATH=/tool_deps/_conda/bin/:$PATH && . activate galaxy_env \
-    && apt-get -qq update && apt-get install --no-install-recommends -y python3-distutils \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && pip install --upgrade "tox>=1.8.0" "pep8<=1.6.2" \
     && python setup.py install \
     && sed -i.bak "s/commands.*$/commands =/" tox.ini \
