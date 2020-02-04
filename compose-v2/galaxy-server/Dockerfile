@@ -58,7 +58,9 @@ RUN apt update && apt install --no-install-recommends python-dev python-pip -y &
     && pip install cheetah \
     && deactivate \
     && find / -name '*.pyc' -delete | true \
-    && rm -rf client contrib doc test test-data .venv/lib/node_modules .venv/src/node-v10.13.0-linux-x64 \
+    && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
+              LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
+              client contrib doc test test-data .venv/lib/node_modules .venv/src/node-v10.13.0-linux-x64 \
               .venv/include/node .venv/bin/node .venv/bin/nodeenv
 
 FROM ubuntu:19.10 as final
