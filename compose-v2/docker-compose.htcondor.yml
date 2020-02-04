@@ -1,0 +1,31 @@
+version: '3'
+services:
+  htcondor-master:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
+    build: galaxy-htcondor
+    hostname: htcondor-master
+    volumes:
+      - ./static_conf/htcondor_master.conf:/etc/condor/condor_config.local:ro
+    networks: 
+      - galaxy
+  htcondor-executor:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
+    build: galaxy-htcondor
+    hostname: htcondor-executor
+    environment: 
+      - CONDOR_HOST=htcondor-master
+    volumes: 
+      - ${EXPORT_DIR:-./export}/galaxy/database:/galaxy/database
+      - ${EXPORT_DIR:-./export}/galaxy/tools:/galaxy/tools:ro
+      - ${EXPORT_DIR:-./export}/galaxy/lib:/galaxy/lib:ro
+      - ${EXPORT_DIR:-./export}/galaxy/.venv:/galaxy/.venv
+      - ${EXPORT_DIR:-./export}/tool_deps:/tool_deps
+      - ./static_conf/htcondor_executor.conf:/etc/condor/condor_config.local:ro
+    networks: 
+      - galaxy
+  galaxy-server:
+    volumes:
+      - ./static_conf/htcondor_galaxy.conf:/etc/condor/condor_config.local:ro
+  galaxy-configurator:
+    environment: 
+      - GALAXY_JOB_DESTINATION=condor

@@ -1,0 +1,12 @@
+version: "3"
+services:
+  galaxy-server:
+    environment:
+      - GALAXY_DEFAULT_ADMIN_USER=admin
+      - GALAXY_DEFAULT_ADMIN_EMAIL=admin@galaxy.org
+      - GALAXY_DEFAULT_ADMIN_PASSWORD=password
+      - GALAXY_DEFAULT_ADMIN_KEY=fakekey
+  galaxy-configurator:
+    environment:
+      - GALAXY_CONFIG_CLEANUP_JOB=never
+      - DONT_EXIT=true

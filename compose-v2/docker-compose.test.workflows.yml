@@ -1,0 +1,9 @@
+version: "3"
+services:
+  galaxy-workflow-test:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-workflow-test:${IMAGE_TAG:-latest}
+    build: galaxy-workflow-test
+    environment:
+      - WORKFLOWS=training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga,sklearn/ard/ard.ga,GraphClust2/GC-lite.ga
+    networks:
+      - galaxy

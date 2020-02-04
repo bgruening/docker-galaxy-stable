@@ -1,0 +1,103 @@
+name: build-and-test
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - galaxy-server
+          - galaxy-postgres
+          - galaxy-htcondor
+          - galaxy-configurator
+          - galaxy-bioblend-test
+          - galaxy-workflow-test
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag
+        id: image_tag
+        run: echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
+      - name: Docker Login
+        run: echo "${{ secrets.dockerhub_password }}" | docker login -u ${{ secrets.dockerhub_username }} --password-stdin
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Run Buildx
+        run: |
+          docker buildx build  \
+          --cache-to "type=registry,mode=max,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
+          --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
+          --output "type=image,name=andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
+          ${{ matrix.image }}
+        working-directory: ./compose-v2
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        case:
+          - name: bioblend
+            files: -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
+            exit-from: galaxy-bioblend-test
+          - name: bioblend-htcondor
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
+            exit-from: galaxy-bioblend-test
+          - name: workflows
+            files: -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+          - name: workflows-htcondor
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag in env
+        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
+      - name: Run tests for the first time
+        run: |
+          docker-compose ${{ matrix.case.files }} pull
+          docker-compose ${{ matrix.case.files }} up --exit-code-from ${{ matrix.case.exit-from }}
+          test_exit_code=$?
+          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
+          docker-compose ${{ matrix.case.files }} down
+          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
+        working-directory: ./compose-v2
+        continue-on-error: false
+        timeout-minutes: 120
+      - name: Allow upload-artifact read access
+        if: failure()
+        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+      - name: Save artifacts for debugging a failed test
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: ${{ matrix.case.name }}_first-run
+          path: ./compose-v2/export/galaxy/database
+      - name: Clean up after first run
+        run: |
+          sudo rm -rf export/postgres
+          sudo rm -rf export/galaxy/database
+        working-directory: ./compose-v2
+      - name: Run tests a second time
+        run: |
+          docker-compose ${{ matrix.case.files }} up --exit-code-from ${{ matrix.case.exit-from }}
+          test_exit_code=$?
+          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
+          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
+        working-directory: ./compose-v2
+        continue-on-error: false
+        timeout-minutes: 120
+      - name: Allow upload-artifact read access
+        if: failure()
+        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+      - name: Save artifacts for debugging a failed test
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: ${{ matrix.case.name }}_second-run
+          path: ./compose-v2/export/galaxy/database

@@ -1,0 +1,2 @@
+galaxy:
+  database_connection: postgresql://galaxy:build@localhost/galaxy
