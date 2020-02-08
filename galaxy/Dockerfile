@@ -16,7 +16,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.09} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
@@ -286,8 +286,9 @@ ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
     #npm install && \
     #rm -rf ~/.cache/ $GALAXY_ROOT/client/node_modules/
 
-# change the default location of shed_tools to be ../shed_tools
-RUN sed -i 's|database|..|' $GALAXY_ROOT/config/shed_tool_conf.xml
+# This is a dead symlink in 19.09, triggering an error when creating /export at startup
+# See https://github.com/galaxyproject/galaxy/pull/9292
+RUN rm /galaxy-central/lib/galaxy/web/framework/static/toolshed/src
 
 # Switch back to User root
 USER root
