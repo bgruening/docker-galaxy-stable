@@ -44,19 +44,29 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        case:
+        infrastructure:
+          - name: galaxy-base
+            files: -f docker-compose.yml
+          - name: galaxy-htcondor
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml
+        test:
           - name: bioblend
-            files: -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
+            files: -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
             exit-from: galaxy-bioblend-test
-          - name: bioblend-htcondor
-            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
-            exit-from: galaxy-bioblend-test
-          - name: workflows
-            files: -f docker-compose.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            second_run: "true"
+          - name: workflow_ard
+            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
-          - name: workflows-htcondor
-            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            workflow: sklearn/ard/ard.ga
+            second_run: "true"
+          - name: workflow_mapping_by_sequencing
+            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
+            workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
+          - name: workflow_GC-lite
+            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+            workflow: GraphClust2/GC-lite.ga
       fail-fast: false
     steps:
       - name: Checkout
@@ -66,13 +76,16 @@ jobs:
       - name: Master branch - Set image to to 'latest'
         if: github.ref == 'refs/heads/master'
         run: echo "::set-env name=IMAGE_TAG::latest"
+      - name: Set WORKFLOWS env for worfklows-test
+        if: matrix.test.workflow
+        run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
       - name: Run tests for the first time
         run: |
-          docker-compose ${{ matrix.case.files }} pull
-          docker-compose ${{ matrix.case.files }} up --exit-code-from ${{ matrix.case.exit-from }}
+          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
+          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
           test_exit_code=$?
           galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-          docker-compose ${{ matrix.case.files }} down
+          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
         working-directory: ./compose-v2
         continue-on-error: false
@@ -84,16 +97,18 @@ jobs:
         uses: actions/upload-artifact@v1
         if: failure()
         with:
-          name: ${{ matrix.case.name }}_first-run
+          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
           path: ./compose-v2/export/galaxy/database
       - name: Clean up after first run
+        if: matrix.test.second_run == 'true'
         run: |
           sudo rm -rf export/postgres
           sudo rm -rf export/galaxy/database
         working-directory: ./compose-v2
       - name: Run tests a second time
+        if: matrix.test.second_run == 'true'
         run: |
-          docker-compose ${{ matrix.case.files }} up --exit-code-from ${{ matrix.case.exit-from }}
+          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
           test_exit_code=$?
           galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
           [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
@@ -101,11 +116,11 @@ jobs:
         continue-on-error: false
         timeout-minutes: 120
       - name: Allow upload-artifact read access
-        if: failure()
+        if: failure() && matrix.test.second_run == 'true'
         run: sudo chmod -R +r ./compose-v2/export/galaxy/database
       - name: Save artifacts for debugging a failed test
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: failure() && matrix.test.second_run == 'true'
         with:
-          name: ${{ matrix.case.name }}_second-run
+          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
           path: ./compose-v2/export/galaxy/database
