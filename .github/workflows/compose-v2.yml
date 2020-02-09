@@ -78,7 +78,7 @@ jobs:
         run: echo "::set-env name=IMAGE_TAG::latest"
       - name: Set WORKFLOWS env for worfklows-test
         if: matrix.test.workflow
-        run: echo "::set-env name=WORKFLOWS::${{ matrix.workflows }}"
+        run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
       - name: Run tests for the first time
         run: |
           docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
