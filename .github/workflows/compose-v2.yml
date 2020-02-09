@@ -53,14 +53,16 @@ jobs:
           - name: bioblend
             files: -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
             exit-from: galaxy-bioblend-test
-          - name: workflow_mapping_by_sequencing
-            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
-            exit-from: galaxy-workflow-test
-            workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
+            second_run: "true"
           - name: workflow_ard
             files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: sklearn/ard/ard.ga
+            second_run: "true"
+          - name: workflow_mapping_by_sequencing
+            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+            workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
           - name: workflow_GC-lite
             files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
@@ -98,11 +100,13 @@ jobs:
           name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
           path: ./compose-v2/export/galaxy/database
       - name: Clean up after first run
+        if: matrix.test.second_run == 'true'
         run: |
           sudo rm -rf export/postgres
           sudo rm -rf export/galaxy/database
         working-directory: ./compose-v2
       - name: Run tests a second time
+        if: matrix.test.second_run == 'true'
         run: |
           docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
           test_exit_code=$?
@@ -112,11 +116,11 @@ jobs:
         continue-on-error: false
         timeout-minutes: 120
       - name: Allow upload-artifact read access
-        if: failure()
+        if: failure() && matrix.test.second_run == 'true'
         run: sudo chmod -R +r ./compose-v2/export/galaxy/database
       - name: Save artifacts for debugging a failed test
         uses: actions/upload-artifact@v1
-        if: failure()
+        if: failure() && matrix.test.second_run == 'true'
         with:
           name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
           path: ./compose-v2/export/galaxy/database
