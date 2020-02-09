@@ -17,7 +17,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set image tag
-        if: github.ref != 'refs/heads/master'
         id: image_tag
         run: |
           if [ "${GITHUB_REF#refs/heads/}" = "master" ]; then
