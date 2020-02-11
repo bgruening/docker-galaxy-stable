@@ -4,6 +4,8 @@ services:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-selenium-test:${IMAGE_TAG:-latest}
     build: galaxy-selenium-test
     environment:
-      - TESTS=${TESTS:-navigates_galaxy.py}
+      - TESTS=${TESTS:-navigates_galaxy.py,login.py}
+    volumes:
+      - ${EXPORT_DIR:-./export}/galaxy/database:/galaxy/database
     networks:
       - galaxy
