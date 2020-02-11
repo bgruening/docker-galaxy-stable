@@ -1,0 +1,9 @@
+version: "3"
+services:
+  galaxy-selenium-test:
+    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-selenium-test:${IMAGE_TAG:-latest}
+    build: galaxy-selenium-test
+    environment:
+      - TESTS=${TESTS:-navigates_galaxy.py}
+    networks:
+      - galaxy
