@@ -18,7 +18,7 @@ export GALAXY_TEST_EXTERNAL=http://${GALAXY_URL:-nginx}
 export GALAXY_CONFIG_MASTER_API_KEY=${GALAXY_DEFAULT_ADMIN_KEY:-admin}
 
 
-for test in $(echo $TESTS | sed "s/,/ /g"); do
+for test in $(echo "$TESTS" | sed "s/,/ /g"); do
   echo "Running test $test"
   ./galaxy/run_tests.sh --skip-common-startup -selenium "/galaxy/lib/galaxy_test/selenium/test_$test"
 done
