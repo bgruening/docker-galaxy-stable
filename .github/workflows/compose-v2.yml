@@ -34,11 +34,14 @@ jobs:
           version: latest
       - name: Run Buildx
         run: |
-          docker buildx build  \
-          --cache-to "type=registry,mode=max,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
-          --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
-          --output "type=image,name=andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
-          ${{ matrix.image }}
+          for i in 1 2; do
+            docker buildx build  \
+            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            ${{ matrix.image }} && break || echo "Fail.. Retrying"
+          done;
+        shell: bash
         working-directory: ./compose-v2
   test:
     needs: [build]
@@ -85,12 +88,23 @@ jobs:
         run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
       - name: Run tests for the first time
         run: |
-          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
-          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
-          test_exit_code=$?
-          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
-          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
+          for i in 1 2; do
+            echo "Running test - try \#$i"
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
+            set +e
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
+            test_exit_code=$?
+            galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
+            if [ $galaxy_exit_code -eq 1 ] || [ $test_exit_code -eq 1 ] ; then
+              echo "Test failed..";
+              continue;
+            else
+              exit $test_exit_code;
+            fi
+          done;
+          exit 1
+        shell: bash
         working-directory: ./compose-v2
         continue-on-error: false
         timeout-minutes: 120
@@ -112,10 +126,21 @@ jobs:
       - name: Run tests a second time
         if: matrix.test.second_run == 'true'
         run: |
-          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
-          test_exit_code=$?
-          galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-          [ $galaxy_exit_code -eq 1 ] && exit 1 || exit $test_exit_code
+          for i in 1 2; do
+            echo "Running test - try \#$i"
+            set +e
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
+            test_exit_code=$?
+            galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
+            if [ $galaxy_exit_code -eq 1 ] || [ $test_exit_code -eq 1 ] ; then
+              echo "Test failed..";
+              continue;
+            else
+              exit $test_exit_code;
+            fi
+          done;
+          exit 1
+        shell: bash
         working-directory: ./compose-v2
         continue-on-error: false
         timeout-minutes: 120
