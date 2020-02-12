@@ -12,6 +12,7 @@ jobs:
           - galaxy-configurator
           - galaxy-bioblend-test
           - galaxy-workflow-test
+          - galaxy-selenium-test
       fail-fast: false
     steps:
       - name: Checkout
@@ -67,6 +68,9 @@ jobs:
             files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: GraphClust2/GC-lite.ga
+          - name: selenium
+            files: -f docker-compose.test.yml -f docker-compose.test.selenium.yml
+            exit-from: galaxy-selenium-test
       fail-fast: false
     steps:
       - name: Checkout
