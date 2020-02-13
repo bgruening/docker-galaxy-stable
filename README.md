@@ -581,15 +581,15 @@ GALAXY_CONFIG_JOB_WORKING_DIRECTORY="/cluster_storage/galaxy/galaxy_export/galax
 # Conda uses $PWD to determine where the virtual environment is. If placed inside the export directory conda will determine $PWD to be a subirectory of the  /export folder which does not exist on the cluster!
 -e GALAXY_CONFIG_CONDA_AUTO_INIT=True # When the necessary environment can not be found a new one will automatically be created
 ```
-### Setting up a python virtual environment on the cluster  <a name="Setting-up-a-python-virtual-environment-on-the-cluster" />[[toc]](#toc)
-The python environment in the container is not accessible from the cluster. So it needs to be created beforehand.
-In this example configuration the python virtual environment is created on  `/cluster_storage/galaxy/galaxy_venv` and the export folder on `/cluster_storage/galaxy/galaxy_export`. To create the virtual environment:
+### Setting up a Python virtual environment on the cluster  <a name="Setting-up-a-python-virtual-environment-on-the-cluster" />[[toc]](#toc)
+The Python environment in the container is not accessible from the cluster. So it needs to be created beforehand.
+In this example configuration the Python virtual environment is created on  `/cluster_storage/galaxy/galaxy_venv` and the export folder on `/cluster_storage/galaxy/galaxy_export`. To create the virtual environment:
 1. Create the virtual environment `virtualenv /cluster_storage/galaxy/galaxy_venv`
 2. Activate the virtual environment `source /cluster_storage/galaxy/galaxy_venv/bin/activate`
 3. Install the galaxy requirements `pip install --index-url https://wheels.galaxyproject.org/simple --only-binary all -r /cluster_storage/galaxy/galaxy-central//lib/galaxy/dependencies/pinned-requirements.txt`
   * Make sure to upgrade the environment with the new requirements when a new version of galaxy is released.
 
-To make the python environment usable for the cluster. Create your custom `job_conf.xml` file and put it in `/cluster_storage/galaxy/galaxy_export/galaxy-central/config`.
+To make the Python environment usable on the cluster, create your custom `job_conf.xml` file and put it in `/cluster_storage/galaxy/galaxy_export/galaxy-central/config`.
 In the destination section the following code should be added:
 ```xml
 <destinations default="cluster">
@@ -601,7 +601,7 @@ In the destination section the following code should be added:
     <param id="embed_metadata_in_job">True</param>
   </destination>
 ```
-In this way, python tools on the cluster are able to use the galaxy libraries.
+In this way, Python tools on the cluster are able to use the Galaxy libraries.
 
 More information can be found [here](https://github.com/galaxyproject/galaxy/blob/dev/doc/source/admin/framework_dependencies.rst#managing-dependencies-manually)
 and
@@ -791,7 +791,7 @@ CMD ["/usr/bin/startup"]
 or the [RNA-workbench](https://github.com/bgruening/galaxy-rna-workbench/blob/master/Dockerfile).
 The RNA-workbench has advanced examples about:
 
-- populating Galaxy data-libararies
+- populating Galaxy data libraries
 
   ```bash
     setup-data-libraries -i $GALAXY_ROOT/library_data.yaml -g http://localhost:8080
