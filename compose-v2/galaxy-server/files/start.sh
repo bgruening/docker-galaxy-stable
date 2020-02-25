@@ -101,4 +101,4 @@ fi
 
 echo "Starting Galaxy now.."
 cd "$GALAXY_ROOT" || { echo "Error: Could not change to $GALAXY_ROOT"; exit 1; }
-"$GALAXY_VIRTUAL_ENV/bin/uwsgi" --yaml "$GALAXY_CONFIG_DIR/galaxy.yml" --pythonpath "$GALAXY_ROOT/lib" --module "galaxy.webapps.galaxy.buildapp:uwsgi_app()" --virtualenv /galaxy/.venv --uid "$GALAXY_UID" --gid "$GALAXY_GID"
+"$GALAXY_VIRTUAL_ENV/bin/uwsgi" --yaml "$GALAXY_CONFIG_DIR/galaxy.yml" --uid "$GALAXY_UID" --gid "$GALAXY_GID"
