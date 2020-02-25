@@ -5,6 +5,7 @@ services:
     build: galaxy-selenium-test
     environment:
       - TESTS=${TESTS:-navigates_galaxy.py,login.py}
+      - GALAXY_URL=http://nginx${GALAXY_PROXY_PREFIX:-}/
     volumes:
       - ${EXPORT_DIR:-./export}/galaxy/database:/galaxy/database
     networks:

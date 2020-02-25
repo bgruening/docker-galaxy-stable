@@ -7,6 +7,7 @@ jobs:
       matrix:
         image:
           - galaxy-server
+          - galaxy-nginx
           - galaxy-postgres
           - galaxy-htcondor
           - galaxy-configurator
@@ -51,6 +52,9 @@ jobs:
         infrastructure:
           - name: galaxy-base
             files: -f docker-compose.yml
+          - name: galaxy-proxy-prefix
+            files: -f docker-compose.yml
+            env: GALAXY_PROXY_PREFIX=/galaxy GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost/galaxy
           - name: galaxy-htcondor
             files: -f docker-compose.yml -f docker-compose.htcondor.yml
         test:
@@ -88,6 +92,9 @@ jobs:
         run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
       - name: Run tests for the first time
         run: |
+          export ${{ matrix.infrastructure.env }}
+          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} config
+          env
           for i in 1 2; do
             echo "Running test - try \#$i"
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
@@ -126,6 +133,7 @@ jobs:
       - name: Run tests a second time
         if: matrix.test.second_run == 'true'
         run: |
+          export ${{ matrix.infrastructure.env }}
           for i in 1 2; do
             echo "Running test - try \#$i"
             set +e

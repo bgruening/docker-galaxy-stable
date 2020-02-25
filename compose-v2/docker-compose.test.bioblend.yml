@@ -5,11 +5,6 @@ services:
     build: galaxy-bioblend-test
     environment:
       - GALAXY_VERSION=${GALAXY_VERSION:-release_19.10} # TODO: Change to GALAXY_RELEASE
-      - GALAXY_DEFAULT_ADMIN_USER=admin
-      - GALAXY_DEFAULT_ADMIN_EMAIL=admin@galaxy.org
-      - GALAXY_DEFAULT_ADMIN_PASSWORD=password
-      - BIOBLEND_GALAXY_API_KEY=fakekey
-      - BIOBLEND_GALAXY_URL=http://nginx
-      - BIOBLEND_TEST_JOB_TIMEOUT=240
-    networks: 
+      - GALAXY_URL=http://nginx${GALAXY_PROXY_PREFIX:-}/
+    networks:
       - galaxy
