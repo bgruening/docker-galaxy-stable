@@ -101,9 +101,9 @@ jobs:
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
-            galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
+            error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
-            if [ $galaxy_exit_code -eq 1 ] || [ $test_exit_code -eq 1 ] ; then
+            if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
               continue;
             else
@@ -139,8 +139,8 @@ jobs:
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
-            galaxy_exit_code=$(docker inspect --format='{{.State.ExitCode}}' compose-v2_galaxy-server_1)
-            if [ $galaxy_exit_code -eq 1 ] || [ $test_exit_code -eq 1 ] ; then
+            error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
+            if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
               continue;
             else
