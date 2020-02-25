@@ -159,5 +159,5 @@ jobs:
         uses: actions/upload-artifact@v1
         if: failure() && matrix.test.second_run == 'true'
         with:
-          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
+          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_second-run
           path: ./compose-v2/export/galaxy/database
