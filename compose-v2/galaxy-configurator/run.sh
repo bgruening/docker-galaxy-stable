@@ -1,5 +1,20 @@
 #!/bin/bash
 
+# Nginx configuration
+if [ "$NGINX_OVERWRITE_CONFIG" != "true" ]; then
+  echo "NGINX_OVERWRITE_CONFIG is not true. Skipping configuration of Nginx"
+else
+  nginx_configs=( "nginx.conf" )
+
+  for conf in "${nginx_configs[@]}"; do
+    echo "Configuring $conf"
+    j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/nginx/$conf.j2" /base_config.yml
+    echo "The following changes will be applied to $conf:"
+    diff "${NGINX_CONFIG_DIR:-/etc/nginx/}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${NGINX_CONFIG_DIR:-/etc/nginx}/$conf"
+  done
+fi
+# Galaxy configuration
 if [ "$GALAXY_OVERWRITE_CONFIG" != "true" ]; then
     echo "GALAXY_OVERWRITE_CONFIG is not true. Skipping configuration of Galaxy"
     exit 0
@@ -17,11 +32,11 @@ if [ ! -f /base_config.yml ]; then
     touch /base_config.yml
 fi
 
-configs=( "job_conf.xml" "galaxy.yml" "job_metrics.xml" )
+galaxy_configs=( "job_conf.xml" "galaxy.yml" "job_metrics.xml" )
 
-for conf in "${configs[@]}"; do
+for conf in "${galaxy_configs[@]}"; do
   echo "Configuring $conf"
-  j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/$conf.j2" /base_config.yml
+  j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/galaxy/$conf.j2" /base_config.yml
   echo "The following changes will be applied to $conf:"
   diff "${GALAXY_CONFIG_DIR:-/galaxy/config}/$conf" "/tmp/$conf"
   mv -f "/tmp/$conf" "${GALAXY_CONFIG_DIR:-/galaxy/config}/$conf"
