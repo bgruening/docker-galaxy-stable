@@ -26,6 +26,7 @@ services:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-configurator:${IMAGE_TAG:-latest}
     build: galaxy-configurator
     environment:
+      - EXPORT_DIR=${EXPORT_DIR:-./export}
       - GALAXY_OVERWRITE_CONFIG=true
       - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
       - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@postgres/galaxy
