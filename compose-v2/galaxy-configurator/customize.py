@@ -52,5 +52,14 @@ def alter_context(context):
           if key not in new_context[to]:
             new_context[to][key] = value
 
-    return new_context
+    context = new_context
+
+    # Set HOST_EXPORT_DIR depending on EXPORT_DIR being absolute or relative
+    if "HOST_EXPORT_DIR" not in context and "EXPORT_DIR" in context and "HOST_PWD" in context:
+      if context["EXPORT_DIR"].startswith("./"):
+        context["HOST_EXPORT_DIR"] = context["HOST_PWD"] + context["EXPORT_DIR"][1:]
+      else:
+        context["HOST_EXPORT_DIR"] = context["EXPORT_DIR"]
+
+    return context
 
