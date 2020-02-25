@@ -32,6 +32,15 @@ def alter_context(context):
     if context is not None and len(context) > 0:
       new_context.update(context)
 
+    # Translate string-boolean to Python boolean
+    for key, value in new_context.items():
+      if not isinstance(value, str):
+        continue
+      if value.lower() == "true":
+        new_context[key] = True
+      elif value.lower() == "false":
+        new_context[key] = False
+
     for to in translations.values():
       if to not in new_context:
         new_context[to] = {}
