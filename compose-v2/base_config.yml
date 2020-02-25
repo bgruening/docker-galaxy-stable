@@ -10,8 +10,6 @@ galaxy_uwsgi:
   master: false
   virtualenv: .venv
   pythonpath: lib
-  module: galaxy.webapps.galaxy.buildapp:uwsgi_app()
-  manage-script-name: false
   thunder-lock: false
   die-on-term: true
   hook-master-start: unix_signal:2 gracefully_kill_them_all
