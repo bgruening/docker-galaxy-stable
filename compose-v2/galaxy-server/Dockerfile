@@ -65,6 +65,25 @@ RUN apt update && apt install --no-install-recommends python-dev python-pip -y &
               .venv/include/node .venv/bin/node .venv/bin/nodeenv \
     && /usr/bin/common_cleanup.sh
 
+FROM build_base as build_singularity
+COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
+# Install Go (only needed for building singularity)
+ENV GO_VERSION=1.13
+RUN apt update && apt install --no-install-recommends cryptsetup-bin -y \
+    && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
+    && tar -C /usr/local -xzvf go${GO_VERSION}.linux-amd64.tar.gz \
+    && rm go${GO_VERSION}.linux-amd64.tar.gz \
+    && /usr/bin/common_cleanup.sh
+
+ENV PATH=/usr/local/go/bin:${PATH}
+ENV SINGULARITY_VERSION=3.5.3
+RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-${SINGULARITY_VERSION}.tar.gz \
+    && tar -xzf singularity-${SINGULARITY_VERSION}.tar.gz \
+    && cd singularity \
+    && ./mconfig \
+    && make -C builddir \
+    && /usr/bin/common_cleanup.sh
+
 FROM ubuntu:19.10 as final
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
@@ -125,6 +144,19 @@ COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_galaxy ${GALAXY_ROOT} ${GALA
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_HOME} ${GALAXY_HOME}
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda /etc/profile.d/conda.sh /etc/profile.d/conda.sh
+
+# Install Singularity
+COPY --from=build_singularity /singularity /singularity
+RUN apt update && apt install make squashfs-tools -y \
+    && make -C /singularity/builddir install \
+    && rm -rf /singularity \
+    && sed -e '/bind path = \/etc\/localtime/s/^/#/g' -i /usr/local/etc/singularity/singularity.conf \
+    && /usr/bin/common_cleanup.sh
+# Install Docker
+RUN apt update \
+    && apt install --no-install-recommends docker.io -y \
+    && usermod -aG docker $GALAXY_USER \
+    && /usr/bin/common_cleanup.sh
 
 COPY ./files/job_conf.xml ${GALAXY_CONFIG_DIR}/job_conf.xml
 COPY ./files/galaxy.yml /${GALAXY_CONFIG_DIR}/galaxy.yml

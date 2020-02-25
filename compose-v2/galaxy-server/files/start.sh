@@ -52,6 +52,7 @@ if mount | grep "/proc/kcore"; then
 else
     PRIVILEGED=true
     echo "Privileged mode detected"
+    chmod 666 /var/run/docker.sock
 fi
 
 if $PRIVILEGED; then
