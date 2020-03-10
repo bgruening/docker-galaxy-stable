@@ -60,6 +60,8 @@ if $PRIVILEGED; then
   chmod 666 /dev/fuse
   mkdir /cvmfs/data.galaxyproject.org
   mount -t cvmfs data.galaxyproject.org /cvmfs/data.galaxyproject.org
+  mkdir /cvmfs/singularity.galaxyproject.org
+  mount -t cvmfs singularity.galaxyproject.org /cvmfs/singularity.galaxyproject.org
 fi
 
 echo "Finished initialization"

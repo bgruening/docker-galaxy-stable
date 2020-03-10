@@ -105,9 +105,7 @@ RUN apt update \
     && mkdir /srv/cvmfs \
     && /usr/bin/common_cleanup.sh
 
-COPY files/cvmfs/default.local /etc/cvmfs/default.local
-COPY files/cvmfs/galaxyproject.org.conf /etc/cvmfs/domain.d/galaxyproject.org.conf
-COPY files/cvmfs/data.galaxyproject.org.pub /etc/cvmfs/keys/data.galaxyproject.org.pub
+COPY files/cvmfs /etc/cvmfs
 
 # Install remaining dependencies
 RUN apt update && apt install --no-install-recommends ca-certificates netcat libpq-dev mercurial libgomp1  -y \
