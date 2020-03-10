@@ -40,6 +40,7 @@ jobs:
             --cache-to "type=registry,mode=max,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
             --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
             --output "type=image,name=andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
             ${{ matrix.image }} && break || echo "Fail.. Retrying"
           done;
         shell: bash
