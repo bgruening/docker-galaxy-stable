@@ -55,7 +55,7 @@ jobs:
             files: -f docker-compose.yml
           - name: galaxy-proxy-prefix
             files: -f docker-compose.yml
-            env: GALAXY_PROXY_PREFIX=/galaxy GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost/galaxy
+            env: GALAXY_PROXY_PREFIX=/arbitrary_Galaxy-prefix GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost/arbitrary_Galaxy-prefix
           - name: galaxy-htcondor
             files: -f docker-compose.yml -f docker-compose.htcondor.yml
         test:

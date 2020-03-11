@@ -2,7 +2,7 @@ uwsgi:
 {{ galaxy_uwsgi | to_nice_yaml(indent=2) | indent(2, first=True) }}
 
   {% if GALAXY_PROXY_PREFIX %}
-  mount: /galaxy=galaxy.webapps.galaxy.buildapp:uwsgi_app()
+  mount: /{{ GALAXY_PROXY_PREFIX | regex_replace("^/", "") | regex_replace("/$", "") }}=galaxy.webapps.galaxy.buildapp:uwsgi_app()
   manage-script-name: true
   {% else %}
   module: galaxy.webapps.galaxy.buildapp:uwsgi_app()
