@@ -12,6 +12,19 @@
         <destination id="condor" runner="condor">
             <env file="/galaxy/.venv/bin/activate" />
         </destination>
+        {% if GALAXY_SINGULARTIY %}
+        <destination id="docker_local" runner="local">
+            <param id="docker_enabled">true</param>
+            <param id="docker_sudo">false</param>
+            <param id="docker_set_user"></param>
+            <param id="docker_volumes">{{ HOST_EXPORT_DIR }}/$galaxy_root:$galaxy_root:ro,{{ HOST_EXPORT_DIR }}/$tool_directory:$tool_directory:ro,{{ HOST_EXPORT_DIR }}/$job_directory:$job_directory:rw,{{ HOST_EXPORT_DIR }}/$working_directory:$working_directory:rw,{{ HOST_EXPORT_DIR }}/$default_file_path:$default_file_path:rw</param>
+        </destination>
+        <destination id="singularity_local" runner="local">
+            <env id="HOME">/home/galaxy</env>
+            <param id="singularity_enabled">true</param>
+            <param id="singularity_volumes">{{ EXPORT_DIR | regex_replace("^.", "") }}/$galaxy_root:$galaxy_root:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$tool_directory:$tool_directory:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$job_directory:$job_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$working_directory:$working_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$default_file_path:$default_file_path:rw</param>
+        </destination>
+        {% endif %}
     </destinations>
     <tools>
         <tool id="upload1" destination="local" />

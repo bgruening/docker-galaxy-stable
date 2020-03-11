@@ -12,3 +12,8 @@ uwsgi:
 
 galaxy:
 {{ galaxy | to_nice_yaml(indent=2) | indent(2, first=True) }}
+
+  {% if GALAXY_SINGULARTIY %}
+  enable_mulled_containers: true
+  containers_resolvers_config_file: container_resolvers_conf.xml
+  {% endif %}
