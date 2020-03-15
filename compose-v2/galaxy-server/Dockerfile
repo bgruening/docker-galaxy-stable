@@ -3,7 +3,7 @@ ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as build_base
 
-ARG GALAXY_RELEASE=release_19.09
+ARG GALAXY_RELEASE=release_20.01
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV EXPORT_DIR=/export \
