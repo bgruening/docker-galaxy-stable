@@ -32,7 +32,7 @@ services:
       - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@postgres/galaxy
       - GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=${GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL:-http://localhost}
       - GALAXY_CONFIG_CONDA_AUTO_INSTALL=true
-      - GALAXY_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy
+      - GALAXY_CONFIG_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy
       - GALAXY_PROXY_PREFIX=${GALAXY_PROXY_PREFIX:-}
       - NGINX_OVERWRITE_CONFIG=true
     volumes:
