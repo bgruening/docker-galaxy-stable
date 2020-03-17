@@ -88,7 +88,10 @@ FROM ubuntu:18.04 as final
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
 # Install remaining dependencies
-RUN apt update && apt install --no-install-recommends ca-certificates gnupg2 netcat libpq-dev mercurial make libgomp1  -y \
+RUN apt update && apt install --no-install-recommends ca-certificates gcc gnupg2 libgomp1 liblzma-dev libbz2-dev libpq-dev \
+                                                      mercurial make netcat python-dev python-setuptools python-pip zlib1g-dev -y \
+    && pip install Cython wheel \
+    && pip install pysam \
     && /usr/bin/common_cleanup.sh
 
 # Install HTCondor
