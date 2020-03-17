@@ -10,6 +10,8 @@ jobs:
           - galaxy-nginx
           - galaxy-postgres
           - galaxy-htcondor
+          - galaxy-slurm
+          - galaxy-slurm-node-discovery
           - galaxy-configurator
           - galaxy-bioblend-test
           - galaxy-workflow-test
@@ -58,6 +60,10 @@ jobs:
             env: GALAXY_PROXY_PREFIX=/arbitrary_Galaxy-prefix GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost/arbitrary_Galaxy-prefix
           - name: galaxy-htcondor
             files: -f docker-compose.yml -f docker-compose.htcondor.yml
+          - name: galaxy-slurm
+            files: -f docker-compose.yml -f docker-compose.slurm.yml
+            env: SLURM_NODE_COUNT=3
+            options: --scale slurm_node=3
         test:
           - name: bioblend
             files: -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
@@ -100,7 +106,7 @@ jobs:
             echo "Running test - try \#$i"
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
             set +e
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
             error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
@@ -138,7 +144,7 @@ jobs:
           for i in 1 2; do
             echo "Running test - try \#$i"
             set +e
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
             error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
@@ -199,7 +205,7 @@ jobs:
             echo "Running test - try \#$i"
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
             set +e
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
             error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
@@ -237,7 +243,7 @@ jobs:
           for i in 1 2; do
             echo "Running test - try \#$i"
             set +e
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up --exit-code-from ${{ matrix.test.exit-from }}
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
             error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then

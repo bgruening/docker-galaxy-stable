@@ -4,12 +4,18 @@
     <plugins>
         <plugin id="local" type="runner" load="galaxy.jobs.runners.local:LocalJobRunner" workers="4"/>
         <plugin id="condor" type="runner" load="galaxy.jobs.runners.condor:CondorJobRunner"/>
+        <plugin id="slurm" type="runner" load="galaxy.jobs.runners.slurm:SlurmJobRunner">
+            <param id="drmaa_library_path">/usr/lib/slurm-drmaa/lib/libdrmaa.so</param>
+        </plugin>
     </plugins>
     <destinations default="{{ GALAXY_JOB_DESTINATION|default('local') }}">
         <destination id="local" runner="local">
             <env file="/galaxy/.venv/bin/activate" />
         </destination>
         <destination id="condor" runner="condor">
+            <env file="/galaxy/.venv/bin/activate" />
+        </destination>
+        <destination id="slurm" runner="slurm">
             <env file="/galaxy/.venv/bin/activate" />
         </destination>
         {% if GALAXY_SINGULARTIY %}

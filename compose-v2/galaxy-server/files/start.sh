@@ -93,6 +93,12 @@ if [ -f "/etc/condor/condor_config.local" ]; then
     # "$HTCONDOR_ROOT/sbin/condor_master"
 fi
 
+if [ -f /etc/munge/munge.key ]; then
+    echo "Munge key found"
+    echo "Starting Munge.."
+    /etc/init.d/munge start
+fi
+
 # In case the user wants the default admin to be created, do so.
 if [[ -n $GALAXY_DEFAULT_ADMIN_USER ]]; then
     echo "Creating admin user $GALAXY_DEFAULT_ADMIN_USER with key $GALAXY_DEFAULT_ADMIN_KEY and password $GALAXY_DEFAULT_ADMIN_PASSWORD if not existing"

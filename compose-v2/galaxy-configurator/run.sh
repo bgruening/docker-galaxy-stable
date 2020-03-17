@@ -14,6 +14,27 @@ else
     mv -f "/tmp/$conf" "${NGINX_CONFIG_DIR:-/etc/nginx}/$conf"
   done
 fi
+
+# Slurm configuration
+if [ "$SLURM_OVERWRITE_CONFIG" != "true" ]; then
+  echo "SLURM_OVERWRITE_CONFIG is not true. Skipping configuration of Nginx"
+else
+  echo "Locking Slurm config"
+  touch ${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock
+  slurm_configs=( "slurm.conf" )
+
+  for conf in "${slurm_configs[@]}"; do
+    echo "Configuring $conf"
+    j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/slurm/$conf.j2" /base_config.yml
+    echo "The following changes will be applied to $conf:"
+    diff "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/$conf"
+  done
+
+  rm ${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock
+  echo "Lock for Slurm config released"
+fi
+
 # Galaxy configuration
 if [ "$GALAXY_OVERWRITE_CONFIG" != "true" ]; then
     echo "GALAXY_OVERWRITE_CONFIG is not true. Skipping configuration of Galaxy"

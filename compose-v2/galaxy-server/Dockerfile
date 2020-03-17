@@ -1,4 +1,4 @@
-FROM buildpack-deps:19.10 as build_base
+FROM buildpack-deps:18.04 as build_base
 
 ARG GALAXY_RELEASE=release_19.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
@@ -57,7 +57,7 @@ RUN apt update && apt install --no-install-recommends python-dev python-pip -y &
     && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 \
     # Fix as cheetah was missing C library first
     && pip uninstall cheetah -y \
-    && pip install cheetah \
+    && pip install cheetah drmaa \
     && deactivate \
     && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
@@ -69,7 +69,7 @@ FROM build_base as build_singularity
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Go (only needed for building singularity)
 ENV GO_VERSION=1.13
-RUN apt update && apt install --no-install-recommends cryptsetup-bin -y \
+RUN apt update && apt install --no-install-recommends cryptsetup-bin uuid-dev -y \
     && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
     && tar -C /usr/local -xzvf go${GO_VERSION}.linux-amd64.tar.gz \
     && rm go${GO_VERSION}.linux-amd64.tar.gz \
@@ -84,14 +84,36 @@ RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_
     && make -C builddir \
     && /usr/bin/common_cleanup.sh
 
-FROM ubuntu:19.10 as final
+FROM ubuntu:18.04 as final
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
+
+# Install remaining dependencies
+RUN apt update && apt install --no-install-recommends ca-certificates gcc gnupg2 libgomp1 liblzma-dev libbz2-dev libpq-dev \
+                                                      mercurial make netcat python-dev python-setuptools python-pip zlib1g-dev -y \
+    && pip install Cython wheel \
+    && pip install pysam \
+    && /usr/bin/common_cleanup.sh
 
 # Install HTCondor
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt update && apt install --no-install-recommends htcondor -y \
     && rm /etc/condor/condor_config.local \
     && find / -name '*.pyc' -delete | true \
+    && /usr/bin/common_cleanup.sh
+
+# Install Slurm client
+ENV MUNGER_USER=munge \
+    MUNGE_UID=1200 \
+    MUNGE_GID=1200
+RUN groupadd -r $MUNGER_USER -g $MUNGE_GID \
+    && useradd -u $MUNGE_UID -r -g $MUNGER_USER $MUNGER_USER \
+    && echo "deb http://ppa.launchpad.net/natefoo/slurm-drmaa/ubuntu bionic main" >> /etc/apt/sources.list \
+    && echo "deb-src http://ppa.launchpad.net/natefoo/slurm-drmaa/ubuntu bionic main" >> /etc/apt/sources.list \
+    && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8DE68488997C5C6BA19021136F2CC56412788738 \
+    && apt update \
+    && apt install --no-install-recommends slurm-client slurmd slurmctld slurm-drmaa1 -y \
+    && apt --no-install-recommends install munge libmunge-dev -y \
+    && ln -s /usr/lib/slurm-drmaa/lib/libdrmaa.so.1 /usr/lib/slurm-drmaa/lib/libdrmaa.so \
     && /usr/bin/common_cleanup.sh
 
 # Install CVMFS
@@ -106,10 +128,6 @@ RUN apt update \
     && /usr/bin/common_cleanup.sh
 
 COPY files/cvmfs /etc/cvmfs
-
-# Install remaining dependencies
-RUN apt update && apt install --no-install-recommends ca-certificates netcat libpq-dev mercurial libgomp1  -y \
-    && /usr/bin/common_cleanup.sh
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
@@ -145,7 +163,7 @@ COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda /etc/profile.d/con
 
 # Install Singularity
 COPY --from=build_singularity /singularity /singularity
-RUN apt update && apt install make squashfs-tools -y \
+RUN apt update && apt install squashfs-tools -y \
     && make -C /singularity/builddir install \
     && rm -rf /singularity \
     && sed -e '/bind path = \/etc\/localtime/s/^/#/g' -i /usr/local/etc/singularity/singularity.conf \
