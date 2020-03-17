@@ -10,6 +10,8 @@ jobs:
           - galaxy-nginx
           - galaxy-postgres
           - galaxy-htcondor
+          - galaxy-slurm
+          - galaxy-slurm-node-discovery
           - galaxy-configurator
           - galaxy-bioblend-test
           - galaxy-workflow-test
@@ -58,6 +60,8 @@ jobs:
             env: GALAXY_PROXY_PREFIX=/arbitrary_Galaxy-prefix GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost/arbitrary_Galaxy-prefix
           - name: galaxy-htcondor
             files: -f docker-compose.yml -f docker-compose.htcondor.yml
+          - name: galaxy-slurm
+            files: -f docker-compose.yml -f docker-compose.slurm.yml
         test:
           - name: bioblend
             files: -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
