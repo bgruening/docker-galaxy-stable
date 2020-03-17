@@ -25,7 +25,8 @@ def alter_context(context):
       "GALAXY_CONFIG_": "galaxy",
       "GALAXY_UWSGI_CONFIG_": "galaxy_uwsgi",
       "GALAXY_JOB_METRICS_": "galaxy_job_metrics",
-      "NGINX_CONFIG_": "nginx"
+      "NGINX_CONFIG_": "nginx",
+      "SLURM_CONFIG_": "slurm"
     }
 
     # Add values from possible input file if existent
@@ -48,7 +49,12 @@ def alter_context(context):
     for key, value in os.environ.items():
       for frm, to in translations.items():
         if key.startswith(frm):
-          key = key[len(frm):].lower()
+          # Format key depending on it being uppercase or not
+          # (to cope with different formatings: compare Slurm with Galaxy)
+          key = key[len(frm):]
+          if key.isupper():
+            key = key.lower()
+
           if key not in new_context[to]:
             new_context[to][key] = value
 
