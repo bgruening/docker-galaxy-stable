@@ -84,12 +84,43 @@ RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_
     && make -C builddir \
     && /usr/bin/common_cleanup.sh
 
+# --- Final image ---
 FROM ubuntu:18.04 as final
+
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
+COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
+
+ENV EXPORT_DIR=/export \
+    GALAXY_ROOT=/galaxy \
+    HTCONDOR_ROOT=/opt/htcondor
+
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
+    GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
+    GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
+    GALAXY_EXPORT=$EXPORT_DIR/galaxy \
+    GALAXY_CONFIG_DIR=$GALAXY_ROOT/config \
+    GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
+    GALAXY_CONFIG_TOOL_PATH=$GALAXY_ROOT/tools \
+    GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
+    GALAXY_DATABASE_PATH=$GALAXY_ROOT/database
+
+ENV GALAXY_USER=galaxy \
+    GALAXY_GROUP=galaxy \
+    GALAXY_UID=1450 \
+    GALAXY_GID=1450 \
+    GALAXY_HOME=/home/galaxy
+
+ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml
+
+# Set permissions
+RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
+    && /usr/bin/common_cleanup.sh
 
 # Install remaining dependencies
 RUN apt update && apt install --no-install-recommends ca-certificates gcc gnupg2 libgomp1 liblzma-dev libbz2-dev libpq-dev \
-                                                      mercurial make netcat python-dev python-setuptools python-pip zlib1g-dev -y \
+                                                      mercurial make netcat python-dev python-setuptools python-pip \
+                                                      squashfs-tools zlib1g-dev -y \
     && pip install Cython wheel \
     && pip install pysam \
     && /usr/bin/common_cleanup.sh
@@ -126,34 +157,12 @@ RUN apt update \
     && apt install --no-install-recommends cvmfs -y \
     && mkdir /srv/cvmfs \
     && /usr/bin/common_cleanup.sh
-
 COPY files/cvmfs /etc/cvmfs
 
-ENV EXPORT_DIR=/export \
-    GALAXY_ROOT=/galaxy \
-    HTCONDOR_ROOT=/opt/htcondor
-
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
-    GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
-    GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
-    GALAXY_EXPORT=$EXPORT_DIR/galaxy \
-    GALAXY_CONFIG_DIR=$GALAXY_ROOT/config \
-    GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
-    GALAXY_CONFIG_TOOL_PATH=$GALAXY_ROOT/tools \
-    GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
-    GALAXY_DATABASE_PATH=$GALAXY_ROOT/database
-
-ENV GALAXY_USER=galaxy \
-    GALAXY_GROUP=galaxy \
-    GALAXY_UID=1450 \
-    GALAXY_GID=1450 \
-    GALAXY_HOME=/home/galaxy
-
-ENV GALAXY_CONFIG_FILE=$GALAXY_CONFIG_DIR/galaxy.yml
-
-# Set permissions
-RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
-    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
+# Install Docker
+RUN apt update \
+    && apt install --no-install-recommends docker.io -y \
+    && usermod -aG docker $GALAXY_USER \
     && /usr/bin/common_cleanup.sh
 
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
@@ -163,23 +172,12 @@ COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda /etc/profile.d/con
 
 # Install Singularity
 COPY --from=build_singularity /singularity /singularity
-RUN apt update && apt install squashfs-tools -y \
-    && make -C /singularity/builddir install \
+RUN make -C /singularity/builddir install \
     && rm -rf /singularity \
     && sed -e '/bind path = \/etc\/localtime/s/^/#/g' -i /usr/local/etc/singularity/singularity.conf \
     && /usr/bin/common_cleanup.sh
-# Install Docker
-RUN apt update \
-    && apt install --no-install-recommends docker.io -y \
-    && usermod -aG docker $GALAXY_USER \
-    && /usr/bin/common_cleanup.sh
 
-COPY ./files/job_conf.xml ${GALAXY_CONFIG_DIR}/job_conf.xml
-COPY ./files/galaxy.yml /${GALAXY_CONFIG_DIR}/galaxy.yml
 COPY ./files/start.sh /usr/bin/start.sh
-
-# Some helpful scripts
-COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
 EXPOSE 80
 
