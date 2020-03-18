@@ -6,16 +6,19 @@ jobs:
     strategy:
       matrix:
         image:
-          - galaxy-server
-          - galaxy-nginx
-          - galaxy-postgres
-          - galaxy-htcondor
-          - galaxy-slurm
-          - galaxy-slurm-node-discovery
-          - galaxy-configurator
-          - galaxy-bioblend-test
-          - galaxy-workflow-test
-          - galaxy-selenium-test
+          - name: galaxy-server
+          - name: galaxy-nginx
+          - name: galaxy-postgres
+          - name: galaxy-htcondor
+          - name: galaxy-slurm
+          - name: galaxy-slurm-node-discovery
+          - name: galaxy-configurator
+          - name: galaxy-bioblend-test
+            subdir: tests/
+          - name: galaxy-workflow-test
+            subdir: tests/
+          - name: galaxy-selenium-test
+            subdir: tests/
       fail-fast: false
     steps:
       - name: Checkout
@@ -39,11 +42,11 @@ jobs:
         run: |
           for i in 1 2; do
             docker buildx build  \
-            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --output "type=image,name=andreassko/${{ matrix.image }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
-            ${{ matrix.image }} && break || echo "Fail.. Retrying"
+            ${{ matrix.image.subdir }}${{ matrix.image.name }} && break || echo "Fail.. Retrying"
           done;
         shell: bash
         working-directory: ./compose-v2
@@ -66,24 +69,24 @@ jobs:
             options: --scale slurm_node=3
         test:
           - name: bioblend
-            files: -f docker-compose.test.yml -f docker-compose.test.bioblend.yml
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.bioblend.yml
             exit-from: galaxy-bioblend-test
             second_run: "true"
           - name: workflow_ard
-            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: sklearn/ard/ard.ga
             second_run: "true"
           - name: workflow_mapping_by_sequencing
-            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
           - name: workflow_GC-lite
-            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: GraphClust2/GC-lite.ga
           - name: selenium
-            files: -f docker-compose.test.yml -f docker-compose.test.selenium.yml
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.selenium.yml
             exit-from: galaxy-selenium-test
       fail-fast: false
     steps:
@@ -181,7 +184,7 @@ jobs:
             files: -f docker-compose.yml -f docker-compose.singularity.yml
         test:
           - name: workflow_example1
-            files: -f docker-compose.test.yml -f docker-compose.test.workflows.yml
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: example1/wf3-shed-tools.ga
       fail-fast: false
