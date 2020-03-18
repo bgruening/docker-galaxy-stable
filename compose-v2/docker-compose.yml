@@ -16,12 +16,14 @@ services:
       # This is the directory where all your files from Galaxy will be stored
       # on your host system
       - ${EXPORT_DIR:-./export}/:/export/:delegated
-      - /var/run/docker.sock:/var/run/docker.sock # TODO
+      - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - postgres
       - rabbitmq
     networks:
       - galaxy
+  # This is responsible for the whole configuration of your setup and should
+  # be the central place of configuration.
   galaxy-configurator:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-configurator:${IMAGE_TAG:-latest}
     build: galaxy-configurator
@@ -32,8 +34,9 @@ services:
       - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@postgres/galaxy
       - GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=${GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL:-http://localhost}
       - GALAXY_CONFIG_CONDA_AUTO_INSTALL=true
-      - GALAXY_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy
+      - GALAXY_CONFIG_AMQP_INTERNAL_CONNECTION=amqp://galaxy:vaiJa3ieghai2ief0jao@rabbitmq/galaxy
       - GALAXY_PROXY_PREFIX=${GALAXY_PROXY_PREFIX:-}
+      - GALAXY_CONFIG_CLEANUP_JOB=onsuccess
       - NGINX_OVERWRITE_CONFIG=true
     volumes:
       - ${EXPORT_DIR:-./export}/galaxy/config:/galaxy/config
@@ -41,9 +44,6 @@ services:
       - ./base_config.yml:/base_config.yml
       - ./galaxy-configurator/templates:/templates
   postgres:
-    # If you are using the official postgres image, it needs to be populated by calling
-    # docker-compose run galaxy install_db.sh
-    # on first run
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-postgres:${IMAGE_TAG:-latest}
     build: galaxy-postgres
     hostname: postgres
