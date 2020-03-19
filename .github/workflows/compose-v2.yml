@@ -58,15 +58,31 @@ jobs:
         infrastructure:
           - name: galaxy-base
             files: -f docker-compose.yml
+            exclude_test:
+              - workflow_example1
           - name: galaxy-proxy-prefix
             files: -f docker-compose.yml
             env: GALAXY_PROXY_PREFIX=/arbitrary_Galaxy-prefix GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost/arbitrary_Galaxy-prefix
+            exclude_test:
+              - workflow_example1
           - name: galaxy-htcondor
             files: -f docker-compose.yml -f docker-compose.htcondor.yml
+            exclude_test:
+              - workflow_example1
           - name: galaxy-slurm
             files: -f docker-compose.yml -f docker-compose.slurm.yml
             env: SLURM_NODE_COUNT=3
             options: --scale slurm_node=3
+            exclude_test:
+              - workflow_example1
+          - name: galaxy-singularity
+            files: -f docker-compose.yml -f docker-compose.singularity.yml
+            exclude_test:
+              - bioblend
+              - workflow_ard
+              - workflow_mapping_by_sequencing
+              - workflow_GC-lite
+              - selenium
         test:
           - name: bioblend
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.bioblend.yml
@@ -89,12 +105,23 @@ jobs:
             exit-from: galaxy-workflow-test
             workflow: GraphClust2/GC-lite.ga
             timeout: 30
+          - name: workflow_example1
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+            workflow: example1/wf3-shed-tools.ga
+            timeout: 30
           - name: selenium
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.selenium.yml
             exit-from: galaxy-selenium-test
             timeout: 30
       fail-fast: false
     steps:
+      # Self-made `exclude` as Github Actions currently does not support
+      # exclude/including of dicts in matrices
+      - name: Check if test should be run
+        id: run_check
+        if: contains(matrix.infrastructure.exclude_test, matrix.test.name) != true
+        run: echo ::set-output name=run::true
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set image tag in env
@@ -106,6 +133,7 @@ jobs:
         if: matrix.test.workflow
         run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
       - name: Run tests for the first time
+        if: steps.run_check.outputs.run
         run: |
           export ${{ matrix.infrastructure.env }}
           export TIMEOUT=${{ matrix.test.timeout }}
@@ -146,109 +174,10 @@ jobs:
           sudo rm -rf export/galaxy/database
         working-directory: ./compose-v2
       - name: Run tests a second time
-        if: matrix.test.second_run == 'true'
+        if: matrix.test.second_run == 'true' && steps.run_check.run
         run: |
           export ${{ matrix.infrastructure.env }}
           export TIMEOUT=${{ matrix.test.timeout }}
-          for i in 1 2; do
-            echo "Running test - try \#$i"
-            set +e
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
-            test_exit_code=$?
-            error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
-            if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
-              echo "Test failed..";
-              continue;
-            else
-              exit $test_exit_code;
-            fi
-          done;
-          exit 1
-        shell: bash
-        working-directory: ./compose-v2
-        continue-on-error: false
-        timeout-minutes: 120
-      - name: Allow upload-artifact read access
-        if: failure() && matrix.test.second_run == 'true'
-        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
-      - name: Save artifacts for debugging a failed test
-        uses: actions/upload-artifact@v1
-        if: failure() && matrix.test.second_run == 'true'
-        with:
-          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_second-run
-          path: ./compose-v2/export/galaxy/database
-
-# Unfortunately, Github Actions currently does not support exclude/including of dicts
-# in matrices. So duplicating it - for now!
-  test-singularity:
-    needs: [build]
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        infrastructure:
-          - name: galaxy-singularity
-            files: -f docker-compose.yml -f docker-compose.singularity.yml
-        test:
-          - name: workflow_example1
-            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
-            exit-from: galaxy-workflow-test
-            workflow: example1/wf3-shed-tools.ga
-      fail-fast: false
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Set image tag in env
-        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
-      - name: Master branch - Set image to to 'latest'
-        if: github.ref == 'refs/heads/master'
-        run: echo "::set-env name=IMAGE_TAG::latest"
-      - name: Set WORKFLOWS env for worfklows-test
-        if: matrix.test.workflow
-        run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
-      - name: Run tests for the first time
-        run: |
-          export ${{ matrix.infrastructure.env }}
-          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} config
-          env
-          for i in 1 2; do
-            echo "Running test - try \#$i"
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
-            set +e
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
-            test_exit_code=$?
-            error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
-            if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
-              echo "Test failed..";
-              continue;
-            else
-              exit $test_exit_code;
-            fi
-          done;
-          exit 1
-        shell: bash
-        working-directory: ./compose-v2
-        continue-on-error: false
-        timeout-minutes: 120
-      - name: Allow upload-artifact read access
-        if: failure()
-        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
-      - name: Save artifacts for debugging a failed test
-        uses: actions/upload-artifact@v1
-        if: failure()
-        with:
-          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
-          path: ./compose-v2/export/galaxy/database
-      - name: Clean up after first run
-        if: matrix.test.second_run == 'true'
-        run: |
-          sudo rm -rf export/postgres
-          sudo rm -rf export/galaxy/database
-        working-directory: ./compose-v2
-      - name: Run tests a second time
-        if: matrix.test.second_run == 'true'
-        run: |
-          export ${{ matrix.infrastructure.env }}
           for i in 1 2; do
             echo "Running test - try \#$i"
             set +e
