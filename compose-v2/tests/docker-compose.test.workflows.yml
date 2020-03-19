@@ -6,5 +6,7 @@ services:
     environment:
       - GALAXY_URL=http://nginx${GALAXY_PROXY_PREFIX:-}/
       - WORKFLOWS=${WORKFLOWS:-training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga,sklearn/ard/ard.ga,GraphClust2/GC-lite.ga}
+    volumes:
+      - ${EXPORT_DIR:-./../export}/galaxy/database:/galaxy/database
     networks:
       - galaxy
