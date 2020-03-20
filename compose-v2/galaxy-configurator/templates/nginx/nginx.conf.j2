@@ -14,7 +14,7 @@ http {
   gzip_buffers 16 8k;
 
   # allow up to 3 minutes for Galaxy to respond to slow requests before timing out
-  uwsgi_read_timeout 180;
+  uwsgi_read_timeout {{ NGINX_UWSGI_READ_TIMEOUT | default(180, true) }};
 
   # maximum file upload size
   client_max_body_size 10g;
