@@ -58,8 +58,7 @@ def alter_context(context):
                 if key.isupper():
                     key = key.lower()
 
-                if key not in new_context[to]:
-                    new_context[to][key] = value
+                new_context[to][key] = value
 
     context = new_context
 
