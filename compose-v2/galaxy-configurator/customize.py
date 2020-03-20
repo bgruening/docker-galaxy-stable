@@ -1,5 +1,6 @@
 import os
 
+
 def j2_environment_params():
     """ Extra parameters for the Jinja2 Environment
     Add AnsibleCoreFiltersExtension for filters known in Ansible
@@ -8,6 +9,7 @@ def j2_environment_params():
     return dict(
         extensions=('jinja2_ansible_filters.AnsibleCoreFiltersExtension',),
     )
+
 
 def alter_context(context):
     """
@@ -31,41 +33,43 @@ def alter_context(context):
 
     # Add values from possible input file if existent
     if context is not None and len(context) > 0:
-      new_context.update(context)
+        new_context.update(context)
 
     # Translate string-boolean to Python boolean
     for key, value in new_context.items():
-      if not isinstance(value, str):
-        continue
-      if value.lower() == "true":
-        new_context[key] = True
-      elif value.lower() == "false":
-        new_context[key] = False
+        if not isinstance(value, str):
+            continue
+        if value.lower() == "true":
+            new_context[key] = True
+        elif value.lower() == "false":
+            new_context[key] = False
 
     for to in translations.values():
-      if to not in new_context:
-        new_context[to] = {}
+        if to not in new_context:
+            new_context[to] = {}
 
     for key, value in os.environ.items():
-      for frm, to in translations.items():
-        if key.startswith(frm):
-          # Format key depending on it being uppercase or not
-          # (to cope with different formatings: compare Slurm with Galaxy)
-          key = key[len(frm):]
-          if key.isupper():
-            key = key.lower()
+        for frm, to in translations.items():
+            if key.startswith(frm):
+                # Format key depending on it being uppercase or not
+                # (to cope with different formatings: compare Slurm
+                # with Galaxy)
+                key = key[len(frm):]
+                if key.isupper():
+                    key = key.lower()
 
-          if key not in new_context[to]:
-            new_context[to][key] = value
+                if key not in new_context[to]:
+                    new_context[to][key] = value
 
     context = new_context
 
     # Set HOST_EXPORT_DIR depending on EXPORT_DIR being absolute or relative
-    if "HOST_EXPORT_DIR" not in context and "EXPORT_DIR" in context and "HOST_PWD" in context:
-      if context["EXPORT_DIR"].startswith("./"):
-        context["HOST_EXPORT_DIR"] = context["HOST_PWD"] + context["EXPORT_DIR"][1:]
-      else:
-        context["HOST_EXPORT_DIR"] = context["EXPORT_DIR"]
+    if "HOST_EXPORT_DIR" not in context and "EXPORT_DIR" in context \
+            and "HOST_PWD" in context:
+        if context["EXPORT_DIR"].startswith("./"):
+            context["HOST_EXPORT_DIR"] = context["HOST_PWD"] \
+                                         + context["EXPORT_DIR"][1:]
+        else:
+            context["HOST_EXPORT_DIR"] = context["EXPORT_DIR"]
 
     return context
-
