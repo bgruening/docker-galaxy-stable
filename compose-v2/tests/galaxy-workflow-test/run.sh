@@ -10,9 +10,11 @@ for workflow in $(echo $WORKFLOWS | sed "s/,/ /g")
 do
     echo "Running test $workflow"
     planemo $PLANEMO_OPTIONS test \
-	--galaxy_url "${GALAXY_URL:-nginx}" \
-	--galaxy_admin_key "${GALAXY_USER_KEY:-fakekey}" \
-	--shed_install \
-	--engine external_galaxy \
-	"$workflow";
+      --galaxy_url "${GALAXY_URL:-nginx}" \
+      --galaxy_admin_key "${GALAXY_USER_KEY:-fakekey}" \
+      --shed_install \
+      --engine external_galaxy \
+      --test_output ${GALAXY_ROOT:-/galaxy}/database/tool_test_output.html \
+      --test_output_json ${GALAXY_ROOT:-/galaxy}/database/tool_test_output.json \
+      "$workflow";
 done
