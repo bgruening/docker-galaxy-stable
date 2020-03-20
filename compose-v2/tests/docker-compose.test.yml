@@ -9,6 +9,7 @@ services:
   galaxy-configurator:
     environment:
       - GALAXY_CONFIG_CLEANUP_JOB=never
+      - NGINX_UWSGI_READ_TIMEOUT=3600
       - DONT_EXIT=true
   # Terminates the container after $TIMEOUT minutes
   # which results in the whole setup terminating if --exit-code-from
