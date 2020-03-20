@@ -7,7 +7,7 @@ services:
       - GALAXY_DEFAULT_ADMIN_USER=admin
       - GALAXY_DEFAULT_ADMIN_EMAIL=admin@galaxy.org
       - GALAXY_DEFAULT_ADMIN_PASSWORD=password
-      - GALAXY_DEFAULT_ADMIN_KEY=admin
+      - GALAXY_DEFAULT_ADMIN_KEY=fakekey
     hostname: galaxy-server
     privileged: True
     ports:
