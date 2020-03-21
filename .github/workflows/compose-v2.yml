@@ -87,33 +87,33 @@ jobs:
           - name: bioblend
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.bioblend.yml
             exit-from: galaxy-bioblend-test
-            timeout: 30
+            timeout: 60
             second_run: "true"
           - name: workflow_ard
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: sklearn/ard/ard.ga
-            timeout: 30
+            timeout: 60
             second_run: "true"
           - name: workflow_mapping_by_sequencing
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
-            timeout: 30
+            timeout: 60
           - name: workflow_GC-lite
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: GraphClust2/GC-lite.ga
-            timeout: 30
+            timeout: 60
           - name: workflow_example1
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: example1/wf3-shed-tools.ga
-            timeout: 30
+            timeout: 60
           - name: selenium
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.selenium.yml
             exit-from: galaxy-selenium-test
-            timeout: 30
+            timeout: 60
       fail-fast: false
     steps:
       # Self-made `exclude` as Github Actions currently does not support
@@ -195,7 +195,6 @@ jobs:
         shell: bash
         working-directory: ./compose-v2
         continue-on-error: false
-        timeout-minutes: 120
       - name: Allow upload-artifact read access
         if: failure() && matrix.test.second_run == 'true'
         run: sudo chmod -R +r ./compose-v2/export/galaxy/database
