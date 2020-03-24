@@ -8,29 +8,28 @@
             <param id="drmaa_library_path">/usr/lib/slurm-drmaa/lib/libdrmaa.so</param>
         </plugin>
     </plugins>
-    <destinations default="{{ GALAXY_JOB_DESTINATION|default('local') }}">
+    <destinations default="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}">
         <destination id="local" runner="local">
             <env file="/galaxy/.venv/bin/activate" />
         </destination>
-        <destination id="condor" runner="condor">
-            <env file="/galaxy/.venv/bin/activate" />
+        <destination id="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}" runner="{{ GALAXY_JOB_RUNNER | default('local') }}">
+            {% if GALAXY_DEPENDENCY_RESOLUTION == 'singularity' -%}
+              <env id="HOME">/home/galaxy</env>
+              <param id="singularity_enabled">true</param>
+              {% if GALAXY_JOB_RUNNER == 'local' -%}
+                <param id="singularity_volumes">{{ EXPORT_DIR | regex_replace("^.", "") }}/$galaxy_root:$galaxy_root:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$tool_directory:$tool_directory:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$job_directory:$job_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$working_directory:$working_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$default_file_path:$default_file_path:rw</param>
+              {% endif -%}
+            {% elif GALAXY_DEPENDENCY_RESOLUTION == 'docker' -%}
+              <param id="docker_enabled">true</param>
+              <param id="docker_sudo">false</param>
+              <param id="docker_set_user"></param>
+              {% if GALAXY_JOB_RUNNER == 'local' -%}
+                <param id="docker_volumes">{{ HOST_EXPORT_DIR }}/$galaxy_root:$galaxy_root:ro,{{ HOST_EXPORT_DIR }}/$tool_directory:$tool_directory:ro,{{ HOST_EXPORT_DIR }}/$job_directory:$job_directory:rw,{{ HOST_EXPORT_DIR }}/$working_directory:$working_directory:rw,{{ HOST_EXPORT_DIR }}/$default_file_path:$default_file_path:rw</param>
+              {% endif -%}
+            {% else -%}
+              <env file="/galaxy/.venv/bin/activate" />
+            {% endif -%}
         </destination>
-        <destination id="slurm" runner="slurm">
-            <env file="/galaxy/.venv/bin/activate" />
-        </destination>
-        {% if GALAXY_SINGULARTIY %}
-        <destination id="docker_local" runner="local">
-            <param id="docker_enabled">true</param>
-            <param id="docker_sudo">false</param>
-            <param id="docker_set_user"></param>
-            <param id="docker_volumes">{{ HOST_EXPORT_DIR }}/$galaxy_root:$galaxy_root:ro,{{ HOST_EXPORT_DIR }}/$tool_directory:$tool_directory:ro,{{ HOST_EXPORT_DIR }}/$job_directory:$job_directory:rw,{{ HOST_EXPORT_DIR }}/$working_directory:$working_directory:rw,{{ HOST_EXPORT_DIR }}/$default_file_path:$default_file_path:rw</param>
-        </destination>
-        <destination id="singularity_local" runner="local">
-            <env id="HOME">/home/galaxy</env>
-            <param id="singularity_enabled">true</param>
-            <param id="singularity_volumes">{{ EXPORT_DIR | regex_replace("^.", "") }}/$galaxy_root:$galaxy_root:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$tool_directory:$tool_directory:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$job_directory:$job_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$working_directory:$working_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$default_file_path:$default_file_path:rw</param>
-        </destination>
-        {% endif %}
     </destinations>
     <tools>
         <tool id="upload1" destination="local" />

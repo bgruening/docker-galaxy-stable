@@ -4,5 +4,5 @@ services:
     environment:
       - HOST_PWD=$PWD
       - GALAXY_SINGULARTIY=true
-      - GALAXY_JOB_DESTINATION=singularity_local
+      - GALAXY_DEPENDENCY_RESOLUTION=singularity
       - GALAXY_CONFIG_CONDA_AUTO_INSTALL=false

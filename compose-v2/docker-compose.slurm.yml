@@ -2,7 +2,7 @@ version: "3"
 services:
   galaxy-configurator:
     environment:
-      - GALAXY_JOB_DESTINATION=slurm
+      - GALAXY_JOB_RUNNER=slurm
       - SLURM_OVERWRITE_CONFIG=true
       - SLURM_NODE_COUNT=${SLURM_NODE_COUNT:-1}
       - SLURM_NODE_HOSTNAME=compose-v2_slurm_node
