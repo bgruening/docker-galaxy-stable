@@ -30,6 +30,8 @@ services:
     environment:
       - EXPORT_DIR=${EXPORT_DIR:-./export}
       - GALAXY_OVERWRITE_CONFIG=true
+      - GALAXY_DEPENDENCY_RESOLUTION=conda
+      - GALAXY_JOB_RUNNER=local
       - GALAXY_CONFIG_ADMIN_USERS=admin@galaxy.org
       - GALAXY_CONFIG_DATABASE_CONNECTION=postgresql://galaxy:chaopagoosaequuashie@postgres/galaxy
       - GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=${GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL:-http://localhost}

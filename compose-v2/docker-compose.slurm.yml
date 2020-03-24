@@ -2,7 +2,7 @@ version: "3"
 services:
   galaxy-configurator:
     environment:
-      - GALAXY_JOB_DESTINATION=slurm
+      - GALAXY_JOB_RUNNER=slurm
       - SLURM_OVERWRITE_CONFIG=true
       - SLURM_NODE_COUNT=${SLURM_NODE_COUNT:-1}
       - SLURM_NODE_HOSTNAME=compose-v2_slurm_node
@@ -32,6 +32,7 @@ services:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-slurm:${IMAGE_TAG:-latest}
     build: galaxy-slurm
     command: ["slurmd"]
+    privileged: true
     labels:
       slurm_node: true
     volumes:
@@ -42,5 +43,6 @@ services:
       - ${EXPORT_DIR:-./export}/tool_deps:/tool_deps
       - ${EXPORT_DIR:-./export}/slurm_config:/etc/slurm-llnl
       - ${EXPORT_DIR:-./export}/munge:/etc/munge
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - galaxy
