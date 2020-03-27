@@ -91,6 +91,14 @@ jobs:
               - workflow_mapping_by_sequencing
               - workflow_GC-lite
               - selenium
+          - name: galaxy-htcondor-singularity
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.singularity.yml
+            exclude_test:
+              - bioblend
+              - workflow_ard
+              - workflow_mapping_by_sequencing
+              - workflow_GC-lite
+              - selenium
         test:
           - name: bioblend
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.bioblend.yml
