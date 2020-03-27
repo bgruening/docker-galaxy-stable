@@ -12,6 +12,7 @@ services:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
     build: galaxy-htcondor
     hostname: htcondor-executor
+    privileged: true
     environment:
       - CONDOR_HOST=htcondor-master
     volumes:
@@ -21,6 +22,7 @@ services:
       - ${EXPORT_DIR:-./export}/galaxy/.venv:/galaxy/.venv
       - ${EXPORT_DIR:-./export}/tool_deps:/tool_deps
       - ./static_conf/htcondor_executor.conf:/etc/condor/condor_config.local:ro
+      - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - galaxy
   galaxy-server:
