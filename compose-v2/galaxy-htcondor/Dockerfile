@@ -16,6 +16,26 @@ RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_
     && ./mconfig \
     && make -C builddir
 
+
+FROM buildpack-deps:18.04 as galaxy_dependencies
+
+ARG GALAXY_RELEASE=release_19.09
+ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
+
+ENV GALAXY_ROOT=/galaxy
+ENV GALAXY_LIBRARY=$GALAXY_ROOT/lib
+
+# Download Galaxy source, but only keep necessary dependencies
+RUN mkdir "${GALAXY_ROOT}" \
+    && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
+    && cd $GALAXY_ROOT \
+    && ls . | grep -v "lib" | xargs rm -rf \
+    && cd $GALAXY_ROOT/lib \
+    && ls . | grep -v "galaxy\|galaxy_ext" | xargs rm -rf \
+    && cd $GALAXY_ROOT/lib/galaxy \
+    && ls . | grep -v "__init__.py\|datatypes\|exceptions\|metadata\|model\|util\|security" | xargs rm -rf
+
+
 FROM ubuntu:18.04 as final
 
 ENV DEBIAN_FRONTEND noninteractive
@@ -24,7 +44,8 @@ ENV GALAXY_USER=galaxy \
     GALAXY_GROUP=galaxy \
     GALAXY_UID=1450 \
     GALAXY_GID=1450 \
-    GALAXY_HOME=/home/galaxy
+    GALAXY_HOME=/home/galaxy \
+    GALAXY_ROOT=/galaxy
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
@@ -59,6 +80,9 @@ ADD supervisord.conf /etc/supervisord.conf
 RUN apt update \
     && apt install --no-install-recommends docker.io -y \
     && usermod -aG docker $GALAXY_USER
+
+# Copy Galaxy dependencies
+COPY --chown=$GALAXY_USER:$GALAXY_USER --from=galaxy_dependencies $GALAXY_ROOT $GALAXY_ROOT
 
 # Install Singularity
 COPY --from=build_singularity /singularity /singularity

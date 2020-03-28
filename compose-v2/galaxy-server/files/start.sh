@@ -81,10 +81,6 @@ $GALAXY_ROOT/create_db.sh
 
 if [ -f "/etc/condor/condor_config.local" ]; then
     echo "HTCondor config file found"
-    echo "Copying Galaxy library to /export (needed by HTCondor workers).."
-    mkdir "$EXPORT_DIR/$GALAXY_ROOT/lib"
-    chown "$GALAXY_USER:$GALAXY_USER" "$EXPORT_DIR/$GALAXY_ROOT/lib"
-    cp -rpf $GALAXY_ROOT/lib/* $EXPORT_DIR/$GALAXY_ROOT/lib
     echo "Starting HTCondor.."
     service condor start
     # export CONDOR_CONFIG="/etc/condor/condor_config.local"

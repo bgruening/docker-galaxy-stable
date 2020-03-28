@@ -18,7 +18,6 @@ services:
     volumes:
       - ${EXPORT_DIR:-./export}/galaxy/database:/galaxy/database
       - ${EXPORT_DIR:-./export}/galaxy/tools:/galaxy/tools:ro
-      - ${EXPORT_DIR:-./export}/galaxy/lib:/galaxy/lib:ro
       - ${EXPORT_DIR:-./export}/galaxy/.venv:/galaxy/.venv
       - ${EXPORT_DIR:-./export}/tool_deps:/tool_deps
       - ./static_conf/htcondor_executor.conf:/etc/condor/condor_config.local:ro
