@@ -1,11 +1,19 @@
 version: '3'
 services:
+  galaxy-configurator:
+    environment:
+      - GALAXY_JOB_RUNNER=condor
+      - HTCONDOR_OVERWRITE_CONFIG=true
+    volumes:
+      - ${EXPORT_DIR:-./export}/htcondor:/htcondor
   htcondor-master:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
     build: galaxy-htcondor
     hostname: htcondor-master
+    environment:
+      - HTCONDOR_TYPE=master
     volumes:
-      - ./static_conf/htcondor_master.conf:/etc/condor/condor_config.local:ro
+      - ${EXPORT_DIR:-./export}/htcondor:/config
     networks:
       - galaxy
   htcondor-executor:
@@ -14,19 +22,17 @@ services:
     hostname: htcondor-executor
     privileged: true
     environment:
+      - HTCONDOR_TYPE=executor
       - CONDOR_HOST=htcondor-master
     volumes:
+      - ${EXPORT_DIR:-./export}/htcondor:/config
       - ${EXPORT_DIR:-./export}/galaxy/database:/galaxy/database
       - ${EXPORT_DIR:-./export}/galaxy/tools:/galaxy/tools:ro
       - ${EXPORT_DIR:-./export}/galaxy/.venv:/galaxy/.venv
       - ${EXPORT_DIR:-./export}/tool_deps:/tool_deps
-      - ./static_conf/htcondor_executor.conf:/etc/condor/condor_config.local:ro
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
       - galaxy
   galaxy-server:
     volumes:
-      - ./static_conf/htcondor_galaxy.conf:/etc/condor/condor_config.local:ro
-  galaxy-configurator:
-    environment:
-      - GALAXY_JOB_RUNNER=condor
+      - ${EXPORT_DIR:-./export}/htcondor:/htcondor_config
