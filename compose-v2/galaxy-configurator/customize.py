@@ -24,11 +24,14 @@ def alter_context(context):
     new_context = dict(os.environ)
 
     translations = {
-      "GALAXY_CONFIG_": "galaxy",
-      "GALAXY_UWSGI_CONFIG_": "galaxy_uwsgi",
-      "GALAXY_JOB_METRICS_": "galaxy_job_metrics",
-      "NGINX_CONFIG_": "nginx",
-      "SLURM_CONFIG_": "slurm"
+      "GALAXY_CONFIG_":         "galaxy",
+      "GALAXY_UWSGI_CONFIG_":   "galaxy_uwsgi",
+      "GALAXY_JOB_METRICS_":    "galaxy_job_metrics",
+      "NGINX_CONFIG_":          "nginx",
+      "SLURM_CONFIG_":          "slurm",
+      "HTCONDOR_GALAXY_":       "htcondor_galaxy",
+      "HTCONDOR_MASTER_":       "htcondor_master",
+      "HTCONDOR_EXECUTOR":      "htcondor_executor"
     }
 
     # Add values from possible input file if existent
