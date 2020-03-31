@@ -17,7 +17,7 @@ fi
 
 # Slurm configuration
 if [ "$SLURM_OVERWRITE_CONFIG" != "true" ]; then
-  echo "SLURM_OVERWRITE_CONFIG is not true. Skipping configuration of Nginx"
+  echo "SLURM_OVERWRITE_CONFIG is not true. Skipping configuration of Slurm"
 else
   echo "Locking Slurm config"
   touch ${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock
@@ -33,6 +33,26 @@ else
 
   rm ${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock
   echo "Lock for Slurm config released"
+fi
+
+# HTCondor configuration
+if [ "$HTCONDOR_OVERWRITE_CONFIG" != "true" ]; then
+  echo "HTCONDOR_OVERWRITE_CONFIG is not true. Skipping configuration of HTCondor"
+else
+  echo "Locking HTCondor config"
+  touch ${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock
+  htcondor_configs=( "galaxy.conf" "master.conf" "executor.conf" )
+
+  for conf in "${htcondor_configs[@]}"; do
+    echo "Configuring $conf"
+    j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/htcondor/$conf.j2" /base_config.yml
+    echo "The following changes will be applied to $conf:"
+    diff "${HTCONDOR_CONFIG_DIR:-/htcondor}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${HTCONDOR_CONFIG_DIR:-/htcondor}/$conf"
+  done
+
+  rm ${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock
+  echo "Lock for HTCondor config released"
 fi
 
 # Galaxy configuration

@@ -92,4 +92,6 @@ RUN apt update \
     && rm -rf /singularity \
     && sed -e '/bind path = \/etc\/localtime/s/^/#/g' -i /usr/local/etc/singularity/singularity.conf
 
-ENTRYPOINT ["/usr/bin/supervisord"]
+COPY start.sh /usr/bin/start.sh
+
+ENTRYPOINT /usr/bin/start.sh

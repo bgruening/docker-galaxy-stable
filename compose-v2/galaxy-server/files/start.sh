@@ -79,14 +79,16 @@ done;
 echo "Create/Upgrade Database if necessary"
 $GALAXY_ROOT/create_db.sh
 
-if [ -f "/etc/condor/condor_config.local" ]; then
+if [ -f "/htcondor_config/galaxy.conf" ]; then
     echo "HTCondor config file found"
+    echo "Waiting for Galaxy configurator to finish and release lock"
+    until [ ! -f /config/configurator.lock ] && echo Lock released; do
+        sleep 0.1;
+    done;
+
+    cp -f "/htcondor_config/galaxy.conf" /etc/condor/condor_config.local
     echo "Starting HTCondor.."
     service condor start
-    # export CONDOR_CONFIG="/etc/condor/condor_config.local"
-    # export PATH="/opt/htcondor/bin:/opt/htcondor/sbin:$PATH"
-    # #ln -s /
-    # "$HTCONDOR_ROOT/sbin/condor_master"
 fi
 
 if [ -f /etc/munge/munge.key ]; then
