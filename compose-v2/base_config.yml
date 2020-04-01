@@ -21,6 +21,12 @@ galaxy:
   tool_dependency_dir: /tool_deps
   tool_data_table_config_path: /cvmfs/data.galaxyproject.org/byhand/location/tool_data_table_conf.xml,/cvmfs/data.galaxyproject.org/managed/location/tool_data_table_conf.xml
 
+pulsar:
+  conda_auto_init: True
+  conda_auto_install: True
+  tool_dependency_dir: dependencies
+  dependency_resolvers_config_file: config/dependency_resolvers_conf.xml
+
 # Probably needs more polishing, but at least it works..
 slurm:
   ControlMachine: "slurmctld"
