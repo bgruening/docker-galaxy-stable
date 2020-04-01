@@ -22,6 +22,7 @@ RUN mkdir /tmp/pulsar \
 
 # --- Final image ---
 FROM ubuntu:18.04 as final
+COPY files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
 ENV PULSAR_ROOT=/pulsar
 ENV PULSAR_VIRTUALENV=$PULSAR_ROOT/.venv \
@@ -29,7 +30,20 @@ ENV PULSAR_VIRTUALENV=$PULSAR_ROOT/.venv \
     PULSAR_TOOL_DEPENDENCY_DIR=$PULSAR_ROOT/dependencies
 
 RUN apt update \
-    && apt install --no-install-recommends ca-certificates curl libxml2-dev libpython3.6 python3 -y
+    && apt install --no-install-recommends ca-certificates curl libxml2-dev libpython3.6 python3 -y \
+    && /usr/bin/common_cleanup.sh
+
+# Install CVMFS
+RUN apt update \
+    && apt install wget lsb-release -y \
+    && wget https://ecsft.cern.ch/dist/cvmfs/cvmfs-release/cvmfs-release-latest_all.deb \
+    && dpkg -i cvmfs-release-latest_all.deb \
+    && rm -f cvmfs-release-latest_all.deb \
+    && apt update \
+    && apt install --no-install-recommends cvmfs -y \
+    && mkdir /srv/cvmfs \
+    && /usr/bin/common_cleanup.sh
+COPY files/cvmfs /etc/cvmfs
 
 COPY --from=build_pulsar /pulsar /pulsar
 

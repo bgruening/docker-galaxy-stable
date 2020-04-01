@@ -13,6 +13,7 @@ services:
     image: ${IMAGE_DOMAIN:-andreassko}/pulsar:${IMAGE_TAG:-latest}
     build: pulsar
     hostname: pulsar
+    privileged: true
     volumes:
       - ${EXPORT_DIR:-./export}/pulsar/config:/pulsar/config
       - ${EXPORT_DIR:-./export}/pulsar/dependencies:/pulsar/dependencies
