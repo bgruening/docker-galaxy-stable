@@ -12,6 +12,7 @@ jobs:
           - name: galaxy-htcondor
           - name: galaxy-slurm
           - name: galaxy-slurm-node-discovery
+          - name: pulsar
           - name: galaxy-configurator
           - name: galaxy-bioblend-test
             subdir: tests/
@@ -75,6 +76,12 @@ jobs:
             options: --scale slurm_node=3
             exclude_test:
               - workflow_example1
+          - name: galaxy-pulsar
+            files: -f docker-compose.yml -f docker-compose.pulsar.yml
+            exclude_test:
+              - workflow_example1
+              - workflow_mapping_by_sequencing
+              - workflow_GC-lite
           - name: galaxy-singularity
             files: -f docker-compose.yml -f docker-compose.singularity.yml
             exclude_test:

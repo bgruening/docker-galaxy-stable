@@ -7,6 +7,13 @@
         <plugin id="slurm" type="runner" load="galaxy.jobs.runners.slurm:SlurmJobRunner">
             <param id="drmaa_library_path">/usr/lib/slurm-drmaa/lib/libdrmaa.so</param>
         </plugin>
+        <plugin id="pulsar_rest" type="runner" load="galaxy.jobs.runners.pulsar:PulsarRESTJobRunner"/>
+        {% if GALAXY_JOB_RUNNER == 'pulsar_mq' -%}
+        <plugin id="pulsar_mq" type="runner" load="galaxy.jobs.runners.pulsar:PulsarMQJobRunner">
+            <param id="galaxy_url">{{ galaxy.galaxy_infrastructure_url }}</param>
+            <param id="url">{{ GALAXY_PULSAR_MQ_URL }}</param>
+        </plugin>
+        {% endif -%}
     </plugins>
     <destinations default="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}">
         <destination id="local" runner="local">
@@ -26,8 +33,13 @@
               {% if GALAXY_JOB_RUNNER == 'local' -%}
                 <param id="docker_volumes">{{ HOST_EXPORT_DIR }}/$galaxy_root:$galaxy_root:ro,{{ HOST_EXPORT_DIR }}/$tool_directory:$tool_directory:ro,{{ HOST_EXPORT_DIR }}/$job_directory:$job_directory:rw,{{ HOST_EXPORT_DIR }}/$working_directory:$working_directory:rw,{{ HOST_EXPORT_DIR }}/$default_file_path:$default_file_path:rw</param>
               {% endif -%}
-            {% else -%}
+            {% elif not GALAXY_JOB_RUNNER.startswith('pulsar') -%}
               <env file="/galaxy/.venv/bin/activate" />
+            {% endif -%}
+            {% if GALAXY_JOB_RUNNER == 'pulsar_rest' -%}
+              <param id="url">{{ GALAXY_PULSAR_URL }}</param>
+              <param id="private_token">{{ PULSAR_CONFIG_PRIVATE_TOKEN }}</param>
+              <param id="dependency_resolution">remote</param>
             {% endif -%}
         </destination>
     </destinations>

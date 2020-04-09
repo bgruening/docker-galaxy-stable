@@ -31,7 +31,8 @@ def alter_context(context):
       "SLURM_CONFIG_":          "slurm",
       "HTCONDOR_GALAXY_":       "htcondor_galaxy",
       "HTCONDOR_MASTER_":       "htcondor_master",
-      "HTCONDOR_EXECUTOR":      "htcondor_executor"
+      "HTCONDOR_EXECUTOR_":     "htcondor_executor",
+      "PULSAR_CONFIG_":         "pulsar"
     }
 
     # Add values from possible input file if existent

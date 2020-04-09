@@ -55,6 +55,26 @@ else
   echo "Lock for HTCondor config released"
 fi
 
+# Pulsar configuration
+if [ "$PULSAR_OVERWRITE_CONFIG" != "true" ]; then
+  echo "PULSAR_OVERWRITE_CONFIG is not true. Skipping configuration of Pulsar"
+else
+  echo "Locking Pulsar config"
+  touch ${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock
+  pulsar_configs=( "server.ini" "app.yml" "dependency_resolvers_conf.xml" )
+
+  for conf in "${pulsar_configs[@]}"; do
+    echo "Configuring $conf"
+    j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/pulsar/$conf.j2" /base_config.yml
+    echo "The following changes will be applied to $conf:"
+    diff "${PULSAR_CONFIG_DIR:-/pulsar/config}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${PULSAR_CONFIG_DIR:-/pulsar/config}/$conf"
+  done
+
+  rm ${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock
+  echo "Lock for Pulsar config released"
+fi
+
 # Galaxy configuration
 if [ "$GALAXY_OVERWRITE_CONFIG" != "true" ]; then
     echo "GALAXY_OVERWRITE_CONFIG is not true. Skipping configuration of Galaxy"
