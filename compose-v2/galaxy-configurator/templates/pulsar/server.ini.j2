@@ -36,11 +36,11 @@ keys = console
 keys = generic
 
 [logger_root]
-level = DEBUG
+level = INFO
 handlers = console
 
 [logger_pulsar]
-level = DEBUG
+level = INFO
 handlers = console
 qualname = pulsar
 propagate = 0
@@ -48,7 +48,7 @@ propagate = 0
 [handler_console]
 class = StreamHandler
 args = (sys.stderr,)
-level = DEBUG
+level = INFO
 formatter = generic
 
 [formatter_generic]

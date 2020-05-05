@@ -15,7 +15,7 @@ RUN mkdir /tmp/pulsar \
     && pip3 install wheel \
     && python3 -m venv $PULSAR_VIRTUALENV \
     && . $PULSAR_VIRTUALENV/bin/activate \
-    && pip3 install drmaa kombu pastescript pastedeploy uwsgi \
+    && pip3 install drmaa kombu pastescript pastedeploy pycurl uwsgi \
     && cd /tmp/pulsar \
     && python3 /tmp/pulsar/setup.py install
 
