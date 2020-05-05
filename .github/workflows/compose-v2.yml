@@ -82,6 +82,12 @@ jobs:
               - workflow_example1
               - workflow_mapping_by_sequencing
               - workflow_GC-lite
+          - name: galaxy-pulsar-mq
+            files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml
+            exclude_test:
+              - workflow_example1
+              - workflow_mapping_by_sequencing
+              - workflow_GC-lite
           - name: galaxy-singularity
             files: -f docker-compose.yml -f docker-compose.singularity.yml
             exclude_test:
