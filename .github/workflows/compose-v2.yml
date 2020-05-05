@@ -1,7 +1,77 @@
 name: build-and-test
 on: [push]
 jobs:
+  build_container_base:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag
+        id: image_tag
+        run: |
+          if [ "${GITHUB_REF#refs/heads/}" = "master" ]; then
+            echo "::set-output name=image_tag::latest";
+          else
+            echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
+          fi
+      - name: Docker Login
+        run: echo "${{ secrets.dockerhub_password }}" | docker login -u ${{ secrets.dockerhub_username }} --password-stdin
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Run Buildx
+        env:
+          image_name: galaxy-container-base
+        run: |
+          for i in 1 2; do
+            docker buildx build  \
+            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            $image_name && break || echo "Fail.. Retrying"
+          done;
+        shell: bash
+        working-directory: ./compose-v2/base-images
+  build_cluster_base:
+    needs: build_container_base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag
+        id: image_tag
+        run: |
+          if [ "${GITHUB_REF#refs/heads/}" = "master" ]; then
+            echo "::set-output name=image_tag::latest";
+          else
+            echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
+          fi
+      - name: Docker Login
+        run: echo "${{ secrets.dockerhub_password }}" | docker login -u ${{ secrets.dockerhub_username }} --password-stdin
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          version: latest
+      - name: Run Buildx
+        env:
+          image_name: galaxy-cluster-base
+        run: |
+          for i in 1 2; do
+            docker buildx build  \
+            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            $image_name && break || echo "Fail.. Retrying"
+          done;
+        shell: bash
+        working-directory: ./compose-v2/base-images
   build:
+    needs: build_cluster_base
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -47,6 +117,7 @@ jobs:
             --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
             --output "type=image,name=andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
+            --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
             ${{ matrix.image.subdir }}${{ matrix.image.name }} && break || echo "Fail.. Retrying"
           done;
         shell: bash
