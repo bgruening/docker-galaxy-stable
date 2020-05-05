@@ -1,21 +1,5 @@
-FROM buildpack-deps:18.04 as build_singularity
-
-ENV SINGULARITY_VERSION=3.5.3
-ENV GO_VERSION=1.13
-
-# Install Go (only needed for building singularity)
-RUN apt update && apt install --no-install-recommends cryptsetup-bin uuid-dev -y \
-    && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
-    && tar -C /usr/local -xzvf go${GO_VERSION}.linux-amd64.tar.gz \
-    && rm go${GO_VERSION}.linux-amd64.tar.gz
-ENV PATH=/usr/local/go/bin:${PATH}
-
-RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-${SINGULARITY_VERSION}.tar.gz \
-    && tar -xzf singularity-${SINGULARITY_VERSION}.tar.gz \
-    && cd singularity \
-    && ./mconfig \
-    && make -C builddir
-
+ARG SETUP_REPO=andreassko
+ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as galaxy_dependencies
 
@@ -36,7 +20,7 @@ RUN mkdir "${GALAXY_ROOT}" \
     && ls . | grep -v "__init__.py\|datatypes\|exceptions\|metadata\|model\|util\|security" | xargs rm -rf
 
 
-FROM ubuntu:18.04 as final
+FROM $SETUP_REPO/galaxy-container-base:$IMAGE_TAG as final
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -76,21 +60,8 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
 
 ADD supervisord.conf /etc/supervisord.conf
 
-# Install Docker
-RUN apt update \
-    && apt install --no-install-recommends docker.io -y \
-    && usermod -aG docker $GALAXY_USER
-
 # Copy Galaxy dependencies
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=galaxy_dependencies $GALAXY_ROOT $GALAXY_ROOT
-
-# Install Singularity
-COPY --from=build_singularity /singularity /singularity
-RUN apt update \
-    && apt install --no-install-recommends ca-certificates make squashfs-tools -y \
-    && make -C /singularity/builddir install \
-    && rm -rf /singularity \
-    && sed -e '/bind path = \/etc\/localtime/s/^/#/g' -i /usr/local/etc/singularity/singularity.conf
 
 COPY start.sh /usr/bin/start.sh
 
