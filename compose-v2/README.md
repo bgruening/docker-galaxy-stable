@@ -24,6 +24,14 @@ Simply run
 to start Galaxy. In the basic setup, Galaxy together with Nginx as the proxy,
 Postgres as the DB, and RabbitMQ as the message queue is run.
 
+The default username and password is "admin", "password" (API key "fakekey").
+Those credentials are set at first run and can be tweaked using the environment
+variables `GALAXY_DEFAULT_ADMIN_USER`, `GALAXY_DEFAULT_ADMIN_EMAIL`,
+`GALAXY_DEFAULT_ADMIN_PASSWORD`, and `GALAXY_DEFAULT_ADMIN_KEY` in the
+`docker-compose.yml` file. If you want to change the email address of an admin,
+remember to update the `admin_users` setting of the Galaxy config (also
+see [Configuration](#configuration) to learn how to configure Galaxy).
+
 ### Running in background
 If you want to run the setup in the background, use the detach option (`-d`):
 
@@ -37,6 +45,7 @@ environment of Galaxy (EXPORT_PATH/galaxy/.venv) before you start the
 setup again. The DB migration depends on the `database_auto_migrate`
 setting for Galaxy (which is not
 set on default and will therefore be `false` normally).
+
 
 ## Extending the setup
 Beyond the basic usage, extending the setup is as easy as adding a additional
