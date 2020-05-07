@@ -167,6 +167,14 @@ jobs:
               - workflow_mapping_by_sequencing
               - workflow_GC-lite
               - selenium
+          - name: galaxy-pulsar-mq-singularity
+            files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml -f docker-compose.singularity.yml
+            exclude_test:
+              - bioblend
+              - workflow_ard
+              - workflow_mapping_by_sequencing
+              - workflow_GC-lite
+              - selenium
           - name: galaxy-slurm-singularity
             files: -f docker-compose.yml -f docker-compose.slurm.yml -f docker-compose.singularity.yml
             exclude_test:
