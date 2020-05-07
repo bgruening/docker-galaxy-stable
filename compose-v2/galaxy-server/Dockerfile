@@ -53,6 +53,7 @@ FROM build_base as build_galaxy
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Galaxy
 RUN apt update && apt install --no-install-recommends python-dev python-pip -y && rm -rf /var/lib/apt/lists/* \
+    && export GALAXY_PYTHON=/usr/bin/python \
     && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
@@ -76,7 +77,8 @@ COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
-    HTCONDOR_ROOT=/opt/htcondor
+    HTCONDOR_ROOT=/opt/htcondor \
+    GALAXY_PYTHON=/usr/bin/python
 
 ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
