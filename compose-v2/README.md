@@ -24,6 +24,13 @@ Simply run
 to start Galaxy. In the basic setup, Galaxy together with Nginx as the proxy,
 Postgres as the DB, and RabbitMQ as the message queue is run.
 
+### Upgrading to a newer Galaxy version
+When not setting `IMAGE_TAG` to a specific version, Docker-Compose will always
+fetch the newest image and therefore Galaxy version available. The startup
+script will handle the migration for you. To skip the DB upgrade, set
+`GALAXY_SKIP_UPGRADE_DB=true` in the `docker-compose.yml` file in the
+`services.galaxy-server.environment` section.
+
 ## Extending the setup
 Beyond the basic usage, extending the setup is as easy as adding a additional
 docker-compose extension file. This is done be the [standard docker-compose syntax](https://docs.docker.com/compose/extends/):
