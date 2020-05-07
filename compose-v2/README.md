@@ -130,7 +130,8 @@ not be lost, as long as you keep the `export`-folder.
 
 ### Using prefix
 It is possible to host Galaxy under a prefix like example.com/galaxy. For that,
-set the env variable `GALAXY_PROXY_PREFIX` to your wanted prefix (like `/galaxy`)
+set the env variable in the `galaxy-configurator` part to
+`GALAXY_PROXY_PREFIX=/your/wanted/prefix` (like `/galaxy`)
 and remember to also update `GALAXY_CONFIG_INFRASTRUCTURE_URL` accordingly.
 
 ## More advanced stuff
@@ -235,6 +236,49 @@ will shut down and remove all containers. If you forget this, while still
 deleting the `export`-folder, the Galaxy container may have problems with
 exporting all necessary files, as they are usually deleted within the container
 after the first proper startup.
+
+## Testing
+The setup provides a bunch of different integration tests to run against Galaxy.
+Have a look inside the `tests` folder. There you find the containers that run
+the tests and their docker-compose files. The containers are essentially just
+a wrapper around the test tools to simplify using them. Running a tests
+is the same as extending
+any other part of the setup: Just concatinate the test file at the end.
+To run, for example, some Planemo Worklow tests against a Galaxy installation that
+is connected to a HTCondor cluster using Singularity, just enter:
+`docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml
+-f docker-compose.singularity.yml -f tests/docker-compose.test.yml
+-f tests/docker-compose.test.workflows.yml up`. To stop the setup when a test
+has finished, you may want to add the option `--exit-code-from galaxy-workflow-test`.
+This returns the exit code of the test container (should be 0 if successful),
+which you could use for further automation.
+
+The tests are run using GitHub Actions on every commit. So feel free to inspect
+the `.github/workflows/compose-v2.yml` file for more test cases and get inspired
+by them :)
+
+### Planemo workflow tests
+Like the name suggests, this runs [Planemo](https://planemo.readthedocs.io/en/latest/)
+workflow tests. The container uses the tests from [UseGalaxy.eu](https://github.com/usegalaxy-eu/workflow-testing),
+but you can mount any test you could think of inside the container at the `/src` path.
+By default, it will run some select workflows, but you can choose your own
+by setting the `WORKFLOWS` env variable to a comma separated list of paths to some tests
+(e.g. `WORKFLOWS=test1/test1.ga,test2/test2.ga docker-compose ...`).
+
+### Selenium tests
+The Selenium tests simulate a real user that is accessing Galaxy through the
+browser to performe some actions. For that it uses a headless Chrome to runs the
+tests from the [Galaxy repo](https://github.com/galaxyproject/galaxy/tree/dev/lib/galaxy_test/selenium).
+The GitHub Actions currently just run a few of those. To select more tests,
+set the env variable `TESTS` to a comma separated list (like `TESTS=navigates_galaxy.py,login.py`).
+Note that you don't need to append the `test_` prefix for every
+single file!
+
+### BioBlend tests
+BioBlend has some tests that run against Galaxy. We are using some of them to test
+our setup too. Have a look into the `run.sh` file of the container to see
+which tests we have excluded (at least for now).
+
 
 ## Configuration reference
 Tool specific configuration can be applied via `base_config.yml` or the following
