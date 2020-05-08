@@ -3,7 +3,7 @@ ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as build_base
 
-ARG GALAXY_RELEASE=release_20.01
+ARG GALAXY_RELEASE=release_20.05
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV EXPORT_DIR=/export \
@@ -75,9 +75,10 @@ COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
+    GALAXY_PYTHON=/usr/bin/python3 \
     HTCONDOR_ROOT=/opt/htcondor
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.05} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
     GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
     GALAXY_EXPORT=$EXPORT_DIR/galaxy \
