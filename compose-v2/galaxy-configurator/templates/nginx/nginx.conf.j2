@@ -36,10 +36,6 @@ http {
     }
 
     # serve framework static content
-    location {{ GALAXY_PROXY_PREFIX | regex_replace("/$", "") }}/static/style {
-      alias $galaxy_static/style/blue;
-      expires 24h;
-    }
     location {{ GALAXY_PROXY_PREFIX | regex_replace("/$", "") }}/static {
       alias $galaxy_static;
       expires 24h;
