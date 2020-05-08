@@ -4,6 +4,7 @@ ARG GALAXY_RELEASE=dev
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV GALAXY_ROOT=/galaxy
+ENV GALAXY_PYTHON=/usr/bin/python
 
 USER root
 RUN apt update && apt install --no-install-recommends python-dev python-pip -y && rm -rf /var/lib/apt/lists/* \

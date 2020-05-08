@@ -3,7 +3,7 @@ ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as build_base
 
-ARG GALAXY_RELEASE=release_19.09
+ARG GALAXY_RELEASE=release_20.01
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV EXPORT_DIR=/export \
@@ -15,6 +15,7 @@ ENV GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
     GALAXY_CONFIG_DIR=$GALAXY_ROOT/config \
     GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
     GALAXY_CONFIG_TOOL_PATH=$GALAXY_ROOT/tools \
+    GALAXY_CONFIG_TOOL_DATA_PATH=$GALAXY_ROOT/tool-data \
     GALAXY_VIRTUAL_ENV=$GALAXY_ROOT/.venv \
     GALAXY_DATABASE_PATH=$GALAXY_ROOT/database
 
@@ -53,6 +54,7 @@ FROM build_base as build_galaxy
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Galaxy
 RUN apt update && apt install --no-install-recommends python-dev python-pip -y && rm -rf /var/lib/apt/lists/* \
+    && export GALAXY_PYTHON=/usr/bin/python \
     && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
@@ -76,7 +78,8 @@ COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
-    HTCONDOR_ROOT=/opt/htcondor
+    HTCONDOR_ROOT=/opt/htcondor \
+    GALAXY_PYTHON=/usr/bin/python
 
 ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \

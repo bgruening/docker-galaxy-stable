@@ -28,6 +28,7 @@ services:
       - ${EXPORT_DIR:-./export}/htcondor:/config
       - ${EXPORT_DIR:-./export}/galaxy/database:/galaxy/database
       - ${EXPORT_DIR:-./export}/galaxy/tools:/galaxy/tools:ro
+      - ${EXPORT_DIR:-./export}/galaxy/tool-data:/galaxy/tool-data
       - ${EXPORT_DIR:-./export}/galaxy/.venv:/galaxy/.venv
       - ${EXPORT_DIR:-./export}/tool_deps:/tool_deps
       - /var/run/docker.sock:/var/run/docker.sock

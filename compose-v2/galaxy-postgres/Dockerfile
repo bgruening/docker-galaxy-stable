@@ -1,6 +1,6 @@
 FROM library/postgres:11.2 AS build
 
-ARG GALAXY_RELEASE=release_19.09
+ARG GALAXY_RELEASE=release_20.01
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 COPY init-galaxy-db.sql.in /docker-entrypoint-initdb.d/
@@ -13,6 +13,7 @@ ENV POSTGRES_PASSWORD=build \
     POSTGRES_USER=galaxy \
     POSTGRES_DB=galaxy
 # Install Galaxy (there needs to be a better way!!)
+ENV GALAXY_PYTHON=/usr/bin/python
 RUN apt update && apt install --no-install-recommends build-essential ca-certificates curl gcc libpq-dev python-pip python-dev -y \
     && rm -rf /var/lib/apt/lists/* \
     && mkdir /galaxy && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C /galaxy \

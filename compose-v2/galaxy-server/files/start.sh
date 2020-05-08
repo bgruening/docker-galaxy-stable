@@ -10,6 +10,7 @@ mkdir -p "$EXPORT_DIR/$GALAXY_ROOT"
 declare -A exports=( ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
                      ["$GALAXY_CONFIG_TOOL_PATH"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH" \
                      ["$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR" \
+                     ["$GALAXY_CONFIG_TOOL_DATA_PATH"="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DATA_PATH"] \
                      ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" )
 
 # shellcheck disable=SC2143,SC2086,SC2010
@@ -76,8 +77,10 @@ until nc -z -w 2 postgres 5432 && echo Postgres started; do
      sleep 1;
 done;
 
-echo "Create/Upgrade Database if necessary"
-$GALAXY_ROOT/create_db.sh
+if [ ! "$GALAXY_SKIP_UPGRADE_DB" == "true" ]; then
+  echo "Upgrading Database if necessary"
+  "$GALAXY_ROOT/manage_db.sh" upgrade
+fi
 
 if [ -f "/htcondor_config/galaxy.conf" ]; then
     echo "HTCondor config file found"
