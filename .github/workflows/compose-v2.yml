@@ -152,20 +152,17 @@ jobs:
             exclude_test:
               - workflow_example1
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
           - name: galaxy-pulsar-mq
             files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml
             exclude_test:
               - workflow_example1
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
           - name: galaxy-singularity
             files: -f docker-compose.yml -f docker-compose.singularity.yml
             exclude_test:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
               - selenium
           - name: galaxy-pulsar-mq-singularity
             files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml -f docker-compose.singularity.yml
@@ -173,7 +170,6 @@ jobs:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
               - selenium
           - name: galaxy-slurm-singularity
             files: -f docker-compose.yml -f docker-compose.slurm.yml -f docker-compose.singularity.yml
@@ -181,7 +177,6 @@ jobs:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
               - selenium
           - name: galaxy-htcondor-singularity
             files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.singularity.yml
@@ -189,7 +184,6 @@ jobs:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
               - selenium
         test:
           - name: bioblend
@@ -207,11 +201,6 @@ jobs:
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
-            timeout: 60
-          - name: workflow_GC-lite
-            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
-            exit-from: galaxy-workflow-test
-            workflow: GraphClust2/GC-lite.ga
             timeout: 60
           - name: workflow_example1
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
