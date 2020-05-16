@@ -20,7 +20,7 @@ jobs:
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
-          version: latest
+          buildx-version: v0.3.1
       - name: Run Buildx
         env:
           image_name: galaxy-container-base
@@ -55,7 +55,7 @@ jobs:
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
-          version: latest
+          buildx-version: v0.3.1
       - name: Run Buildx
         env:
           image_name: galaxy-cluster-base
@@ -108,7 +108,7 @@ jobs:
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
-          version: latest
+          buildx-version: v0.3.1
       - name: Run Buildx
         run: |
           for i in 1 2; do
