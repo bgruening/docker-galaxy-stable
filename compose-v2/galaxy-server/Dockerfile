@@ -112,6 +112,10 @@ RUN apt update && apt install --no-install-recommends gcc gnupg2 libgomp1 liblzm
 # GALAXY_USER should be able to run docker without root permissions
 RUN usermod -aG docker $GALAXY_USER
 
+# Make Python3 standard
+RUN mv /usr/bin/python /usr/bin/python2 \
+    && ln /usr/bin/python3 /usr/bin/python
+
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_HOME} ${GALAXY_HOME}
