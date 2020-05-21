@@ -1,5 +1,18 @@
 #!/bin/bash
 
+create_user() {
+  GALAXY_PROXY_PREFIX=$(cat $GALAXY_CONFIG_DIR/GALAXY_PROXY_PREFIX.txt)
+  echo "Waiting for Galaxy..."
+  until [ "$(curl -s -o /dev/null -w '%{http_code}' ${GALAXY_URL:-nginx}$GALAXY_PROXY_PREFIX)" -eq "200" ] && echo Galaxy started; do
+      sleep 0.1;
+  done;
+  echo "Creating admin user $GALAXY_DEFAULT_ADMIN_USER with key $GALAXY_DEFAULT_ADMIN_KEY and password $GALAXY_DEFAULT_ADMIN_PASSWORD if not existing"
+  . $GALAXY_VIRTUAL_ENV/bin/activate
+  python /usr/local/bin/create_galaxy_user.py --user "$GALAXY_DEFAULT_ADMIN_EMAIL" --password "$GALAXY_DEFAULT_ADMIN_PASSWORD" \
+  -c "$GALAXY_CONFIG_FILE" --username "$GALAXY_DEFAULT_ADMIN_USER" --key "$GALAXY_DEFAULT_ADMIN_KEY"
+  deactivate
+}
+
 # First start?? Check if something exists that indicates that environment is not new.. Config file? Something in DB maybe??
 
 echo "Initialization: Check if files already exist, export otherwise."
@@ -102,11 +115,8 @@ fi
 
 # In case the user wants the default admin to be created, do so.
 if [[ -n $GALAXY_DEFAULT_ADMIN_USER ]]; then
-    echo "Creating admin user $GALAXY_DEFAULT_ADMIN_USER with key $GALAXY_DEFAULT_ADMIN_KEY and password $GALAXY_DEFAULT_ADMIN_PASSWORD if not existing"
-    . $GALAXY_VIRTUAL_ENV/bin/activate
-    python /usr/local/bin/create_galaxy_user.py --user "$GALAXY_DEFAULT_ADMIN_EMAIL" --password "$GALAXY_DEFAULT_ADMIN_PASSWORD" \
-    -c "$GALAXY_CONFIG_FILE" --username "$GALAXY_DEFAULT_ADMIN_USER" --key "$GALAXY_DEFAULT_ADMIN_KEY"
-    deactivate
+    # Run in background and wait for Galaxy having finished starting up
+    create_user &
 fi
 
 echo "Starting Galaxy now.."
