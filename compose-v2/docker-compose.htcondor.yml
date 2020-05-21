@@ -19,7 +19,6 @@ services:
   htcondor-executor:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
     build: galaxy-htcondor
-    hostname: htcondor-executor
     privileged: true
     environment:
       - HTCONDOR_TYPE=executor
