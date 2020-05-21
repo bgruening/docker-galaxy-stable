@@ -90,11 +90,6 @@ until nc -z -w 2 postgres 5432 && echo Postgres started; do
      sleep 1;
 done;
 
-if [ ! "$GALAXY_SKIP_UPGRADE_DB" == "true" ]; then
-  echo "Upgrading Database if necessary"
-  "$GALAXY_ROOT/manage_db.sh" upgrade
-fi
-
 if [ -f "/htcondor_config/galaxy.conf" ]; then
     echo "HTCondor config file found"
     echo "Waiting for Galaxy configurator to finish and release lock"
