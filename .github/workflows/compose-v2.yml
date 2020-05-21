@@ -78,7 +78,6 @@ jobs:
         image:
           - name: galaxy-server
           - name: galaxy-nginx
-          - name: galaxy-postgres
           - name: galaxy-htcondor
           - name: galaxy-slurm
           - name: galaxy-slurm-node-discovery
