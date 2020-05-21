@@ -3,7 +3,7 @@ ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as galaxy_dependencies
 
-ARG GALAXY_RELEASE=release_19.09
+ARG GALAXY_RELEASE=release_20.05
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV GALAXY_ROOT=/galaxy

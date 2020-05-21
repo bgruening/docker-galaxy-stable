@@ -6,7 +6,7 @@ supervisord &
 sleep 5
 
 echo "Waiting for Galaxy..."
-until [ "$(curl -s -o /dev/null -w '%{http_code}' ${GALAXY_URL:-nginx})" -eq "200" ] && echo Galaxy started; do
+until [ "$(curl -s -o /dev/null -w '%{http_code}' ${GALAXY_URL:-nginx}/api/users/current\?key\=${GALAXY_DEFAULT_ADMIN_KEY:-fakekey})" -eq "200" ] && echo Galaxy started; do
     sleep 1;
 done;
 

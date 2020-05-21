@@ -46,8 +46,7 @@ services:
       - ./base_config.yml:/base_config.yml
       - ./galaxy-configurator/templates:/templates
   postgres:
-    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-postgres:${IMAGE_TAG:-latest}
-    build: galaxy-postgres
+    image: postgres:12
     hostname: postgres
     environment:
       - POSTGRES_PASSWORD=chaopagoosaequuashie

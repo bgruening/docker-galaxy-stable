@@ -20,7 +20,7 @@ jobs:
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
-          version: latest
+          buildx-version: v0.3.1
       - name: Run Buildx
         env:
           image_name: galaxy-container-base
@@ -55,7 +55,7 @@ jobs:
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
-          version: latest
+          buildx-version: v0.3.1
       - name: Run Buildx
         env:
           image_name: galaxy-cluster-base
@@ -78,7 +78,6 @@ jobs:
         image:
           - name: galaxy-server
           - name: galaxy-nginx
-          - name: galaxy-postgres
           - name: galaxy-htcondor
           - name: galaxy-slurm
           - name: galaxy-slurm-node-discovery
@@ -108,13 +107,11 @@ jobs:
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
         with:
-          version: latest
+          buildx-version: v0.3.1
       - name: Run Buildx
         run: |
           for i in 1 2; do
             docker buildx build  \
-            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --cache-from "type=registry,ref=docker.io/andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }}_cache" \
             --output "type=image,name=andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
@@ -147,41 +144,36 @@ jobs:
             options: --scale slurm_node=3
             exclude_test:
               - workflow_example1
-          - name: galaxy-pulsar
-            files: -f docker-compose.yml -f docker-compose.pulsar.yml
-            exclude_test:
-              - workflow_example1
-              - workflow_mapping_by_sequencing
-              - workflow_GC-lite
-          - name: galaxy-pulsar-mq
-            files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml
-            exclude_test:
-              - workflow_example1
-              - workflow_mapping_by_sequencing
-              - workflow_GC-lite
+          # - name: galaxy-pulsar
+          #   files: -f docker-compose.yml -f docker-compose.pulsar.yml
+          #   exclude_test:
+          #     - workflow_example1
+          #     - workflow_mapping_by_sequencing
+          # - name: galaxy-pulsar-mq
+          #   files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml
+          #   exclude_test:
+          #     - workflow_example1
+          #     - workflow_mapping_by_sequencing
           - name: galaxy-singularity
             files: -f docker-compose.yml -f docker-compose.singularity.yml
             exclude_test:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
               - selenium
-          - name: galaxy-pulsar-mq-singularity
-            files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml -f docker-compose.singularity.yml
-            exclude_test:
-              - bioblend
-              - workflow_ard
-              - workflow_mapping_by_sequencing
-              - workflow_GC-lite
-              - selenium
+          # - name: galaxy-pulsar-mq-singularity
+          #   files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml -f docker-compose.singularity.yml
+          #   exclude_test:
+          #     - bioblend
+          #     - workflow_ard
+          #     - workflow_mapping_by_sequencing
+          #     - selenium
           - name: galaxy-slurm-singularity
             files: -f docker-compose.yml -f docker-compose.slurm.yml -f docker-compose.singularity.yml
             exclude_test:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
               - selenium
           - name: galaxy-htcondor-singularity
             files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.singularity.yml
@@ -189,7 +181,6 @@ jobs:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
-              - workflow_GC-lite
               - selenium
         test:
           - name: bioblend
@@ -207,11 +198,6 @@ jobs:
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
             exit-from: galaxy-workflow-test
             workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
-            timeout: 60
-          - name: workflow_GC-lite
-            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
-            exit-from: galaxy-workflow-test
-            workflow: GraphClust2/GC-lite.ga
             timeout: 60
           - name: workflow_example1
             files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml

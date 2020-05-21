@@ -3,7 +3,7 @@ ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as build_base
 
-ARG GALAXY_RELEASE=release_20.01
+ARG GALAXY_RELEASE=release_20.05
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV EXPORT_DIR=/export \
@@ -53,16 +53,13 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
 FROM build_base as build_galaxy
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Galaxy
-RUN apt update && apt install --no-install-recommends python-dev python-pip -y && rm -rf /var/lib/apt/lists/* \
-    && export GALAXY_PYTHON=/usr/bin/python \
+RUN apt update && apt install --no-install-recommends python3-dev python3-pip -y && rm -rf /var/lib/apt/lists/* \
     && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
     && ./scripts/common_startup.sh \
-    && . $GALAXY_ROOT/.venv/bin/activate && pip install psycopg2 \
-    # Fix as cheetah was missing C library first
-    && pip uninstall cheetah -y \
-    && pip install cheetah drmaa \
+    && . $GALAXY_ROOT/.venv/bin/activate && pip3 install psycopg2 \
+    && pip3 install drmaa \
     && deactivate \
     && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
@@ -78,10 +75,10 @@ COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
-    HTCONDOR_ROOT=/opt/htcondor \
-    GALAXY_PYTHON=/usr/bin/python
+    GALAXY_PYTHON=/usr/bin/python3 \
+    HTCONDOR_ROOT=/opt/htcondor
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.05} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.05} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
     GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
     GALAXY_EXPORT=$EXPORT_DIR/galaxy \
@@ -106,14 +103,18 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
 
 # Install remaining dependencies
 RUN apt update && apt install --no-install-recommends gcc gnupg2 libgomp1 liblzma-dev libbz2-dev libpq-dev \
-                                                      mercurial make netcat python-dev python-setuptools python-pip \
+                                                      mercurial make netcat python3-dev python3-setuptools python3-pip \
                                                       zlib1g-dev -y \
-    && pip install Cython wheel \
-    && pip install pysam \
+    && pip3 install Cython wheel \
+    && pip3 install pysam \
     && /usr/bin/common_cleanup.sh
 
 # GALAXY_USER should be able to run docker without root permissions
 RUN usermod -aG docker $GALAXY_USER
+
+# Make Python3 standard
+RUN mv /usr/bin/python /usr/bin/python2 \
+    && ln /usr/bin/python3 /usr/bin/python
 
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}
