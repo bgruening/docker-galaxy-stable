@@ -22,8 +22,8 @@ services:
       - rabbitmq
     networks:
       - galaxy
-  # This is responsible for the whole configuration of your setup and should
-  # be the central place of configuration.
+  # The galaxy-configurator is responsible for the whole configuration of
+  # your setup and should be the central place of configuration.
   galaxy-configurator:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-configurator:${IMAGE_TAG:-latest}
     build: galaxy-configurator
@@ -45,6 +45,7 @@ services:
       - ${EXPORT_DIR:-./export}/nginx:/etc/nginx
       - ./base_config.yml:/base_config.yml
       - ./galaxy-configurator/templates:/templates
+  # The database for Galaxy
   postgres:
     image: postgres:12
     hostname: postgres
@@ -56,6 +57,9 @@ services:
       - ${EXPORT_DIR:-./export}/postgres/:/var/lib/postgresql/data:delegated
     networks:
       - galaxy
+  # The proxy server. All web-traffic is going through here, so we can
+  # offload static file serving
+  # (https://docs.galaxyproject.org/en/master/admin/production.html#using-a-proxy-server)
   nginx:
     image: ${IMAGE_DOMAIN:-andreassko}/galaxy-nginx:${IMAGE_TAG:-latest}
     build: galaxy-nginx
