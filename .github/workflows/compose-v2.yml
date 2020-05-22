@@ -37,7 +37,7 @@ jobs:
             $image_name && break || echo "Fail.. Retrying"
           done;
         shell: bash
-        working-directory: ./compose-v2/base-images
+        working-directory: ./compose/base-images
   build_cluster_base:
     needs: build_container_base
     runs-on: ubuntu-latest
@@ -75,7 +75,7 @@ jobs:
             $image_name && break || echo "Fail.. Retrying"
           done;
         shell: bash
-        working-directory: ./compose-v2/base-images
+        working-directory: ./compose/base-images
   build:
     needs: build_cluster_base
     runs-on: ubuntu-latest
@@ -127,7 +127,7 @@ jobs:
             ${{ matrix.image.subdir }}${{ matrix.image.name }} && break || echo "Fail.. Retrying"
           done;
         shell: bash
-        working-directory: ./compose-v2
+        working-directory: ./compose
   test:
     needs: [build]
     runs-on: ubuntu-latest
@@ -261,23 +261,23 @@ jobs:
           done;
           exit 1
         shell: bash
-        working-directory: ./compose-v2
+        working-directory: ./compose
         continue-on-error: false
       - name: Allow upload-artifact read access
         if: failure()
-        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+        run: sudo chmod -R +r ./compose/export/galaxy/database
       - name: Save artifacts for debugging a failed test
         uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
-          path: ./compose-v2/export/galaxy/database
+          path: ./compose/export/galaxy/database
       - name: Clean up after first run
         if: matrix.test.second_run == 'true'
         run: |
           sudo rm -rf export/postgres
           sudo rm -rf export/galaxy/database
-        working-directory: ./compose-v2
+        working-directory: ./compose
       - name: Run tests a second time
         if: matrix.test.second_run == 'true' && steps.run_check.run
         run: |
@@ -300,14 +300,14 @@ jobs:
           done;
           exit 1
         shell: bash
-        working-directory: ./compose-v2
+        working-directory: ./compose
         continue-on-error: false
       - name: Allow upload-artifact read access
         if: failure() && matrix.test.second_run == 'true'
-        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+        run: sudo chmod -R +r ./compose/export/galaxy/database
       - name: Save artifacts for debugging a failed test
         uses: actions/upload-artifact@v1
         if: failure() && matrix.test.second_run == 'true'
         with:
           name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_second-run
-          path: ./compose-v2/export/galaxy/database
+          path: ./compose/export/galaxy/database
