@@ -53,17 +53,18 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
 FROM build_base as build_galaxy
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Galaxy
-RUN apt update && apt install --no-install-recommends python3-dev python3-pip -y && rm -rf /var/lib/apt/lists/* \
+RUN apt update && apt install --no-install-recommends python3-dev python3-pip -y \
     && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
     && ./scripts/common_startup.sh \
-    && . $GALAXY_ROOT/.venv/bin/activate && pip3 install psycopg2 \
-    && pip3 install drmaa \
+    && . $GALAXY_ROOT/.venv/bin/activate \
+    && pip3 install drmaa psycopg2 \
     && deactivate \
     && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
-              client contrib doc test test-data .venv/lib/node_modules .venv/src/node-v10.13.0-linux-x64 \
+              client contrib doc config/plugins lib/galaxy_test test test-data \
+              .venv/lib/node_modules .venv/src/node-v10.15.3-linux-x64 \
               .venv/include/node .venv/bin/node .venv/bin/nodeenv \
     && /usr/bin/common_cleanup.sh
 
@@ -105,6 +106,7 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
 RUN apt update && apt install --no-install-recommends gcc gnupg2 libgomp1 liblzma-dev libbz2-dev libpq-dev \
                                                       mercurial make netcat python3-dev python3-setuptools python3-pip \
                                                       zlib1g-dev -y \
+    # Cython and wheel are needed to later install pysam..
     && pip3 install Cython wheel \
     && pip3 install pysam \
     && /usr/bin/common_cleanup.sh
