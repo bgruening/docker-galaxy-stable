@@ -7,7 +7,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Cleanup to only use compose-v2 for now
-      run: rm -R compose docs galaxy test
+      run: rm -R docs galaxy test
     - name: Run shellcheck with reviewdog
       uses: reviewdog/action-shellcheck@v1.1.3
       with:
