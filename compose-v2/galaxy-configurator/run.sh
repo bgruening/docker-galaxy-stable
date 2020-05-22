@@ -20,7 +20,7 @@ if [ "$SLURM_OVERWRITE_CONFIG" != "true" ]; then
   echo "SLURM_OVERWRITE_CONFIG is not true. Skipping configuration of Slurm"
 else
   echo "Locking Slurm config"
-  touch ${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock
+  touch "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock"
   slurm_configs=( "slurm.conf" )
 
   for conf in "${slurm_configs[@]}"; do
@@ -31,7 +31,7 @@ else
     mv -f "/tmp/$conf" "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/$conf"
   done
 
-  rm ${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock
+  rm "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock"
   echo "Lock for Slurm config released"
 fi
 
@@ -40,7 +40,7 @@ if [ "$HTCONDOR_OVERWRITE_CONFIG" != "true" ]; then
   echo "HTCONDOR_OVERWRITE_CONFIG is not true. Skipping configuration of HTCondor"
 else
   echo "Locking HTCondor config"
-  touch ${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock
+  touch "${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock"
   htcondor_configs=( "galaxy.conf" "master.conf" "executor.conf" )
 
   for conf in "${htcondor_configs[@]}"; do
@@ -51,7 +51,7 @@ else
     mv -f "/tmp/$conf" "${HTCONDOR_CONFIG_DIR:-/htcondor}/$conf"
   done
 
-  rm ${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock
+  rm "${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock"
   echo "Lock for HTCondor config released"
 fi
 
@@ -60,7 +60,7 @@ if [ "$PULSAR_OVERWRITE_CONFIG" != "true" ]; then
   echo "PULSAR_OVERWRITE_CONFIG is not true. Skipping configuration of Pulsar"
 else
   echo "Locking Pulsar config"
-  touch ${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock
+  touch "${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock"
   pulsar_configs=( "server.ini" "app.yml" "dependency_resolvers_conf.xml" )
 
   for conf in "${pulsar_configs[@]}"; do
@@ -71,7 +71,7 @@ else
     mv -f "/tmp/$conf" "${PULSAR_CONFIG_DIR:-/pulsar/config}/$conf"
   done
 
-  rm ${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock
+  rm "${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock"
   echo "Lock for Pulsar config released"
 fi
 
@@ -81,7 +81,7 @@ if [ "$GALAXY_OVERWRITE_CONFIG" != "true" ]; then
     exit 0
 fi
 
-cd ${GALAXY_CONFIG_DIR:-/galaxy/config} || { echo "Error: Could not find Galaxy config dir"; exit 1; }
+cd "${GALAXY_CONFIG_DIR:-/galaxy/config}" || { echo "Error: Could not find Galaxy config dir"; exit 1; }
 
 echo "Waiting for Galaxy config dir to be initially populated (in case of first startup)"
 until [ "$(ls -p | grep -v /)" != "" ] && echo Galaxy config populated; do
