@@ -63,7 +63,8 @@ RUN apt update && apt install --no-install-recommends python3-dev python3-pip -y
     && deactivate \
     && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
-              client contrib doc config/plugins test test-data .venv/lib/node_modules .venv/src/node-v10.13.0-linux-x64 \
+              client contrib doc config/plugins lib/galaxy_test test test-data \
+              .venv/lib/node_modules .venv/src/node-v10.15.3-linux-x64 \
               .venv/include/node .venv/bin/node .venv/bin/nodeenv \
     && /usr/bin/common_cleanup.sh
 
