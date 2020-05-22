@@ -45,7 +45,7 @@ RUN groupadd -r $MUNGER_USER -g $MUNGE_GID \
     && useradd -u $MUNGE_UID -r -g $MUNGER_USER $MUNGER_USER \
     && apt update \
     && apt install --no-install-recommends gosu munge python python-dev slurm-wlm -y \
-    && rm -rf /var/lib/apt/lists/* && rm -rf /var/cache/*
+    && rm -rf /var/lib/apt/lists/* && rm -rf /var/cache/* && find / -name '*.pyc' -delete
 
 # Copy Galaxy dependencies
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=galaxy_dependencies $GALAXY_ROOT $GALAXY_ROOT

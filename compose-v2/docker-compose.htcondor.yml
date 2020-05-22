@@ -1,3 +1,5 @@
+# Extend Galaxy to run jobs using HTCondor.
+# Example: `docker-compose -f docker-compose.yml -f docker-compose.htcondor.yml up`
 version: '3'
 services:
   galaxy-configurator:

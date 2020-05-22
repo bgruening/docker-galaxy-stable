@@ -52,7 +52,7 @@ def alter_context(context):
         if to not in new_context:
             new_context[to] = {}
 
-    for key, value in os.environ.items():
+    for key, value in new_context.items():
         for frm, to in translations.items():
             if key.startswith(frm):
                 # Format key depending on it being uppercase or not
