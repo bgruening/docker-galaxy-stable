@@ -228,6 +228,16 @@ example would be to create a custom `docker-compose.debug.yml` file
 that could be used to enable some debug flags or
 setting `GALAXY_CONFIG_CLEANUP_JOB=never`.
 
+### Running the CI pipeline on your own fork
+The GitHub Actions workflow used to build, test and deploy this setup
+is independent of any specific username or Docker Registry. To run
+the workflow on your fork, simply
+[set the following secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets):
+* `docker_registry`: The Registry the images should be pushed
+to (`docker.io`, for example)
+* `docker_registry_username`: Your username
+* `docker_registry_password`: Your password
+
 
 ## Troubleshooting
 ### Killing while first start up
