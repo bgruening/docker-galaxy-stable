@@ -1,7 +1,7 @@
 version: '3'
 services:
   galaxy-server:
-    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-server:${IMAGE_TAG:-latest}
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-server:${IMAGE_TAG:-latest}
     build: galaxy-server
     environment:
       - GALAXY_DEFAULT_ADMIN_USER=admin
@@ -25,7 +25,7 @@ services:
   # The galaxy-configurator is responsible for the whole configuration of
   # your setup and should be the central place of configuration.
   galaxy-configurator:
-    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-configurator:${IMAGE_TAG:-latest}
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-configurator:${IMAGE_TAG:-latest}
     build: galaxy-configurator
     environment:
       - EXPORT_DIR=${EXPORT_DIR:-./export}
@@ -61,7 +61,7 @@ services:
   # offload static file serving
   # (https://docs.galaxyproject.org/en/master/admin/production.html#using-a-proxy-server)
   nginx:
-    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-nginx:${IMAGE_TAG:-latest}
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-nginx:${IMAGE_TAG:-latest}
     build: galaxy-nginx
     ports:
       - 80:80

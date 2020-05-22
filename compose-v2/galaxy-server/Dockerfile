@@ -1,4 +1,5 @@
-ARG SETUP_REPO=andreassko
+ARG DOCKER_REGISTRY=quay.io
+ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as build_base
@@ -69,7 +70,7 @@ RUN apt update && apt install --no-install-recommends python3-dev python3-pip -y
     && /usr/bin/common_cleanup.sh
 
 # --- Final image ---
-FROM $SETUP_REPO/galaxy-cluster-base:$IMAGE_TAG as final
+FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-cluster-base:$IMAGE_TAG as final
 
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py

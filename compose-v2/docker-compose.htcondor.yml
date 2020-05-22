@@ -9,7 +9,7 @@ services:
     volumes:
       - ${EXPORT_DIR:-./export}/htcondor:/htcondor
   htcondor-master:
-    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-htcondor:${IMAGE_TAG:-latest}
     build: galaxy-htcondor
     hostname: htcondor-master
     environment:
@@ -19,7 +19,7 @@ services:
     networks:
       - galaxy
   htcondor-executor:
-    image: ${IMAGE_DOMAIN:-andreassko}/galaxy-htcondor:${IMAGE_TAG:-latest}
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-htcondor:${IMAGE_TAG:-latest}
     build: galaxy-htcondor
     privileged: true
     environment:

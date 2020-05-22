@@ -1,4 +1,5 @@
-ARG SETUP_REPO=andreassko
+ARG DOCKER_REGISTRY=quay.io
+ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as build_pulsar
@@ -24,7 +25,7 @@ RUN mkdir /tmp/pulsar \
 
 
 # --- Final image ---
-FROM $SETUP_REPO/galaxy-cluster-base:$IMAGE_TAG as final
+FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-cluster-base:$IMAGE_TAG as final
 COPY files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
 ENV PULSAR_ROOT=/pulsar
