@@ -15,7 +15,7 @@ jobs:
             echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
           fi
       - name: Docker Login
-        run: echo "${{ secrets.dockerhub_password }}" | docker login -u ${{ secrets.dockerhub_username }} --password-stdin
+        run: echo "${{ secrets.docker_registry_password }}" | docker login -u ${{ secrets.docker_registry_username }} --password-stdin ${{ secrets.docker_registry }}
       - name: Set up Docker Buildx
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
@@ -27,14 +27,17 @@ jobs:
         run: |
           for i in 1 2; do
             docker buildx build  \
-            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --cache-from "type=registry,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --output "type=image,name=andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --cache-to "type=registry,mode=max,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
+            --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
+            --build-arg DOCKER_REGISTRY_PASSWORD=${{ secrets.docker_registry_password }} \
             $image_name && break || echo "Fail.. Retrying"
           done;
         shell: bash
-        working-directory: ./compose-v2/base-images
+        working-directory: ./compose/base-images
   build_cluster_base:
     needs: build_container_base
     runs-on: ubuntu-latest
@@ -50,7 +53,7 @@ jobs:
             echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
           fi
       - name: Docker Login
-        run: echo "${{ secrets.dockerhub_password }}" | docker login -u ${{ secrets.dockerhub_username }} --password-stdin
+        run: echo "${{ secrets.docker_registry_password }}" | docker login -u ${{ secrets.docker_registry_username }} --password-stdin ${{ secrets.docker_registry }}
       - name: Set up Docker Buildx
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
@@ -62,14 +65,17 @@ jobs:
         run: |
           for i in 1 2; do
             docker buildx build  \
-            --cache-to "type=registry,mode=max,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --cache-from "type=registry,ref=docker.io/andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --output "type=image,name=andreassko/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --cache-to "type=registry,mode=max,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
+            --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
+            --build-arg DOCKER_REGISTRY_PASSWORD=${{ secrets.docker_registry_password }} \
             $image_name && break || echo "Fail.. Retrying"
           done;
         shell: bash
-        working-directory: ./compose-v2/base-images
+        working-directory: ./compose/base-images
   build:
     needs: build_cluster_base
     runs-on: ubuntu-latest
@@ -102,7 +108,7 @@ jobs:
             echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
           fi
       - name: Docker Login
-        run: echo "${{ secrets.dockerhub_password }}" | docker login -u ${{ secrets.dockerhub_username }} --password-stdin
+        run: echo "${{ secrets.docker_registry_password }}" | docker login -u ${{ secrets.docker_registry_username }} --password-stdin ${{ secrets.docker_registry }}
       - name: Set up Docker Buildx
         id: buildx
         uses: crazy-max/ghaction-docker-buildx@v1
@@ -111,14 +117,17 @@ jobs:
       - name: Run Buildx
         run: |
           for i in 1 2; do
-            docker buildx build  \
-            --output "type=image,name=andreassko/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
-            --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
+            docker buildx build \
+            --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
+            --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
+            --build-arg DOCKER_REGISTRY_PASSWORD=${{ secrets.docker_registry_password }} \
+            --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
             ${{ matrix.image.subdir }}${{ matrix.image.name }} && break || echo "Fail.. Retrying"
           done;
         shell: bash
-        working-directory: ./compose-v2
+        working-directory: ./compose
   test:
     needs: [build]
     runs-on: ubuntu-latest
@@ -229,6 +238,8 @@ jobs:
       - name: Run tests for the first time
         if: steps.run_check.outputs.run
         run: |
+          export DOCKER_REGISTRY=${{ secrets.docker_registry }}
+          export DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }}
           export ${{ matrix.infrastructure.env }}
           export TIMEOUT=${{ matrix.test.timeout }}
           docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} config
@@ -250,26 +261,28 @@ jobs:
           done;
           exit 1
         shell: bash
-        working-directory: ./compose-v2
+        working-directory: ./compose
         continue-on-error: false
       - name: Allow upload-artifact read access
         if: failure()
-        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+        run: sudo chmod -R +r ./compose/export/galaxy/database
       - name: Save artifacts for debugging a failed test
         uses: actions/upload-artifact@v1
         if: failure()
         with:
           name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
-          path: ./compose-v2/export/galaxy/database
+          path: ./compose/export/galaxy/database
       - name: Clean up after first run
         if: matrix.test.second_run == 'true'
         run: |
           sudo rm -rf export/postgres
           sudo rm -rf export/galaxy/database
-        working-directory: ./compose-v2
+        working-directory: ./compose
       - name: Run tests a second time
         if: matrix.test.second_run == 'true' && steps.run_check.run
         run: |
+          export DOCKER_REGISTRY=${{ secrets.docker_registry }}
+          export DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }}
           export ${{ matrix.infrastructure.env }}
           export TIMEOUT=${{ matrix.test.timeout }}
           for i in 1 2; do
@@ -287,14 +300,14 @@ jobs:
           done;
           exit 1
         shell: bash
-        working-directory: ./compose-v2
+        working-directory: ./compose
         continue-on-error: false
       - name: Allow upload-artifact read access
         if: failure() && matrix.test.second_run == 'true'
-        run: sudo chmod -R +r ./compose-v2/export/galaxy/database
+        run: sudo chmod -R +r ./compose/export/galaxy/database
       - name: Save artifacts for debugging a failed test
         uses: actions/upload-artifact@v1
         if: failure() && matrix.test.second_run == 'true'
         with:
           name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_second-run
-          path: ./compose-v2/export/galaxy/database
+          path: ./compose/export/galaxy/database

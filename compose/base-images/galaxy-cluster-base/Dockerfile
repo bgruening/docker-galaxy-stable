@@ -1,7 +1,8 @@
-ARG SETUP_REPO=andreassko
+ARG DOCKER_REGISTRY=quay.io
+ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
-FROM $SETUP_REPO/galaxy-container-base:$IMAGE_TAG
+FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-container-base:$IMAGE_TAG
 
 # Base dependencies
 RUN apt update && apt install --no-install-recommends gnupg2 -y \

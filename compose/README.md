@@ -149,7 +149,7 @@ When facing a bug it may be helpful to have command-line controle over a
 container. This is as simple as running `docker exec -it CONTAINER_NAME /bin/bash`.
 For the galaxy-server container that would mean:
 
-> docker exec -it compose-v2_galaxy-server_1 /bin/bash
+> docker exec -it compose_galaxy-server_1 /bin/bash
 
 Note that not all containers have bash shipped with them. In this case replace
 it by `/bin/sh`.
@@ -168,7 +168,7 @@ Maybe you found a bug in Galaxy itself and you want to test it now. For this,
 you can set the `GALAXY_REPO` and `GALAXY_RELEASE` build arguments to your
 own fork and branch.
 
-> docker build galaxy-server -t andreassko/galaxy-server:$IMAGE_TAG --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy --build-arg GALAXY_RELEASE=my_custom_branch
+> docker build galaxy-server -t quay.io/bgruening/galaxy-server:$IMAGE_TAG --build-arg GALAXY_REPO=https://github.com/YOUR-USERNAME/galaxy --build-arg GALAXY_RELEASE=my_custom_branch
 
 Some containers use base-images that share some common dependencies (like
 Docker that is not only used for Galaxy, but also Pulsar, HTCondor, or Slurm).
@@ -227,6 +227,16 @@ HTCondor, Slurm, or Pulsar enables Singularity the same way). Another
 example would be to create a custom `docker-compose.debug.yml` file
 that could be used to enable some debug flags or
 setting `GALAXY_CONFIG_CLEANUP_JOB=never`.
+
+### Running the CI pipeline on your own fork
+The GitHub Actions workflow used to build, test and deploy this setup
+is independent of any specific username or Docker Registry. To run
+the workflow on your fork, simply
+[set the following secrets](https://help.github.com/en/actions/configuring-and-managing-workflows/creating-and-storing-encrypted-secrets):
+* `docker_registry`: The Registry the images should be pushed
+to (`docker.io`, for example)
+* `docker_registry_username`: Your username
+* `docker_registry_password`: Your password
 
 
 ## Troubleshooting
@@ -342,4 +352,4 @@ The following are settings specific to this docker-compose setup:
 | `SLURM_NODE_COUNT`        | The number of Slurm nodes running. This needs to be changed when scaling the setup (eg. `docker-compose up --scale slurm_node=n`) to let the Slurm controller know of all available nodes. |
 | `SLURM_NODE_CPUS`         | Number of CPUs per node. Defaults to 1. |
 | `SLURM_NODE_MEMORY`       | Amount of memory per node. Defaults to 1024. |
-| `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose-v2_slurm_node`) to ensure a correct mapping of the Slurm nodes. |
+| `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose_slurm_node`) to ensure a correct mapping of the Slurm nodes. |

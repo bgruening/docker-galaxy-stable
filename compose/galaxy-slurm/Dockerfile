@@ -1,4 +1,5 @@
-ARG SETUP_REPO=andreassko
+ARG DOCKER_REGISTRY=quay.io
+ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as galaxy_dependencies
@@ -19,7 +20,7 @@ RUN mkdir "${GALAXY_ROOT}" \
     && ls . | grep -v "__init__.py\|datatypes\|exceptions\|metadata\|model\|util\|security" | xargs rm -rf
 
 
-FROM $SETUP_REPO/galaxy-container-base:$IMAGE_TAG as final
+FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-container-base:$IMAGE_TAG as final
 
 ENV GALAXY_USER=galaxy \
     GALAXY_GROUP=galaxy \

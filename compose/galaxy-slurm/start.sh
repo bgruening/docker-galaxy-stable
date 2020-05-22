@@ -29,7 +29,7 @@ if [ "$1" = "slurmd" ]; then
     echo "Starting Munge.."
     /etc/init.d/munge start
 
-    "Starting Slurmd"
+    echo "Starting Slurmd"
     exec /usr/sbin/slurmd -D
 fi
 
