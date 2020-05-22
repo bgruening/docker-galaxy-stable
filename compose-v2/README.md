@@ -168,7 +168,7 @@ Maybe you found a bug in Galaxy itself and you want to test it now. For this,
 you can set the `GALAXY_REPO` and `GALAXY_RELEASE` build arguments to your
 own fork and branch.
 
-> docker build galaxy-server -t andreassko/galaxy-server:$IMAGE_TAG --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy --build-arg GALAXY_RELEASE=my_custom_branch
+> docker build galaxy-server -t quay.io/bgruening/galaxy-server:$IMAGE_TAG --build-arg GALAXY_REPO=https://github.com/YOUR-USERNAME/galaxy --build-arg GALAXY_RELEASE=my_custom_branch
 
 Some containers use base-images that share some common dependencies (like
 Docker that is not only used for Galaxy, but also Pulsar, HTCondor, or Slurm).
