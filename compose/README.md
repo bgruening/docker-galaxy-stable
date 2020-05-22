@@ -149,7 +149,7 @@ When facing a bug it may be helpful to have command-line controle over a
 container. This is as simple as running `docker exec -it CONTAINER_NAME /bin/bash`.
 For the galaxy-server container that would mean:
 
-> docker exec -it compose-v2_galaxy-server_1 /bin/bash
+> docker exec -it compose_galaxy-server_1 /bin/bash
 
 Note that not all containers have bash shipped with them. In this case replace
 it by `/bin/sh`.
@@ -352,4 +352,4 @@ The following are settings specific to this docker-compose setup:
 | `SLURM_NODE_COUNT`        | The number of Slurm nodes running. This needs to be changed when scaling the setup (eg. `docker-compose up --scale slurm_node=n`) to let the Slurm controller know of all available nodes. |
 | `SLURM_NODE_CPUS`         | Number of CPUs per node. Defaults to 1. |
 | `SLURM_NODE_MEMORY`       | Amount of memory per node. Defaults to 1024. |
-| `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose-v2_slurm_node`) to ensure a correct mapping of the Slurm nodes. |
+| `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose_slurm_node`) to ensure a correct mapping of the Slurm nodes. |

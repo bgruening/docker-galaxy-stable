@@ -7,7 +7,7 @@ services:
       - GALAXY_JOB_RUNNER=slurm
       - SLURM_OVERWRITE_CONFIG=true
       - SLURM_NODE_COUNT=${SLURM_NODE_COUNT:-1}
-      - SLURM_NODE_HOSTNAME=compose-v2_slurm_node
+      - SLURM_NODE_HOSTNAME=compose_slurm_node
     volumes:
       - ${EXPORT_DIR:-./export}/slurm_config:/etc/slurm-llnl
   galaxy-server:
