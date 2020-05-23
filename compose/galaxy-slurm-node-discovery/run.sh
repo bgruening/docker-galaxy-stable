@@ -6,7 +6,7 @@
 sleep 5
 echo "Waiting for Galaxy configurator to finish and release lock"
 until [ ! -f /etc/slurm-llnl/configurator.lock ] && echo Lock released; do
-    sleep 0.1;
+  sleep 0.1;
 done;
 
 grep < /etc/slurm-llnl/slurm.conf "NodeName=" | while read -r line; do
