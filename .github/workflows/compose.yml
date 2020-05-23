@@ -27,8 +27,6 @@ jobs:
         run: |
           for i in 1 2; do
             docker buildx build  \
-            --cache-to "type=registry,mode=max,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --cache-from "type=registry,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
             --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
@@ -64,8 +62,6 @@ jobs:
         run: |
           for i in 1 2; do
             docker buildx build  \
-            --cache-to "type=registry,mode=max,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
-            --cache-from "type=registry,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
             --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
