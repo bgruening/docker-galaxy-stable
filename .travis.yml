@@ -1,14 +1,14 @@
 sudo: required
 
 language: python
-python: 2.7
+python: 3.6
 
 services:
   - docker
 
 env:
   matrix:
-    - TOX_ENV=py27
+    - TOX_ENV=py36
     - COMPOSE_SLURM=True
     - COMPOSE_SLURM_SINGULARITY=True
     # Compose version with Condor submitting Docker jobs
@@ -146,7 +146,7 @@ before_install:
         ./build-orchestration-images.sh --no-push --condor --grafana --slurm --k8s
         source ./tags-for-compose-to-source.sh
 
-        container_size_check   quay.io/bgruening/galaxy-base:$TAG               350 
+        container_size_check   quay.io/bgruening/galaxy-base:$TAG               350
         container_size_check   quay.io/bgruening/galaxy-web:$TAG                650
         container_size_check   quay.io/bgruening/galaxy-htcondor-base:$TAG      280
 
