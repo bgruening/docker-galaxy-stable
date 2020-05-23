@@ -1,0 +1,12 @@
+version: "3"
+services:
+  galaxy-selenium-test:
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-selenium-test:${IMAGE_TAG:-latest}
+    build: tests/galaxy-selenium-test
+    environment:
+      - TESTS=${TESTS:-navigates_galaxy.py,login.py}
+      - GALAXY_URL=http://nginx${GALAXY_PROXY_PREFIX:-}/
+    volumes:
+      - ${EXPORT_DIR:-./../export}/galaxy/database:/galaxy/database
+    networks:
+      - galaxy

@@ -1,0 +1,313 @@
+name: build-and-test
+on: [push]
+jobs:
+  build_container_base:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag
+        id: image_tag
+        run: |
+          if [ "${GITHUB_REF#refs/heads/}" = "master" ]; then
+            echo "::set-output name=image_tag::latest";
+          else
+            echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
+          fi
+      - name: Docker Login
+        run: echo "${{ secrets.docker_registry_password }}" | docker login -u ${{ secrets.docker_registry_username }} --password-stdin ${{ secrets.docker_registry }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          buildx-version: v0.3.1
+      - name: Run Buildx
+        env:
+          image_name: galaxy-container-base
+        run: |
+          for i in 1 2; do
+            docker buildx build  \
+            --cache-to "type=registry,mode=max,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
+            --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
+            --build-arg DOCKER_REGISTRY_PASSWORD=${{ secrets.docker_registry_password }} \
+            $image_name && break || echo "Fail.. Retrying"
+          done;
+        shell: bash
+        working-directory: ./compose/base-images
+  build_cluster_base:
+    needs: build_container_base
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag
+        id: image_tag
+        run: |
+          if [ "${GITHUB_REF#refs/heads/}" = "master" ]; then
+            echo "::set-output name=image_tag::latest";
+          else
+            echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
+          fi
+      - name: Docker Login
+        run: echo "${{ secrets.docker_registry_password }}" | docker login -u ${{ secrets.docker_registry_username }} --password-stdin ${{ secrets.docker_registry }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          buildx-version: v0.3.1
+      - name: Run Buildx
+        env:
+          image_name: galaxy-cluster-base
+        run: |
+          for i in 1 2; do
+            docker buildx build  \
+            --cache-to "type=registry,mode=max,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --cache-from "type=registry,ref=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }}_cache" \
+            --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
+            --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
+            --build-arg DOCKER_REGISTRY_PASSWORD=${{ secrets.docker_registry_password }} \
+            $image_name && break || echo "Fail.. Retrying"
+          done;
+        shell: bash
+        working-directory: ./compose/base-images
+  build:
+    needs: build_cluster_base
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        image:
+          - name: galaxy-server
+          - name: galaxy-nginx
+          - name: galaxy-htcondor
+          - name: galaxy-slurm
+          - name: galaxy-slurm-node-discovery
+          - name: pulsar
+          - name: galaxy-configurator
+          - name: galaxy-bioblend-test
+            subdir: tests/
+          - name: galaxy-workflow-test
+            subdir: tests/
+          - name: galaxy-selenium-test
+            subdir: tests/
+      fail-fast: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag
+        id: image_tag
+        run: |
+          if [ "${GITHUB_REF#refs/heads/}" = "master" ]; then
+            echo "::set-output name=image_tag::latest";
+          else
+            echo "::set-output name=image_tag::${GITHUB_REF#refs/heads/}"
+          fi
+      - name: Docker Login
+        run: echo "${{ secrets.docker_registry_password }}" | docker login -u ${{ secrets.docker_registry_username }} --password-stdin ${{ secrets.docker_registry }}
+      - name: Set up Docker Buildx
+        id: buildx
+        uses: crazy-max/ghaction-docker-buildx@v1
+        with:
+          buildx-version: v0.3.1
+      - name: Run Buildx
+        run: |
+          for i in 1 2; do
+            docker buildx build \
+            --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
+            --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
+            --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
+            --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
+            --build-arg DOCKER_REGISTRY_PASSWORD=${{ secrets.docker_registry_password }} \
+            --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
+            ${{ matrix.image.subdir }}${{ matrix.image.name }} && break || echo "Fail.. Retrying"
+          done;
+        shell: bash
+        working-directory: ./compose
+  test:
+    needs: [build]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        infrastructure:
+          - name: galaxy-base
+            files: -f docker-compose.yml
+            exclude_test:
+              - workflow_example1
+          - name: galaxy-proxy-prefix
+            files: -f docker-compose.yml
+            env: GALAXY_PROXY_PREFIX=/arbitrary_Galaxy-prefix GALAXY_CONFIG_GALAXY_INFRASTRUCTURE_URL=http://localhost/arbitrary_Galaxy-prefix
+            exclude_test:
+              - workflow_example1
+          - name: galaxy-htcondor
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml
+            exclude_test:
+              - workflow_example1
+          - name: galaxy-slurm
+            files: -f docker-compose.yml -f docker-compose.slurm.yml
+            env: SLURM_NODE_COUNT=3
+            options: --scale slurm_node=3
+            exclude_test:
+              - workflow_example1
+          # - name: galaxy-pulsar
+          #   files: -f docker-compose.yml -f docker-compose.pulsar.yml
+          #   exclude_test:
+          #     - workflow_example1
+          #     - workflow_mapping_by_sequencing
+          # - name: galaxy-pulsar-mq
+          #   files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml
+          #   exclude_test:
+          #     - workflow_example1
+          #     - workflow_mapping_by_sequencing
+          - name: galaxy-singularity
+            files: -f docker-compose.yml -f docker-compose.singularity.yml
+            exclude_test:
+              - bioblend
+              - workflow_ard
+              - workflow_mapping_by_sequencing
+              - selenium
+          # - name: galaxy-pulsar-mq-singularity
+          #   files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml -f docker-compose.singularity.yml
+          #   exclude_test:
+          #     - bioblend
+          #     - workflow_ard
+          #     - workflow_mapping_by_sequencing
+          #     - selenium
+          - name: galaxy-slurm-singularity
+            files: -f docker-compose.yml -f docker-compose.slurm.yml -f docker-compose.singularity.yml
+            exclude_test:
+              - bioblend
+              - workflow_ard
+              - workflow_mapping_by_sequencing
+              - selenium
+          - name: galaxy-htcondor-singularity
+            files: -f docker-compose.yml -f docker-compose.htcondor.yml -f docker-compose.singularity.yml
+            exclude_test:
+              - bioblend
+              - workflow_ard
+              - workflow_mapping_by_sequencing
+              - selenium
+        test:
+          - name: bioblend
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.bioblend.yml
+            exit-from: galaxy-bioblend-test
+            timeout: 60
+            second_run: "true"
+          - name: workflow_ard
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+            workflow: sklearn/ard/ard.ga
+            timeout: 60
+            second_run: "true"
+          - name: workflow_mapping_by_sequencing
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+            workflow: training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga
+            timeout: 60
+          - name: workflow_example1
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml
+            exit-from: galaxy-workflow-test
+            workflow: example1/wf3-shed-tools.ga
+            timeout: 60
+          - name: selenium
+            files: -f tests/docker-compose.test.yml -f tests/docker-compose.test.selenium.yml
+            exit-from: galaxy-selenium-test
+            timeout: 60
+      fail-fast: false
+    steps:
+      # Self-made `exclude` as Github Actions currently does not support
+      # exclude/including of dicts in matrices
+      - name: Check if test should be run
+        id: run_check
+        if: contains(matrix.infrastructure.exclude_test, matrix.test.name) != true
+        run: echo ::set-output name=run::true
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Set image tag in env
+        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
+      - name: Master branch - Set image to to 'latest'
+        if: github.ref == 'refs/heads/master'
+        run: echo "::set-env name=IMAGE_TAG::latest"
+      - name: Set WORKFLOWS env for worfklows-test
+        if: matrix.test.workflow
+        run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
+      - name: Run tests for the first time
+        if: steps.run_check.outputs.run
+        run: |
+          export DOCKER_REGISTRY=${{ secrets.docker_registry }}
+          export DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }}
+          export ${{ matrix.infrastructure.env }}
+          export TIMEOUT=${{ matrix.test.timeout }}
+          docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} config
+          env
+          for i in 1 2; do
+            echo "Running test - try \#$i"
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
+            set +e
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
+            test_exit_code=$?
+            error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
+            if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
+              echo "Test failed..";
+              continue;
+            else
+              exit $test_exit_code;
+            fi
+          done;
+          exit 1
+        shell: bash
+        working-directory: ./compose
+        continue-on-error: false
+      - name: Allow upload-artifact read access
+        if: failure()
+        run: sudo chmod -R +r ./compose/export/galaxy/database
+      - name: Save artifacts for debugging a failed test
+        uses: actions/upload-artifact@v1
+        if: failure()
+        with:
+          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_first-run
+          path: ./compose/export/galaxy/database
+      - name: Clean up after first run
+        if: matrix.test.second_run == 'true'
+        run: |
+          sudo rm -rf export/postgres
+          sudo rm -rf export/galaxy/database
+        working-directory: ./compose
+      - name: Run tests a second time
+        if: matrix.test.second_run == 'true' && steps.run_check.run
+        run: |
+          export DOCKER_REGISTRY=${{ secrets.docker_registry }}
+          export DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }}
+          export ${{ matrix.infrastructure.env }}
+          export TIMEOUT=${{ matrix.test.timeout }}
+          for i in 1 2; do
+            echo "Running test - try \#$i"
+            set +e
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
+            test_exit_code=$?
+            error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
+            if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
+              echo "Test failed..";
+              continue;
+            else
+              exit $test_exit_code;
+            fi
+          done;
+          exit 1
+        shell: bash
+        working-directory: ./compose
+        continue-on-error: false
+      - name: Allow upload-artifact read access
+        if: failure() && matrix.test.second_run == 'true'
+        run: sudo chmod -R +r ./compose/export/galaxy/database
+      - name: Save artifacts for debugging a failed test
+        uses: actions/upload-artifact@v1
+        if: failure() && matrix.test.second_run == 'true'
+        with:
+          name: ${{ matrix.infrastructure.name }}_${{ matrix.test.name }}_second-run
+          path: ./compose/export/galaxy/database
