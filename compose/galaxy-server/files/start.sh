@@ -1,13 +1,14 @@
 #!/bin/bash
 
 create_user() {
-  GALAXY_PROXY_PREFIX=$(cat $GALAXY_CONFIG_DIR/GALAXY_PROXY_PREFIX.txt)
+  GALAXY_PROXY_PREFIX=$(cat "${GALAXY_CONFIG_DIR}/GALAXY_PROXY_PREFIX.txt")
   echo "Waiting for Galaxy..."
-  until [ "$(curl -s -o /dev/null -w '%{http_code}' ${GALAXY_URL:-nginx}$GALAXY_PROXY_PREFIX)" -eq "200" ] && echo Galaxy started; do
+  until [ "$(curl -s -o /dev/null -w '%{http_code}' "${GALAXY_URL:-nginx}$GALAXY_PROXY_PREFIX")" -eq "200" ] && echo Galaxy started; do
     sleep 0.1;
   done;
   echo "Creating admin user $GALAXY_DEFAULT_ADMIN_USER with key $GALAXY_DEFAULT_ADMIN_KEY and password $GALAXY_DEFAULT_ADMIN_PASSWORD if not existing"
-  . $GALAXY_VIRTUAL_ENV/bin/activate
+  # shellcheck source=/dev/null
+  . "${GALAXY_VIRTUAL_ENV}/bin/activate"
   python /usr/local/bin/create_galaxy_user.py --user "$GALAXY_DEFAULT_ADMIN_EMAIL" --password "$GALAXY_DEFAULT_ADMIN_PASSWORD" \
   -c "$GALAXY_CONFIG_FILE" --username "$GALAXY_DEFAULT_ADMIN_USER" --key "$GALAXY_DEFAULT_ADMIN_KEY"
   deactivate
