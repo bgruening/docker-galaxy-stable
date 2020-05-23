@@ -28,6 +28,7 @@ fi
 
 cd "$PULSAR_ROOT" ||exit 1
 
+# shellcheck source=/dev/null
 . "$PULSAR_VIRTUALENV/bin/activate"
 
 pulsar --mode "${PULSAR_MODE:-paster}"
