@@ -54,13 +54,13 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
 FROM build_base as build_galaxy
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Galaxy
-RUN apt update && apt install --no-install-recommends python3-dev python3-pip -y \
+RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libssl-dev python3-dev python3-pip -y \
     && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
     && ./scripts/common_startup.sh \
     && . $GALAXY_ROOT/.venv/bin/activate \
-    && pip3 install drmaa psycopg2 \
+    && pip3 install drmaa psycopg2 pycurl \
     && deactivate \
     && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
@@ -105,7 +105,8 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && /usr/bin/common_cleanup.sh
 
 # Install remaining dependencies
-RUN apt update && apt install --no-install-recommends gcc gnupg2 libgomp1 liblzma-dev libbz2-dev libpq-dev \
+RUN apt update && apt install --no-install-recommends curl gcc gnupg2 libgomp1 liblzma-dev libbz2-dev libpq-dev \
+                                                      libcurl4-openssl-dev libssl-dev \
                                                       mercurial make netcat python3-dev python3-setuptools python3-pip \
                                                       zlib1g-dev -y \
     # Cython and wheel are needed to later install pysam..

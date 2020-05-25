@@ -11,6 +11,7 @@ services:
   galaxy-configurator:
     environment:
       - GALAXY_JOB_RUNNER=pulsar_rest
+      - GALAXY_PULSAR_TRANSPORT=${GALAXY_PULSAR_TRANSPORT:-curl}
       - PULSAR_OVERWRITE_CONFIG=true
       - PULSAR_JOB_RUNNER=local
       - PULSAR_CONFIG_PRIVATE_TOKEN=changemeinproduction
