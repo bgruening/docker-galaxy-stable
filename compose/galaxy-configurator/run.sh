@@ -7,6 +7,14 @@ export GALAXY_CONF_DIR=${GALAXY_CONF_DIR:-/galaxy/config} \
        HTCONDOR_CONF_DIR=${HTCONDOR_CONF_DIR:-/htcondor} \
        PULSAR_CONF_DIR=${PULSAR_CONF_DIR:-/pulsar/config} \
        KIND_CONF_DIR=${KIND_CONF_DIR:-/kind}
+
+echo "Locking all configurations"
+locks=("$GALAXY_CONF_DIR" "$SLURM_CONF_DIR" "$HTCONDOR_CONF_DIR" "$PULSAR_CONF_DIR" "$KIND_CONF_DIR")
+for lock in "${locks[@]}"; do
+  echo "Locking $lock"
+  touch "${lock}/configurator.lock"
+done
+
 # Nginx configuration
 if [ "$NGINX_OVERWRITE_CONFIG" != "true" ]; then
   echo "NGINX_OVERWRITE_CONFIG is not true. Skipping configuration of Nginx"
@@ -26,8 +34,6 @@ fi
 if [ "$SLURM_OVERWRITE_CONFIG" != "true" ]; then
   echo "SLURM_OVERWRITE_CONFIG is not true. Skipping configuration of Slurm"
 else
-  echo "Locking Slurm config"
-  touch "${SLURM_CONF_DIR:-/etc/slurm-llnl}/configurator.lock"
   slurm_configs=( "slurm.conf" )
 
   for conf in "${slurm_configs[@]}"; do
@@ -46,8 +52,6 @@ fi
 if [ "$HTCONDOR_OVERWRITE_CONFIG" != "true" ]; then
   echo "HTCONDOR_OVERWRITE_CONFIG is not true. Skipping configuration of HTCondor"
 else
-  echo "Locking HTCondor config"
-  touch "${HTCONDOR_CONF_DIR:-/htcondor}/configurator.lock"
   htcondor_configs=( "galaxy.conf" "master.conf" "executor.conf" )
 
   for conf in "${htcondor_configs[@]}"; do
@@ -66,8 +70,6 @@ fi
 if [ "$PULSAR_OVERWRITE_CONFIG" != "true" ]; then
   echo "PULSAR_OVERWRITE_CONFIG is not true. Skipping configuration of Pulsar"
 else
-  echo "Locking Pulsar config"
-  touch "${PULSAR_CONF_DIR:-/pulsar/config}/configurator.lock"
   pulsar_configs=( "server.ini" "app.yml" "dependency_resolvers_conf.xml" )
 
   for conf in "${pulsar_configs[@]}"; do
@@ -82,9 +84,18 @@ else
   echo "Lock for Pulsar config released"
 fi
 
+echo "Releasing all locks (except Galaxy) if it didn't happen already"
+locks=("$SLURM_CONF_DIR" "$HTCONDOR_CONF_DIR" "$PULSAR_CONF_DIR" "$KIND_CONF_DIR")
+for lock in "${locks[@]}"; do
+  echo "Unlocking $lock"
+  rm "${lock}/configurator.lock"
+done
+
 # Galaxy configuration
 if [ "$GALAXY_OVERWRITE_CONFIG" != "true" ]; then
   echo "GALAXY_OVERWRITE_CONFIG is not true. Skipping configuration of Galaxy"
+  echo "Lock for Galaxy config released"
+  rm "${GALAXY_CONF_DIR}/configurator.lock"
   exit 0
 fi
 
@@ -111,6 +122,8 @@ for conf in "${galaxy_configs[@]}"; do
 done
 
 echo "Finished configuring Galaxy"
+echo "Lock for Galaxy config released"
+rm "${GALAXY_CONF_DIR}/configurator.lock"
 
 if [ "$DONT_EXIT" = "true" ]; then
   echo "Integration test detected. Galaxy Configurator will go to sleep (to not interrupt docker-compose)."
