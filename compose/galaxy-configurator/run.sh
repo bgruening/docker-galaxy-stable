@@ -1,5 +1,12 @@
 #!/bin/bash
 
+# Set default config dirs
+export GALAXY_CONF_DIR=${GALAXY_CONF_DIR:-/galaxy/config} \
+       NGINX_CONF_DIR=${NGINX_CONF_DIR:-/etc/nginx/} \
+       SLURM_CONF_DIR=${SLURM_CONF_DIR:-/etc/slurm-llnl} \
+       HTCONDOR_CONF_DIR=${HTCONDOR_CONF_DIR:-/htcondor} \
+       PULSAR_CONF_DIR=${PULSAR_CONF_DIR:-/pulsar/config} \
+       KIND_CONF_DIR=${KIND_CONF_DIR:-/kind}
 # Nginx configuration
 if [ "$NGINX_OVERWRITE_CONFIG" != "true" ]; then
   echo "NGINX_OVERWRITE_CONFIG is not true. Skipping configuration of Nginx"
@@ -10,8 +17,8 @@ else
     echo "Configuring $conf"
     j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/nginx/$conf.j2" /base_config.yml
     echo "The following changes will be applied to $conf:"
-    diff "${NGINX_CONFIG_DIR:-/etc/nginx/}/$conf" "/tmp/$conf"
-    mv -f "/tmp/$conf" "${NGINX_CONFIG_DIR:-/etc/nginx}/$conf"
+    diff "${NGINX_CONF_DIR}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${NGINX_CONF_DIR}/$conf"
   done
 fi
 
@@ -20,18 +27,18 @@ if [ "$SLURM_OVERWRITE_CONFIG" != "true" ]; then
   echo "SLURM_OVERWRITE_CONFIG is not true. Skipping configuration of Slurm"
 else
   echo "Locking Slurm config"
-  touch "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock"
+  touch "${SLURM_CONF_DIR:-/etc/slurm-llnl}/configurator.lock"
   slurm_configs=( "slurm.conf" )
 
   for conf in "${slurm_configs[@]}"; do
     echo "Configuring $conf"
     j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/slurm/$conf.j2" /base_config.yml
     echo "The following changes will be applied to $conf:"
-    diff "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/$conf" "/tmp/$conf"
-    mv -f "/tmp/$conf" "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/$conf"
+    diff "${SLURM_CONF_DIR}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${SLURM_CONF_DIR}/$conf"
   done
 
-  rm "${SLURM_CONFIG_DIR:-/etc/slurm-llnl}/configurator.lock"
+  rm "${SLURM_CONF_DIR}/configurator.lock"
   echo "Lock for Slurm config released"
 fi
 
@@ -40,18 +47,18 @@ if [ "$HTCONDOR_OVERWRITE_CONFIG" != "true" ]; then
   echo "HTCONDOR_OVERWRITE_CONFIG is not true. Skipping configuration of HTCondor"
 else
   echo "Locking HTCondor config"
-  touch "${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock"
+  touch "${HTCONDOR_CONF_DIR:-/htcondor}/configurator.lock"
   htcondor_configs=( "galaxy.conf" "master.conf" "executor.conf" )
 
   for conf in "${htcondor_configs[@]}"; do
     echo "Configuring $conf"
     j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/htcondor/$conf.j2" /base_config.yml
     echo "The following changes will be applied to $conf:"
-    diff "${HTCONDOR_CONFIG_DIR:-/htcondor}/$conf" "/tmp/$conf"
-    mv -f "/tmp/$conf" "${HTCONDOR_CONFIG_DIR:-/htcondor}/$conf"
+    diff "${HTCONDOR_CONF_DIR}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${HTCONDOR_CONF_DIR}/$conf"
   done
 
-  rm "${HTCONDOR_CONFIG_DIR:-/htcondor}/configurator.lock"
+  rm "${HTCONDOR_CONF_DIR}/configurator.lock"
   echo "Lock for HTCondor config released"
 fi
 
@@ -60,18 +67,18 @@ if [ "$PULSAR_OVERWRITE_CONFIG" != "true" ]; then
   echo "PULSAR_OVERWRITE_CONFIG is not true. Skipping configuration of Pulsar"
 else
   echo "Locking Pulsar config"
-  touch "${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock"
+  touch "${PULSAR_CONF_DIR:-/pulsar/config}/configurator.lock"
   pulsar_configs=( "server.ini" "app.yml" "dependency_resolvers_conf.xml" )
 
   for conf in "${pulsar_configs[@]}"; do
     echo "Configuring $conf"
     j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/pulsar/$conf.j2" /base_config.yml
     echo "The following changes will be applied to $conf:"
-    diff "${PULSAR_CONFIG_DIR:-/pulsar/config}/$conf" "/tmp/$conf"
-    mv -f "/tmp/$conf" "${PULSAR_CONFIG_DIR:-/pulsar/config}/$conf"
+    diff "${PULSAR_CONF_DIR}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${PULSAR_CONF_DIR}/$conf"
   done
 
-  rm "${PULSAR_CONFIG_DIR:-/pulsar/config}/configurator.lock"
+  rm "${PULSAR_CONF_DIR}/configurator.lock"
   echo "Lock for Pulsar config released"
 fi
 
@@ -81,7 +88,7 @@ if [ "$GALAXY_OVERWRITE_CONFIG" != "true" ]; then
   exit 0
 fi
 
-cd "${GALAXY_CONFIG_DIR:-/galaxy/config}" || { echo "Error: Could not find Galaxy config dir"; exit 1; }
+cd "${GALAXY_CONF_DIR}" || { echo "Error: Could not find Galaxy config dir"; exit 1; }
 
 echo "Waiting for Galaxy config dir to be initially populated (in case of first startup)"
 until [ "$(ls -p | grep -v /)" != "" ] && echo Galaxy config populated; do
@@ -99,8 +106,8 @@ for conf in "${galaxy_configs[@]}"; do
   echo "Configuring $conf"
   j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/galaxy/$conf.j2" /base_config.yml
   echo "The following changes will be applied to $conf:"
-  diff "${GALAXY_CONFIG_DIR:-/galaxy/config}/$conf" "/tmp/$conf"
-  mv -f "/tmp/$conf" "${GALAXY_CONFIG_DIR:-/galaxy/config}/$conf"
+  diff "${GALAXY_CONF_DIR}/$conf" "/tmp/$conf"
+  mv -f "/tmp/$conf" "${GALAXY_CONF_DIR}/$conf"
 done
 
 echo "Finished configuring Galaxy"
