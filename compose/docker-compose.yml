@@ -29,6 +29,7 @@ services:
     build: galaxy-configurator
     environment:
       - EXPORT_DIR=${EXPORT_DIR:-./export}
+      - HOST_PWD=$PWD
       - GALAXY_OVERWRITE_CONFIG=true
       - GALAXY_DEPENDENCY_RESOLUTION=conda
       - GALAXY_JOB_RUNNER=local

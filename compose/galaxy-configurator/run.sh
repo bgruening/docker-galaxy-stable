@@ -84,6 +84,33 @@ else
   echo "Lock for Pulsar config released"
 fi
 
+# Kind configuration
+if [ "$KIND_OVERWRITE_CONFIG" != "true" ]; then
+  echo "KIND_OVERWRITE_CONFIG is not true. Skipping configuration of Kind"
+else
+  kind_configs=( "kind_config.yml" "k8s_config/persistent_volumes.yml" "k8s_config/pv_claims.yml" )
+  mkdir /tmp/k8s_config
+  mkdir "${KIND_CONF_DIR}/k8s_config"
+
+  for conf in "${kind_configs[@]}"; do
+    echo "Configuring $conf"
+    j2 --customize /customize.py --undefined -o "/tmp/$conf" "/templates/kind/$conf.j2" /base_config.yml
+
+    echo "The following changes will be applied to $conf:"
+    diff "${KIND_CONF_DIR}/$conf" "/tmp/$conf"
+    mv -f "/tmp/$conf" "${KIND_CONF_DIR}/$conf"
+  done
+
+  rm "${KIND_CONF_DIR}/configurator.lock"
+  echo "Lock for Kind config released"
+  sleep 5
+  echo "Waiting for Kind to create the cluster"
+  until [ -f "${GALAXY_KUBECONFIG:-${KIND_CONF_DIR}/.kube/config_in_docker}" ] && echo Found KUBECONFIG; do
+    sleep 0.1;
+  done;
+  chmod a+r "${GALAXY_KUBECONFIG:-${KIND_CONF_DIR}/.kube/config_in_docker}"
+fi
+
 echo "Releasing all locks (except Galaxy) if it didn't happen already"
 locks=("$SLURM_CONF_DIR" "$HTCONDOR_CONF_DIR" "$PULSAR_CONF_DIR" "$KIND_CONF_DIR")
 for lock in "${locks[@]}"; do

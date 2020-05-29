@@ -38,7 +38,7 @@
               {% if GALAXY_JOB_RUNNER == 'local' -%}
                 <param id="docker_volumes">{{ HOST_EXPORT_DIR }}/$galaxy_root:$galaxy_root:ro,{{ HOST_EXPORT_DIR }}/$tool_directory:$tool_directory:ro,{{ HOST_EXPORT_DIR }}/$job_directory:$job_directory:rw,{{ HOST_EXPORT_DIR }}/$working_directory:$working_directory:rw,{{ HOST_EXPORT_DIR }}/$default_file_path:$default_file_path:rw</param>
               {% endif -%}
-            {% elif not GALAXY_JOB_RUNNER.startswith('pulsar') -%}
+            {% elif not GALAXY_JOB_RUNNER.startswith('pulsar') and GALAXY_JOB_RUNNER != 'k8s' -%}
               <env file="/galaxy/.venv/bin/activate" />
             {% endif -%}
             {% if GALAXY_JOB_RUNNER == 'pulsar_rest' -%}
