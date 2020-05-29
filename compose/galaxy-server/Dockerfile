@@ -60,7 +60,7 @@ RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libss
     && cd $GALAXY_ROOT \
     && ./scripts/common_startup.sh \
     && . $GALAXY_ROOT/.venv/bin/activate \
-    && pip3 install drmaa psycopg2 pycurl \
+    && pip3 install drmaa psycopg2 pycurl pykube \
     && deactivate \
     && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
