@@ -90,12 +90,15 @@ until nc -z -w 2 postgres 5432 && echo Postgres started; do
   sleep 1;
 done;
 
-if [ -f "/htcondor_config/galaxy.conf" ]; then
-  echo "HTCondor config file found"
+if [ "$SKIP_LOCKING" != "true" ]; then
   echo "Waiting for Galaxy configurator to finish and release lock"
-  until [ ! -f /config/configurator.lock ] && echo Lock released; do
+  until [ ! -f "$GALAXY_CONFIG_DIR/configurator.lock" ] && echo Lock released; do
     sleep 0.1;
   done;
+fi
+
+if [ -f "/htcondor_config/galaxy.conf" ]; then
+  echo "HTCondor config file found"
 
   cp -f "/htcondor_config/galaxy.conf" /etc/condor/condor_config.local
   echo "Starting HTCondor.."
@@ -115,7 +118,7 @@ if [[ -n $GALAXY_DEFAULT_ADMIN_USER ]]; then
 fi
 
 # Ensure proper permission (the configurator might have changed them "by mistake")
-chown -R "$GALAXY_USER:$GALAXY_GROUP" "$GALAXY_CONFIG_DIR"
+chown -RL "$GALAXY_USER:$GALAXY_GROUP" "$GALAXY_CONFIG_DIR"
 
 echo "Starting Galaxy now.."
 cd "$GALAXY_ROOT" || { echo "Error: Could not change to $GALAXY_ROOT"; exit 1; }
