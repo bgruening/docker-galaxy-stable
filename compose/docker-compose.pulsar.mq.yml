@@ -2,7 +2,7 @@
 # for communicating with Galaxy.
 # Requirements: `docker-compose.pulsar.yml`
 # Example: `docker-compose -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml up`
-version: "3"
+version: "3.7"
 services:
   galaxy-configurator:
     environment:

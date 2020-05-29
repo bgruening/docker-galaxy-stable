@@ -1,4 +1,4 @@
-version: '3'
+version: "3.7"
 services:
   galaxy-server:
     image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-server:${IMAGE_TAG:-latest}

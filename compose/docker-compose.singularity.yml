@@ -5,7 +5,7 @@
 # Examples:
 #  * `docker-compose -f docker-compose.yml -f docker-compose.singularity.yml up`
 #  * `docker-compose -f docker-compose.yml -f docker-compose.slurm.yml -f docker-compose.singularity.yml up`
-version: '3'
+version: "3.7"
 services:
   galaxy-configurator:
     environment:
