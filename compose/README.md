@@ -86,6 +86,33 @@ To cope with this problem, the `galaxy-slurm-node-discovery`-container
 uses the Docker API to fetch the correct hostnames and replaces them on the
 fly inside the slurm.conf file.
 
+### Running a Kubernetes Cluster (with kind)
+It is possible to start a small Kubernetes (k8s) cluster using [kind](https://kind.sigs.k8s.io)
+(Kubernetes in Docker) and let Galaxy run your jobs there. For this use the
+`docker-compose.k8s.yml` file. Note that this extension is only meant
+to run individually (so no Pulsar, HTCondor etc.).
+
+The `galaxy-kind` container is responsible for starting up your local Kubernetes
+cluster and applying all the configuration the Galaxy-Configurator created. You can
+find these files under `galaxy-configurator/templates/kind`. The `kind_config.yml`
+file is used to configure Kind itself (also see https://kind.sigs.k8s.io/docs/user/configuration/),
+while the files in the `k8s_config` are the configs that will be applied to
+Kubernetes using `kubectl apply -f <k8s_config>`. By default, k8s is configured
+to add some persistent volumes (PV) and persistent volume claims (PVC) so jobs
+can access all the needed files from Galaxy.
+It is relatively easy to add your own k8s_configs: Simply place your files into the
+template folder (remember to add the `.j2` extension!) and mention it in the
+`kind_configs` variable in the run.sh file of the galaxy-configurator
+(see [Extend the Galaxy-Configurator](#extend-the-galaxy-configurator)).
+
+While Kind is starting up the cluster, it blocks Galaxy from starting itself.
+This is needed as Galaxy will parse the KUBECONFIG (that is created after k8s has started)
+only once on startup. So don't be surprised if Galaxy is quite for some time :)
+
+Note that the cluster is being rebuilt on every start (to be more precise,
+a `kind delete cluster` is called on shut down), so manual changes will
+be overwritten if they are not defined in the k8s_config!
+
 ### Using Singularity for dependency resolution
 Conda is used as the default dependency resolution. To switch to using
 Singularity containers, add the `docker-compose.singularity.yml` file.
@@ -318,7 +345,7 @@ The following are settings specific to this docker-compose setup:
 | `GALAXY_OVERWRITE_CONFIG` | Enable Galaxy-configurator, which may result in overwriting manual config changes done in `EXPORT_DIR/galaxy/config`.                                                                                                        |
 | `GALAXY_PROXY_PREFIX`     | Host Galaxy under a prefix (like example.com/galaxy). Note that you also need to update `GALAXY_CONFIG_INFRASTRUCTURE_URL` accordingly.                                                                                      |
 | `GALAXY_JOB_DESTINATION`  | The name of the preferred job destination (local, condor, slurm, singularity..) defined in `job_conf.xml`. Generally, this does not need to be changed, as the docker-compose extensions are already taking care of that. |
-| `GALAXY_JOB_RUNNER`       | The job runner Galaxy will use to process jobs. Can be `local`, `condor`, `slurm`, `pular_rest`, or `pulsar_mq`. |
+| `GALAXY_JOB_RUNNER`       | The job runner Galaxy will use to process jobs. Can be `local`, `condor`, `slurm`, `pular_rest` or `pulsar_mq`, or `k8s`. |
 | `GALAXY_DEPENDENCY_RESOLUTION ` | Determines how Galaxy should resolve dependencies. You can choose between Conda (`conda`) or running them inside a Singularity container (`singularity`).|
 | `GALAXY_PULSAR_URL`       | The URL Galaxy will communicate with Pulsar, when choosing the `pulsar_rest` job runner. |
 | `GALAXY_JOB_METRICS_*`    | Enable the corresponding job metrics. Can be `CORE`, `CPUINFO` (`true` or `verbose`), `MEMINFO`, `UNAME`, and `ENV`, also see [job_metrics.xml.sample](https://github.com/galaxyproject/galaxy/blob/dev/lib/galaxy/config/sample/job_metrics_conf.xml.sample) for reference.
@@ -339,6 +366,19 @@ The following are settings specific to this docker-compose setup:
 | `PULSAR_HOSTNAME`         | The hostname Pulsar will listen to for requests. Defaults to `pulsar`. |
 | `PULSAR_PORT`             | The port Pulsar will listen to for requests. Defaults to 8913. |
 | `PULSAR_LOG_LEVEL`        | The log level (like `DEBUG` or `INFO`) of Pulsar. Defaults to `INFO`. |
+
+### Kind (Kubernetes in Docker)
+| Variable                  | Description                                                                                                        |
+|---------------------------|--------------------------------------------------------------------------------------------------------------------|
+| `KIND_OVERWRITE_CONFIG` | Also see `GALAXY_OVERWRITE_CONFIG`. |
+| `KIND_NODE_COUNT`       | The number of Kubernetes nodes kind should start. Defaults to 1. |
+| `KIND_PV_STORAGE_SIZE`  | The size limit (in Gi) of a Kubernetes Persistent Volume. Defaults to 100.  |
+| `GALAXY_KUBECONFIG`     | The path to the KUBECONFIG that Galaxy will use to connect to Kubernetes. Defaults to the one created with galaxy-kind. |
+| `GALAXY_K8S_PVC`        | The PVCs a job pod should mount. Defaults to `galaxy-root:/galaxy,galaxy-database:/galaxy/database,galaxy-tool-deps:/tool_deps`. |
+| `GALAXY_K8S_DOCKER_REPO_DEFAULT` | The Docker Repo/Registry to use if the resolver could not resolve the proper image for a job. Defaults to `docker.io`. |
+| `GALAXY_K8S_DOCKER_OWNER_DEFAULT` | The Owner/Username to use if the resolver could not resolve the proper image for a job. Is not set by default. |
+| `GALAXY_K8S_DOCKER_IMAGE_DEFAULT` | The Image to use if the resolver could not resolve the proper image for a job. Defaults to `ubuntu`. |
+| `GALAXY_K8S_DOCKER_TAG_DEFAULT` | The Image Tag to use if the resolver could not resolve the proper image for a job. Defaults to `18.04`. |
 
 ### HTCondor
 | Variable                    | Description                                                                                                        |
