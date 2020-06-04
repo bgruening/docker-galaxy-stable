@@ -247,6 +247,8 @@ jobs:
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
+              echo "Removing export directory";
+              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;
@@ -284,8 +286,11 @@ jobs:
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
             error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
+              echo "Removing export directory";
+              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;
