@@ -26,6 +26,7 @@ jobs:
           image_name: galaxy-container-base
         run: |
           for i in 1 2; do
+            set +e
             docker buildx build  \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
@@ -61,6 +62,7 @@ jobs:
           image_name: galaxy-cluster-base
         run: |
           for i in 1 2; do
+            set +e
             docker buildx build  \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
@@ -111,6 +113,7 @@ jobs:
       - name: Run Buildx
         run: |
           for i in 1 2; do
+            set +e
             docker buildx build \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
