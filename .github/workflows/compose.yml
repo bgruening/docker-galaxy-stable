@@ -242,6 +242,8 @@ jobs:
           env
           for i in 1 2; do
             echo "Running test - try \#$i"
+            echo "Removing export directory if existent";
+            sudo rm -rf export
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
@@ -250,8 +252,6 @@ jobs:
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
-              echo "Removing export directory";
-              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;
@@ -285,6 +285,8 @@ jobs:
           export TIMEOUT=${{ matrix.test.timeout }}
           for i in 1 2; do
             echo "Running test - try \#$i"
+            echo "Removing export directory if existent";
+            sudo rm -rf export
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
@@ -292,8 +294,6 @@ jobs:
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
-              echo "Removing export directory";
-              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;
