@@ -130,8 +130,10 @@ jobs:
           export TIMEOUT=${{ matrix.test.timeout }}
           docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} config
           env
-          for i in 1 2; do
+          for i in {1..4}; do
             echo "Running test - try \#$i"
+            echo "Removing export directory if existent";
+            sudo rm -rf export
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} build --build-arg IMAGE_TAG=ci-testing --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
@@ -140,8 +142,6 @@ jobs:
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
-              echo "Removing export directory";
-              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;
@@ -174,16 +174,16 @@ jobs:
           export DOCKER_BUILDKIT=1
           export ${{ matrix.infrastructure.env }}
           export TIMEOUT=${{ matrix.test.timeout }}
-          for i in 1 2; do
+          for i in {1..4}; do
             echo "Running test - try \#$i"
+            echo "Removing export directory if existent";
+            sudo rm -rf export
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
             error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
-              echo "Removing export directory";
-              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;

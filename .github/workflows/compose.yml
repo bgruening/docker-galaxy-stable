@@ -25,7 +25,7 @@ jobs:
         env:
           image_name: galaxy-container-base
         run: |
-          for i in 1 2; do
+          for i in {1..4}; do
             set +e
             docker buildx build  \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
@@ -61,7 +61,7 @@ jobs:
         env:
           image_name: galaxy-cluster-base
         run: |
-          for i in 1 2; do
+          for i in {1..4}; do
             set +e
             docker buildx build  \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/$image_name:${{ steps.image_tag.outputs.image_tag }},push=true" \
@@ -112,7 +112,7 @@ jobs:
           buildx-version: v0.3.1
       - name: Run Buildx
         run: |
-          for i in 1 2; do
+          for i in {1..4}; do
             set +e
             docker buildx build \
             --output "type=image,name=${{ secrets.docker_registry }}/${{ secrets.docker_registry_username }}/${{ matrix.image.name }}:${{ steps.image_tag.outputs.image_tag }},push=true" \
@@ -240,8 +240,10 @@ jobs:
           export TIMEOUT=${{ matrix.test.timeout }}
           docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} config
           env
-          for i in 1 2; do
+          for i in {1..4}; do
             echo "Running test - try \#$i"
+            echo "Removing export directory if existent";
+            sudo rm -rf export
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} pull
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
@@ -250,8 +252,6 @@ jobs:
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
-              echo "Removing export directory";
-              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;
@@ -283,8 +283,10 @@ jobs:
           export DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }}
           export ${{ matrix.infrastructure.env }}
           export TIMEOUT=${{ matrix.test.timeout }}
-          for i in 1 2; do
+          for i in {1..4}; do
             echo "Running test - try \#$i"
+            echo "Removing export directory if existent";
+            sudo rm -rf export
             set +e
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
@@ -292,8 +294,6 @@ jobs:
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} down
             if [ $error_exit_codes_count != 0 ] || [ $test_exit_code != 0 ] ; then
               echo "Test failed..";
-              echo "Removing export directory";
-              sudo rm -rf export
               continue;
             else
               exit $test_exit_code;
