@@ -19,6 +19,12 @@
             <param id="amqp_publish_retry">True</param>
         </plugin>
         {% endif -%}
+        {% if GALAXY_JOB_RUNNER == 'k8s' -%}
+        <plugin id="k8s" type="runner" load="galaxy.jobs.runners.kubernetes:KubernetesJobRunner">
+          <param id="k8s_config_path">{{ GALAXY_KUBECONFIG }}</param>
+          <param id="k8s_persistent_volume_claims">{{ GALAXY_K8S_PVC | default('galaxy-root:/galaxy,galaxy-database:/galaxy/database,galaxy-tool-deps:/tool_deps') }}</param>
+        </plugin>
+        {% endif -%}
     </plugins>
     <destinations default="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}">
         <destination id="local" runner="local">
@@ -38,7 +44,7 @@
               {% if GALAXY_JOB_RUNNER == 'local' -%}
                 <param id="docker_volumes">{{ HOST_EXPORT_DIR }}/$galaxy_root:$galaxy_root:ro,{{ HOST_EXPORT_DIR }}/$tool_directory:$tool_directory:ro,{{ HOST_EXPORT_DIR }}/$job_directory:$job_directory:rw,{{ HOST_EXPORT_DIR }}/$working_directory:$working_directory:rw,{{ HOST_EXPORT_DIR }}/$default_file_path:$default_file_path:rw</param>
               {% endif -%}
-            {% elif not GALAXY_JOB_RUNNER.startswith('pulsar') -%}
+            {% elif not GALAXY_JOB_RUNNER.startswith('pulsar') and GALAXY_JOB_RUNNER != 'k8s' -%}
               <env file="/galaxy/.venv/bin/activate" />
             {% endif -%}
             {% if GALAXY_JOB_RUNNER == 'pulsar_rest' -%}
@@ -48,6 +54,13 @@
             {% endif -%}
             {% if GALAXY_JOB_RUNNER == 'pulsar_mq' -%}
               <param id="jobs_directory">{{ PULSAR_JOBS_DIRECTORY | default('/pulsar/files/staging/') }}</param>
+            {% endif -%}
+            {% if GALAXY_JOB_RUNNER == 'k8s' -%}
+              <param id="docker_repo_default">{{ GALAXY_K8S_DOCKER_REPO_DEFAULT | default('docker.io') }}</param>
+              {% if GALAXY_K8S_DOCKER_OWNER_DEFAULT -%}<param id="docker_owner_default">{{ GALAXY_K8S_DOCKER_OWNER_DEFAULT }}</param>{% endif -%}
+              <param id="docker_image_default">{{ GALAXY_K8S_DOCKER_IMAGE_DEFAULT | default('ubuntu') }}</param>
+              <param id="docker_tag_default">{{ GALAXY_K8S_DOCKER_TAG_DEFAULT | default('18.04') }}</param>
+              <param id="docker_enabled">true</param>
             {% endif -%}
         </destination>
     </destinations>

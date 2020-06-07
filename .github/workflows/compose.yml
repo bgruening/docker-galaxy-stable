@@ -83,6 +83,7 @@ jobs:
           - name: galaxy-htcondor
           - name: galaxy-slurm
           - name: galaxy-slurm-node-discovery
+          - name: galaxy-kind
           - name: pulsar
           - name: galaxy-configurator
           - name: galaxy-bioblend-test
@@ -159,6 +160,13 @@ jobs:
           #   exclude_test:
           #     - workflow_example1
           #     - workflow_mapping_by_sequencing
+          - name: galaxy-k8s
+            files: -f docker-compose.yml -f docker-compose.k8s.yml
+            exclude_test:
+              - bioblend
+              - workflow_ard
+              - workflow_mapping_by_sequencing
+              - selenium
           - name: galaxy-singularity
             files: -f docker-compose.yml -f docker-compose.singularity.yml
             exclude_test:

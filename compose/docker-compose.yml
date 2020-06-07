@@ -1,4 +1,4 @@
-version: '3'
+version: "3.7"
 services:
   galaxy-server:
     image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-server:${IMAGE_TAG:-latest}
@@ -29,6 +29,7 @@ services:
     build: galaxy-configurator
     environment:
       - EXPORT_DIR=${EXPORT_DIR:-./export}
+      - HOST_PWD=$PWD
       - GALAXY_OVERWRITE_CONFIG=true
       - GALAXY_DEPENDENCY_RESOLUTION=conda
       - GALAXY_JOB_RUNNER=local
