@@ -130,7 +130,7 @@ jobs:
           export TIMEOUT=${{ matrix.test.timeout }}
           docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} config
           env
-          for i in 1 2; do
+          for i in {1..4}; do
             echo "Running test - try \#$i"
             echo "Removing export directory if existent";
             sudo rm -rf export
@@ -174,7 +174,7 @@ jobs:
           export DOCKER_BUILDKIT=1
           export ${{ matrix.infrastructure.env }}
           export TIMEOUT=${{ matrix.test.timeout }}
-          for i in 1 2; do
+          for i in {1..4}; do
             echo "Running test - try \#$i"
             echo "Removing export directory if existent";
             sudo rm -rf export
