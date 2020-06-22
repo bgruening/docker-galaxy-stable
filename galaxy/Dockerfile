@@ -16,7 +16,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.09} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.05} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
@@ -41,8 +41,8 @@ GALAXY_POSTGRES_GID=1550 \
 GALAXY_HOME=/home/galaxy \
 GALAXY_LOGS_DIR=/home/galaxy/logs \
 GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
-GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
-GALAXY_DEFAULT_ADMIN_KEY=admin \
+GALAXY_DEFAULT_ADMIN_PASSWORD=password \
+GALAXY_DEFAULT_ADMIN_KEY=fakekey \
 GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 GALAXY_RUNNERS_ENABLE_SLURM=True \
 GALAXY_RUNNERS_ENABLE_CONDOR=False \
@@ -285,10 +285,6 @@ ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
     #cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
     #npm install && \
     #rm -rf ~/.cache/ $GALAXY_ROOT/client/node_modules/
-
-# This is a dead symlink in 19.09, triggering an error when creating /export at startup
-# See https://github.com/galaxyproject/galaxy/pull/9292
-RUN rm /galaxy-central/lib/galaxy/web/framework/static/toolshed/src
 
 # Switch back to User root
 USER root

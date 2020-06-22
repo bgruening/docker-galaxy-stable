@@ -110,7 +110,7 @@ if [[ ! -z $STARTUP_EXPORT_USER_FILES ]]; then
     # symlinks will point from the original location to the new path under /export/
     # If /export/ is not given, nothing will happen in that step
     echo "Checking /export..."
-    python /usr/local/bin/export_user_files.py $PG_DATA_DIR_DEFAULT
+    python3 /usr/local/bin/export_user_files.py $PG_DATA_DIR_DEFAULT
 fi
 
 # Delete compiled templates in case they are out of date
