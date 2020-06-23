@@ -202,6 +202,7 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
         --extra-vars galaxy_extras_config_condor_docker=True \
         --extra-vars galaxy_extras_config_rabbitmq=True \
         --extra-vars galaxy_extras_config_cvmfs=True \
+        --extra-vars galaxy_extras_config_uwsgi=False \
         --extra-vars proftpd_db_connection=galaxy@galaxy \
         --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
         --extra-vars proftpd_use_sftp=True \
