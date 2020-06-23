@@ -218,9 +218,6 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && rm $PG_DATA_DIR_DEFAULT -rf \
     && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT --dbversion $PG_VERSION \
     && service postgresql start \
-    && . $GALAXY_VIRTUAL_ENV/bin/activate \
-    && sh $GALAXY_ROOT/create_db.sh -c "$GALAXY_CONFIG_FILE" \
-    && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
     && service postgresql stop \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     # cleanup dance
@@ -324,7 +321,6 @@ EXPOSE :9002
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
-ADD install_db.sh /usr/bin/install_db.sh
 ADD startup.sh /usr/bin/startup
 ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     SUPERVISOR_MANAGE_POSTGRES=True \
@@ -337,8 +333,6 @@ ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     HOST_DOCKER_LEGACY= \
     GALAXY_EXTRAS_CONFIG_POSTGRES=True \
     STARTUP_EXPORT_USER_FILES=True
-
-RUN chmod +x /usr/bin/install_db.sh
 
 ENTRYPOINT ["/sbin/tini", "--"]
 
