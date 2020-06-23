@@ -6,7 +6,7 @@
 # communicate over HTTP. To enable the MQ, concatinate the
 # docker-compose.pulsar.mq.yml after this one.
 # Example: `docker-compose -f docker-compose.yml -f docker-compose.pulsar.yml up`
-version: "3"
+version: "3.7"
 services:
   galaxy-configurator:
     environment:

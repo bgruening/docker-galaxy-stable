@@ -1,6 +1,6 @@
 # Extend Galaxy to run jobs using Slurm.
 # Example: `docker-compose -f docker-compose.yml -f docker-compose.slurm.yml up`
-version: "3"
+version: "3.7"
 services:
   galaxy-configurator:
     environment:
