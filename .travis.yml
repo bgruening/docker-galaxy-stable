@@ -27,7 +27,6 @@ before_install:
   - export GALAXY_USER_PASSWD=password
   - export BIOBLEND_GALAXY_API_KEY=fakekey
   - export BIOBLEND_GALAXY_URL=http://localhost:8080
-  - export COMPOSE_DIR="${TRAVIS_BUILD_DIR}/compose"
 
   - sudo apt-get update -qq
   - sudo apt-get install docker-ce --no-install-recommends -y -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
@@ -99,21 +98,10 @@ before_install:
 script:
   - set -e
   # Test submitting jobs to an external slurm cluster
-  - |
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
-      then
-        # For compose slurm is already included and thus tested
-        cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $WORKING_DIR
-      fi
+  - cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $WORKING_DIR
   # Test submitting jobs to an external gridengine cluster
-  - |
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
-      then
-        # This test is not testing compose, thus disabled
-        # TODO 19.05, need to enable this again!
-        echo "skip SGE test, fix me"
-        # cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
-      fi
+  # TODO 19.05, need to enable this again!
+  # - cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
 
   - echo 'Waiting for Galaxy to come up.'
   - galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 300
@@ -169,12 +157,9 @@ after_success:
   - |
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ]
     then
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
-      then
         cd ${TRAVIS_BUILD_DIR}
         echo "Generate and deploy html documentation"
         ./docs/bin/deploy_docs
-      fi
     fi
 
 
