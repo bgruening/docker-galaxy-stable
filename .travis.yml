@@ -148,7 +148,7 @@ script:
 
 
   # Test the 'new' tool installation script
-  - docker_exec_run install-tools "$SAMPLE_TOOLS"
+  - docker_exec install-tools "$SAMPLE_TOOLS"
   # Test the Conda installation
   - docker_exec_run bash -c 'export PATH=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda/bin/:$PATH && conda --version && conda install samtools -c bioconda --yes'
 
