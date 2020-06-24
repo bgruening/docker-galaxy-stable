@@ -985,7 +985,9 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
    - The image is now based on `ubuntu:18.04` (instead of ubuntu:14.04 previously) and PostgreSQL 11.5 (9.3 previously).
      See [migration documention](#Postgresql-migration) to migrate the postgresql database from 9.3 to 11.5.
    - We not longer support old Galaxy tool dependencies.
-
+- 20.05:
+   - Featuring Galaxy 20.05
+   - completely reworked compose setup
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
