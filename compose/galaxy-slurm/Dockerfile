@@ -1,96 +1,56 @@
-FROM ubuntu:18.04
+ARG DOCKER_REGISTRY=quay.io
+ARG DOCKER_REGISTRY_USERNAME=bgruening
+ARG IMAGE_TAG=latest
 
-ENV DEBIAN_FRONTEND noninteractive
+FROM buildpack-deps:18.04 as galaxy_dependencies
+
+ARG GALAXY_RELEASE=release_20.05
+ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
+
+ENV GALAXY_ROOT=/galaxy
+
+# Download Galaxy source, but only keep necessary dependencies
+RUN mkdir "${GALAXY_ROOT}" \
+    && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
+    && cd $GALAXY_ROOT \
+    && ls . | grep -v "lib" | xargs rm -rf \
+    && cd $GALAXY_ROOT/lib \
+    && ls . | grep -v "galaxy\|galaxy_ext" | xargs rm -rf \
+    && cd $GALAXY_ROOT/lib/galaxy \
+    && ls . | grep -v "__init__.py\|datatypes\|exceptions\|metadata\|model\|util\|security" | xargs rm -rf
+
+
+FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-container-base:$IMAGE_TAG as final
 
 ENV GALAXY_USER=galaxy \
-GALAXY_UID=1450 \
-GALAXY_GID=1450 \
-SINGULARITY_VERSION=2.3
+    GALAXY_GROUP=galaxy \
+    GALAXY_UID=1450 \
+    GALAXY_GID=1450 \
+    GALAXY_HOME=/home/galaxy \
+    GALAXY_ROOT=/galaxy
 
-MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
+RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
+    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
+    && mkdir $GALAXY_HOME \
+    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME
 
-RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
-    && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
-    && apt-get -qq update && apt-get install --no-install-recommends -y locales \
-    && locale-gen en_US.UTF-8 && dpkg-reconfigure locales \
-    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
-
-RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
-    && groupadd -r $GALAXY_USER -g $GALAXY_GID \
-    && useradd -u $GALAXY_UID -m -r -g $GALAXY_USER -c "Galaxy user" $GALAXY_USER \
-    && apt-get update -qq \
-    && apt-get install -y --no-install-recommends \
-        apt-transport-https \
-        software-properties-common \
-        python-psutil \
-        python-setuptools \
-        supervisor wget \
-        munge \
-        virtualenv \
-        slurm-wlm \
-        slurm-wlm-torque \
-    && add-apt-repository ppa:natefoo/slurm-drmaa \
-    && apt-get update -qq \
-    && apt-get install singularity-container slurm-client slurmd slurmctld slurm-drmaa1 singularity-container --no-install-recommends -y \
-    && ln -s /usr/lib/slurm-drmaa/lib/libdrmaa.so.1 /usr/lib/slurm-drmaa/lib/libdrmaa.so \
-    #&& wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa1_1.2.0-dev.deca826_amd64.deb \
-    #&& wget https://depot.galaxyproject.org/deb/ubuntu/18.04/slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb \
-    #&& dpkg -i slurm-drmaa1_1.2.0-dev.deca826_amd64.deb \
-    #&& dpkg -i slurm-drmaa-dev_1.2.0-dev.deca826_amd64.deb \
-    && /usr/sbin/create-munge-key \
-    #&& wget https://github.com/singularityware/singularity/releases/download/$SINGULARITY_VERSION/singularity-$SINGULARITY_VERSION.tar.gz \
-    #&& tar xvf singularity-$SINGULARITY_VERSION.tar.gz \
-    #&& cd singularity-$SINGULARITY_VERSION \
-    #&& ./configure --prefix=/usr/local --sysconfdir=/etc \
-    #&& make \
-    #&& make install \
-    #&& rm -rf singularity-$SINGULARITY_VERSION singularity-$SINGULARITY_VERSION.tar.gz \
-    && apt-get purge -y software-properties-common \
-    && apt-get autoremove -y \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
-    && mkdir -p /tmp/download \
-    && wget -qO - https://download.docker.com/linux/static/stable/x86_64/docker-17.06.2-ce.tgz | tar -xz -C /tmp/download \
-    && mv /tmp/download/docker/docker /usr/bin/ \
-    && rm -rf /tmp/download \
-    && rm -rf ~/.cache/
-
-
-ADD configure_slurm.py /usr/local/bin/configure_slurm.py
-ADD munge.conf /etc/default/munge
-ADD startup.sh /usr/bin/startup.sh
-ADD supervisor_slurm.conf /etc/supervisor/conf.d/slurm.conf
-RUN service munge start \
-    && service munge stop \
-    && chmod +x /usr/bin/startup.sh \
-    && locale-gen en_US.UTF-8 \
-    && dpkg-reconfigure locales
-
-ENV GALAXY_DIR=/export/galaxy-central \
-    SYMLINK_TARGET=/galaxy-central \
-    SLURM_USER_NAME=galaxy \
+# Install Slurm
+ENV SLURM_USER=galaxy \
     SLURM_UID=1450 \
     SLURM_GID=1450 \
-    SLURM_PARTITION_NAME=work \
-    SLURM_CLUSTER_NAME=Cluster \
-    SLURM_CONTROL_ADDR=galaxy-slurm \
-    SLURM_NODE_NAME=galaxy-slurm \
-    SLURMD_AUTOSTART=True \
-    SLURMCTLD_AUTOSTART=True \
-    SLURM_CONF_PATH=/export/slurm.conf \
-    MUNGE_KEY_PATH=/export/munge.key \
-    GALAXY_VENV=/galaxy_venv
+    MUNGER_USER=munge \
+    MUNGE_UID=1200 \
+    MUNGE_GID=1200
 
-ADD requirements.txt "$GALAXY_VENV"/
-RUN chown -R $SLURM_UID:$SLURM_GID "$GALAXY_VENV" \
-    && virtualenv "$GALAXY_VENV" \
-    && . "$GALAXY_VENV"/bin/activate \
-    && pip install --upgrade pip \
-    && pip install galaxy-lib \
-    && pip install -r "$GALAXY_VENV"/requirements.txt --index-url https://wheels.galaxyproject.org/simple --extra-index-url https://pypi.python.org/simple \
-    && rm -rf /root/.cache/
+RUN groupadd -r $MUNGER_USER -g $MUNGE_GID \
+    && useradd -u $MUNGE_UID -r -g $MUNGER_USER $MUNGER_USER \
+    && apt update \
+    && apt install --no-install-recommends gosu munge python python-dev slurm-wlm -y \
+    && rm -rf /var/lib/apt/lists/* && rm -rf /var/cache/* && find / -name '*.pyc' -delete
 
+# Copy Galaxy dependencies
+COPY --chown=$GALAXY_USER:$GALAXY_USER --from=galaxy_dependencies $GALAXY_ROOT $GALAXY_ROOT
 
-VOLUME ["/export/", "/var/lib/docker"]
-CMD ["/usr/bin/startup.sh"]
+COPY start.sh /usr/bin/start.sh
+
+ENTRYPOINT [ "/usr/bin/start.sh" ]

@@ -1,0 +1,19 @@
+uwsgi:
+{{ galaxy_uwsgi | to_nice_yaml(indent=2) | indent(2, first=True) }}
+
+  {% if GALAXY_PROXY_PREFIX %}
+  mount: /{{ GALAXY_PROXY_PREFIX | regex_replace("^/", "") | regex_replace("/$", "") }}=galaxy.webapps.galaxy.buildapp:uwsgi_app()
+  manage-script-name: true
+  {% else %}
+  module: galaxy.webapps.galaxy.buildapp:uwsgi_app()
+  manage-script-name: false
+  {% endif %}
+
+
+galaxy:
+{{ galaxy | to_nice_yaml(indent=2) | indent(2, first=True) }}
+
+  {% if GALAXY_DEPENDENCY_RESOLUTION == 'singularity' %}
+  enable_mulled_containers: true
+  containers_resolvers_config_file: container_resolvers_conf.xml
+  {% endif %}

@@ -1,0 +1,10 @@
+version: "3.7"
+services:
+  galaxy-bioblend-test:
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-bioblend-test:${IMAGE_TAG:-latest}
+    build: tests/galaxy-bioblend-test
+    environment:
+      - GALAXY_VERSION=${GALAXY_VERSION:-release_20.05} # TODO: Change to GALAXY_RELEASE
+      - GALAXY_URL=http://nginx${GALAXY_PROXY_PREFIX:-}/
+    networks:
+      - galaxy

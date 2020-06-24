@@ -1,0 +1,22 @@
+name: Lint
+on: [push]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Cleanup to only use compose
+      run: rm -R docs galaxy test
+    - name: Run shellcheck with reviewdog
+      uses: reviewdog/action-shellcheck@v1.1.3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        reporter: github-check
+        level: warning
+        pattern: "*.sh"
+    - name: Run hadolint with reviewdog
+      uses: reviewdog/action-hadolint@v1
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        reporter: github-check

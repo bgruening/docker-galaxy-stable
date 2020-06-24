@@ -1,16 +1,13 @@
 FROM quay.io/bgruening/galaxy
 
-RUN apt-get -qq update && apt-get install --no-install-recommends -y python3-distutils \
-    && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/
-
 USER galaxy
 WORKDIR /home/galaxy
 
-ENV TOX_ENV=py36 \
-    BIOBLEND_GALAXY_API_KEY=admin \
+ENV TOX_ENV=py37 \
+    BIOBLEND_GALAXY_API_KEY=fakekey \
     BIOBLEND_GALAXY_URL=http://galaxy \
     BIOBLEND_TEST_JOB_TIMEOUT="240" \
-    GALAXY_VERSION=release_19.09
+    GALAXY_VERSION=release_20.05
 
 RUN mkdir bioblend-master \
     && curl -L -s https://github.com/galaxyproject/bioblend/archive/master.tar.gz | tar xzf - --strip-components=1 -C bioblend-master \

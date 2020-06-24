@@ -9,11 +9,6 @@ services:
 env:
   matrix:
     - TOX_ENV=py36
-    - COMPOSE_SLURM=True
-    - COMPOSE_SLURM_SINGULARITY=True
-    # Compose version with Condor submitting Docker jobs
-    - COMPOSE_CONDOR_DOCKER=True
-    - KUBE=True
   global:
     - secure: "SEjcKJQ0NGXdpFxFhLVlyJmiBvgiLtR5Uufg90Vm3owKlMy0NSfIrOR+2dwNniqOp7QI3eVepnqjid/Ka0QStzVqMCe55OLkJ/TbTHnMLpbtY63mpGfogVRvxMMAVpzLpcQqtJFORZmO/MIWSLlBiXMMzOg3+tbXvQXmL17Rbmw="
 
@@ -29,10 +24,9 @@ before_install:
   - export GALAXY_HOME=/home/galaxy
   - export GALAXY_USER=admin@galaxy.org
   - export GALAXY_USER_EMAIL=admin@galaxy.org
-  - export GALAXY_USER_PASSWD=admin
-  - export BIOBLEND_GALAXY_API_KEY=admin
+  - export GALAXY_USER_PASSWD=password
+  - export BIOBLEND_GALAXY_API_KEY=fakekey
   - export BIOBLEND_GALAXY_URL=http://localhost:8080
-  - export COMPOSE_DIR="${TRAVIS_BUILD_DIR}/compose"
 
   - sudo apt-get update -qq
   - sudo apt-get install docker-ce --no-install-recommends -y -o Dpkg::Options::="--force-confmiss" -o Dpkg::Options::="--force-confdef" -o Dpkg::Options::="--force-confnew"
@@ -41,77 +35,7 @@ before_install:
 
   - docker --version
   - docker info
-  # Build a k8s cluster
-  - |
-    if [ "${KUBE}" ]
-    then
-      # setup k8s, we will do this before building Galaxy because it takes some time and hopefully we can do both in prallel
-      gimme 1.11.1
-      source ~/.gimme/envs/go1.11.1.env
-      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/gofmt /usr/bin/gofmt
-      sudo ln -s /home/travis/.gimme/versions/go1.11.1.linux.amd64/bin/go /usr/bin/go
-      go version
-      mkdir ../kubernetes
-      wget -q -O - https://github.com/kubernetes/kubernetes/archive/master.tar.gz | tar xzf - --strip-components=1 -C ../kubernetes
-      cd ../kubernetes
-      # k8s API port is running by default on 8080 as Galaxy, can this to 8000
-      export API_PORT=8000
-      ./hack/install-etcd.sh
-      sudo ln -s `pwd`/third_party/etcd/etcd /usr/bin/etcd
-      sudo ln -s `pwd`/third_party/etcd/etcdctl /usr/bin/etcdctl
-      # this needs to run in backgroud later, for now try to see the output
-      ./hack/local-up-cluster.sh &
-      cd ../docker-galaxy-stable
-    fi
 
-
-  # load all configurations needed for SLURM testing
-  - |
-    if [ "${COMPOSE_SLURM}" ]
-    then
-      # The compose file recognises ENV vars to change the defaul behavior
-      cd ${COMPOSE_DIR}
-      ln -sf .env_slurm .env
-    fi
-
-  # load all configurations needed for SLURM testing
-  - |
-    if [ "${COMPOSE_SLURM_SINGULARITY}" ]
-    then
-      # The compose file recognises ENV vars to change the defaul behavior
-      cd ${COMPOSE_DIR}
-      ln -sf .env_slurm_singularity .env
-    fi
-
-  # load all configurations needed for Condor and Docker
-  - |
-    if [ "${COMPOSE_CONDOR_DOCKER}" ]
-    then
-      # The compose file recognises ENV vars to change the defaul behavior
-      cd ${COMPOSE_DIR}
-      ln -sf .env_htcondor_docker .env
-
-      # Galaxy needs to a full path for the the jobs, in- and outputs.
-      # Do we want to run each job in it's own container and this container uses the host
-      # container engine (not Docker in Docker) then the path to all files inside and outside
-      # of the container needs to be the same.
-      sudo mkdir /export
-      sudo chmod 777 /export
-      sudo chown 1450:1450 /export
-    fi
-
-  # Installing kompose to convert the docker-compose YAML file
-  - |
-    if [ "${KUBE}" ]
-    then
-        # The compose file recognises ENV vars to change the defaul behavior
-        cd ${COMPOSE_DIR}
-        ln -sf .env_k8_native .env
-
-        curl -L https://github.com/kubernetes-incubator/kompose/releases/download/v1.17.1/kompose-linux-amd64 -o kompose
-        chmod +x kompose
-        sudo mv ./kompose /usr/bin/kompose
-    fi
 
   # start building this repo
   - git submodule update --init --recursive
@@ -132,182 +56,52 @@ before_install:
         fi
     }
 
-    if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${KUBE}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
-    then
-        pip install docker-compose galaxy-parsec
-        export WORKING_DIR="$TRAVIS_BUILD_DIR/compose"
-        export DOCKER_RUN_CONTAINER="galaxy-web"
-        INSTALL_REPO_ARG="--galaxy-url http://localhost:80"
-        SAMPLE_TOOLS=/export/config/sample_tool_list.yaml
-        cd "$WORKING_DIR"
-        # For build script
-        export CONTAINER_REGISTRY=quay.io/
-        export CONTAINER_USER=bgruening
-        ./build-orchestration-images.sh --no-push --condor --grafana --slurm --k8s
-        source ./tags-for-compose-to-source.sh
+    export WORKING_DIR="$TRAVIS_BUILD_DIR"
+    export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
+    INSTALL_REPO_ARG=""
+    SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
+    cd "$WORKING_DIR"
+    docker build -t quay.io/bgruening/galaxy galaxy/
 
-        container_size_check   quay.io/bgruening/galaxy-base:$TAG               350
-        container_size_check   quay.io/bgruening/galaxy-web:$TAG                650
-        container_size_check   quay.io/bgruening/galaxy-htcondor-base:$TAG      280
+    container_size_check   quay.io/bgruening/galaxy  1500
 
-        export COMPOSE_PROJECT_NAME=galaxy_compose
-        docker-compose up -d
+    mkdir local_folder
+    docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
+        --name galaxy \
+        --privileged=true \
+        -v `pwd`/local_folder:/export/ \
+        -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
+        -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
+        -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
+        -e GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True \
+        -v /tmp/:/tmp/ \
+        quay.io/bgruening/galaxy
 
-        until docker-compose exec galaxy-web ps -fC uwsgi
-        do
-          echo "sleeping for 20 seconds"
-          sleep 20
-          docker-compose logs --tail 10
-        done
+    sleep 30
+    docker logs galaxy
+    # Define start functions
+    docker_exec() {
+      cd $WORKING_DIR
+      docker exec -t -i galaxy "$@"
+    }
+    docker_exec_run() {
+      cd $WORKING_DIR
+      docker run quay.io/bgruening/galaxy "$@"
+    }
+    docker_run() {
+      cd $WORKING_DIR
+      docker run "$@"
+    }
 
-        if [ "${COMPOSE_CONDOR_DOCKER}" ]
-        then
-            # turn down the slurm service
-            echo "Stopping SLURM container"
-            docker-compose stop galaxy-slurm
-            sleep 30
-        fi
-
-        if [ "${COMPOSE_SLURM}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
-        then
-            # turn down the htcondor services
-            echo "Stopping HT-Condor containers"
-            docker-compose stop galaxy-htcondor galaxy-htcondor-executor galaxy-htcondor-executor-big
-            sleep 30
-        fi
-
-        if [ "${COMPOSE_SLURM_SINGULARITY}" ]
-        then
-            # docker-compose is already started and has pre-populated the /export dir
-            # we now turn it down again and copy in an example tool with tool_conf.xml and
-            # a test singularity image. If we copy this from the beginning, the magic Docker Galax startup
-            # script will not work as it detects something in /export/
-            echo "Downloading Singularity test files and images."
-            docker-compose exec galaxy-web    mkdir -p /export/database/container_images/singularity/mulled/
-            docker-compose exec galaxy-web    curl -L -o /export/database/container_images/singularity/mulled/samtools:1.4.1--0 https://github.com/bgruening/singularity-galaxy-tests/raw/master/samtools:1.4.1--0
-            docker-compose exec galaxy-web    curl -L -o /export/cat_tool_conf.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat_tool_conf.xml
-            docker-compose exec galaxy-web    curl -L -o /export/cat.xml https://github.com/bgruening/singularity-galaxy-tests/raw/master/cat.xml
-            docker-compose exec galaxy-web    chown 1450:1450 /export/cat* /export/database/container_images/ -R
-            docker-compose down
-            sleep 20
-            rm .env
-            ln -sf .env_slurm_singularity2 .env
-
-            docker-compose up -d
-
-            until docker-compose exec galaxy-web ps -fC uwsgi
-            do
-              echo "Starting up Singularity test container: sleeping for 40 seconds"
-              sleep 40
-              docker-compose logs
-            done
-            docker-compose logs galaxy-web
-            sleep 30
-            docker-compose logs galaxy-web
-            sleep 30
-            docker-compose logs galaxy-web
-            echo "waiting until Galaxy is up"
-            docker ps
-            pip show ephemeris
-            which galaxy-wait
-            #galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60 -v
-            #docker-compose logs galaxy-web
-            #galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 60 -v
-            docker-compose logs galaxy-web
-            sleep 500
-            docker-compose logs
-            echo "parsec init"
-            parsec init --api_key admin --url $BIOBLEND_GALAXY_URL
-            HISTORY_ID=$(parsec histories create_history | jq .id -r)
-            DATASET_ID=$(parsec tools paste_content 'asdf' $HISTORY_ID | jq '.outputs[0].id' -r)
-            OUTPUT_ID=$(parsec tools run_tool $HISTORY_ID cat '{"input1": {"src": "hda", "id": "'$DATASET_ID'"}}' | jq '.outputs | .[0].id' -r)
-            sleep 10
-            echo "run parsec jobs show_job"
-            parsec jobs show_job --full_details $OUTPUT_ID
-            # TODO: find a way to get a log trace that this tool actually was running with singularity
-            #parsec jobs show_job --full_details $OUTPUT_ID | jq .stderr | grep singularity
-
-        fi
-
-        docker-compose logs --tail 50
-        # Define start functions
-        docker_exec() {
-          cd $WORKING_DIR
-          docker-compose exec galaxy-web "$@"
-        }
-        docker_exec_run() {
-          cd $WORKING_DIR
-          docker-compose exec galaxy-web "$@"
-        }
-        docker_run() {
-          cd $WORKING_DIR
-          docker-compose run "$@"
-        }
-    else
-        export WORKING_DIR="$TRAVIS_BUILD_DIR"
-        export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
-        INSTALL_REPO_ARG=""
-        SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
-        cd "$WORKING_DIR"
-        docker build -t quay.io/bgruening/galaxy galaxy/
-
-        container_size_check   quay.io/bgruening/galaxy  1500
-
-        mkdir local_folder
-        docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
-            --name galaxy \
-            --privileged=true \
-            -v `pwd`/local_folder:/export/ \
-            -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
-            -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
-            -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
-            -e GALAXY_CONFIG_ENABLE_BETA_WORKFLOW_MODULES=True \
-            -v /tmp/:/tmp/ \
-            quay.io/bgruening/galaxy
-
-        sleep 30
-        docker logs galaxy
-        # Define start functions
-        docker_exec() {
-          cd $WORKING_DIR
-          docker exec -t -i galaxy "$@"
-        }
-        docker_exec_run() {
-          cd $WORKING_DIR
-          docker run quay.io/bgruening/galaxy "$@"
-        }
-        docker_run() {
-          cd $WORKING_DIR
-          docker run "$@"
-        }
-
-    fi
   - docker ps
 
 script:
   - set -e
   # Test submitting jobs to an external slurm cluster
-  - |
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
-      then
-        # For compose slurm is already included and thus tested
-        cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $WORKING_DIR
-      fi
+  - cd $TRAVIS_BUILD_DIR/test/slurm/ && bash test.sh && cd $WORKING_DIR
   # Test submitting jobs to an external gridengine cluster
-  - |
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
-      then
-        # This test is not testing compose, thus disabled
-        # TODO 19.05, need to enable this again!
-        echo "skip SGE test, fix me"
-        # cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
-      fi
-  # Test Web api
-  - |
-      if [ "${COMPOSE_CONDOR_DOCKER}" ]
-      then
-        docker-compose logs --tail 50
-      fi
+  # TODO 19.05, need to enable this again!
+  # - cd $TRAVIS_BUILD_DIR/test/gridengine/ && bash test.sh && cd $WORKING_DIR
 
   - echo 'Waiting for Galaxy to come up.'
   - galaxy-wait -g $BIOBLEND_GALAXY_URL --timeout 300
@@ -354,39 +148,18 @@ script:
 
 
   # Test the 'new' tool installation script
-#  - docker_exec bash -c "install-tools $GALAXY_HOME/ephemeris/sample_tool_list.yaml"
-  - |
-    if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
-    then
-        # Compose uses the online installer (uses the running instance)
-        sleep 10
-        docker_exec_run shed-tools install -g "http://localhost:80" -a admin -t "$SAMPLE_TOOLS"
-    else
-      docker_exec_run install-tools "$SAMPLE_TOOLS"
-    fi
+  - docker_exec install-tools "$SAMPLE_TOOLS"
   # Test the Conda installation
   - docker_exec_run bash -c 'export PATH=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda/bin/:$PATH && conda --version && conda install samtools -c bioconda --yes'
-  # Test Docker in Docker, used by Interactive Environments; This needs to be at the end as Docker takes some time to start.
-  #- docker_exec docker info
-  # Check if the database image matches the current galaxy version
-  - |
-      if [ "${COMPOSE_SLURM}" ] || [ "${KUBE}" ] || [ "${COMPOSE_CONDOR_DOCKER}" ] || [ "${COMPOSE_SLURM_SINGULARITY}" ]
-      then
-        cd $WORKING_DIR && bash ./dumpsql.sh
-        git diff --exit-code $WORKING_DIR/galaxy-postgres/init-galaxy-db.sql.in || ( echo "Database dump does not equal dump in repository" && false )
-      fi
 
 
 after_success:
   - |
     if [ "$TRAVIS_PULL_REQUEST" == "false" -a "$TRAVIS_BRANCH" == "master" ]
     then
-      if [ ! "${COMPOSE_SLURM}" ] && [ ! "${KUBE}" ] && [ ! "${COMPOSE_CONDOR_DOCKER}" ] && [ ! "${COMPOSE_SLURM_SINGULARITY}" ]
-      then
         cd ${TRAVIS_BUILD_DIR}
         echo "Generate and deploy html documentation"
         ./docs/bin/deploy_docs
-      fi
     fi
 
 

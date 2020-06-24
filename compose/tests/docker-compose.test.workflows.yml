@@ -1,0 +1,12 @@
+version: "3.7"
+services:
+  galaxy-workflow-test:
+    image: ${DOCKER_REGISTRY:-quay.io}/${DOCKER_REGISTRY_USERNAME:-bgruening}/galaxy-workflow-test:${IMAGE_TAG:-latest}
+    build: tests/galaxy-workflow-test
+    environment:
+      - GALAXY_URL=http://nginx${GALAXY_PROXY_PREFIX:-}/
+      - WORKFLOWS=${WORKFLOWS:-training/variant-analysis/mapping-by-sequencing/mapping_by_sequencing.ga,sklearn/ard/ard.ga,GraphClust2/GC-lite.ga}
+    volumes:
+      - ${EXPORT_DIR:-./../export}/galaxy/database:/galaxy/database
+    networks:
+      - galaxy
