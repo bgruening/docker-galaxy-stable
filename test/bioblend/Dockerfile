@@ -3,7 +3,7 @@ FROM quay.io/bgruening/galaxy
 USER galaxy
 WORKDIR /home/galaxy
 
-ENV TOX_ENV=py27 \
+ENV TOX_ENV=py37 \
     BIOBLEND_GALAXY_API_KEY=admin \
     BIOBLEND_GALAXY_URL=http://galaxy \
     BIOBLEND_TEST_JOB_TIMEOUT="240" \
