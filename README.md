@@ -869,7 +869,7 @@ In rare situations where you cannot share your tools but still want to include t
 
 # Users & Passwords <a name="Users-Passwords" /> [[toc]](#toc)
 
-The Galaxy Admin User has the username `admin@galaxy.org` and the password `admin`.
+The Galaxy Admin User has the username `admin@galaxy.org` and the password `password`.
 The PostgreSQL username is `galaxy`, the password is `galaxy` and the database name is `galaxy` (I know I was really creative ;)).
 If you want to create new users, please make sure to use the `/export/` volume. Otherwise your user will be removed after your docker session is finished.
 

@@ -16,7 +16,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_19.09} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.05} \
 GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
@@ -40,9 +40,10 @@ GALAXY_POSTGRES_UID=1550 \
 GALAXY_POSTGRES_GID=1550 \
 GALAXY_HOME=/home/galaxy \
 GALAXY_LOGS_DIR=/home/galaxy/logs \
-GALAXY_DEFAULT_ADMIN_USER=admin@galaxy.org \
-GALAXY_DEFAULT_ADMIN_PASSWORD=admin \
-GALAXY_DEFAULT_ADMIN_KEY=admin \
+GALAXY_DEFAULT_ADMIN_USER=admin \
+GALAXY_DEFAULT_ADMIN_EMAIL=admin@galaxy.org \
+GALAXY_DEFAULT_ADMIN_PASSWORD=password \
+GALAXY_DEFAULT_ADMIN_KEY=fakekey \
 GALAXY_DESTINATIONS_DEFAULT=slurm_cluster \
 GALAXY_RUNNERS_ENABLE_SLURM=True \
 GALAXY_RUNNERS_ENABLE_CONDOR=False \
@@ -117,7 +118,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
 
-RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda2-4.7.10-Linux-x86_64.sh > ~/miniconda.sh \
+RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda3-4.7.10-Linux-x86_64.sh > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
     && rm ~/miniconda.sh \
     && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
@@ -202,6 +203,7 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
         --extra-vars galaxy_extras_config_condor_docker=True \
         --extra-vars galaxy_extras_config_rabbitmq=True \
         --extra-vars galaxy_extras_config_cvmfs=True \
+        --extra-vars galaxy_extras_config_uwsgi=False \
         --extra-vars proftpd_db_connection=galaxy@galaxy \
         --extra-vars proftpd_files_dir=$EXPORT_DIR/ftp \
         --extra-vars proftpd_use_sftp=True \
@@ -217,9 +219,6 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && rm $PG_DATA_DIR_DEFAULT -rf \
     && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT --dbversion $PG_VERSION \
     && service postgresql start \
-    && . $GALAXY_VIRTUAL_ENV/bin/activate \
-    && sh $GALAXY_ROOT/create_db.sh -c "$GALAXY_CONFIG_FILE" \
-    && python /usr/local/bin/create_galaxy_user.py --user $GALAXY_DEFAULT_ADMIN_USER --password $GALAXY_DEFAULT_ADMIN_PASSWORD -c $GALAXY_CONFIG_FILE --key $GALAXY_DEFAULT_ADMIN_KEY \
     && service postgresql stop \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     # cleanup dance
@@ -286,10 +285,6 @@ ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
     #npm install && \
     #rm -rf ~/.cache/ $GALAXY_ROOT/client/node_modules/
 
-# This is a dead symlink in 19.09, triggering an error when creating /export at startup
-# See https://github.com/galaxyproject/galaxy/pull/9292
-RUN rm /galaxy-central/lib/galaxy/web/framework/static/toolshed/src
-
 # Switch back to User root
 USER root
 
@@ -327,7 +322,6 @@ EXPOSE :9002
 # Mark folders as imported from the host.
 VOLUME ["/export/", "/data/", "/var/lib/docker"]
 
-ADD install_db.sh /usr/bin/install_db.sh
 ADD startup.sh /usr/bin/startup
 ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     SUPERVISOR_MANAGE_POSTGRES=True \
@@ -340,8 +334,6 @@ ENV SUPERVISOR_POSTGRES_AUTOSTART=True \
     HOST_DOCKER_LEGACY= \
     GALAXY_EXTRAS_CONFIG_POSTGRES=True \
     STARTUP_EXPORT_USER_FILES=True
-
-RUN chmod +x /usr/bin/install_db.sh
 
 ENTRYPOINT ["/sbin/tini", "--"]
 

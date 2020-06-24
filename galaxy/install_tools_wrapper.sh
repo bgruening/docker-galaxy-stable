@@ -33,7 +33,7 @@ else
     galaxy-wait -g http://localhost:$PORT -v --timeout 120
 fi
 
-shed-tools install -g "http://localhost:$PORT" -a admin -t "$1"
+shed-tools install -g "http://localhost:$PORT" -a fakekey -t "$1"
 
 exit_code=$?
 
