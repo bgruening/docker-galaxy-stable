@@ -124,7 +124,7 @@ if [[ ! -z $LOAD_GALAXY_CONDITIONAL_DEPENDENCIES ]]
     then
         echo "Installing optional dependencies in galaxy virtual environment..."
         : ${GALAXY_WHEELS_INDEX_URL:="https://wheels.galaxyproject.org/simple"}
-        GALAXY_CONDITIONAL_DEPENDENCIES=$(PYTHONPATH=lib python -c "import galaxy.dependencies; print '\n'.join(galaxy.dependencies.optional('$GALAXY_CONFIG_FILE'))")
+        GALAXY_CONDITIONAL_DEPENDENCIES=$(PYTHONPATH=lib python -c "import galaxy.dependencies; print('\n'.join(galaxy.dependencies.optional('$GALAXY_CONFIG_FILE')))")
         [ -z "$GALAXY_CONDITIONAL_DEPENDENCIES" ] || echo "$GALAXY_CONDITIONAL_DEPENDENCIES" | pip install -q -r /dev/stdin --index-url "${GALAXY_WHEELS_INDEX_URL}"
 fi
 
