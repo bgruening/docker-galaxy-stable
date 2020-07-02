@@ -27,7 +27,12 @@ else
     done
 
     echo "starting Galaxy"
-    sudo -E -u galaxy unset $SUDO_UID; ./run.sh -d $install_log --pidfile galaxy_install.pid --http-timeout 3000
+    # Unset SUDO_* vars otherwise conda run chown based on that
+    sudo -E -u galaxy -- bash -c "unset SUDO_UID; \
+        unset SUDO_GID; \
+        unset SUDO_COMMAND; \
+        unset SUDO_USER; \
+        ./run.sh -d $install_log --pidfile galaxy_install.pid --http-timeout 3000"
 
     galaxy_install_pid=`cat galaxy_install.pid`
     galaxy-wait -g http://localhost:$PORT -v --timeout 120
