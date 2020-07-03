@@ -225,7 +225,6 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
-    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
