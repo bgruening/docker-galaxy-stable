@@ -134,7 +134,6 @@ RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda3-4.7.10-Linux-x86_6
     # cleanup dance
     && find $GALAXY_ROOT -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
-    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
@@ -153,7 +152,6 @@ RUN mkdir $GALAXY_ROOT \
     # cleanup dance
     && find $GALAXY_ROOT -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
-    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
@@ -171,7 +169,6 @@ RUN apt update -qq && apt install --no-install-recommends -y ansible dirmngr gpg
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
-    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
@@ -225,7 +222,6 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \
     && find /var/log/ -name '*.log' -delete | true \
-    && find $GALAXY_CONDA_PREFIX/ -name '*.pyc' -delete | true \
     && find $GALAXY_VIRTUAL_ENV -name '*.pyc' -delete | true \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm
 
