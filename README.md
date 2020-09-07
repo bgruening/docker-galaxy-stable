@@ -5,18 +5,6 @@
 ![docker pulls](https://img.shields.io/docker/pulls/bgruening/galaxy-stable.svg) ![docker stars](https://img.shields.io/docker/stars/bgruening/galaxy-stable.svg)
 [![docker image stats](https://images.microbadger.com/badges/image/bgruening/galaxy-stable.svg)](https://microbadger.com/images/bgruening/galaxy-stable "Get your own image badge on microbadger.com")
 
-
-:information_source: `19.01` was the last release which is based on `ubuntu:14.04` and
-PostgreSQL 9.3. In 19.05 we have migrate to `ubuntu:18.04` and PostgreSQL version 11.5. Furthermore, we no longer
-support old Galaxy tool dependencies. These are deprecated since a few years and we think it's time to remove support
-for this in the default installation. You can install all needed packages manually to enable support again, though.
-
-In short, with 19.05:
-  * Galaxy tool dependencies are be supported by default
-  * `ubuntu:18.04` is the new base image
-  * a new PostgreSQL version means you need to [migrate any old database to the new version](#Postgresql-migration)
-
-
 Galaxy Docker Image
 ===================
 
@@ -29,6 +17,22 @@ With docker, tool developers can create their own Image with all dependencies an
 The Image is based on [Ubuntu 14.04 LTS](http://releases.ubuntu.com/14.04/) and all recommended Galaxy requirements are installed. The following chart should illustrate the [Docker](http://www.docker.io) image hierarchy we have build to make is as easy as possible to build on different layers of our stack and create many exciting Galaxy flavors.
 
 ![Docker hierarchy](https://raw.githubusercontent.com/bgruening/docker-galaxy-stable/master/chart.png)
+
+Breaking changes
+================
+
+:information_source: `19.01` was the last release which is based on `ubuntu:14.04` and
+PostgreSQL 9.3. In **19.05** we have migrate to `ubuntu:18.04` and PostgreSQL version 11.5. Furthermore, we no longer
+support old Galaxy tool dependencies. These are deprecated since a few years and we think it's time to remove support
+for this in the default installation. You can install all needed packages manually to enable support again, though.
+
+In short, with 19.05:
+  * Galaxy tool dependencies are be supported by default
+  * `ubuntu:18.04` is the new base image
+  * a new PostgreSQL version means you need to [migrate any old database to the new version](#Postgresql-migration)
+
+
+:information_source: Since **20.05** the default admin password and apikey (`GALAXY_DEFAULT_ADMIN_PASSWORD` and `GALAXY_DEFAULT_ADMIN_KEY`) have changed: the password is now `password` (instead of `admin`) and the apikey `fakekey` (instead of `admin`).
 
 # Table of Contents <a name="toc" />
 
@@ -987,7 +991,8 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
    - We not longer support old Galaxy tool dependencies.
 - 20.05:
    - Featuring Galaxy 20.05
-   - completely reworked compose setup
+   - Completely reworked compose setup
+   - The default admin password and apikey (`GALAXY_DEFAULT_ADMIN_PASSWORD` and `GALAXY_DEFAULT_ADMIN_KEY`) have changed: the password is now `password` (instead of `admin`) and the apikey `fakekey` (instead of `admin`).
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
