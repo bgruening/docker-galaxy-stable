@@ -97,7 +97,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-4.5.11-Linux-x86_64.sh -O ~/miniconda.sh && \
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda2-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /tool_deps/_conda/ && \
     rm ~/miniconda.sh && \
     ln -s /tool_deps/_conda/etc/profile.d/conda.sh /etc/profile.d/conda.sh && \
@@ -149,7 +149,7 @@ RUN ansible-playbook /ansible/postgresql_provision.yml && \
     --extra-vars supervisor_postgres_config_path=$PG_CONF_DIR_DEFAULT/postgresql.conf \
     --extra-vars supervisor_postgres_autostart=false \
     --extra-vars nginx_use_remote_header=True \
-    --tags=galaxyextras,cvmfs -c local && \
+    --tags=galaxyextras,cvmfs --skip-tags=ie -c local && \
     apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
     rm -rf ~/.cache/ /galaxy-central/client/node_modules/
 
