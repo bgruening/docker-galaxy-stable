@@ -201,11 +201,12 @@ ADD welcome.html $GALAXY_CONFIG_DIR/web/welcome.html
 RUN ./scripts/common_startup.sh && \
     export PATH=GALAXY_CONDA_PREFIX/bin/:$PATH && \
     . $GALAXY_VIRTUAL_ENV/bin/activate && \
-    python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed && \
+    python ./scripts/manage_tool_dependencies.py -c "$GALAXY_CONFIG_FILE" init_if_needed 
+    ##&& \
     # Install all required Node dependencies. This is required to get proxy support to work for Interactive Environments
-    cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
-    npm install && \
-    rm -rf ~/.cache/ /galaxy-central/client/node_modules/
+    ##cd $GALAXY_ROOT/lib/galaxy/web/proxy/js && \
+    ##npm install && \
+    ##rm -rf ~/.cache/ /galaxy-central/client/node_modules/
 
 # Switch back to User root
 USER root
