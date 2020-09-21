@@ -54,6 +54,8 @@ GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 LC_ALL=en_US.UTF-8 \
 LANG=en_US.UTF-8 \
+PIP_EXTRA_INDEX_URL=https://pypi.python.org/simple \
+PIP_INDEX_URL=https://wheels.galaxyproject.org/simple/ \
 GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda
 
 RUN locale-gen en_US.UTF-8 && dpkg-reconfigure locales
