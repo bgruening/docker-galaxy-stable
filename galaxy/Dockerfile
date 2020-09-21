@@ -88,9 +88,8 @@ RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup && \
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID && \
     useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" $GALAXY_USER && \
     mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR && \
-    gpasswd -a $GALAXY_USER docker && \
-    adduser condor docker
-
+    gpasswd -a $GALAXY_USER docker
+ 
 ADD ./bashrc $GALAXY_HOME/.bashrc
 
 # Install miniconda, then virtualenv from conda and then
