@@ -61,7 +61,7 @@ before_install:
     INSTALL_REPO_ARG=""
     SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
     cd "$WORKING_DIR"
-    docker build -t quay.io/bgruening/galaxy galaxy/
+    travis_wait 45 docker build -t quay.io/bgruening/galaxy galaxy/
 
     container_size_check   quay.io/bgruening/galaxy  1500
 
