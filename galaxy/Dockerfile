@@ -187,6 +187,8 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     # Configure Galaxy to use the Tool Shed
     && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
     && apt update -qq && apt install --no-install-recommends -y ansible \
+    # Including python3 distutils
+    && apt-get install python3-distutils \
     && ansible-playbook /ansible/provision.yml \
         --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
         --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
