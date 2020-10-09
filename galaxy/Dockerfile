@@ -100,7 +100,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get install git --no-install-recommends -y \
     && apt-get install gridengine-common gridengine-drmaa1.0 --no-install-recommends -y \
     && apt-get install rabbitmq-server --no-install-recommends -y \
-    && apt-get install --no-install-recommends -y libswitch-perl supervisor \
+    && apt-get install --no-install-recommends -y libswitch-perl supervisor python3-distutils \
     && apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal  \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ \
@@ -187,8 +187,6 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     # Configure Galaxy to use the Tool Shed
     && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
     && apt update -qq && apt install --no-install-recommends -y ansible \
-    # Including python3 distutils
-    && apt-get install python3-distutils \
     && ansible-playbook /ansible/provision.yml \
         --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
         --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
