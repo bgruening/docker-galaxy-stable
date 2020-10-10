@@ -3,9 +3,14 @@ on: [push]
 jobs:
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7]
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-
+    - uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python-version }}
     - name: Build and Test
       run: bash .github/workflows/single.sh
