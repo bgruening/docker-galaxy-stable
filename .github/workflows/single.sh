@@ -1,6 +1,6 @@
 #!/bin/bash
-
 set -e
+
 export GALAXY_HOME=/home/galaxy
 export GALAXY_USER=admin@galaxy.org
 export GALAXY_USER_EMAIL=admin@galaxy.org
@@ -26,7 +26,7 @@ container_size_check () {
 
     # check that the image size is not growing too much between releases
     # the 19.05 monolithic image was around 1.500 MB
-    size=`docker image inspect $1 --format='{{.Size}}'`
+    size="${docker image inspect $1 --format='{{.Size}}'}"
     size_in_mb=$(($size/(1024*1024)))
     if [[ $size_in_mb -ge $2 ]]
     then
@@ -39,7 +39,6 @@ container_size_check () {
 export WORKING_DIR=${GITHUB_WORKSPACE:-$PWD}
 
 export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
-INSTALL_REPO_ARG=""
 SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
 cd "$WORKING_DIR"
 docker build -t quay.io/bgruening/galaxy galaxy/
@@ -49,7 +48,7 @@ mkdir local_folder
 docker run -d -p 8080:80 -p 8021:21 -p 8022:22 \
     --name galaxy \
     --privileged=true \
-    -v `pwd`/local_folder:/export/ \
+    -v "$(pwd)/local_folder:/export/" \
     -e GALAXY_CONFIG_ALLOW_USER_DATASET_PURGE=True \
     -e GALAXY_CONFIG_ALLOW_LIBRARY_PATH_PASTE=True \
     -e GALAXY_CONFIG_ENABLE_USER_DELETION=True \
@@ -61,22 +60,22 @@ sleep 30
 docker logs galaxy
 # Define start functions
 docker_exec() {
-      cd $WORKING_DIR
+      cd "$WORKING_DIR"
       docker exec -t -i galaxy "$@"
 }
 docker_exec_run() {
-   cd $WORKING_DIR
+   cd "$WORKING_DIR"
    docker run quay.io/bgruening/galaxy "$@"
 }
 docker_run() {
-   cd $WORKING_DIR
+   cd "$WORKING_DIR"
    docker run "$@"
 }
 
 docker ps
 
 # Test submitting jobs to an external slurm cluster
-cd ${WORKING_DIR}/test/slurm/ && bash test.sh && cd $WORKING_DIR
+cd "${WORKING_DIR}/test/slurm/" && bash test.sh && cd "$WORKING_DIR"
 
 # Test submitting jobs to an external gridengine cluster
 # TODO 19.05, need to enable this again!
@@ -96,7 +95,8 @@ docker_run -d --name httpstest -p 443:443 -e "USE_HTTPS=True" $DOCKER_RUN_CONTAI
 docker logs httpstest && docker stop httpstest && docker rm httpstest
 
 # Test FTP Server upload
-date > time.txt && curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
+date > time.txt
+curl -v --fail -T time.txt ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD || true
 # Test FTP Server get
 curl -v --fail ftp://localhost:8021 --user $GALAXY_USER:$GALAXY_USER_PASSWD
 
@@ -109,7 +109,7 @@ docker_exec bash -c "ls /cvmfs/data.galaxyproject.org/byhand"
 sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
 
 # Run a ton of BioBlend test against our servers.
-cd $WORKING_DIR/test/bioblend/ && . ./test.sh && cd $WORKING_DIR/
+cd "$WORKING_DIR/test/bioblend/" && . ./test.sh && cd "$WORKING_DIR/"
 
 # not working anymore in 18.01
 # executing: /galaxy_venv/bin/uwsgi --yaml /etc/galaxy/galaxy.yml --master --daemonize2 galaxy.log --pidfile2 galaxy.pid  --log-file=galaxy_install.log --pid-file=galaxy_install.pid
