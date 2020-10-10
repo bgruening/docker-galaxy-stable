@@ -1,7 +1,7 @@
 name: Single Container Test
 on: [push]
 jobs:
-  lint:
+  build_and_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
