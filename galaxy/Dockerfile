@@ -16,8 +16,8 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.05} \
-GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.09} \
+GALAXY_REPO=${GALAXY_REPO:-https://github.com/bgruening/galaxy} \
 GALAXY_ROOT=/galaxy-central \
 GALAXY_CONFIG_DIR=/etc/galaxy \
 EXPORT_DIR=/export \
@@ -69,6 +69,7 @@ GALAXY_HANDLER_NUMPROCS=2 \
 # Setting a standard encoding. This can get important for things like the unix sort tool.
 LC_ALL=en_US.UTF-8 \
 LANG=en_US.UTF-8 \
+NODE_OPTIONS=--max-old-space-size=4096 \
 GALAXY_CONDA_PREFIX=/tool_deps/_conda
 
 # 16MB
@@ -118,7 +119,7 @@ ADD ./bashrc $GALAXY_HOME/.bashrc
 # Install miniconda, then virtualenv from conda and then
 # download latest stable release of Galaxy.
 
-RUN curl -s -L https://repo.continuum.io/miniconda/Miniconda3-4.7.10-Linux-x86_64.sh > ~/miniconda.sh \
+RUN curl -s -L https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.3-Linux-x86_64.sh > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
     && rm ~/miniconda.sh \
     && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
