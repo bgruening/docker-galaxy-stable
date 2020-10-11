@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -ex
 
 export GALAXY_HOME=/home/galaxy
 export GALAXY_USER=admin@galaxy.org
