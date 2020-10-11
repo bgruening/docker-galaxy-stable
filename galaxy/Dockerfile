@@ -213,6 +213,8 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
         --tags=galaxyextras,cvmfs -c local \
     # TODO: no clue why this is needed here again
     && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
+    && cd config && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + \
+    && find . -name '.cache' -type d -prune -exec rm -rf '{}' + \
     && cd / \
     && rm $PG_DATA_DIR_DEFAULT -rf \
     && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT --dbversion $PG_VERSION \
