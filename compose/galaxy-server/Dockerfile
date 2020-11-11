@@ -4,9 +4,6 @@ ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:18.04 as build_base
 
-ARG GALAXY_RELEASE=release_20.05
-ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
-
 ENV EXPORT_DIR=/export \
     GALAXY_ROOT=/galaxy \
     HTCONDOR_ROOT=/opt/htcondor
@@ -52,6 +49,10 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
     && /usr/bin/common_cleanup.sh
 
 FROM build_base as build_galaxy
+
+ARG GALAXY_RELEASE=release_20.05
+ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
+
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Galaxy
 RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libssl-dev python3-dev python3-pip -y \
@@ -72,6 +73,9 @@ RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libss
 # --- Final image ---
 FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-cluster-base:$IMAGE_TAG as final
 
+ARG GALAXY_RELEASE=release_20.05
+ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
+
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 COPY ./files/create_galaxy_user.py /usr/local/bin/create_galaxy_user.py
 
@@ -80,9 +84,7 @@ ENV EXPORT_DIR=/export \
     GALAXY_PYTHON=/usr/bin/python3 \
     HTCONDOR_ROOT=/opt/htcondor
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.05} \
-    GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
-    GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
+ENV GALAXY_STATIC_DIR=$GALAXY_ROOT/static \
     GALAXY_EXPORT=$EXPORT_DIR/galaxy \
     GALAXY_CONFIG_DIR=$GALAXY_ROOT/config \
     GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=/tool_deps \
