@@ -6,7 +6,7 @@ services:
       - GALAXY_JOB_RUNNER=chronos
       - CHRONOS_CONFIG_CHRONOS_HOST=192.168.178.27
       - CHRONOS_CONFIG_CHRONOS_HTTP_PORT=4400
-      - CHRONOS_CONFIG_VOLUMES=/export/galaxy/database
+      - CHRONOS_CONFIG_VOLUMES=${EXPORT_DIR}/galaxy:/galaxy:RW
   zookeeper:
     image: indigodatacloud/zookeeper
     network_mode: host
@@ -40,11 +40,11 @@ services:
       MESOS_HOSTNAME: ${DOCKER_IP}
       LIBPROCESS_IP: ${DOCKER_IP}
       MESOS_WORK_DIR: /tmp/mesos
-      MESOS_SYSTEMD_ENABLE_SUPPORT: "false"
     volumes:
       - /sys/fs/cgroup:/sys/fs/cgroup
       - /var/run/docker.sock:/var/run/docker.sock
       - /tmp/mesos:/tmp/mesos
+      - ${EXPORT_DIR}/galaxy:${EXPORT_DIR}/galaxy
     depends_on:
       - zookeeper
       - mesos_master
@@ -60,3 +60,4 @@ services:
       - CHRONOS_ZK_PATH=/chronos/state
       - CHRONOS_MESOS_FRAMEWORK_NAME=chronos
       - CHRONOS_HTTP_CREDENTIALS=admin:s3cret
+      - CHRONOS_DISABLE_AFTER_FAILURES=2
