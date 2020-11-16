@@ -215,7 +215,7 @@ then
 else
     # Configure SLURM with runtime hostname.
     # Use absolute path to python so virtualenv is not used.
-    /usr/bin/python /usr/sbin/configure_slurm.py
+    /usr/bin/python3 /usr/sbin/configure_slurm.py
 fi
 if [ -e /export/munge.key ]
 then

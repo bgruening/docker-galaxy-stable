@@ -2,7 +2,7 @@
 #
 # VERSION       Galaxy-central
 
-FROM ubuntu:18.04
+FROM galaxy/galaxy-min:latest
 
 MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 
@@ -13,12 +13,8 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 # * the playbooks are not cleaning anything up
 # * autofs is big and should be installed during startup, only in case --priv is enables ?
 #
-ARG GALAXY_RELEASE
-ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.09} \
-GALAXY_REPO=${GALAXY_REPO:-https://github.com/bgruening/galaxy} \
-GALAXY_ROOT=/galaxy-central \
+ENV GALAXY_ROOT=/galaxy/server \
 GALAXY_CONFIG_DIR=/etc/galaxy \
 EXPORT_DIR=/export \
 DEBIAN_FRONTEND=noninteractive \
@@ -32,7 +28,7 @@ GALAXY_CONFIG_TOOL_DATA_TABLE_CONFIG_PATH=/etc/galaxy/tool_data_table_conf.xml \
 GALAXY_CONFIG_WATCH_TOOL_DATA_DIR=True \
 GALAXY_CONFIG_TOOL_DEPENDENCY_DIR=$EXPORT_DIR/tool_deps \
 GALAXY_CONFIG_TOOL_PATH=$EXPORT_DIR/galaxy-central/tools \
-GALAXY_VIRTUAL_ENV=/galaxy_venv \
+GALAXY_VIRTUAL_ENV=/galaxy/server/.venv \
 GALAXY_USER=galaxy \
 GALAXY_UID=1450 \
 GALAXY_GID=1450 \
@@ -72,18 +68,12 @@ LANG=en_US.UTF-8 \
 NODE_OPTIONS=--max-old-space-size=4096 \
 GALAXY_CONDA_PREFIX=/tool_deps/_conda
 
-# 16MB
-RUN echo "force-unsafe-io" > /etc/dpkg/dpkg.cfg.d/02apt-speedup \
-    && echo "Acquire::http {No-Cache=True;};" > /etc/apt/apt.conf.d/no-cache \
-    && apt-get -qq update && apt-get install --no-install-recommends -y locales \
-    && locale-gen en_US.UTF-8 && dpkg-reconfigure locales \
-    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* ~/.cache/ \
-    && rm -rf /tmp/* /root/.cache/ /var/cache/* /galaxy-central/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
+USER root
 
 # Create the postgres user before apt-get does (with the configured UID/GID) to facilitate sharing $EXPORT_DIR/postgresql with non-Linux hosts
 RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && adduser --system --quiet --home /var/lib/postgresql --no-create-home --shell /bin/bash --gecos "" --uid $GALAXY_POSTGRES_UID --gid $GALAXY_POSTGRES_GID postgres \
-    && apt-get -qq update && apt-get install --no-install-recommends -y software-properties-common gpg-agent curl sudo \
+    && apt-get -qq update && apt-get install --no-install-recommends -y software-properties-common gpg-agent sudo \
     && curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add - \
     && add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" \
     && sudo add-apt-repository ppa:natefoo/slurm-drmaa \
@@ -102,14 +92,14 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get install gridengine-common gridengine-drmaa1.0 --no-install-recommends -y \
     && apt-get install rabbitmq-server --no-install-recommends -y \
     && apt-get install --no-install-recommends -y libswitch-perl supervisor \
-    && apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal  \
+    && apt-get purge -y software-properties-common gpg-agent apt-transport-https  \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ \
     # we will recreate this later
     ## && rm -rf $PG_DATA_DIR_DEFAULT \
-    && groupadd -r $GALAXY_USER -g $GALAXY_GID \
-    && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
-    && mkdir $EXPORT_DIR $GALAXY_HOME $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
+    && groupmod -g $GALAXY_GID $GALAXY_USER \
+    && usermod -u $GALAXY_UID -g $GALAXY_GID -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
+    && mkdir $EXPORT_DIR $GALAXY_LOGS_DIR && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_HOME $EXPORT_DIR $GALAXY_LOGS_DIR \
     # cleanup dance
     && find /usr/lib/ -name '*.pyc' -delete \
     && rm -rf /tmp/* /root/.cache/ /var/cache/* $GALAXY_ROOT/client/node_modules/ $GALAXY_VIRTUAL_ENV/src/ /home/galaxy/.cache/ /home/galaxy/.npm/
@@ -123,8 +113,8 @@ RUN curl -s -L https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.3-Linux-x
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX/ \
     && rm ~/miniconda.sh \
     && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
-    && echo ". $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc \
-    && echo "conda activate base" >> $GALAXY_HOME/.bashrc \
+    #&& echo ". $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh" >> $GALAXY_HOME/.bashrc \
+    #&& echo "conda activate base" >> $GALAXY_HOME/.bashrc \
     && export PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH \
     && conda config --add channels defaults \
     && conda config --add channels bioconda \
@@ -140,10 +130,7 @@ RUN curl -s -L https://repo.anaconda.com/miniconda/Miniconda3-py37_4.8.3-Linux-x
 
 
 RUN cp $GALAXY_HOME/.bashrc ~/
-RUN mkdir $GALAXY_ROOT \
-    && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
-    && PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
-    && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
+RUN chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
     # Setup Galaxy configuration files.
     && mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web \
@@ -165,7 +152,7 @@ ADD postgresql_provision.yml /ansible/postgresql_provision.yml
 
 ## This is playbook is modifying/installing python2 and python3 stuff
 RUN apt update -qq && apt install --no-install-recommends -y ansible dirmngr gpg gpg-agent \
-    && ansible-playbook /ansible/postgresql_provision.yml \
+    && /usr/bin/python3 /usr/bin/ansible-playbook /ansible/postgresql_provision.yml \
     && apt purge ansible dirmngr gpg gpg-agent -y && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* \
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
@@ -187,8 +174,9 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && ln -s /tool_deps/ $EXPORT_DIR/tool_deps \
     # Configure Galaxy to use the Tool Shed
     && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
-    && apt update -qq && apt install --no-install-recommends -y ansible \
-    && ansible-playbook /ansible/provision.yml \
+    && apt update -qq && apt install --no-install-recommends -y ansible gpg gpg-agent python3-setuptools \
+    &&  /usr/bin/python3 /usr/bin/ansible-playbook /ansible/provision.yml \
+        --extra-vars galaxy_server_dir=$GALAXY_ROOT \
         --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
         --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
         --extra-vars galaxy_user_name=$GALAXY_USER \
