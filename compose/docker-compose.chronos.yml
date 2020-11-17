@@ -1,0 +1,74 @@
+# Extend Galaxy to run jobs on Mesos
+version: '3.7'
+services:
+  galaxy-configurator:
+    environment:
+      - GALAXY_JOB_RUNNER=chronos
+      - CHRONOS_CONFIG_CHRONOS_HOST=chronos
+      - CHRONOS_CONFIG_CHRONOS_HTTP_PORT=4400
+      - CHRONOS_CONFIG_VOLUMES=${EXPORT_DIR}/galaxy:/galaxy:RW
+  zookeeper:
+    image: indigodatacloud/zookeeper
+    environment:
+      - MYID=1
+      - SERVERS=localhost
+    ports:
+     - "2181:2181"
+     - "2888:2888"
+     - "3888:3888"
+    networks:
+      - galaxy
+  mesosmaster:
+    image: indigodatacloud/mesos-master:1.9.0
+    ports:
+      - "5050:5050"
+    environment:
+      - MESOS_HOSTNAME=mesosmaster
+      - MESOS_CLUSTER=Mesos
+      - MESOS_ZK=zk://zookeeper:2181/mesos
+      - MESOS_LOG_DIR=/var/log/mesos
+      - MESOS_QUORUM=1
+      - MESOS_WORK_DIR=/var/lib/mesos
+      - MESOS_OFFER_TIMEOUT=30secs
+    depends_on:
+      - zookeeper
+    networks:
+      - galaxy
+  mesosslave:
+    image: indigodatacloud/mesos-slave:1.9.0
+    ports:
+      - "5051:5051"
+    pid: host
+    privileged: true
+    environment:
+      MESOS_MASTER: zk://zookeeper:2181/mesos
+      MESOS_CONTAINERIZERS: docker,mesos
+      MESOS_PORT: 5051
+      MESOS_RESOURCES: ports(*):[11000-11999]
+      MESOS_HOSTNAME: mesosslave
+      MESOS_WORK_DIR: /tmp/mesos
+    volumes:
+      - /sys/fs/cgroup:/sys/fs/cgroup
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /tmp/mesos:/tmp/mesos
+      - ${EXPORT_DIR}/galaxy:${EXPORT_DIR}/galaxy
+    depends_on:
+      - zookeeper
+      - mesosmaster
+    networks:
+      - galaxy
+  chronos:
+    image: indigodatacloud/chronos:3.0.2_gpu
+    ports:
+      - "4400:4400"
+    environment:
+      - CHRONOS_HOSTNAME=chronos
+      - CHRONOS_HTTP_PORT=4400
+      - CHRONOS_MASTER=zk://zookeeper:2181/mesos
+      - CHRONOS_ZK_HOSTS=zk://zookeeper:2181
+      - CHRONOS_ZK_PATH=/chronos/state
+      - CHRONOS_MESOS_FRAMEWORK_NAME=chronos
+      - CHRONOS_HTTP_CREDENTIALS=admin:s3cret
+      - CHRONOS_DISABLE_AFTER_FAILURES=2
+    networks:
+      - galaxy

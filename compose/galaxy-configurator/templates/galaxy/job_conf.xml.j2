@@ -25,6 +25,15 @@
           <param id="k8s_persistent_volume_claims">{{ GALAXY_K8S_PVC | default('galaxy-root:/galaxy,galaxy-database:/galaxy/database,galaxy-tool-deps:/tool_deps') }}</param>
         </plugin>
         {% endif -%}
+        {% if GALAXY_JOB_RUNNER == 'chronos' -%}
+        <plugin id="chronos" type="runner" load="galaxy.jobs.runners.chronos:ChronosJobRunner">
+          <param id="chronos">{{ CHRONOS_CONFIG_CHRONOS_HOST }}:{{ CHRONOS_CONFIG_CHRONOS_HTTP_PORT }}</param>
+          <param id="owner">foo@bar.com</param>
+          <param id="username">admin</param>
+          <param id="password">s3cret</param>
+          <param id="insecure">true</param>
+        </plugin>
+        {% endif -%}
     </plugins>
     <destinations default="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}">
         <destination id="local" runner="local">
@@ -61,6 +70,14 @@
               <param id="docker_image_default">{{ GALAXY_K8S_DOCKER_IMAGE_DEFAULT | default('ubuntu') }}</param>
               <param id="docker_tag_default">{{ GALAXY_K8S_DOCKER_TAG_DEFAULT | default('18.04') }}</param>
               <param id="docker_enabled">true</param>
+            {% endif -%}
+            {% if GALAXY_JOB_RUNNER == 'chronos' -%}
+              <param id="docker_enabled">true</param>
+              <param id="docker_memory">512</param>
+              <param id="docker_cpu">2</param>
+              <param id="volumes">{{ CHRONOS_CONFIG_VOLUMES }}</param>
+              <param id="max_retries">2</param>
+              <!-- Number of retries to attempt if a command returns a non-zero status -->
             {% endif -%}
         </destination>
     </destinations>
