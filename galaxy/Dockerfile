@@ -102,6 +102,7 @@ RUN groupadd -r postgres -g $GALAXY_POSTGRES_GID \
     && apt-get install rabbitmq-server --no-install-recommends -y \
     && apt-get install --no-install-recommends -y libswitch-perl supervisor \
     && apt-get purge -y software-properties-common gpg-agent apt-transport-https python3-minimal  \
+    && apt-get install netcat -y \
     && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     && mkdir -p /etc/supervisor/conf.d/ /var/log/supervisor/ \
     # we will recreate this later
