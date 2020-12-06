@@ -1,0 +1,17 @@
+# Extend Galaxy to run jobs on Kubernetes via Pulsar.
+# Note that this extension is a work in progress.
+# Example: `docker-compose -f docker-compose.yml -f docker-compose.kubernetes.yml up`
+# Test Example: `docker-compose -f docker-compose.yml -f docker-compose.kubernetes.yml -f tests/docker-compose.test.yml -f tests/docker-compose.test.workflows.yml up`
+version: "3.7"
+services:
+  galaxy-configurator:
+    environment:
+      - GALAXY_JOB_RUNNER=k8s
+      - GALAXY_KUBECONFIG=/kube/config
+    volumes:
+      - ${EXPORT_DIR:-./kube}/:/kube
+  galaxy-server:
+    environment:
+      - KIND_CONF_DIR=/kube
+    volumes:
+      - ${EXPORT_DIR:-./kube}/:/kube
