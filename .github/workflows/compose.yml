@@ -238,7 +238,7 @@ jobs:
         run: echo "IMAGE_TAG=latest" >> $GITHUB_ENV
       - name: Set WORKFLOWS env for worfklows-test
         if: matrix.test.workflow
-        run: echo "WORKFLOWS=${{ matrix.test.workflow }}" $GITHUB_ENV
+        run: echo "WORKFLOWS=${{ matrix.test.workflow }}" >> $GITHUB_ENV
       - name: Run tests for the first time
         if: steps.run_check.outputs.run
         run: |
