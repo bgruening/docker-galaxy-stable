@@ -108,7 +108,7 @@ jobs:
         uses: actions/checkout@v2
       - name: Set WORKFLOWS env for worfklows-test
         if: matrix.test.workflow
-        run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
+        run: echo "WORKFLOWS=${{ matrix.test.workflow }}" >> $GITHUB_ENV
       - name: Build galaxy-container-base
         env:
           image_name: galaxy-container-base
