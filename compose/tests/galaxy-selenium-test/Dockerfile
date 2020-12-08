@@ -4,10 +4,10 @@ ARG GALAXY_RELEASE=release_20.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV GALAXY_ROOT=/galaxy
-ENV GALAXY_PYTHON=/usr/bin/python
+ENV GALAXY_PYTHON=/usr/bin/python3
 
 USER root
-RUN apt update && apt install --no-install-recommends python-dev python-pip -y && rm -rf /var/lib/apt/lists/* \
+RUN apt update && apt install --no-install-recommends python3-dev python3-pip -y && rm -rf /var/lib/apt/lists/* \
     && mkdir "${GALAXY_ROOT}" \
     && chown seluser "${GALAXY_ROOT}"
 
