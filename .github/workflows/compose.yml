@@ -2,7 +2,7 @@ name: build-and-test
 on: [push]
 jobs:
   build_container_base:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
