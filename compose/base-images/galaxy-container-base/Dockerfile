@@ -26,7 +26,7 @@ FROM ubuntu:20.04 as final
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
 # Base dependencies
-RUN apt update && apt install --no-install-recommends ca-certificates squashfs-tools -y \
+RUN apt update && apt install --no-install-recommends ca-certificates python3-distutils squashfs-tools -y \
     && /usr/bin/common_cleanup.sh
 
 # Install Docker
