@@ -20,8 +20,8 @@ ENV MUNGER_USER=munge \
     MUNGE_GID=1200
 RUN groupadd -r $MUNGER_USER -g $MUNGE_GID \
     && useradd -u $MUNGE_UID -r -g $MUNGER_USER $MUNGER_USER \
-    && echo "deb http://ppa.launchpad.net/natefoo/slurm-drmaa/ubuntu bionic main" >> /etc/apt/sources.list \
-    && echo "deb-src http://ppa.launchpad.net/natefoo/slurm-drmaa/ubuntu bionic main" >> /etc/apt/sources.list \
+    && echo "deb http://ppa.launchpad.net/natefoo/slurm-drmaa/ubuntu focal main" >> /etc/apt/sources.list \
+    && echo "deb-src http://ppa.launchpad.net/natefoo/slurm-drmaa/ubuntu focal main" >> /etc/apt/sources.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8DE68488997C5C6BA19021136F2CC56412788738 \
     && apt update \
     && apt install --no-install-recommends slurm-client slurmd slurmctld slurm-drmaa1 -y \
