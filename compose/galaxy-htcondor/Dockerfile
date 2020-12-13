@@ -2,7 +2,7 @@ ARG DOCKER_REGISTRY=quay.io
 ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
-FROM buildpack-deps:18.04 as galaxy_dependencies
+FROM buildpack-deps:20.04 as galaxy_dependencies
 
 ARG GALAXY_RELEASE=release_20.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
