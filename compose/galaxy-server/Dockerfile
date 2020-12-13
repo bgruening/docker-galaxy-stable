@@ -25,7 +25,7 @@ ENV GALAXY_USER=galaxy \
     GALAXY_HOME=/home/galaxy
 
 ENV GALAXY_CONDA_PREFIX=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda \
-    MINICONDA_VERSION=4.7.10
+    MINICONDA_VERSION=py38_4.9.2
 
 RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
     && useradd -u $GALAXY_UID -r -g $GALAXY_USER -d $GALAXY_HOME -c "Galaxy user" --shell /bin/bash $GALAXY_USER \
@@ -35,7 +35,7 @@ RUN groupadd -r $GALAXY_USER -g $GALAXY_GID \
 FROM build_base as build_miniconda
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Miniconda
-RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSION}-Linux-x86_64.sh" > ~/miniconda.sh \
+RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda3-${MINICONDA_VERSION}-Linux-x86_64.sh" > ~/miniconda.sh \
     && /bin/bash ~/miniconda.sh -b -p $GALAXY_CONDA_PREFIX \
     && rm ~/miniconda.sh \
     && ln -s $GALAXY_CONDA_PREFIX/etc/profile.d/conda.sh /etc/profile.d/conda.sh \
