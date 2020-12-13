@@ -13,7 +13,6 @@ galaxy_uwsgi:
   die-on-term: true
   hook-master-start: unix_signal:2 gracefully_kill_them_all
   hook-master-start: unix_signal:15 gracefully_kill_them_all
-  py-call-osafterfork: true
   enable-threads: true
 
 galaxy:
