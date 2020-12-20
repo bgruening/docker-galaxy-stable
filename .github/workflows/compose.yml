@@ -120,7 +120,7 @@ jobs:
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
             --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
             --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
-            --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
+            --build-arg GALAXY_REPO=https://github.com/galaxyproject/galaxy \
             ${{ matrix.image.subdir }}${{ matrix.image.name }} && break || echo "Fail.. Retrying"
           done;
         shell: bash
