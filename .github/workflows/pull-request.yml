@@ -142,7 +142,7 @@ jobs:
             echo "Removing export directory if existent";
             sudo rm -rf export
             set +e
-            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} build --build-arg IMAGE_TAG=ci-testing --build-arg GALAXY_REPO=https://github.com/galaxyproject/galaxy
+            docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} build --build-arg IMAGE_TAG=ci-testing --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy
             docker-compose ${{ matrix.infrastructure.files }} ${{ matrix.test.files }} up ${{ matrix.infrastructure.options }} --exit-code-from ${{ matrix.test.exit-from }}
             test_exit_code=$?
             error_exit_codes_count=$(expr $(docker ps -a --filter exited=1 | wc -l) - 1)
