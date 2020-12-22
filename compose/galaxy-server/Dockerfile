@@ -56,6 +56,7 @@ ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 # Install Galaxy
 RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libssl-dev python3-dev python3-pip -y \
+    && update-alternatives --install /usr/bin/python python /usr/bin/python3 9 \
     && mkdir "${GALAXY_ROOT}" \
     && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
     && cd $GALAXY_ROOT \
@@ -119,7 +120,7 @@ RUN apt update && apt install --no-install-recommends curl gcc gnupg2 libgomp1 l
 RUN usermod -aG docker $GALAXY_USER
 
 # Make Python3 standard
-RUN ln /usr/bin/python3 /usr/bin/python
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
 
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}

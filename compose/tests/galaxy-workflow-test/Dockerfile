@@ -10,6 +10,8 @@ RUN apk add --no-cache bash python3 curl \
     && curl -L -s $TEST_REPO/archive/$TEST_RELEASE.tar.gz | tar xzf - --strip-components=1 \
     && apk del build-dep
 
+# Make Python3 standard
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9
 ADD ./run.sh /usr/bin/run.sh
 
 WORKDIR /src
