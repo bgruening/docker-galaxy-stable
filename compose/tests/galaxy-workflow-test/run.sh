@@ -19,5 +19,6 @@ do
     "$workflow"; then
     echo "test output json"
     cat /galaxy/database/tool_test_output.json
+    exit 1
   fi
 done
