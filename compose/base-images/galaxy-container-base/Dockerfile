@@ -29,10 +29,6 @@ COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 RUN apt update && apt install --no-install-recommends ca-certificates python3-distutils squashfs-tools -y \
     && /usr/bin/common_cleanup.sh
 
-# Make Python3 standard
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
-RUN update-alternatives --install /usr/bin/python2 python2 /usr/bin/python3 9 
-
 # Install Docker
 RUN apt update \
     && apt install --no-install-recommends docker.io -y \

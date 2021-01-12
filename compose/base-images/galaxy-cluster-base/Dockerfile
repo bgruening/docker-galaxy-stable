@@ -14,11 +14,6 @@ RUN apt update && apt install --no-install-recommends htcondor -y \
     && rm /etc/condor/condor_config.local \
     && /usr/bin/common_cleanup.sh
 
-# Make Python3 standard
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
-RUN update-alternatives --install /usr/bin/python2 python2 /usr/bin/python3 9 
-
-
 # Install Slurm client
 ENV MUNGER_USER=munge \
     MUNGE_UID=1200 \
