@@ -24,7 +24,8 @@ declare -A exports=( ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
                      ["$GALAXY_CONFIG_TOOL_PATH"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH" \
                      ["$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR" \
                      ["$GALAXY_CONFIG_TOOL_DATA_PATH"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DATA_PATH" \
-                     ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" )
+                     ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" \
+                     ["/galaxy/lib/galaxy/tools"]="$EXPORT_DIR//galaxy/lib/galaxy/tools" )
 
 # shellcheck disable=SC2143,SC2086,SC2010
 for galaxy_dir in "${!exports[@]}"; do
