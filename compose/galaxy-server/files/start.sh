@@ -13,6 +13,14 @@ create_user() {
   deactivate
 }
 
+echo "start copy lib/tools --------------------------------------------"
+MY_DIR="/galaxy/lib/galaxy/tools/"
+exp_dir="/export$MY_DIR"
+mkdir -p $exp_dir
+chown "$GALAXY_USER:$GALAXY_USER" $exp_dir
+cp -rf $MY_DIR/* $exp_dir
+echo "end copy lib/tools --------------------------------------------"
+
 # First start?? Check if something exists that indicates that environment is not new.. Config file? Something in DB maybe??
 
 echo "Initialization: Check if files already exist, export otherwise."
@@ -24,8 +32,7 @@ declare -A exports=( ["$GALAXY_STATIC_DIR"]="$EXPORT_DIR/$GALAXY_STATIC_DIR" \
                      ["$GALAXY_CONFIG_TOOL_PATH"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_PATH" \
                      ["$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR" \
                      ["$GALAXY_CONFIG_TOOL_DATA_PATH"]="$EXPORT_DIR/$GALAXY_CONFIG_TOOL_DATA_PATH" \
-                     ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" \
-                     ["/galaxy/lib/galaxy/tools"]="$EXPORT_DIR//galaxy/lib/galaxy/tools" )
+                     ["$GALAXY_VIRTUAL_ENV"]="$EXPORT_DIR/$GALAXY_VIRTUAL_ENV" )
 
 # shellcheck disable=SC2143,SC2086,SC2010
 for galaxy_dir in "${!exports[@]}"; do
