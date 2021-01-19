@@ -37,6 +37,9 @@ RUN apt update \
     && apt install --no-install-recommends ca-certificates curl libxml2-dev python3 -y \
     && /usr/bin/common_cleanup.sh
 
+# Make Python3 standard
+RUN ln -sf /usr/bin/python3 /usr/bin/python && ln -sf /usr/bin/python3 /usr/bin/python2
+
 COPY --from=build_pulsar /pulsar /pulsar
 
 COPY docker-entrypoint.sh /docker-entrypoint.sh
