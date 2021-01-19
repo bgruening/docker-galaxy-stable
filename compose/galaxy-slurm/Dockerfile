@@ -17,7 +17,7 @@ RUN mkdir "${GALAXY_ROOT}" \
     && cd $GALAXY_ROOT/lib \
     && ls . | grep -v "galaxy\|galaxy_ext" | xargs rm -rf \
     && cd $GALAXY_ROOT/lib/galaxy \
-    && ls . | grep -v "__init__.py\|datatypes\|files\|exceptions\|metadata\|model\|util\|security" | xargs rm -rf
+    && ls . | grep -v "__init__.py\|datatypes\|exceptions\|files\|metadata\|model\|util\|security" | xargs rm -rf
 
 
 FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-container-base:$IMAGE_TAG as final
