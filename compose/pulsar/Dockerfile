@@ -13,11 +13,13 @@ ENV PULSAR_VIRTUALENV=$PULSAR_ROOT/.venv
 RUN apt update \
     && apt install --no-install-recommends curl python3 python3-dev python3-pip python3-setuptools python3-venv -y
 
+# TODO: delete, just a test
+RUN ls 
+
 # Apparently wheel needs to be installed first if not the bdist_wheel dependency is not available for other installs.
 RUN mkdir /tmp/pulsar \
     && curl -L -s $PULSAR_REPO/archive/$PULSAR_RELEASE.tar.gz | tar xzf - --strip-components=1 -C /tmp/pulsar \
     && mkdir $PULSAR_ROOT \
-    && pip3 install wheel \
     && python3 -m venv $PULSAR_VIRTUALENV \
     && . $PULSAR_VIRTUALENV/bin/activate \
     && pip3 install wheel \
