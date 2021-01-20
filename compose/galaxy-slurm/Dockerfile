@@ -51,7 +51,7 @@ RUN groupadd -r $MUNGER_USER -g $MUNGE_GID \
 # Copy Galaxy dependencies
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=galaxy_dependencies $GALAXY_ROOT $GALAXY_ROOT
 # Make Python3 standard
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
+RUN ln /usr/bin/python3 /usr/bin/python && ln /usr/bin/python3 /usr/bin/python2
 
 COPY start.sh /usr/bin/start.sh
 

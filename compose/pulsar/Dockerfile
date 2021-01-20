@@ -13,6 +13,9 @@ ENV PULSAR_VIRTUALENV=$PULSAR_ROOT/.venv
 RUN apt update \
     && apt install --no-install-recommends curl python3 python3-dev python3-pip python3-setuptools python3-venv -y
 
+# TODO: delete, just a test
+RUN ls 
+
 # Apparently wheel needs to be installed first if not the bdist_wheel dependency is not available for other installs.
 RUN mkdir /tmp/pulsar \
     && curl -L -s $PULSAR_REPO/archive/$PULSAR_RELEASE.tar.gz | tar xzf - --strip-components=1 -C /tmp/pulsar \
@@ -39,7 +42,7 @@ RUN apt update \
     && /usr/bin/common_cleanup.sh
 
 # Make Python3 standard
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
+RUN ln -sf /usr/bin/python3 /usr/bin/python && ln -sf /usr/bin/python3 /usr/bin/python2
 
 COPY --from=build_pulsar /pulsar /pulsar
 

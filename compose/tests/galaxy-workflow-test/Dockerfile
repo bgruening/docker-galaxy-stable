@@ -14,8 +14,7 @@ RUN apk add --no-cache bash python3 curl \
     && apk del build-dep
 
 # Make Python3 standard
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
-
+RUN ln /usr/bin/python3 /usr/bin/python && ln /usr/bin/python3 /usr/bin/python2
 ADD ./run.sh /usr/bin/run.sh
 
 WORKDIR /src

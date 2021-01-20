@@ -39,7 +39,7 @@ else
 fi
 
 # Create the admin user if not already done
-# Starting with 20.09 this user is only created at first startup of galaxy
+# Starting with 20.05 this user is only created at first startup of galaxy
 # We need to create it here for Galaxy Flavors = installing from Dockerfile
 if [[ ! -z $GALAXY_DEFAULT_ADMIN_USER ]]
     then
