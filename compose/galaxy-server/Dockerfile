@@ -71,7 +71,7 @@ RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libss
               .venv/lib/node_modules .venv/src/node-v10.15.3-linux-x64 \
               .venv/include/node .venv/bin/node .venv/bin/nodeenv \
     && /usr/bin/common_cleanup.sh
-RUN . $GALAXY_ROOT/.venv/bin/activate && pip3 install importlib-metadata importlib-resources pathlib2 ruamel.yaml.clib typing zipp && deactivate
+RUN . $GALAXY_ROOT/.venv/bin/activate && pip3 install bdbag importlib-metadata importlib-resources pathlib2 ruamel.yaml.clib typing zipp && deactivate
 
 # --- Final image ---
 FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-cluster-base:$IMAGE_TAG as final
