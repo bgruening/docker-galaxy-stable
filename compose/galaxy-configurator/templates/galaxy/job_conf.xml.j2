@@ -33,6 +33,7 @@
         <destination id="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}" runner="{{ GALAXY_JOB_RUNNER | default('local') }}">
             {% if GALAXY_DEPENDENCY_RESOLUTION == 'singularity' -%}
               <env id="HOME">/home/galaxy</env>
+              <env file="/galaxy/.venv/bin/activate" />
               <param id="singularity_enabled">true</param>
               {% if GALAXY_JOB_RUNNER == 'local' -%}
                 <param id="singularity_volumes">{{ EXPORT_DIR | regex_replace("^.", "") }}/$galaxy_root:$galaxy_root:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$tool_directory:$tool_directory:ro,{{ EXPORT_DIR | regex_replace("^.", "") }}/$job_directory:$job_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$working_directory:$working_directory:rw,{{ EXPORT_DIR | regex_replace("^.", "") }}/$default_file_path:$default_file_path:rw</param>
