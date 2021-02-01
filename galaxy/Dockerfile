@@ -211,9 +211,9 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
         --extra-vars supervisor_postgres_autostart=false \
         --extra-vars nginx_use_remote_header=True \
         --tags=galaxyextras,cvmfs -c local \
-    && . $GALAXY_VIRTUAL_ENV/bin/activate
-    && pip install WeasyPrint
-    && deactivate
+    && . $GALAXY_VIRTUAL_ENV/bin/activate \
+    && pip install WeasyPrint \
+    && deactivate \
     # TODO: no clue why this is needed here again
     && cd $GALAXY_ROOT && ./scripts/common_startup.sh \
     && cd config && find . -name 'node_modules' -type d -prune -exec rm -rf '{}' + \
