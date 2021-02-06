@@ -1,11 +1,6 @@
 name: build-and-test
 on: [push]
 jobs:
-  echo_workflow_name:
-    runs-on: ubuntu-20.04
-    steps:
-      - name: workflowname
-        run: echo "${GITHUB_WORKFLOW}"
   build_container_base:
     runs-on: ubuntu-20.04
     steps:
