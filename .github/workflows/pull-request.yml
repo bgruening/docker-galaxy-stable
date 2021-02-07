@@ -100,9 +100,6 @@ jobs:
     steps:
       # Self-made `exclude` as Github Actions currently does not support
       # exclude/including of dicts in matrices
-      - name: workflowname
-        id: workflowname
-        run: echo "${GITHUB_WORKFLOW}"
       - name: Check if test should be run
         id: run_check
         if: contains(matrix.infrastructure.exclude_test, matrix.test.name) != true

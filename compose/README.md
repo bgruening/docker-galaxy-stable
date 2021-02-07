@@ -393,3 +393,64 @@ The following are settings specific to this docker-compose setup:
 | `SLURM_NODE_CPUS`         | Number of CPUs per node. Defaults to 1. |
 | `SLURM_NODE_MEMORY`       | Amount of memory per node. Defaults to 1024. |
 | `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose_slurm_node`) to ensure a correct mapping of the Slurm nodes. |
+
+
+### Github Workflow Tests (Branch 20.09)
+| Group                  | Test                  | Outcome |
+|------------------------|-----------------------|---------|
+| Total                  |                       |   ![Actions Status](https://github.com/bgruening/docker-galaxy-stable/workflows/pr-test/badge.svg?branch=20.09) |
+| Galaxy Base            |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+| Galaxy Proxy Prefix    |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+| HTCondor               |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+| Slurm                  |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+| Pulsar                 |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :x: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+| k8s                    |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :x: |
+|                        | selenium              | :heavy_check_mark: |
+| Singularity            |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+| Slurm + Singularity    |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+| HTCondor + Singularity |                       |         |
+|                        | bioblend              | :heavy_check_mark: |
+|                        | workflow ard          | :heavy_check_mark: |
+|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
+|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
+|                        | selenium              | :heavy_check_mark: |
+
