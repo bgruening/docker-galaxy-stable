@@ -395,7 +395,7 @@ The following are settings specific to this docker-compose setup:
 | `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose_slurm_node`) to ensure a correct mapping of the Slurm nodes. |
 
 
-### Github Workflow Tests (Branch 20.09)
+### Github Workflow Tests Implemented
 | Setup                  | bioblend           | workflow ard       | workflow mapping_by_sequencing | workflow wf3-shed-tools (example1) | selenium           |
 |------------------------|--------------------|--------------------|--------------------------------|------------------------------------|--------------------|
 | Galaxy Base            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
