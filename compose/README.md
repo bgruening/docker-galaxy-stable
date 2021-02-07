@@ -396,61 +396,17 @@ The following are settings specific to this docker-compose setup:
 
 
 ### Github Workflow Tests (Branch 20.09)
-| Group                  | Test                  | Outcome |
-|------------------------|-----------------------|---------|
-| Total                  |                       |   ![Actions Status](https://github.com/bgruening/docker-galaxy-stable/workflows/pr-test/badge.svg?branch=20.09) |
-| Galaxy Base            |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
-| Galaxy Proxy Prefix    |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
-| HTCondor               |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
-| Slurm                  |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
-| Pulsar                 |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :x: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
-| k8s                    |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :x: |
-|                        | selenium              | :heavy_check_mark: |
-| Singularity            |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
-| Slurm + Singularity    |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
-| HTCondor + Singularity |                       |         |
-|                        | bioblend              | :heavy_check_mark: |
-|                        | workflow ard          | :heavy_check_mark: |
-|                        | workflow mapping_by_sequencing | :heavy_check_mark: |
-|                        | workflow wf3-shed-tools      | :heavy_check_mark: |
-|                        | selenium              | :heavy_check_mark: |
+| Setup                  | bioblend           | workflow ard       | workflow mapping_by_sequencing | workflow wf3-shed-tools (example1) | selenium           |
+|------------------------|--------------------|--------------------|--------------------------------|------------------------------------|--------------------|
+| Galaxy Base            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Galaxy Proxy Prefix    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| HTCondor               | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Slurm                  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Pulsar                 | :heavy_check_mark: | :heavy_check_mark: | :x:                            | :x:                                | :heavy_check_mark: |
+| k8s                    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| Singularity            | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| Slurm + Singularity    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| HTCondor + Singularity | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
 
+Implemented: :heavy_check_mark:   
+Not Implemented: :x:
