@@ -32,6 +32,7 @@
         </destination>
         <destination id="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}" runner="{{ GALAXY_JOB_RUNNER | default('local') }}">
             {% if GALAXY_DEPENDENCY_RESOLUTION == 'singularity' -%}
+              <env file="/galaxy/.venv/bin/activate" />
               <env id="HOME">/home/galaxy</env>
               <param id="singularity_enabled">true</param>
               {% if GALAXY_JOB_RUNNER == 'local' -%}
