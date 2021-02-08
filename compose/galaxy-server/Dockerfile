@@ -50,7 +50,7 @@ RUN curl -s -L "https://repo.anaconda.com/miniconda/Miniconda2-${MINICONDA_VERSI
 
 FROM build_base as build_galaxy
 
-ARG GALAXY_RELEASE=release_20.05
+ARG GALAXY_RELEASE=release_20.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
@@ -73,7 +73,7 @@ RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libss
 # --- Final image ---
 FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-cluster-base:$IMAGE_TAG as final
 
-ARG GALAXY_RELEASE=release_20.05
+ARG GALAXY_RELEASE=release_20.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh

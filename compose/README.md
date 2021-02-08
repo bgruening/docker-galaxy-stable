@@ -151,9 +151,9 @@ All options are discussed under [configuration reference](#configuration-referen
 
 ### Use specific Galaxy version or Docker images
 The `IMAGE_TAG` environment variable allows to use specific versions of the
-setup. Say, you want to stay with Galaxy v20.05 for now:
+setup. Say, you want to stay with Galaxy v20.09 for now:
 
-> export IMAGE_TAG=20.05
+> export IMAGE_TAG=20.09
 > docker-compose up
 
 Without setting this variable, you will always get updated to the newest
