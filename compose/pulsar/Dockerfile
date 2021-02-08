@@ -4,7 +4,7 @@ ARG IMAGE_TAG=latest
 
 FROM buildpack-deps:20.04 as build_pulsar
 
-ARG PULSAR_RELEASE=0.13.0
+ARG PULSAR_RELEASE=0.14.0
 ARG PULSAR_REPO=https://github.com/galaxyproject/pulsar
 
 ENV PULSAR_ROOT=/pulsar
