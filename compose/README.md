@@ -378,7 +378,7 @@ The following are settings specific to this docker-compose setup:
 | `GALAXY_K8S_DOCKER_REPO_DEFAULT` | The Docker Repo/Registry to use if the resolver could not resolve the proper image for a job. Defaults to `docker.io`. |
 | `GALAXY_K8S_DOCKER_OWNER_DEFAULT` | The Owner/Username to use if the resolver could not resolve the proper image for a job. Is not set by default. |
 | `GALAXY_K8S_DOCKER_IMAGE_DEFAULT` | The Image to use if the resolver could not resolve the proper image for a job. Defaults to `ubuntu`. |
-| `GALAXY_K8S_DOCKER_TAG_DEFAULT` | The Image Tag to use if the resolver could not resolve the proper image for a job. Defaults to `18.04`. |
+| `GALAXY_K8S_DOCKER_TAG_DEFAULT` | The Image Tag to use if the resolver could not resolve the proper image for a job. Defaults to `20.04`. |
 
 ### HTCondor
 | Variable                    | Description                                                                                                        |

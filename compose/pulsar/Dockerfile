@@ -2,7 +2,7 @@ ARG DOCKER_REGISTRY=quay.io
 ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
-FROM buildpack-deps:18.04 as build_pulsar
+FROM buildpack-deps:20.04 as build_pulsar
 
 ARG PULSAR_RELEASE=0.13.0
 ARG PULSAR_REPO=https://github.com/galaxyproject/pulsar
