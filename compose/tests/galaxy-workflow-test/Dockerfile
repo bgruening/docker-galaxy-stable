@@ -1,7 +1,7 @@
 FROM alpine:3.11
 
-ENV TEST_REPO=${TEST_REPO:-https://github.com/usegalaxy-eu/workflow-testing} \
-    TEST_RELEASE=${TEST_RELEASE:-master}
+ENV TEST_REPO=${TEST_REPO:-https://github.com/jonas27/workflow-testing} \
+    TEST_RELEASE=${TEST_RELEASE:-20.09-comment-filetype}
 
 RUN apk add --no-cache bash python3 curl \
     && apk add --no-cache --virtual build-dep gcc libxml2-dev libxslt-dev musl-dev linux-headers python3-dev \
