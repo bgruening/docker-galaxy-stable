@@ -40,6 +40,11 @@ before_install:
   # start building this repo
   - git submodule update --init --recursive
   - sudo chown 1450 /tmp && sudo chmod a=rwx /tmp
+  - export WORKING_DIR="$TRAVIS_BUILD_DIR"
+  - export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
+  - export INSTALL_REPO_ARG=""
+  - export SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
+  - travis_wait 30 cd "$WORKING_DIR" && docker build -t quay.io/bgruening/galaxy galaxy/
   - |
     ## define a container size check function, first parameter is the container name, second the max allowed size in MB
     container_size_check () {
@@ -55,14 +60,6 @@ before_install:
             #exit
         fi
     }
-
-    export WORKING_DIR="$TRAVIS_BUILD_DIR"
-    export DOCKER_RUN_CONTAINER="quay.io/bgruening/galaxy"
-    INSTALL_REPO_ARG=""
-    SAMPLE_TOOLS=$GALAXY_HOME/ephemeris/sample_tool_list.yaml
-    cd "$WORKING_DIR"
-    docker build -t quay.io/bgruening/galaxy galaxy/
-
     container_size_check   quay.io/bgruening/galaxy  1500
 
     mkdir local_folder
