@@ -34,7 +34,7 @@ ENV PULSAR_VIRTUALENV=$PULSAR_ROOT/.venv \
     PULSAR_TOOL_DEPENDENCY_DIR=$PULSAR_ROOT/dependencies
 
 RUN apt update \
-    && apt install --no-install-recommends ca-certificates curl libxml2-dev libpython3.6 python3 -y \
+    && apt install --no-install-recommends ca-certificates curl libxml2-dev python3 -y \
     && /usr/bin/common_cleanup.sh
 
 COPY --from=build_pulsar /pulsar /pulsar

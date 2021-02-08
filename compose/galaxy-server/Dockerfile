@@ -120,8 +120,7 @@ RUN apt update && apt install --no-install-recommends curl gcc gnupg2 libgomp1 l
 RUN usermod -aG docker $GALAXY_USER
 
 # Make Python3 standard
-RUN mv /usr/bin/python /usr/bin/python2 \
-    && ln /usr/bin/python3 /usr/bin/python
+RUN ln /usr/bin/python3 /usr/bin/python
 
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_galaxy ${GALAXY_ROOT} ${GALAXY_ROOT}
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=build_miniconda ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR} ${GALAXY_CONFIG_TOOL_DEPENDENCY_DIR}

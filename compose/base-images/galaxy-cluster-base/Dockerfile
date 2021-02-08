@@ -24,7 +24,7 @@ RUN groupadd -r $MUNGER_USER -g $MUNGE_GID \
     && echo "deb-src http://ppa.launchpad.net/natefoo/slurm-drmaa/ubuntu focal main" >> /etc/apt/sources.list \
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 8DE68488997C5C6BA19021136F2CC56412788738 \
     && apt update \
-    && apt install --no-install-recommends slurm-client slurmd slurmctld slurm-drmaa1 -y \
+    && apt install --no-install-recommends python3-distutils slurm-client slurmd slurmctld slurm-drmaa1 -y \
     && apt --no-install-recommends install munge libmunge-dev -y \
     && ln -s /usr/lib/slurm-drmaa/lib/libdrmaa.so.1 /usr/lib/slurm-drmaa/lib/libdrmaa.so \
     && /usr/bin/common_cleanup.sh
