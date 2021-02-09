@@ -393,3 +393,20 @@ The following are settings specific to this docker-compose setup:
 | `SLURM_NODE_CPUS`         | Number of CPUs per node. Defaults to 1. |
 | `SLURM_NODE_MEMORY`       | Amount of memory per node. Defaults to 1024. |
 | `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose_slurm_node`) to ensure a correct mapping of the Slurm nodes. |
+
+### Github Workflow Tests (Branch 20.09)
+| Setup                  | bioblend           | workflow ard       | workflow mapping_by_sequencing | workflow wf3-shed-tools (example1) | selenium           |
+|------------------------|--------------------|--------------------|--------------------------------|------------------------------------|--------------------|
+| Galaxy Base            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Galaxy Proxy Prefix    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| HTCondor               | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Slurm                  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Pulsar                 | :heavy_check_mark: | :heavy_check_mark: | :x:                            | :x:                                | :heavy_check_mark: |
+| k8s                    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| Singularity            | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| Slurm + Singularity    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| HTCondor + Singularity | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+
+
+Implemented: :heavy_check_mark:   
+Not Implemented: :x:
