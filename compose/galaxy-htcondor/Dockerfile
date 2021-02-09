@@ -67,4 +67,6 @@ COPY --chown=$GALAXY_USER:$GALAXY_USER --from=galaxy_dependencies $GALAXY_ROOT $
 COPY start.sh /usr/bin/start.sh
 RUN apt update && apt install python3 -y
 
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
+
 ENTRYPOINT /usr/bin/start.sh
