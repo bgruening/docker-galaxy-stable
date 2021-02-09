@@ -38,7 +38,7 @@ jobs:
         working-directory: ./compose/base-images
   build_cluster_base:
     needs: build_container_base
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -74,7 +74,7 @@ jobs:
         working-directory: ./compose/base-images
   build:
     needs: build_cluster_base
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         image:
@@ -127,7 +127,7 @@ jobs:
         working-directory: ./compose
   test:
     needs: [build]
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         infrastructure:
