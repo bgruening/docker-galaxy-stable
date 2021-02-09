@@ -63,6 +63,7 @@ RUN apt update && apt install --no-install-recommends libcurl4-openssl-dev libss
     && ./scripts/common_startup.sh \
     && . $GALAXY_ROOT/.venv/bin/activate \
     && pip3 install drmaa psycopg2 pycurl pykube \
+    && pip3 install importlib-metadata importlib-resources pathlib2 ruamel.yaml.clib typing zipp \
     && deactivate \
     && rm -rf .ci .circleci .coveragerc .gitignore .travis.yml CITATION CODE_OF_CONDUCT.md CONTRIBUTING.md CONTRIBUTORS.md \
               LICENSE.txt Makefile README.rst SECURITY_POLICY.md pytest.ini tox.ini \
