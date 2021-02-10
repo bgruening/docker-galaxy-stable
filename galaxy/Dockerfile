@@ -129,7 +129,6 @@ RUN curl -s -L https://repo.anaconda.com/miniconda/Miniconda3-4.7.12.1-Linux-x86
     && conda config --add channels bioconda \
     && conda config --add channels conda-forge \
     && conda install virtualenv pip ephemeris \
-    && conda install python=3.6 -y \
     && chown $GALAXY_USER:$GALAXY_USER -R /tool_deps/ /etc/profile.d/conda.sh \
     && conda clean --packages -t -i \
     # cleanup dance
