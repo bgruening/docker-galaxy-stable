@@ -407,5 +407,6 @@ The following are settings specific to this docker-compose setup:
 | Slurm + Singularity    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
 | HTCondor + Singularity | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
 
+
 Implemented: :heavy_check_mark:   
 Not Implemented: :x:
