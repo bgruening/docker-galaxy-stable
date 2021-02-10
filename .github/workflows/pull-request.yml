@@ -30,6 +30,7 @@ jobs:
             exclude_test:
               - workflow_example1
               - workflow_mapping_by_sequencing
+              - workflow_ard
           # - name: galaxy-pulsar-mq
           #   files: -f docker-compose.yml -f docker-compose.pulsar.yml -f docker-compose.pulsar.mq.yml
           #   exclude_test:
@@ -41,6 +42,7 @@ jobs:
               - bioblend
               - workflow_ard
               - workflow_mapping_by_sequencing
+              - workflow_example1
               - selenium
           - name: galaxy-singularity
             files: -f docker-compose.yml -f docker-compose.singularity.yml
