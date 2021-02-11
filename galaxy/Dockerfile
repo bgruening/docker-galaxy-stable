@@ -309,6 +309,9 @@ RUN echo "DISCARD_SESSION_KEYRING_ON_STARTUP=False" > /etc/condor/condor_config.
 ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 RUN chmod +x /sbin/tini
 
+# https://stackoverflow.com/questions/62250160/uwsgi-runtimeerror-cannot-release-un-acquired-lock
+ADD sed -i 's/py-call-osafterfork.*//g' /galaxy-central/config/galaxy.yml.sample 
+
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
 ENV GALAXY_CONFIG_INTEGRATED_TOOL_PANEL_CONFIG $EXPORT_DIR/galaxy-central/integrated_tool_panel.xml
