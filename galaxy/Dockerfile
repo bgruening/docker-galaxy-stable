@@ -310,7 +310,8 @@ ADD https://github.com/krallin/tini/releases/download/v0.18.0/tini /sbin/tini
 RUN chmod +x /sbin/tini
 
 # https://stackoverflow.com/questions/62250160/uwsgi-runtimeerror-cannot-release-un-acquired-lock
-RUN sed -i 's/py-call-osafterfork.*//g' /etc/galaxy/galaxy.yml
+ADD run.sh $GALAXY_ROOT/run.sh
+RUN chmod +x $GALAXY_ROOT/run.sh && sed -i 's/py-call-osafterfork.*//g' /etc/galaxy/galaxy.yml
 
 # This needs to happen here and not above, otherwise the Galaxy start
 # (without running the startup.sh script) will crash because integrated_tool_panel.xml could not be found.
