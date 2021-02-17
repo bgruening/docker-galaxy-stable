@@ -401,8 +401,8 @@ The following are settings specific to this docker-compose setup:
 | Galaxy Proxy Prefix    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
 | HTCondor               | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
 | Slurm                  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
-| Pulsar                 | :heavy_check_mark: | :heavy_check_mark: | :x:                            | :x:                                | :heavy_check_mark: |
-| k8s                    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| Pulsar                 | :heavy_check_mark: | :x:                | :x:                            | :x:                                | :heavy_check_mark: |
+| k8s                    | :x:                | :x:                | :x:                            | :x:                                | :x:                |
 | Singularity            | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
 | Slurm + Singularity    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
 | HTCondor + Singularity | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
