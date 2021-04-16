@@ -61,7 +61,7 @@ docker logs galaxy
 # Define start functions
 docker_exec() {
       cd "$WORKING_DIR"
-      docker exec -t -i galaxy "$@"
+      docker exec galaxy "$@"
 }
 docker_exec_run() {
    cd "$WORKING_DIR"
