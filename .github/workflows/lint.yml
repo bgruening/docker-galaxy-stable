@@ -16,7 +16,7 @@ jobs:
         level: warning
         pattern: "*.sh"
     - name: Run hadolint with reviewdog
-      uses: reviewdog/action-hadolint@v1.17.1
+      uses: reviewdog/action-hadolint@v1.16.1
       with:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         reporter: github-check
