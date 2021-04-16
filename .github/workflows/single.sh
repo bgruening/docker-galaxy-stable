@@ -136,4 +136,4 @@ docker_exec_run bash -c 'export PATH=$GALAXY_CONFIG_TOOL_DEPENDENCY_DIR/_conda/b
 
 docker stop galaxy
 docker rm -f galaxy
-docker rmi $DOCKER_RUN_CONTAINER
+docker rmi -f $DOCKER_RUN_CONTAINER
