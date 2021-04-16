@@ -2,7 +2,7 @@ name: build-and-test
 on: [push]
 jobs:
   build_container_base:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -120,7 +120,7 @@ jobs:
             --build-arg IMAGE_TAG=${{ steps.image_tag.outputs.image_tag }} \
             --build-arg DOCKER_REGISTRY=${{ secrets.docker_registry }} \
             --build-arg DOCKER_REGISTRY_USERNAME=${{ secrets.docker_registry_username }} \
-            --build-arg GALAXY_REPO=https://github.com/andreassko/galaxy \
+            --build-arg GALAXY_REPO=https://github.com/galaxyproject/galaxy \
             ${{ matrix.image.subdir }}${{ matrix.image.name }} && break || echo "Fail.. Retrying"
           done;
         shell: bash
@@ -232,13 +232,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
       - name: Set image tag in env
-        run: echo "::set-env name=IMAGE_TAG::${GITHUB_REF#refs/heads/}"
+        run: echo "IMAGE_TAG=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
       - name: Master branch - Set image to to 'latest'
         if: github.ref == 'refs/heads/master'
-        run: echo "::set-env name=IMAGE_TAG::latest"
+        run: echo "IMAGE_TAG=latest" >> $GITHUB_ENV
       - name: Set WORKFLOWS env for worfklows-test
         if: matrix.test.workflow
-        run: echo "::set-env name=WORKFLOWS::${{ matrix.test.workflow }}"
+        run: echo "WORKFLOWS=${{ matrix.test.workflow }}" >> $GITHUB_ENV
       - name: Run tests for the first time
         if: steps.run_check.outputs.run
         run: |

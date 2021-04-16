@@ -40,6 +40,7 @@ services:
     volumes:
       - ${EXPORT_DIR:-./export}/galaxy/database:/galaxy/database
       - ${EXPORT_DIR:-./export}/galaxy/tools:/galaxy/tools:ro
+      - ${EXPORT_DIR:-./export}/galaxy/lib/galaxy/tools:/galaxy/lib/galaxy/tools:ro
       - ${EXPORT_DIR:-./export}/galaxy/tool-data:/galaxy/tool-data
       - ${EXPORT_DIR:-./export}/galaxy/.venv:/galaxy/.venv
       - ${EXPORT_DIR:-./export}/tool_deps:/tool_deps

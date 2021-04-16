@@ -151,9 +151,9 @@ All options are discussed under [configuration reference](#configuration-referen
 
 ### Use specific Galaxy version or Docker images
 The `IMAGE_TAG` environment variable allows to use specific versions of the
-setup. Say, you want to stay with Galaxy v20.05 for now:
+setup. Say, you want to stay with Galaxy v20.09 for now:
 
-> export IMAGE_TAG=20.05
+> export IMAGE_TAG=20.09
 > docker-compose up
 
 Without setting this variable, you will always get updated to the newest
@@ -378,7 +378,7 @@ The following are settings specific to this docker-compose setup:
 | `GALAXY_K8S_DOCKER_REPO_DEFAULT` | The Docker Repo/Registry to use if the resolver could not resolve the proper image for a job. Defaults to `docker.io`. |
 | `GALAXY_K8S_DOCKER_OWNER_DEFAULT` | The Owner/Username to use if the resolver could not resolve the proper image for a job. Is not set by default. |
 | `GALAXY_K8S_DOCKER_IMAGE_DEFAULT` | The Image to use if the resolver could not resolve the proper image for a job. Defaults to `ubuntu`. |
-| `GALAXY_K8S_DOCKER_TAG_DEFAULT` | The Image Tag to use if the resolver could not resolve the proper image for a job. Defaults to `18.04`. |
+| `GALAXY_K8S_DOCKER_TAG_DEFAULT` | The Image Tag to use if the resolver could not resolve the proper image for a job. Defaults to `20.04`. |
 
 ### HTCondor
 | Variable                    | Description                                                                                                        |
@@ -393,3 +393,21 @@ The following are settings specific to this docker-compose setup:
 | `SLURM_NODE_CPUS`         | Number of CPUs per node. Defaults to 1. |
 | `SLURM_NODE_MEMORY`       | Amount of memory per node. Defaults to 1024. |
 | `SLURM_NODE_HOSTNAME`     | Docker Compose adds a prefix in front of the container names by default. Change this value to the name of your setup and `_slurm_node` (e.g. `compose_slurm_node`) to ensure a correct mapping of the Slurm nodes. |
+
+### Github Workflow Tests (Branch 20.09)
+| Setup                  | bioblend           | workflow ard       | workflow mapping_by_sequencing | workflow wf3-shed-tools (example1) | selenium           |
+|------------------------|--------------------|--------------------|--------------------------------|------------------------------------|--------------------|
+| Galaxy Base            | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Galaxy Proxy Prefix    | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| HTCondor               | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Slurm                  | :heavy_check_mark: | :heavy_check_mark: | :heavy_check_mark:             | :x:                                | :heavy_check_mark: |
+| Pulsar                 | :heavy_check_mark: | :x:                | :x:                            | :x:                                | :heavy_check_mark: |
+| k8s                    | :x:                | :x:                | :x:                            | :x:                                | :x:                |
+| Singularity            | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| Slurm + Singularity    | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+| HTCondor + Singularity | :x:                | :x:                | :x:                            | :heavy_check_mark:                 | :x:                |
+
+
+Implemented: :heavy_check_mark:   
+Not Implemented: :x:
+

@@ -2,9 +2,9 @@ ARG DOCKER_REGISTRY=quay.io
 ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
-FROM buildpack-deps:18.04 as galaxy_dependencies
+FROM buildpack-deps:20.04 as galaxy_dependencies
 
-ARG GALAXY_RELEASE=release_20.05
+ARG GALAXY_RELEASE=release_20.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV GALAXY_ROOT=/galaxy
@@ -17,7 +17,7 @@ RUN mkdir "${GALAXY_ROOT}" \
     && cd $GALAXY_ROOT/lib \
     && ls . | grep -v "galaxy\|galaxy_ext" | xargs rm -rf \
     && cd $GALAXY_ROOT/lib/galaxy \
-    && ls . | grep -v "__init__.py\|datatypes\|exceptions\|metadata\|model\|util\|security" | xargs rm -rf
+    && ls . | grep -v "__init__.py\|datatypes\|exceptions\|files\|metadata\|model\|util\|security" | xargs rm -rf
 
 
 FROM $DOCKER_REGISTRY/$DOCKER_REGISTRY_USERNAME/galaxy-container-base:$IMAGE_TAG as final
@@ -45,11 +45,13 @@ ENV SLURM_USER=galaxy \
 RUN groupadd -r $MUNGER_USER -g $MUNGE_GID \
     && useradd -u $MUNGE_UID -r -g $MUNGER_USER $MUNGER_USER \
     && apt update \
-    && apt install --no-install-recommends gosu munge python python-dev slurm-wlm -y \
+    && apt install --no-install-recommends gosu munge python3 python3-dev slurm-wlm -y \
     && rm -rf /var/lib/apt/lists/* && rm -rf /var/cache/* && find / -name '*.pyc' -delete
 
 # Copy Galaxy dependencies
 COPY --chown=$GALAXY_USER:$GALAXY_USER --from=galaxy_dependencies $GALAXY_ROOT $GALAXY_ROOT
+# Make Python3 standard
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 9 
 
 COPY start.sh /usr/bin/start.sh
 

@@ -1,4 +1,4 @@
-FROM buildpack-deps:18.04  as build_singularity
+FROM buildpack-deps:20.04  as build_singularity
 
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
@@ -21,12 +21,12 @@ RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_
 
 
 # --- Final image ---
-FROM ubuntu:18.04 as final
+FROM ubuntu:20.04 as final
 
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
 # Base dependencies
-RUN apt update && apt install --no-install-recommends ca-certificates squashfs-tools -y \
+RUN apt update && apt install --no-install-recommends ca-certificates python3-distutils squashfs-tools -y \
     && /usr/bin/common_cleanup.sh
 
 # Install Docker
