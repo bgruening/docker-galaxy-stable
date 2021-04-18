@@ -32,6 +32,7 @@
         </destination>
         <destination id="{{ GALAXY_DEPENDENCY_RESOLUTION | default('conda') }}_{{ GALAXY_JOB_RUNNER | default('local') }}" runner="{{ GALAXY_JOB_RUNNER | default('local') }}">
             {% if GALAXY_DEPENDENCY_RESOLUTION == 'singularity' -%}
+              <env file="/galaxy/.venv/bin/activate" />
               <env id="HOME">/home/galaxy</env>
               <param id="singularity_enabled">true</param>
               {% if GALAXY_JOB_RUNNER == 'local' -%}
@@ -59,7 +60,7 @@
               <param id="docker_repo_default">{{ GALAXY_K8S_DOCKER_REPO_DEFAULT | default('docker.io') }}</param>
               {% if GALAXY_K8S_DOCKER_OWNER_DEFAULT -%}<param id="docker_owner_default">{{ GALAXY_K8S_DOCKER_OWNER_DEFAULT }}</param>{% endif -%}
               <param id="docker_image_default">{{ GALAXY_K8S_DOCKER_IMAGE_DEFAULT | default('ubuntu') }}</param>
-              <param id="docker_tag_default">{{ GALAXY_K8S_DOCKER_TAG_DEFAULT | default('18.04') }}</param>
+              <param id="docker_tag_default">{{ GALAXY_K8S_DOCKER_TAG_DEFAULT | default('20.04') }}</param>
               <param id="docker_enabled">true</param>
             {% endif -%}
         </destination>

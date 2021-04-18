@@ -13,6 +13,14 @@ create_user() {
   deactivate
 }
 
+# start copy lib/tools. Looks very hacky.
+tools_dir="/galaxy/lib/galaxy/tools/"
+exp_dir="/export$tools_dir"
+mkdir -p $exp_dir
+chown "$GALAXY_USER:$GALAXY_USER" $exp_dir
+cp -rf $tools_dir/* $exp_dir
+# end copy lib/tools.
+
 # First start?? Check if something exists that indicates that environment is not new.. Config file? Something in DB maybe??
 
 echo "Initialization: Check if files already exist, export otherwise."

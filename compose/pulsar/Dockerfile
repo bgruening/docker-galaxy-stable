@@ -2,9 +2,9 @@ ARG DOCKER_REGISTRY=quay.io
 ARG DOCKER_REGISTRY_USERNAME=bgruening
 ARG IMAGE_TAG=latest
 
-FROM buildpack-deps:18.04 as build_pulsar
+FROM buildpack-deps:20.04 as build_pulsar
 
-ARG PULSAR_RELEASE=0.13.0
+ARG PULSAR_RELEASE=0.14.0
 ARG PULSAR_REPO=https://github.com/galaxyproject/pulsar
 
 ENV PULSAR_ROOT=/pulsar
@@ -34,7 +34,7 @@ ENV PULSAR_VIRTUALENV=$PULSAR_ROOT/.venv \
     PULSAR_TOOL_DEPENDENCY_DIR=$PULSAR_ROOT/dependencies
 
 RUN apt update \
-    && apt install --no-install-recommends ca-certificates curl libxml2-dev libpython3.6 python3 -y \
+    && apt install --no-install-recommends ca-certificates curl libxml2-dev python3 -y \
     && /usr/bin/common_cleanup.sh
 
 COPY --from=build_pulsar /pulsar /pulsar

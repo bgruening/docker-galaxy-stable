@@ -993,6 +993,8 @@ If you simply want to change the Galaxy repository and/or the Galaxy branch, fro
    - Featuring Galaxy 20.05
    - Completely reworked compose setup
    - The default admin password and apikey (`GALAXY_DEFAULT_ADMIN_PASSWORD` and `GALAXY_DEFAULT_ADMIN_KEY`) have changed: the password is now `password` (instead of `admin`) and the apikey `fakekey` (instead of `admin`).
+- 20.09:
+   - Featuring Galaxy 20.09
 
 # Support & Bug Reports <a name="Support-Bug-Reports" /> [[toc]](#toc)
 
