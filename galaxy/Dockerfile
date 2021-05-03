@@ -296,6 +296,8 @@ ADD ./tool_sheds_conf.xml $GALAXY_HOME/tool_sheds_conf.xml
 
 # Script that enables easier downstream installation of tools (e.g. for different Galaxy Docker flavours)
 ADD install_tools_wrapper.sh /usr/bin/install-tools
+ADD with-galaxy.sh /usr/bin/with-galaxy
+
 # script to install BioJS visualizations
 ADD install_biojs_vis.sh /usr/bin/install-biojs
 RUN chmod +x /usr/bin/install-tools /usr/bin/install-biojs && \
