@@ -20,6 +20,7 @@ services:
     depends_on:
       - postgres
       - rabbitmq
+      - galaxy-configurator
     networks:
       - galaxy
   # The galaxy-configurator is responsible for the whole configuration of
