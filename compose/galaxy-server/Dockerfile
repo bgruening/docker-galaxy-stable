@@ -116,6 +116,7 @@ RUN apt update && apt install --no-install-recommends curl gcc gnupg2 libgomp1 l
     # Cython and wheel are needed to later install pysam..
     && pip3 install Cython wheel \
     && pip3 install pysam \
+    && pip3 install attmap==0.12.11 \
     && /usr/bin/common_cleanup.sh
 
 # GALAXY_USER should be able to run docker without root permissions
