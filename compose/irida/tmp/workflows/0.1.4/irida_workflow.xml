@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<iridaWorkflow>
+  <id>4f67699c-bc37-4008-847b-82b7ab7d2ee1</id>
+  <name>Artic_Illumina</name>
+  <version>0.1.4</version>
+  <analysisType>ARTICILLUMINA_PIPELINE</analysisType>
+  <inputs>
+    <sequenceReadsPaired>sequence_reads_list_paired</sequenceReadsPaired>
+    <reference>reference</reference>
+    <requiresSingleSample>true</requiresSingleSample>
+  </inputs>
+  <parameters>
+    <parameter name="fastp-2-single_paired.adapter_trimming_options.adapter_sequence2" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.adapter_trimming_options.adapter_sequence2"/>
+    </parameter>
+    <parameter name="fastp-2-single_paired.global_trimming_options.trim_front1" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.global_trimming_options.trim_front1"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.quality_filtering_options.qualified_quality_phred" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.quality_filtering_options.qualified_quality_phred" label="Qualified quality phred" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.umi_processing.umi" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.umi_processing.umi" label="Enable unique molecular identifer" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.low_complexity_filter.enable_low_complexity_filter" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.low_complexity_filter.enable_low_complexity_filter" label="Enable low complexity filter" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-single_paired.adapter_trimming_options.adapter_sequence1" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.adapter_trimming_options.adapter_sequence1"/>
+    </parameter>
+    <parameter name="fastp-2-overrepresented_sequence_analysis.overrepresentation_analysis" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="overrepresented_sequence_analysis.overrepresentation_analysis" label="Enable overrepresented analysis" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.cutting_by_quality_options.cut_by_quality3" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.cutting_by_quality_options.cut_by_quality3" label="Cut by quality in tail (3')" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-single_paired.global_trimming_options.trim_tail1" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.global_trimming_options.trim_tail1"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.polyg_tail_trimming.trimming_select" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.polyg_tail_trimming.trimming_select" label="PolyG tail trimming" type="select"/>
+    </parameter>
+    <parameter name="fastp-2-output_options.report_json" defaultValue="true">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="output_options.report_json" label="Output JSON report" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.quality_filtering_options.unqualified_percent_limit" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.quality_filtering_options.unqualified_percent_limit" label="Unqualified percent limit" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.quality_filtering_options.disable_quality_filtering" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.quality_filtering_options.disable_quality_filtering" label="Disable quality filtering" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-overrepresented_sequence_analysis.overrepresentation_sampling" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="overrepresented_sequence_analysis.overrepresentation_sampling" label="Overrepresentation sampling" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.umi_processing.umi_prefix" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.umi_processing.umi_prefix" label="UMI prefix" type="text"/>
+    </parameter>
+    <parameter name="fastp-2-single_paired.single_paired_selector" defaultValue="paired_collection">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.single_paired_selector" label="Single-end or paired reads" type="select"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.length_filtering_options.disable_length_filtering" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.length_filtering_options.disable_length_filtering" label="Disable length filtering" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.cutting_by_quality_options.cut_mean_quality" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.cutting_by_quality_options.cut_mean_quality" label="Cutting mean quality" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-single_paired.global_trimming_options.trim_front2" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.global_trimming_options.trim_front2"/>
+    </parameter>
+    <parameter name="fastp-2-single_paired.global_trimming_options.trim_tail2" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.global_trimming_options.trim_tail2"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.umi_processing.umi_len" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.umi_processing.umi_len" label="UMI length" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.quality_filtering_options.n_base_limit" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.quality_filtering_options.n_base_limit" label="N base limit" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.polyx_tail_trimming.polyx_trimming_select" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.polyx_tail_trimming.polyx_trimming_select" label="PolyX tail trimming" type="select"/>
+    </parameter>
+    <parameter name="fastp-2-single_paired.adapter_trimming_options.disable_adapter_trimming" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="single_paired.adapter_trimming_options.disable_adapter_trimming"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.low_complexity_filter.complexity_threshold" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.low_complexity_filter.complexity_threshold" label="Complexity threshold" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.umi_processing.umi_loc" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.umi_processing.umi_loc" label="UMI location" type="text"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.cutting_by_quality_options.cut_window_size" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.cutting_by_quality_options.cut_window_size" label="Cutting window size" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-output_options.report_html" defaultValue="true">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="output_options.report_html" label="Output HTML report" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.cutting_by_quality_options.cut_by_quality5" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.cutting_by_quality_options.cut_by_quality5" label="Cut by quality in front (5')" type="boolean"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.polyg_tail_trimming.poly_g_min_len" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.polyg_tail_trimming.poly_g_min_len"/>
+    </parameter>
+    <parameter name="fastp-2-filter_options.length_filtering_options.length_required" defaultValue="">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="filter_options.length_filtering_options.length_required" label="Length required" type="integer"/>
+    </parameter>
+    <parameter name="fastp-2-read_mod_options.base_correction_options.correction" defaultValue="false">
+      <toolParameter toolId="d1cce98e-4f98-493e-a1ad-f265fcee1b68" parameterName="read_mod_options.base_correction_options.correction" label="Enable base correction" type="boolean"/>
+    </parameter>
+    <parameter name="multiqc-3-comment" defaultValue="">
+      <toolParameter toolId="fa4fa560-0177-4df6-8975-28da89ec42d3" parameterName="comment" label="Custom comment" type="text"/>
+    </parameter>
+    <parameter name="multiqc-3-title" defaultValue="">
+      <toolParameter toolId="fa4fa560-0177-4df6-8975-28da89ec42d3" parameterName="title" label="Report title" type="text"/>
+    </parameter>
+    <parameter name="bwa-4-analysis_type.analysis_type_selector" defaultValue="illumina">
+      <toolParameter toolId="f37ed334-6985-43e1-9bd5-46e1a8c512bc" parameterName="analysis_type.analysis_type_selector" label="Select analysis mode" type="select"/>
+    </parameter>
+    <parameter name="bwa-4-fastq_input.fastq_input_selector" defaultValue="paired_collection">
+      <toolParameter toolId="f37ed334-6985-43e1-9bd5-46e1a8c512bc" parameterName="fastq_input.fastq_input_selector" label="Single or Paired-end reads" type="select"/>
+    </parameter>
+    <parameter name="bwa-4-fastq_input.iset_stats" defaultValue="">
+      <toolParameter toolId="f37ed334-6985-43e1-9bd5-46e1a8c512bc" parameterName="fastq_input.iset_stats" label="Enter mean, standard deviation, max, and min for insert lengths." type="text"/>
+    </parameter>
+    <parameter name="bwa-4-reference_source.reference_source_selector" defaultValue="history">
+      <toolParameter toolId="f37ed334-6985-43e1-9bd5-46e1a8c512bc" parameterName="reference_source.reference_source_selector"/>
+    </parameter>
+    <parameter name="bwa-4-reference_source.index_a" defaultValue="auto">
+      <toolParameter toolId="f37ed334-6985-43e1-9bd5-46e1a8c512bc" parameterName="reference_source.index_a"/>
+    </parameter>
+    <parameter name="bwa-4-rg.rg_selector" defaultValue="do_not_set">
+      <toolParameter toolId="f37ed334-6985-43e1-9bd5-46e1a8c512bc" parameterName="rg.rg_selector"/>
+    </parameter>
+    <parameter name="picard-5-validation_stringency" defaultValue="LENIENT">
+      <toolParameter toolId="14b85aff-4bab-4b9e-9b00-cc92f9b076b6" parameterName="validation_stringency"/>
+    </parameter>
+    <parameter name="picard-5-duplicate_scoring_strategy" defaultValue="SUM_OF_BASE_QUALITIES">
+      <toolParameter toolId="14b85aff-4bab-4b9e-9b00-cc92f9b076b6" parameterName="duplicate_scoring_strategy"/>
+    </parameter>
+    <parameter name="picard-5-barcode_tag" defaultValue="">
+      <toolParameter toolId="14b85aff-4bab-4b9e-9b00-cc92f9b076b6" parameterName="barcode_tag"/>
+    </parameter>
+    <parameter name="picard-5-read_name_regex" defaultValue="">
+      <toolParameter toolId="14b85aff-4bab-4b9e-9b00-cc92f9b076b6" parameterName="read_name_regex"/>
+    </parameter>
+    <parameter name="samtool_filter2-6-read_group" defaultValue="">
+      <toolParameter toolId="14127083-92cf-419a-96dc-c99716dab23b" parameterName="read_group" label="Select alignments from Read Group" type="text"/>
+    </parameter>
+    <parameter name="samtool_filter2-6-outputtype" defaultValue="bam">
+      <toolParameter toolId="14127083-92cf-419a-96dc-c99716dab23b" parameterName="outputtype" label="Select the output format" type="select"/>
+    </parameter>
+    <parameter name="samtool_filter2-6-flag.filter" defaultValue="yes">
+      <toolParameter toolId="14127083-92cf-419a-96dc-c99716dab23b" parameterName="flag.filter" label="Filter on bitwise flag" type="select"/>
+    </parameter>
+    <parameter name="samtool_filter2-6-regions" defaultValue="">
+      <toolParameter toolId="14127083-92cf-419a-96dc-c99716dab23b" parameterName="regions" label="Select regions (only used when the input is in BAM format)" type="text"/>
+    </parameter>
+    <parameter name="samtool_filter2-6-library" defaultValue="">
+      <toolParameter toolId="14127083-92cf-419a-96dc-c99716dab23b" parameterName="library" label="Select alignments from Library" type="text"/>
+    </parameter>
+    <parameter name="samtool_filter2-6-header" defaultValue="-h">
+      <toolParameter toolId="14127083-92cf-419a-96dc-c99716dab23b" parameterName="header" label="Header in output" type="select"/>
+    </parameter>
+    <parameter name="ivar_trim-7-primer.source" defaultValue="cached">
+      <toolParameter toolId="417315a3-c6ae-48d1-8dbe-8c15387ef5ee" parameterName="primer.source" label="Source of primer information" type="select"/>
+    </parameter>
+    <parameter name="ivar_trim-7-primer.cached_bed" defaultValue="SARS-CoV-2-ARTICv3">
+      <toolParameter toolId="417315a3-c6ae-48d1-8dbe-8c15387ef5ee" parameterName="primer.cached_bed" label="Primer scheme name" type="select"/>
+    </parameter>
+    <parameter name="qualimap_bamqc-8-plot_specific.n_bins" defaultValue="400">
+      <toolParameter toolId="58a57b78-24f4-4561-90a1-b40261fb0a80" parameterName="plot_specific.n_bins" label="Number of bins to use in across-reference plots" type="integer"/>
+    </parameter>
+    <parameter name="qualimap_bamqc-8-plot_specific.paint_chromosome_limits" defaultValue="true">
+      <toolParameter toolId="58a57b78-24f4-4561-90a1-b40261fb0a80" parameterName="plot_specific.paint_chromosome_limits" label="Draw chromosome limits" type="boolean"/>
+    </parameter>
+    <parameter name="qualimap_bamqc-8-plot_specific.homopolymer_size" defaultValue="3">
+      <toolParameter toolId="58a57b78-24f4-4561-90a1-b40261fb0a80" parameterName="plot_specific.homopolymer_size" label="Homopolymer size" type="integer"/>
+    </parameter>
+    <parameter name="qualimap_bamqc-8-stats_regions.region_select" defaultValue="all">
+      <toolParameter toolId="58a57b78-24f4-4561-90a1-b40261fb0a80" parameterName="stats_regions.region_select" label="Reference genome regions to calculate mapping statistics for" type="select"/>
+    </parameter>
+    <parameter name="multiqc-11-comment" defaultValue="">
+      <toolParameter toolId="7bef6cf2-e18f-40c7-93d2-e6f277781309" parameterName="comment" label="Custom comment" type="text"/>
+    </parameter>
+    <parameter name="multiqc-11-title" defaultValue="">
+      <toolParameter toolId="7bef6cf2-e18f-40c7-93d2-e6f277781309" parameterName="title" label="Report title" type="text"/>
+    </parameter>
+    <parameter name="qc-12-qc_type_conditional.qc_type" defaultValue="--illumina">
+      <toolParameter toolId="f800a02e-8b0b-4371-b8b4-53b7961a76c7" parameterName="qc_type_conditional.qc_type" label="Input Type" type="select"/>
+    </parameter>
+    <parameter name="text_processing-13-adv_opts.adv_opts_selector" defaultValue="basic">
+      <toolParameter toolId="e18c3cbb-d092-4c23-ae50-69e90f36ea67" parameterName="adv_opts.adv_opts_selector"/>
+    </parameter>
+    <parameter name="text_processing-13-code" defaultValue="/^&gt;/s/Consensus_(.*)_threshold_.*/\1/">
+      <toolParameter toolId="e18c3cbb-d092-4c23-ae50-69e90f36ea67" parameterName="code" label="AWK Program" type="text"/>
+    </parameter>
+    <parameter name="pangolin-14-db.source" defaultValue="default">
+      <toolParameter toolId="5c18ea6e-777d-4572-9182-25fc2f41865e" parameterName="db.source"/>
+    </parameter>
+    <parameter name="nextclade-15-adv.advanced_options" defaultValue="no">
+      <toolParameter toolId="b0cf3b55-c761-4963-9e57-55c983003034" parameterName="adv.advanced_options"/>
+    </parameter>
+  </parameters>
+  <outputs>
+    <output name="ivar_variants.csv" fileName="ivar_variants.csv"/>
+    <output name="multiqc_output.html" fileName="multiqc_output.html"/>
+    <output name="infile" fileName="infile"/>
+    <output name="qc.csv" fileName="qc.csv"/>
+    <output name="qc.png" fileName="qc.png"/>
+    <output name="qc.json" fileName="qc.json"/>
+    <output name="pangolin.csv" fileName="pangolin.csv"/>
+    <output name="nextclade.tsv" fileName="nextclade.tsv"/>
+  </outputs>
+  <toolRepositories>
+    <repository>
+      <name>ivar_variants</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>e1a015876aa9</revision>
+    </repository>
+    <repository>
+      <name>multiqc</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>bf675f34b056</revision>
+    </repository>
+    <repository>
+      <name>picard</name>
+      <owner>devteam</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>a1f0b3f4b781</revision>
+    </repository>
+    <repository>
+      <name>samtool_filter2</name>
+      <owner>devteam</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>649a225999a5</revision>
+    </repository>
+    <repository>
+      <name>ivar_trim</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>5d6ed46cc101</revision>
+    </repository>
+    <repository>
+      <name>ivar_consensus</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>d6e72da3ec35</revision>
+    </repository>
+    <repository>
+      <name>text_processing</name>
+      <owner>bgruening</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>ddf54b12c295</revision>
+    </repository>
+    <repository>
+      <name>pangolin</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>514a786baaa9</revision>
+    </repository>
+    <repository>
+      <name>bwa</name>
+      <owner>devteam</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>3fe632431b68</revision>
+    </repository>
+    <repository>
+      <name>nextclade</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>495c19a62538</revision>
+    </repository>
+    <repository>
+      <name>fastp</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>1d8fe9bc4cb0</revision>
+    </repository>
+    <repository>
+      <name>qualimap_bamqc</name>
+      <owner>iuc</owner>
+      <url>https://toolshed.g2.bx.psu.edu</url>
+      <revision>e7fd6754d093</revision>
+    </repository>
+    <repository>
+      <name>qc</name>
+      <owner>sanbi-uwc</owner>
+      <url>https://testtoolshed.g2.bx.psu.edu</url>
+      <revision>e34ab51fa707</revision>
+    </repository>
+  </toolRepositories>
+</iridaWorkflow>

@@ -19,14 +19,35 @@ http {
   # maximum file upload size
   client_max_body_size 10g;
 
+  {% if IRIDA_ENABLED | default %}
   server {
+    # this is for IRIDA
     listen 80 default_server;
     listen [::]:80 default_server;
+    server_name _;
+
+    proxy_read_timeout 600;
+    proxy_connect_timeout 600;
+    proxy_send_timeout 600; 
+
+    location / {
+          proxy_set_header X-Forwarded-Host $host;
+          proxy_set_header X-Forwarded-Server $host;
+          proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+          proxy_pass http://irida-web:8080;
+    }    
+  }
+  {% endif %}
+
+  server {
+    listen {%if IRIDA_ENABLED %} 90 {% else %} 80 {% endif %} default_server;
+    listen [::]:{%if IRIDA_ENABLED %}90{% else %}80{% endif %} default_server;
     server_name _;
 
     # use a variable for convenience
     set $galaxy_static /export/galaxy/static;
     set $galaxy_root /export/galaxy;
+
 
     # proxy all requests not matching other locations to uWSGI
     location /{{ GALAXY_PROXY_PREFIX | regex_replace("^/", "") | regex_replace("/$", "") }} {

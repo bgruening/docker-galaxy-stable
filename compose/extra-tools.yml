@@ -1,0 +1,7 @@
+tools:
+  - name: "data_manager_primer_scheme_bedfiles"
+    owner: "iuc"
+    tool_shed_url: "toolshed.g2.bx.psu.edu"
+    revisions:
+      - "157a5c9ea72a"
+    tool_panel_section_label: "COMBAT-SARS-COV-2::ARTIC-MINION"

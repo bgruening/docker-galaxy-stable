@@ -1,0 +1,12 @@
+Manifest-Version: 1.0
+Created-By: Apache Maven 3.6.3
+Built-By: root
+Build-Jdk: 11.0.9
+Plugin-Class: ca.corefacility.bioinformatics.irida.plugins.ArticIllumina
+ Plugin
+Plugin-Dependencies: 
+Plugin-Id: sarscov2-artic-illumina-pipeline-plugin
+Plugin-Provider: COMBAT-SARS-COV-2 (SANBI)
+Plugin-Requires: 1.1.0
+Plugin-Version: 0.1.9
+
