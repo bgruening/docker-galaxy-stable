@@ -3,7 +3,7 @@ FROM buildpack-deps:20.04  as build_singularity
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
 # Install Go (only needed for building singularity)
-ENV GO_VERSION=1.13
+ENV GO_VERSION=1.16
 RUN apt update && apt install --no-install-recommends cryptsetup-bin uuid-dev -y \
     && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
     && tar -C /usr/local -xzvf go${GO_VERSION}.linux-amd64.tar.gz \
