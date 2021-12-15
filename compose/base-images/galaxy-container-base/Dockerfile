@@ -11,9 +11,9 @@ RUN apt update && apt install --no-install-recommends cryptsetup-bin uuid-dev -y
     && /usr/bin/common_cleanup.sh
 
 ENV PATH=/usr/local/go/bin:${PATH}
-ENV SINGULARITY_VERSION=3.5.3
+ENV SINGULARITY_VERSION=3.9.2
 RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-${SINGULARITY_VERSION}.tar.gz \
-    && tar -xzf singularity-${SINGULARITY_VERSION}.tar.gz \
+    && tar -xzf singularity-ce-${SINGULARITY_VERSION}.tar.gz \
     && cd singularity \
     && ./mconfig \
     && make -C builddir \
