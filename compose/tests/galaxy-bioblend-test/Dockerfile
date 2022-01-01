@@ -1,6 +1,6 @@
 FROM alpine:3.11 as build
 
-ENV BIOBLEND_VERSION=0.13.0
+ENV BIOBLEND_VERSION=0.16.0
 
 ADD "https://github.com/galaxyproject/bioblend/archive/v$BIOBLEND_VERSION.zip" /src/bioblend.zip
 RUN apk update && apk add curl python3-dev unzip \
