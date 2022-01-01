@@ -1,6 +1,6 @@
 FROM selenium/standalone-chrome:3.141.59
 
-ARG GALAXY_RELEASE=release_20.09
+ARG GALAXY_RELEASE=release_21.09
 ARG GALAXY_REPO=https://github.com/galaxyproject/galaxy
 
 ENV GALAXY_ROOT=/galaxy
