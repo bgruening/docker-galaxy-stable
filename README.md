@@ -1045,3 +1045,15 @@ rm -rf tmp
 ```
 
 This downloads images and puts them in the directory specified - e.g. if this script is saved as `fetch_images.sh` it can be run as `fetch_images.sh dest` and it will put the images in a `dest` directory (this needs to exist before the script is run).
+
+#### Ensure that conda is not used
+
+Put this:
+
+```
+<dependency_resolvers>
+</dependency_resolvers>
+```
+
+in `galaxy-configurator/templates/galaxy/dependency_resolvers_conf.xml` to ensure that conda is not used for dependency
+resolution.
