@@ -104,7 +104,7 @@ if __name__ == '__main__':
     for url in workflow_urls:
         fetch_and_store_workflow(url, http, args.workflow_dir, known_tools, tools)
 
-    header = {'install_tool_dependencies': True, 'install_repository_dependencies': True, 'install_resolver_dependencies': True}
+    header = {'install_tool_dependencies': True, 'install_repository_dependencies': True, 'install_resolver_dependencies': False}
 
     tool_config = header
     tool_list = []
