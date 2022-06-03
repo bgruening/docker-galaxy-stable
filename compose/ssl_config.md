@@ -17,3 +17,5 @@ This puts the SSL key and cert in `export/nginx` which gets copied to `/config` 
 Create dhparams.pem: `openssl dhparam -out export/nginx/dhparams.pem 4096`
 
 Add 'docker-compose.irida\_ssl.yml` to the docker-compose command line
+
+TODO: configure SSL for Galaxy
