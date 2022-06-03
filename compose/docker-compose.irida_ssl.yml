@@ -4,3 +4,7 @@ services:
   galaxy-configurator:
     environment:
       - IRIDA_SSL_ENABLED=true
+  nginx:
+    ports:
+      - 443:443
+
