@@ -70,7 +70,7 @@ In short, with 19.05:
 
 
 # Usage <a name="Usage" /> [[toc]](#toc)
-This chapter explains how to launch the container manually. An [ansible](https://www.ansible.com/) playbook that launches the container automatically is available [here](https://github.com/LUMC/galaxy-launcher).
+This chapter explains how to launch the container manually.
 
 At first you need to install docker. Please follow the [very good instructions](https://docs.docker.com/installation/) from the Docker project.
 
