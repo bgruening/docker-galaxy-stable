@@ -3,7 +3,7 @@ FROM buildpack-deps:20.04  as build_singularity
 COPY ./files/common_cleanup.sh /usr/bin/common_cleanup.sh
 
 # Install Go (only needed for building singularity)
-ENV GO_VERSION=1.13
+ENV GO_VERSION=1.16
 RUN apt update && apt install --no-install-recommends cryptsetup-bin uuid-dev -y \
     && wget https://dl.google.com/go/go${GO_VERSION}.linux-amd64.tar.gz \
     && tar -C /usr/local -xzvf go${GO_VERSION}.linux-amd64.tar.gz \
@@ -11,9 +11,10 @@ RUN apt update && apt install --no-install-recommends cryptsetup-bin uuid-dev -y
     && /usr/bin/common_cleanup.sh
 
 ENV PATH=/usr/local/go/bin:${PATH}
-ENV SINGULARITY_VERSION=3.5.3
-RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-${SINGULARITY_VERSION}.tar.gz \
-    && tar -xzf singularity-${SINGULARITY_VERSION}.tar.gz \
+ENV SINGULARITY_VERSION=3.9.2
+RUN wget https://github.com/sylabs/singularity/releases/download/v${SINGULARITY_VERSION}/singularity-ce-${SINGULARITY_VERSION}.tar.gz \
+    && tar -xzf singularity-ce-${SINGULARITY_VERSION}.tar.gz \
+    && mv singularity-ce-${SINGULARITY_VERSION} singularity \
     && cd singularity \
     && ./mconfig \
     && make -C builddir \
