@@ -32,7 +32,7 @@ RUN set -ex; \
 	gosu nobody true;
 
 ENV	IRIDA_DOWNLOAD_URL="https://github.com/phac-nml/irida/releases/download/" \
-	IRIDA_VERSION="22.05.1" \
+	IRIDA_VERSION="22.05.5" \
 	IRIDA_DATA_DIR=/data/irida \
 	JAVA_OPTS="-Dspring.profiles.active=prod -Dirida.db.profile=prod" \
 	GALAXY_ADMIN_USER="admin@galaxy.org"
