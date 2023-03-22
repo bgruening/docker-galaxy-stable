@@ -16,7 +16,7 @@ MAINTAINER Björn A. Grüning, bjoern.gruening@gmail.com
 ARG GALAXY_RELEASE
 ARG GALAXY_REPO
 
-ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_20.09} \
+ENV GALAXY_RELEASE=${GALAXY_RELEASE:-release_22.05} \
     GALAXY_REPO=${GALAXY_REPO:-https://github.com/galaxyproject/galaxy} \
     GALAXY_ROOT=/galaxy-central \
     GALAXY_CONFIG_DIR=/etc/galaxy \
@@ -139,11 +139,12 @@ RUN curl -s -L https://repo.anaconda.com/miniconda/Miniconda3-4.7.10-Linux-x86_6
 
 
 RUN cp $GALAXY_HOME/.bashrc ~/
-RUN mkdir $GALAXY_ROOT \
-    && curl -L -s $GALAXY_REPO/archive/$GALAXY_RELEASE.tar.gz | tar xzf - --strip-components=1 -C $GALAXY_ROOT \
+RUN curl -L -s $GALAXY_REPO/tarball/$GALAXY_RELEASE | tar xzf - -C / \
+    && ln -s /galaxyproject-galaxy-* $GALAXY_ROOT \
     && PATH=$GALAXY_CONDA_PREFIX/bin/:$PATH virtualenv $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_VIRTUAL_ENV \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_ROOT \
+    && chown -R $GALAXY_USER:$GALAXY_USER /galaxyproject-galaxy-* \
     # Setup Galaxy configuration files.
     && mkdir -p $GALAXY_CONFIG_DIR $GALAXY_CONFIG_DIR/web \
     && chown -R $GALAXY_USER:$GALAXY_USER $GALAXY_CONFIG_DIR \
@@ -186,7 +187,7 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && ln -s /tool_deps/ $EXPORT_DIR/tool_deps \
     # Configure Galaxy to use the Tool Shed
     && chown $GALAXY_USER:$GALAXY_USER $EXPORT_DIR/tool_deps \
-    && apt update -qq && apt install --no-install-recommends -y ansible \
+    && apt update -qq && apt install --no-install-recommends -y ansible g++ make \
     && ansible-playbook /ansible/provision.yml \
     --extra-vars galaxy_venv_dir=$GALAXY_VIRTUAL_ENV \
     --extra-vars galaxy_log_dir=$GALAXY_LOGS_DIR \
@@ -222,7 +223,7 @@ RUN mkdir -p /shed_tools $EXPORT_DIR/ftp/ \
     && python /usr/local/bin/setup_postgresql.py --dbuser galaxy --dbpassword galaxy --db-name galaxy --dbpath $PG_DATA_DIR_DEFAULT --dbversion $PG_VERSION \
     && service postgresql start \
     && service postgresql stop \
-    && apt-get autoremove -y && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
+    && apt-get autoremove -y make g++ gcc && apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && rm -rf ~/.cache/ \
     # cleanup dance
     && find $GALAXY_ROOT/ -name '*.pyc' -delete | true \
     && find /usr/lib/ -name '*.pyc' -delete | true \

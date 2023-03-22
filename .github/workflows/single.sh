@@ -107,7 +107,7 @@ docker_exec bash -c "cvmfs_config chksetup"
 docker_exec bash -c "ls /cvmfs/data.galaxyproject.org/byhand"
 
 # Test SFTP Server
-sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" localhost <<< $'put time.txt'
+sshpass -p $GALAXY_USER_PASSWD sftp -v -P 8022 -o User=$GALAXY_USER -o "StrictHostKeyChecking no" -O "HostKeyAlgorithms=+ssh-rsa" localhost <<< $'put time.txt'
 
 # Run a ton of BioBlend test against our servers.
 cd "$WORKING_DIR/test/bioblend/" && . ./test.sh && cd "$WORKING_DIR/"
